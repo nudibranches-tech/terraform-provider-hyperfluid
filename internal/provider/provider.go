@@ -81,7 +81,7 @@ func (p *HyperfluidProvider) Configure(ctx context.Context, req provider.Configu
 		return
 	}
 
-	api, orgID, err := client.NewFromServiceAccount(ctx, endpoint, credsFile)
+	api, orgID, err := client.NewFromServiceAccount(endpoint, credsFile)
 	if err != nil {
 		resp.Diagnostics.AddError("Authentication failed", err.Error())
 		return

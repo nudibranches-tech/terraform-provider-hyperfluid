@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
+	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
 // bucket_resource.go is the REFERENCE resource — M1 clones this file per
@@ -109,7 +110,7 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	harbor := plan.Harbor.ValueString()
-	if _, err := r.p.API.CreateBucket(ctx, harbor, client.CreateBucketBody{Name: plan.Name.ValueString()}); err != nil {
+	if err := r.p.API.CreateBucket(ctx, harbor, plan.Name.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Failed to create bucket", err.Error())
 		return
 	}
@@ -122,7 +123,7 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 	}
 
-	b, err := waitForReady(ctx, bucketWaitTimeout, func() (*client.Bucket, bool, error) {
+	b, err := waitForReady(ctx, bucketWaitTimeout, func() (*console.HFBucketDetail, bool, error) {
 		b, err := r.p.API.GetBucket(ctx, harbor, plan.Name.ValueString())
 		if err != nil {
 			return nil, false, err
@@ -217,35 +218,30 @@ func (r *bucketResource) ImportState(ctx context.Context, req resource.ImportSta
 
 // patch sends only the in-place-updatable fields.
 func (r *bucketResource) patch(ctx context.Context, m bucketModel) error {
-	var body client.PatchBucketBody
+	var body console.PatchHFBucketRequest
 	if !m.QuotaGB.IsNull() && !m.QuotaGB.IsUnknown() {
-		v := m.QuotaGB.ValueInt64()
-		body.QuotaGB = &v
+		v := int32(m.QuotaGB.ValueInt64())
+		body.QuotaGb = &v
 	}
 	if !m.FreezeWrites.IsNull() && !m.FreezeWrites.IsUnknown() {
 		v := m.FreezeWrites.ValueBool()
 		body.FreezeWrites = &v
 	}
-	_, err := r.p.API.PatchBucket(ctx, m.Harbor.ValueString(), m.Name.ValueString(), body)
-	return err
+	return r.p.API.PatchBucket(ctx, m.Harbor.ValueString(), m.Name.ValueString(), body)
 }
 
-func (r *bucketResource) toModel(harbor string, b *client.Bucket) bucketModel {
+func (r *bucketResource) toModel(harbor string, b *console.HFBucketDetail) bucketModel {
 	m := bucketModel{
-		ID:     types.StringValue(harbor + "/" + b.Name),
-		Harbor: types.StringValue(harbor),
-		Name:   types.StringValue(b.Name),
-		Ready:  types.BoolValue(b.Ready),
+		ID:           types.StringValue(harbor + "/" + b.Name),
+		Harbor:       types.StringValue(harbor),
+		Name:         types.StringValue(b.Name),
+		FreezeWrites: types.BoolValue(b.FreezeWrites),
+		Ready:        types.BoolValue(b.Ready),
 	}
-	if b.QuotaGB != nil {
-		m.QuotaGB = types.Int64Value(*b.QuotaGB)
+	if b.QuotaGb != nil {
+		m.QuotaGB = types.Int64Value(int64(*b.QuotaGb))
 	} else {
 		m.QuotaGB = types.Int64Null()
-	}
-	if b.FreezeWrites != nil {
-		m.FreezeWrites = types.BoolValue(*b.FreezeWrites)
-	} else {
-		m.FreezeWrites = types.BoolNull()
 	}
 	return m
 }

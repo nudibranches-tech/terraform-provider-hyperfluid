@@ -1,14 +1,11 @@
 // Copyright IBM Corp. 2021, 2025
 // SPDX-License-Identifier: MPL-2.0
 
-// Package client is the HTTP client for the Hyperfluid Console external API.
-//
-// NOTE (M0): this is a small hand-written client covering only what the
-// `bucket` resource and `harbor` data source need. At M0.5 the request/response
-// types and method bodies are REPLACED with code generated from
-// console-external.openapi.json via oapi-codegen (tools/fetch-spec.sh +
-// `make generate`). The exported Client surface is intentionally stable so the
-// resource layer barely changes when that swap happens.
+// Package client is a thin, stable wrapper over the generated Console API
+// client (internal/console, produced by oapi-codegen from
+// console-external.openapi.json via `make generate`). It owns auth and exposes
+// a small resource-facing surface so the generated code can be regenerated
+// without churning the resource layer.
 package client
 
 import (
@@ -19,6 +16,8 @@ import (
 	"strings"
 
 	"golang.org/x/oauth2/clientcredentials"
+
+	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
 // serviceAccount mirrors the JSON the console produces, using the same field
@@ -52,7 +51,13 @@ type serviceAccount struct {
 //
 // The client_secret never leaves this process: it is exchanged for short-lived
 // bearer tokens and is never written to Terraform state.
-func NewFromServiceAccount(ctx context.Context, endpoint, credsPath string) (*Client, string, error) {
+//
+// The token source is anchored to context.Background(), NOT a request context:
+// the provider's Configure context is canceled once Configure returns, so a
+// request-scoped token source would fail every later API call with
+// "context canceled". Per-call cancellation still works — each API call passes
+// its own context to the generated client methods.
+func NewFromServiceAccount(endpoint, credsPath string) (*Client, string, error) {
 	raw, err := os.ReadFile(credsPath)
 	if err != nil {
 		return nil, "", fmt.Errorf("read credentials file %q: %w", credsPath, err)
@@ -79,9 +84,14 @@ func NewFromServiceAccount(ctx context.Context, endpoint, credsPath string) (*Cl
 		return nil, "", fmt.Errorf("no API endpoint: set the provider `endpoint`, HYPERFLUID_ENDPOINT, or `api_url` in the credentials file")
 	}
 
-	c := &Client{
-		http:    cfg.Client(ctx), // token source refreshes automatically
-		baseURL: strings.TrimRight(base, "/"),
+	// cfg.Client returns an *http.Client whose transport injects (and refreshes)
+	// the bearer token automatically.
+	api, err := console.NewClientWithResponses(
+		strings.TrimRight(base, "/"),
+		console.WithHTTPClient(cfg.Client(context.Background())),
+	)
+	if err != nil {
+		return nil, "", fmt.Errorf("build console client: %w", err)
 	}
 
 	// org_id wins over the human-readable org slug when both are present.
@@ -89,5 +99,5 @@ func NewFromServiceAccount(ctx context.Context, endpoint, credsPath string) (*Cl
 	if orgID == "" {
 		orgID = sa.Org
 	}
-	return c, orgID, nil
+	return &Client{api: api}, orgID, nil
 }

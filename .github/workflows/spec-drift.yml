@@ -1,0 +1,30 @@
+# Fails if the committed generated client is out of sync with the vendored
+# OpenAPI spec (hand-edits to console.gen.go, or a stale checkout). Refreshing
+# the spec itself from the monorepo is a separate step: `make fetch-spec`.
+name: spec-drift
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  generated-client-in-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Regenerate client from vendored spec
+        working-directory: tools
+        run: go tool oapi-codegen -config oapi-codegen.yaml ../apis/console-external.openapi.json
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code internal/console/console.gen.go; then
+            echo "::error::internal/console/console.gen.go is out of sync with apis/console-external.openapi.json. Run 'make generate' and commit."
+            exit 1
+          fi

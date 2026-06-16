@@ -10,6 +10,10 @@ import (
 	_ "github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs"
 )
 
+// Generate the typed Console API client from the vendored OpenAPI spec.
+// oapi-codegen is pinned via a `tool` directive in tools/go.mod.
+//go:generate go tool oapi-codegen -config oapi-codegen.yaml ../apis/console-external.openapi.json
+
 // Generate copyright headers
 //go:generate go run github.com/hashicorp/copywrite headers -d .. --config ../.copywrite.hcl
 
@@ -19,4 +23,4 @@ import (
 //go:generate terraform fmt -recursive ../examples/
 
 // Generate documentation.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-dir .. -provider-name scaffolding
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-dir .. -provider-name hyperfluid

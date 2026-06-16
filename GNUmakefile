@@ -9,7 +9,10 @@ install: build
 lint:
 	golangci-lint run
 
-generate:
+fetch-spec:
+	./tools/fetch-spec.sh
+
+generate: fetch-spec
 	cd tools; go generate ./...
 
 fmt:
@@ -21,4 +24,4 @@ test:
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 120m ./...
 
-.PHONY: fmt lint test testacc build install generate
+.PHONY: fmt lint test testacc build install generate fetch-spec

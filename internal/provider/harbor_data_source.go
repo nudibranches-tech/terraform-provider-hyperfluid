@@ -81,7 +81,7 @@ func (d *harborDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	want := cfg.Name.ValueString()
 	for _, h := range harbors {
 		if h.Slug == want || h.Name == want {
-			cfg.ID = types.StringValue(h.ID)
+			cfg.ID = types.StringValue(h.Id.String())
 			resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
 			return
 		}
