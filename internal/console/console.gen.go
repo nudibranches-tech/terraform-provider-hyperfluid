@@ -215,6 +215,7 @@ func (e Configuration) Valid() bool {
 // Defines values for ConsoleConfigFeatureFlag.
 const (
 	AuthzOpaEnabled ConsoleConfigFeatureFlag = "authz_opa_enabled"
+	DagsterEnabled  ConsoleConfigFeatureFlag = "dagster_enabled"
 	ShowDemoBanner  ConsoleConfigFeatureFlag = "show_demo_banner"
 	VaubanPreview   ConsoleConfigFeatureFlag = "vauban_preview"
 )
@@ -223,6 +224,8 @@ const (
 func (e ConsoleConfigFeatureFlag) Valid() bool {
 	switch e {
 	case AuthzOpaEnabled:
+		return true
+	case DagsterEnabled:
 		return true
 	case ShowDemoBanner:
 		return true
@@ -1146,7 +1149,6 @@ const (
 	NodeTierMicro  NodeTier = "micro"
 	NodeTierNano   NodeTier = "nano"
 	NodeTierSmall  NodeTier = "small"
-	NodeTierXlarge NodeTier = "xlarge"
 )
 
 // Valid indicates whether the value is a known member of the NodeTier enum.
@@ -1161,8 +1163,6 @@ func (e NodeTier) Valid() bool {
 	case NodeTierNano:
 		return true
 	case NodeTierSmall:
-		return true
-	case NodeTierXlarge:
 		return true
 	default:
 		return false
@@ -3109,6 +3109,40 @@ type CreateCopyPipelineRequest struct {
 	Source CopySourceConfig `json:"source"`
 }
 
+// CreateDagsterCrdRequestBody defines model for CreateDagsterCrdRequestBody.
+type CreateDagsterCrdRequestBody struct {
+	// CodeLocationImage Image of the user-code (code location) gRPC server. When omitted, the
+	// operator-default image is used.
+	CodeLocationImage *string `json:"code_location_image,omitempty"`
+
+	// ComputeLogBucket Name of an existing object-storage bucket for Dagster compute logs.
+	ComputeLogBucket *string `json:"compute_log_bucket,omitempty"`
+
+	// Description Optional description (DB-only, not stored in the CRD).
+	Description *string `json:"description,omitempty"`
+
+	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
+	Name string `json:"name"`
+
+	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
+	// Memory request and limit are always equal.
+	NodeTier *NodeTier `json:"node_tier,omitempty"`
+
+	// PostgresRef Name of an existing `ManagedPostgreSQL` (in the Harbor namespace) to host
+	// Dagster's run/event/schedule storage. When omitted, the operator
+	// provisions a dedicated `ManagedPostgreSQL`.
+	PostgresRef *string `json:"postgres_ref,omitempty"`
+
+	// SleepMode Sleep mode: scale webserver + daemon to 0 (schedules stop firing).
+	SleepMode *bool `json:"sleep_mode,omitempty"`
+
+	// Tags User-defined tags (DB-only, not stored in the CRD).
+	Tags *[]string `json:"tags,omitempty"`
+
+	// WebserverReplicas Number of Dagster webserver replicas (0-10).
+	WebserverReplicas *int32 `json:"webserver_replicas,omitempty"`
+}
+
 // CreateDataDockRequestBody defines model for CreateDataDockRequestBody.
 type CreateDataDockRequestBody struct {
 	ConnectionKind DataDockKindRequest `json:"connection_kind"`
@@ -3252,6 +3286,35 @@ type CreateFileSorterRequest struct {
 	Source FileSorterSourceConfig `json:"source"`
 }
 
+// CreateForgejoRunnerRequest Request body for creating a `ForgejoRunner` CR.
+//
+// The forge coordinates (namespace, container-app label) are resolved
+// automatically from `harbor_id` via `resolve_forge`; the caller never
+// supplies them directly.
+type CreateForgejoRunnerRequest struct {
+	// ExtraEgressFqdns Extra FQDNs the runner's `CiliumNetworkPolicy` allows egress to,
+	// beyond the mandatory set (in-cluster forge + console token endpoint).
+	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
+
+	// Labels Forgejo runner labels assigned during registration
+	// (e.g. `["ubuntu-latest", "docker"]`).  Determines which `runs-on:`
+	// tags the runner accepts.
+	Labels *[]string `json:"labels,omitempty"`
+
+	// Name CR name — must be a valid DNS-1123 label:
+	// lowercase alphanumeric characters and hyphens only, 1–63 chars,
+	// cannot start or end with a hyphen.
+	Name string `json:"name"`
+
+	// Replicas Number of runner pod replicas. Defaults to 1.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// RunnerImage Runner container image. Defaults to the pinned Forgejo runner release
+	// (`DEFAULT_RUNNER_IMAGE`). Override to pin a different tag or use a
+	// custom image compatible with the Forgejo runner binary CLI.
+	RunnerImage *string `json:"runner_image,omitempty"`
+}
+
 // CreateGDrivePipelineRequest defines model for CreateGDrivePipelineRequest.
 type CreateGDrivePipelineRequest struct {
 	// DestinationDataContainerId Destination S3 DataDock to land the files into
@@ -3294,8 +3357,8 @@ type CreateHarborCrdRequestBody struct {
 	Slug string `json:"slug"`
 }
 
-// CreateHfCacheCrdRequestBody defines model for CreateHfCacheCrdRequestBody.
-type CreateHfCacheCrdRequestBody struct {
+// CreateHfKeyValueCacheCrdRequestBody defines model for CreateHfKeyValueCacheCrdRequestBody.
+type CreateHfKeyValueCacheCrdRequestBody struct {
 	// Description Optional description (DB-only).
 	Description *string `json:"description,omitempty"`
 
@@ -3402,8 +3465,8 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
 	Name string `json:"name"`
 
-	// NodeTier Predefined resource tiers for managed PostgreSQL instances.
-	// Memory limits are always equal to memory requests.
+	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
+	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
 	// StorageCapacity Storage capacity in GB (1-30)
@@ -4019,6 +4082,43 @@ type CustomDomainResponse struct {
 // CustomDomainTlsModeInput defines model for CustomDomainTlsModeInput.
 type CustomDomainTlsModeInput string
 
+// DagsterCrdSpecResponse The live `Dagster` CRD spec (source of truth in K8s), including fields the DB
+// does not cache (sleep_mode).
+type DagsterCrdSpecResponse struct {
+	CodeLocationImage *string `json:"code_location_image,omitempty"`
+	ComputeLogBucket  *string `json:"compute_log_bucket,omitempty"`
+	CpuLimit          *string `json:"cpu_limit,omitempty"`
+	CpuRequest        *string `json:"cpu_request,omitempty"`
+	MemoryLimit       *string `json:"memory_limit,omitempty"`
+	MemoryRequest     *string `json:"memory_request,omitempty"`
+	PostgresRef       *string `json:"postgres_ref,omitempty"`
+	SleepMode         bool    `json:"sleep_mode"`
+	WebserverReplicas int32   `json:"webserver_replicas"`
+}
+
+// DagsterResponse defines model for DagsterResponse.
+type DagsterResponse struct {
+	CodeLocationImage     *string            `json:"code_location_image,omitempty"`
+	ComputeLogBucket      *string            `json:"compute_log_bucket,omitempty"`
+	CpuLimit              *string            `json:"cpu_limit,omitempty"`
+	CpuRequest            *string            `json:"cpu_request,omitempty"`
+	CreatedAt             time.Time          `json:"created_at"`
+	Description           string             `json:"description"`
+	HarborId              openapi_types.UUID `json:"harbor_id"`
+	Id                    openapi_types.UUID `json:"id"`
+	ManagedPostgresqlName *string            `json:"managed_postgresql_name,omitempty"`
+	MemoryLimit           *string            `json:"memory_limit,omitempty"`
+	MemoryRequest         *string            `json:"memory_request,omitempty"`
+	Name                  string             `json:"name"`
+	OrganizationId        openapi_types.UUID `json:"organization_id"`
+	Slug                  string             `json:"slug"`
+	Status                string             `json:"status"`
+	Tags                  []string           `json:"tags"`
+	UpdatedAt             time.Time          `json:"updated_at"`
+	WebserverReplicas     int32              `json:"webserver_replicas"`
+	WebserverUrl          *string            `json:"webserver_url,omitempty"`
+}
+
 // DataContainerOverview A summary of a data container
 type DataContainerOverview struct {
 	DataDockId openapi_types.UUID `json:"data_dock_id"`
@@ -4423,6 +4523,52 @@ type EffectiveSecuritySettingsResponse struct {
 	ZeroTrustMode                 bool     `json:"zero_trust_mode"`
 }
 
+// EnableSqlEngineRequest Request body for `POST /api/v1/harbors/{harbor_id}/sql-engine/enable`.
+//
+// Creates a TrinoInternal DataDock CRD and (optionally) a demo Iceberg
+// catalog + backing HFBucket in one declarative shot. Returns immediately;
+// the operator reconciles all three CRDs in dependency order without any
+// synchronous wait from the console.
+type EnableSqlEngineRequest struct {
+	// BucketName Name of the HFBucket to create/reuse for the Iceberg warehouse
+	// (only used when `seed_demo_catalog = true`). Defaults to
+	// `"demo-iceberg"`.
+	BucketName *string `json:"bucket_name,omitempty"`
+
+	// CatalogName Name of the Iceberg catalog to create (only used when
+	// `seed_demo_catalog = true`). Defaults to `"demo_iceberg"`.
+	CatalogName *string `json:"catalog_name,omitempty"`
+
+	// Name Display name for the Trino cluster.
+	Name string `json:"name"`
+
+	// SeedDemoCatalog When true, also creates a demo HFBucket and an Iceberg TrinoCatalog
+	// with medallion scaffold enabled. Both are idempotent (409 = already
+	// exists is treated as success). Defaults to false.
+	SeedDemoCatalog *bool `json:"seed_demo_catalog,omitempty"`
+
+	// Slug K8s-safe slug (lowercase alphanumeric + hyphens). Used as the DataDock
+	// CRD name and as the `data_dock_ref` in the TrinoCatalog.
+	Slug string `json:"slug"`
+
+	// WorkerReplicas Number of Trino worker replicas. Clamped to ≥1. Defaults to 2.
+	WorkerReplicas *int32 `json:"worker_replicas,omitempty"`
+}
+
+// EnableSqlEngineResponse Response for `POST /api/v1/harbors/{harbor_id}/sql-engine/enable`.
+//
+// Returned immediately after the CRDs are applied; the operator reconciles
+// asynchronously. `catalog_name` is `null` when `seed_demo_catalog` was
+// `false`.
+type EnableSqlEngineResponse struct {
+	// CatalogName Name of the Iceberg catalog CRD that was created, or `null` when
+	// `seed_demo_catalog` was `false`.
+	CatalogName *string `json:"catalog_name,omitempty"`
+
+	// DataDockSlug Slug of the DataDock CRD that was created.
+	DataDockSlug string `json:"data_dock_slug"`
+}
+
 // Engine defines model for Engine.
 type Engine string
 
@@ -4767,6 +4913,49 @@ type ForgejoRepoEntry struct {
 	FullName string `json:"full_name"`
 }
 
+// ForgejoRunnerResponse Response DTO for a `ForgejoRunner` CR, including live status fields for
+// polling in the UI.
+type ForgejoRunnerResponse struct {
+	// HarborId Owning harbor UUID (from `spec.harbor_id`).
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Labels Runner registration labels (from `spec.labels`).
+	Labels *[]string `json:"labels,omitempty"`
+
+	// Name CR `metadata.name`.
+	Name string `json:"name"`
+
+	// OrganizationId Owning organization UUID (from `spec.organization_id`).
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// Replicas Configured replica count (from `spec.replicas`).
+	Replicas int32 `json:"replicas"`
+
+	// RunnerImage Runner container image (from `spec.runner_image`).
+	RunnerImage *string `json:"runner_image,omitempty"`
+
+	// Status Lifecycle status of the Forgejo runner, derived from `ForgejoRunnerStatus`.
+	Status ForgejoRunnerStatusResponse `json:"status"`
+}
+
+// ForgejoRunnerStatusResponse Lifecycle status of the Forgejo runner, derived from `ForgejoRunnerStatus`.
+type ForgejoRunnerStatusResponse struct {
+	// Message Human-readable status message (last error or transition reason).
+	Message *string `json:"message,omitempty"`
+
+	// ObservedPod Name of the Pod currently managed by the operator.  `null` before the
+	// Pod is created or after it is deleted.
+	ObservedPod *string `json:"observed_pod,omitempty"`
+
+	// Phase Current lifecycle phase string
+	// (`"Pending"`, `"Provisioning"`, `"Registering"`, `"Running"`, `"Failed"`).
+	// `null` before the operator acts on the CR.
+	Phase *string `json:"phase,omitempty"`
+
+	// Registered Whether the runner has successfully registered with its Forgejo instance.
+	Registered bool `json:"registered"`
+}
+
 // GDriveExtractionConfig Optional extraction step appended after the Copy step in a GDrive pipeline
 type GDriveExtractionConfig struct {
 	// ExtractionType Extraction step type for the GDrive connector
@@ -4816,9 +5005,15 @@ type GcStatusResponse struct {
 
 // GetConsoleConfigResponse defines model for GetConsoleConfigResponse.
 type GetConsoleConfigResponse struct {
-	AppVersion         string `json:"app_version"`
-	BifrostApiUrl      string `json:"bifrost_api_url"`
-	BifrostSqlEndpoint string `json:"bifrost_sql_endpoint"`
+	AppVersion string `json:"app_version"`
+
+	// AppsBaseDomain Base domain under which ContainerApp workloads are served
+	// (e.g. `"apps.192.168.121.100.nip.io"` in dev). Used by the frontend
+	// to derive canonical ContainerApp URLs such as the Forgejo public URL.
+	// `None` when the platform has not configured a CaaS apps domain.
+	AppsBaseDomain     *string `json:"apps_base_domain,omitempty"`
+	BifrostApiUrl      string  `json:"bifrost_api_url"`
+	BifrostSqlEndpoint string  `json:"bifrost_sql_endpoint"`
 
 	// CephZones Available Ceph zones for DataDock creation.
 	CephZones []CephZoneResponse `json:"ceph_zones"`
@@ -4989,8 +5184,17 @@ type HarborStorageBindingView struct {
 	TenantEnsured bool    `json:"tenant_ensured"`
 }
 
-// HfCacheCrdSpecResponse defines model for HfCacheCrdSpecResponse.
-type HfCacheCrdSpecResponse struct {
+// HfCollumn defines model for HfCollumn.
+type HfCollumn struct {
+	DataType HfDataType `json:"data_type"`
+	Name     string     `json:"name"`
+}
+
+// HfDataType defines model for HfDataType.
+type HfDataType string
+
+// HfKeyValueCacheCrdSpecResponse defines model for HfKeyValueCacheCrdSpecResponse.
+type HfKeyValueCacheCrdSpecResponse struct {
 	Image           string  `json:"image"`
 	Maxmemory       *string `json:"maxmemory,omitempty"`
 	MaxmemoryPolicy *string `json:"maxmemory_policy,omitempty"`
@@ -5004,8 +5208,8 @@ type HfCacheCrdSpecResponse struct {
 	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
 }
 
-// HfCacheResponse defines model for HfCacheResponse.
-type HfCacheResponse struct {
+// HfKeyValueCacheResponse defines model for HfKeyValueCacheResponse.
+type HfKeyValueCacheResponse struct {
 	CreatedAt             time.Time          `json:"created_at"`
 	CredentialsSecretName *string            `json:"credentials_secret_name,omitempty"`
 	Description           *string            `json:"description,omitempty"`
@@ -5024,15 +5228,6 @@ type HfCacheResponse struct {
 	Tags                  []string           `json:"tags"`
 	UpdatedAt             time.Time          `json:"updated_at"`
 }
-
-// HfCollumn defines model for HfCollumn.
-type HfCollumn struct {
-	DataType HfDataType `json:"data_type"`
-	Name     string     `json:"name"`
-}
-
-// HfDataType defines model for HfDataType.
-type HfDataType string
 
 // HfTable defines model for HfTable.
 type HfTable struct {
@@ -5714,8 +5909,8 @@ type MultipartPartUrl struct {
 	UploadUrl  string `json:"upload_url"`
 }
 
-// NodeTier Predefined resource tiers for managed PostgreSQL instances.
-// Memory limits are always equal to memory requests.
+// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
+// Memory request and limit are always equal.
 type NodeTier string
 
 // NormalizedMessage A chat message in the stable shape the React panel renders. The BFF
@@ -6052,6 +6247,28 @@ type PatchContainerAppRequestBody struct {
 	Tags *[]string `json:"tags,omitempty"`
 }
 
+// PatchDagsterCrdRequestBody defines model for PatchDagsterCrdRequestBody.
+type PatchDagsterCrdRequestBody struct {
+	// CodeLocationImage Image of the user-code (code location) gRPC server.
+	CodeLocationImage *string `json:"code_location_image,omitempty"`
+
+	// Description Optional description (DB-only, not stored in the CRD).
+	Description *string `json:"description,omitempty"`
+
+	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
+	// Memory request and limit are always equal.
+	NodeTier *NodeTier `json:"node_tier,omitempty"`
+
+	// SleepMode Sleep mode: scale webserver + daemon to 0.
+	SleepMode *bool `json:"sleep_mode,omitempty"`
+
+	// Tags User-defined tags (DB-only, not stored in the CRD).
+	Tags *[]string `json:"tags,omitempty"`
+
+	// WebserverReplicas Number of Dagster webserver replicas (0-10).
+	WebserverReplicas *int32 `json:"webserver_replicas,omitempty"`
+}
+
 // PatchHFBucketRequest defines model for PatchHFBucketRequest.
 type PatchHFBucketRequest struct {
 	// FreezeWrites Toggle write freeze. Reads stay unaffected.
@@ -6068,8 +6285,8 @@ type PatchHarborStorageBindingRequest struct {
 	QuotaGb *int32 `json:"quota_gb,omitempty"`
 }
 
-// PatchHfCacheCrdRequestBody defines model for PatchHfCacheCrdRequestBody.
-type PatchHfCacheCrdRequestBody struct {
+// PatchHfKeyValueCacheCrdRequestBody defines model for PatchHfKeyValueCacheCrdRequestBody.
+type PatchHfKeyValueCacheCrdRequestBody struct {
 	// Description Optional description (DB-only, not in CRD).
 	Description *string `json:"description,omitempty"`
 
@@ -6101,8 +6318,8 @@ type PatchManagedPostgresqlCrdRequestBody struct {
 	// Description Optional description (DB-only, not stored in CRD)
 	Description *string `json:"description,omitempty"`
 
-	// NodeTier Predefined resource tiers for managed PostgreSQL instances.
-	// Memory limits are always equal to memory requests.
+	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
+	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
 	// StorageCapacity Storage capacity in GB (1-30)
@@ -7988,6 +8205,16 @@ type GetDataDockMetricsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
 }
 
+// GetDevWorkstationResourceMetricsParams defines parameters for GetDevWorkstationResourceMetrics.
+type GetDevWorkstationResourceMetricsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+}
+
+// GetHfKeyValueCacheMetricsParams defines parameters for GetHfKeyValueCacheMetrics.
+type GetHfKeyValueCacheMetricsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+}
+
 // GetKafkaMetricsParams defines parameters for GetKafkaMetrics.
 type GetKafkaMetricsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
@@ -8302,6 +8529,9 @@ type CompleteMultipartUploadJSONRequestBody = CompleteMultipartUploadRequest
 // PrepareArchiveImportJSONRequestBody defines body for PrepareArchiveImport for application/json ContentType.
 type PrepareArchiveImportJSONRequestBody = PrepareArchiveImportRequest
 
+// EnableSqlEngineJSONRequestBody defines body for EnableSqlEngine for application/json ContentType.
+type EnableSqlEngineJSONRequestBody = EnableSqlEngineRequest
+
 // AcceptInvitationJSONRequestBody defines body for AcceptInvitation for application/json ContentType.
 type AcceptInvitationJSONRequestBody = AcceptInvitationBody
 
@@ -8335,6 +8565,9 @@ type PatchContainerAppJSONRequestBody = PatchContainerAppRequestBody
 // PatchContainerAppCrdJSONRequestBody defines body for PatchContainerAppCrd for application/json ContentType.
 type PatchContainerAppCrdJSONRequestBody = PatchContainerAppCrdRequestBody
 
+// PatchDagsterCrdJSONRequestBody defines body for PatchDagsterCrd for application/json ContentType.
+type PatchDagsterCrdJSONRequestBody = PatchDagsterCrdRequestBody
+
 // CreateDomainVerificationJSONRequestBody defines body for CreateDomainVerification for application/json ContentType.
 type CreateDomainVerificationJSONRequestBody = CreateDomainVerificationRequestBody
 
@@ -8356,8 +8589,14 @@ type CreateContainerAppCrdJSONRequestBody = CreateContainerAppCrdRequestBody
 // TestImagePullJSONRequestBody defines body for TestImagePull for application/json ContentType.
 type TestImagePullJSONRequestBody = TestImagePullRequestBody
 
-// CreateHfCacheCrdJSONRequestBody defines body for CreateHfCacheCrd for application/json ContentType.
-type CreateHfCacheCrdJSONRequestBody = CreateHfCacheCrdRequestBody
+// CreateDagsterCrdJSONRequestBody defines body for CreateDagsterCrd for application/json ContentType.
+type CreateDagsterCrdJSONRequestBody = CreateDagsterCrdRequestBody
+
+// CreateForgejoRunnerJSONRequestBody defines body for CreateForgejoRunner for application/json ContentType.
+type CreateForgejoRunnerJSONRequestBody = CreateForgejoRunnerRequest
+
+// CreateHfKeyValueCacheCrdJSONRequestBody defines body for CreateHfKeyValueCacheCrd for application/json ContentType.
+type CreateHfKeyValueCacheCrdJSONRequestBody = CreateHfKeyValueCacheCrdRequestBody
 
 // CreateManagedPostgresqlCrdJSONRequestBody defines body for CreateManagedPostgresqlCrd for application/json ContentType.
 type CreateManagedPostgresqlCrdJSONRequestBody = CreateManagedPostgresqlCrdRequestBody
@@ -8377,8 +8616,8 @@ type CreateRegistryHarborRobotJSONRequestBody = CreateRegistryHarborRobotRequest
 // RotateRegistryHarborRobotJSONRequestBody defines body for RotateRegistryHarborRobot for application/json ContentType.
 type RotateRegistryHarborRobotJSONRequestBody = RotateRegistryHarborRobotRequestBody
 
-// PatchHfCacheCrdJSONRequestBody defines body for PatchHfCacheCrd for application/json ContentType.
-type PatchHfCacheCrdJSONRequestBody = PatchHfCacheCrdRequestBody
+// PatchHfKeyValueCacheCrdJSONRequestBody defines body for PatchHfKeyValueCacheCrd for application/json ContentType.
+type PatchHfKeyValueCacheCrdJSONRequestBody = PatchHfKeyValueCacheCrdRequestBody
 
 // CreateInvitationJSONRequestBody defines body for CreateInvitation for application/json ContentType.
 type CreateInvitationJSONRequestBody = CreateInvitationRequest
@@ -10662,6 +10901,11 @@ type ClientInterface interface {
 	// ListHarborDataDock request
 	ListHarborDataDock(ctx context.Context, harborId openapi_types.UUID, params *ListHarborDataDockParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// EnableSqlEngineWithBody request with any body
+	EnableSqlEngineWithBody(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EnableSqlEngine(ctx context.Context, harborId openapi_types.UUID, body EnableSqlEngineJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// AcceptInvitationWithBody request with any body
 	AcceptInvitationWithBody(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -10792,6 +11036,20 @@ type ClientInterface interface {
 	// DeleteOrganizationCrd request
 	DeleteOrganizationCrd(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetDagster request
+	GetDagster(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteDagsterCrd request
+	DeleteDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDagsterCrd request
+	GetDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchDagsterCrdWithBody request with any body
+	PatchDagsterCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListDomainVerifications request
 	ListDomainVerifications(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -10866,13 +11124,35 @@ type ClientInterface interface {
 
 	TestImagePull(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body TestImagePullJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListHfCaches request
-	ListHfCaches(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListDagsters request
+	ListDagsters(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateHfCacheCrdWithBody request with any body
-	CreateHfCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateDagsterCrdWithBody request with any body
+	CreateDagsterCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListForgejoRunners request
+	ListForgejoRunners(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateForgejoRunnerWithBody request with any body
+	CreateForgejoRunnerWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteForgejoRunner request
+	DeleteForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetForgejoRunner request
+	GetForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListHfKeyValueCaches request
+	ListHfKeyValueCaches(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateHfKeyValueCacheCrdWithBody request with any body
+	CreateHfKeyValueCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListManagedPostgresqls request
 	ListManagedPostgresqls(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10970,19 +11250,19 @@ type ClientInterface interface {
 	// CheckHarborNameAvailable request
 	CheckHarborNameAvailable(ctx context.Context, organizationId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetHfCache request
-	GetHfCache(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetHfKeyValueCache request
+	GetHfKeyValueCache(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteHfCacheCrd request
-	DeleteHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteHfKeyValueCacheCrd request
+	DeleteHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetHfCacheCrd request
-	GetHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetHfKeyValueCacheCrd request
+	GetHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchHfCacheCrdWithBody request with any body
-	PatchHfCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PatchHfKeyValueCacheCrdWithBody request with any body
+	PatchHfKeyValueCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PatchHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PatchHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvitations request
 	ListInvitations(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -11078,6 +11358,12 @@ type ClientInterface interface {
 
 	// GetDataDockMetrics request
 	GetDataDockMetrics(ctx context.Context, organizationId openapi_types.UUID, dataDockId openapi_types.UUID, params *GetDataDockMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDevWorkstationResourceMetrics request
+	GetDevWorkstationResourceMetrics(ctx context.Context, organizationId openapi_types.UUID, workstationId openapi_types.UUID, params *GetDevWorkstationResourceMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfKeyValueCacheMetrics request
+	GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetKafkaMetrics request
 	GetKafkaMetrics(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13213,6 +13499,30 @@ func (c *Client) ListHarborDataDock(ctx context.Context, harborId openapi_types.
 	return c.Client.Do(req)
 }
 
+func (c *Client) EnableSqlEngineWithBody(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnableSqlEngineRequestWithBody(c.Server, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnableSqlEngine(ctx context.Context, harborId openapi_types.UUID, body EnableSqlEngineJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnableSqlEngineRequest(c.Server, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) AcceptInvitationWithBody(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAcceptInvitationRequestWithBody(c.Server, token, contentType, body)
 	if err != nil {
@@ -13777,6 +14087,66 @@ func (c *Client) DeleteOrganizationCrd(ctx context.Context, organizationId opena
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetDagster(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDagsterRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDagsterCrdRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDagsterCrdRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchDagsterCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchDagsterCrdRequestWithBody(c.Server, organizationId, instanceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchDagsterCrdRequest(c.Server, organizationId, instanceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListDomainVerifications(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListDomainVerificationsRequest(c.Server, organizationId)
 	if err != nil {
@@ -14101,8 +14471,8 @@ func (c *Client) TestImagePull(ctx context.Context, organizationId openapi_types
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListHfCaches(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListHfCachesRequest(c.Server, organizationId, harborId)
+func (c *Client) ListDagsters(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDagstersRequest(c.Server, organizationId, harborId)
 	if err != nil {
 		return nil, err
 	}
@@ -14113,8 +14483,8 @@ func (c *Client) ListHfCaches(ctx context.Context, organizationId openapi_types.
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateHfCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateHfCacheCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+func (c *Client) CreateDagsterCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDagsterCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14125,8 +14495,104 @@ func (c *Client) CreateHfCacheCrdWithBody(ctx context.Context, organizationId op
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateHfCacheCrdRequest(c.Server, organizationId, harborId, body)
+func (c *Client) CreateDagsterCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDagsterCrdRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListForgejoRunners(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListForgejoRunnersRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateForgejoRunnerWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateForgejoRunnerRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateForgejoRunnerRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteForgejoRunnerRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetForgejoRunnerRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListHfKeyValueCaches(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListHfKeyValueCachesRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfKeyValueCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfKeyValueCacheCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfKeyValueCacheCrdRequest(c.Server, organizationId, harborId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14545,8 +15011,8 @@ func (c *Client) CheckHarborNameAvailable(ctx context.Context, organizationId op
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetHfCache(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetHfCacheRequest(c.Server, organizationId, cacheId)
+func (c *Client) GetHfKeyValueCache(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfKeyValueCacheRequest(c.Server, organizationId, cacheId)
 	if err != nil {
 		return nil, err
 	}
@@ -14557,8 +15023,8 @@ func (c *Client) GetHfCache(ctx context.Context, organizationId openapi_types.UU
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteHfCacheCrdRequest(c.Server, organizationId, cacheId)
+func (c *Client) DeleteHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteHfKeyValueCacheCrdRequest(c.Server, organizationId, cacheId)
 	if err != nil {
 		return nil, err
 	}
@@ -14569,8 +15035,8 @@ func (c *Client) DeleteHfCacheCrd(ctx context.Context, organizationId openapi_ty
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetHfCacheCrdRequest(c.Server, organizationId, cacheId)
+func (c *Client) GetHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfKeyValueCacheCrdRequest(c.Server, organizationId, cacheId)
 	if err != nil {
 		return nil, err
 	}
@@ -14581,8 +15047,8 @@ func (c *Client) GetHfCacheCrd(ctx context.Context, organizationId openapi_types
 	return c.Client.Do(req)
 }
 
-func (c *Client) PatchHfCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchHfCacheCrdRequestWithBody(c.Server, organizationId, cacheId, contentType, body)
+func (c *Client) PatchHfKeyValueCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfKeyValueCacheCrdRequestWithBody(c.Server, organizationId, cacheId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14593,8 +15059,8 @@ func (c *Client) PatchHfCacheCrdWithBody(ctx context.Context, organizationId ope
 	return c.Client.Do(req)
 }
 
-func (c *Client) PatchHfCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchHfCacheCrdRequest(c.Server, organizationId, cacheId, body)
+func (c *Client) PatchHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfKeyValueCacheCrdRequest(c.Server, organizationId, cacheId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -15003,6 +15469,30 @@ func (c *Client) GetContainerAppMetrics(ctx context.Context, organizationId open
 
 func (c *Client) GetDataDockMetrics(ctx context.Context, organizationId openapi_types.UUID, dataDockId openapi_types.UUID, params *GetDataDockMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDataDockMetricsRequest(c.Server, organizationId, dataDockId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDevWorkstationResourceMetrics(ctx context.Context, organizationId openapi_types.UUID, workstationId openapi_types.UUID, params *GetDevWorkstationResourceMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDevWorkstationResourceMetricsRequest(c.Server, organizationId, workstationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfKeyValueCacheMetricsRequest(c.Server, organizationId, cacheId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -21614,6 +22104,53 @@ func NewListHarborDataDockRequest(server string, harborId openapi_types.UUID, pa
 	return req, nil
 }
 
+// NewEnableSqlEngineRequest calls the generic EnableSqlEngine builder with application/json body
+func NewEnableSqlEngineRequest(server string, harborId openapi_types.UUID, body EnableSqlEngineJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEnableSqlEngineRequestWithBody(server, harborId, "application/json", bodyReader)
+}
+
+// NewEnableSqlEngineRequestWithBody generates requests for EnableSqlEngine with any type of body
+func NewEnableSqlEngineRequestWithBody(server string, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/sql-engine/enable", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewAcceptInvitationRequest calls the generic AcceptInvitation builder with application/json body
 func NewAcceptInvitationRequest(server string, token string, body AcceptInvitationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -23224,6 +23761,183 @@ func NewDeleteOrganizationCrdRequest(server string, organizationId openapi_types
 	return req, nil
 }
 
+// NewGetDagsterRequest generates requests for GetDagster
+func NewGetDagsterRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/dagsters/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteDagsterCrdRequest generates requests for DeleteDagsterCrd
+func NewDeleteDagsterCrdRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/dagsters/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDagsterCrdRequest generates requests for GetDagsterCrd
+func NewGetDagsterCrdRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/dagsters/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchDagsterCrdRequest calls the generic PatchDagsterCrd builder with application/json body
+func NewPatchDagsterCrdRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchDagsterCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchDagsterCrdRequestWithBody(server, organizationId, instanceId, "application/json", bodyReader)
+}
+
+// NewPatchDagsterCrdRequestWithBody generates requests for PatchDagsterCrd with any type of body
+func NewPatchDagsterCrdRequestWithBody(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/dagsters/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListDomainVerificationsRequest generates requests for ListDomainVerifications
 func NewListDomainVerificationsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -24191,8 +24905,8 @@ func NewTestImagePullRequestWithBody(server string, organizationId openapi_types
 	return req, nil
 }
 
-// NewListHfCachesRequest generates requests for ListHfCaches
-func NewListHfCachesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+// NewListDagstersRequest generates requests for ListDagsters
+func NewListDagstersRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24214,7 +24928,7 @@ func NewListHfCachesRequest(server string, organizationId openapi_types.UUID, ha
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-caches", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/dagsters", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -24232,19 +24946,19 @@ func NewListHfCachesRequest(server string, organizationId openapi_types.UUID, ha
 	return req, nil
 }
 
-// NewCreateHfCacheCrdRequest calls the generic CreateHfCacheCrd builder with application/json body
-func NewCreateHfCacheCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfCacheCrdJSONRequestBody) (*http.Request, error) {
+// NewCreateDagsterCrdRequest calls the generic CreateDagsterCrd builder with application/json body
+func NewCreateDagsterCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateDagsterCrdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateHfCacheCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+	return NewCreateDagsterCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
 }
 
-// NewCreateHfCacheCrdRequestWithBody generates requests for CreateHfCacheCrd with any type of body
-func NewCreateHfCacheCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewCreateDagsterCrdRequestWithBody generates requests for CreateDagsterCrd with any type of body
+func NewCreateDagsterCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24266,7 +24980,293 @@ func NewCreateHfCacheCrdRequestWithBody(server string, organizationId openapi_ty
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-caches/crd", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/dagsters/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListForgejoRunnersRequest generates requests for ListForgejoRunners
+func NewListForgejoRunnersRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/forgejo-runners", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateForgejoRunnerRequest calls the generic CreateForgejoRunner builder with application/json body
+func NewCreateForgejoRunnerRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateForgejoRunnerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateForgejoRunnerRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateForgejoRunnerRequestWithBody generates requests for CreateForgejoRunner with any type of body
+func NewCreateForgejoRunnerRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/forgejo-runners", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteForgejoRunnerRequest generates requests for DeleteForgejoRunner
+func NewDeleteForgejoRunnerRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/forgejo-runners/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetForgejoRunnerRequest generates requests for GetForgejoRunner
+func NewGetForgejoRunnerRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/forgejo-runners/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListHfKeyValueCachesRequest generates requests for ListHfKeyValueCaches
+func NewListHfKeyValueCachesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-key-value-caches", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateHfKeyValueCacheCrdRequest calls the generic CreateHfKeyValueCacheCrd builder with application/json body
+func NewCreateHfKeyValueCacheCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateHfKeyValueCacheCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateHfKeyValueCacheCrdRequestWithBody generates requests for CreateHfKeyValueCacheCrd with any type of body
+func NewCreateHfKeyValueCacheCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-key-value-caches/crd", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -25713,8 +26713,8 @@ func NewCheckHarborNameAvailableRequest(server string, organizationId openapi_ty
 	return req, nil
 }
 
-// NewGetHfCacheRequest generates requests for GetHfCache
-func NewGetHfCacheRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
+// NewGetHfKeyValueCacheRequest generates requests for GetHfKeyValueCache
+func NewGetHfKeyValueCacheRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -25736,7 +26736,7 @@ func NewGetHfCacheRequest(server string, organizationId openapi_types.UUID, cach
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-caches/%s", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-key-value-caches/%s", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -25754,8 +26754,8 @@ func NewGetHfCacheRequest(server string, organizationId openapi_types.UUID, cach
 	return req, nil
 }
 
-// NewDeleteHfCacheCrdRequest generates requests for DeleteHfCacheCrd
-func NewDeleteHfCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
+// NewDeleteHfKeyValueCacheCrdRequest generates requests for DeleteHfKeyValueCacheCrd
+func NewDeleteHfKeyValueCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -25777,7 +26777,7 @@ func NewDeleteHfCacheCrdRequest(server string, organizationId openapi_types.UUID
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-caches/%s/crd", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-key-value-caches/%s/crd", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -25795,8 +26795,8 @@ func NewDeleteHfCacheCrdRequest(server string, organizationId openapi_types.UUID
 	return req, nil
 }
 
-// NewGetHfCacheCrdRequest generates requests for GetHfCacheCrd
-func NewGetHfCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
+// NewGetHfKeyValueCacheCrdRequest generates requests for GetHfKeyValueCacheCrd
+func NewGetHfKeyValueCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -25818,7 +26818,7 @@ func NewGetHfCacheCrdRequest(server string, organizationId openapi_types.UUID, c
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-caches/%s/crd", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-key-value-caches/%s/crd", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -25836,19 +26836,19 @@ func NewGetHfCacheCrdRequest(server string, organizationId openapi_types.UUID, c
 	return req, nil
 }
 
-// NewPatchHfCacheCrdRequest calls the generic PatchHfCacheCrd builder with application/json body
-func NewPatchHfCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfCacheCrdJSONRequestBody) (*http.Request, error) {
+// NewPatchHfKeyValueCacheCrdRequest calls the generic PatchHfKeyValueCacheCrd builder with application/json body
+func NewPatchHfKeyValueCacheCrdRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPatchHfCacheCrdRequestWithBody(server, organizationId, cacheId, "application/json", bodyReader)
+	return NewPatchHfKeyValueCacheCrdRequestWithBody(server, organizationId, cacheId, "application/json", bodyReader)
 }
 
-// NewPatchHfCacheCrdRequestWithBody generates requests for PatchHfCacheCrd with any type of body
-func NewPatchHfCacheCrdRequestWithBody(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPatchHfKeyValueCacheCrdRequestWithBody generates requests for PatchHfKeyValueCacheCrd with any type of body
+func NewPatchHfKeyValueCacheCrdRequestWithBody(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -25870,7 +26870,7 @@ func NewPatchHfCacheCrdRequestWithBody(server string, organizationId openapi_typ
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-caches/%s/crd", pathParam0, pathParam1)
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-key-value-caches/%s/crd", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -27176,6 +28176,142 @@ func NewGetDataDockMetricsRequest(server string, organizationId openapi_types.UU
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/data-docks/%s/metrics", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDevWorkstationResourceMetricsRequest generates requests for GetDevWorkstationResourceMetrics
+func NewGetDevWorkstationResourceMetricsRequest(server string, organizationId openapi_types.UUID, workstationId openapi_types.UUID, params *GetDevWorkstationResourceMetricsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "workstation_id", workstationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/dev-workstations/%s/metrics", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfKeyValueCacheMetricsRequest generates requests for GetHfKeyValueCacheMetrics
+func NewGetHfKeyValueCacheMetricsRequest(server string, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "cache_id", cacheId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-key-value-caches/%s/metrics", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -33104,6 +34240,11 @@ type ClientWithResponsesInterface interface {
 	// ListHarborDataDockWithResponse request
 	ListHarborDataDockWithResponse(ctx context.Context, harborId openapi_types.UUID, params *ListHarborDataDockParams, reqEditors ...RequestEditorFn) (*ListHarborDataDockHTTPResp, error)
 
+	// EnableSqlEngineWithBodyWithResponse request with any body
+	EnableSqlEngineWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableSqlEngineHTTPResp, error)
+
+	EnableSqlEngineWithResponse(ctx context.Context, harborId openapi_types.UUID, body EnableSqlEngineJSONRequestBody, reqEditors ...RequestEditorFn) (*EnableSqlEngineHTTPResp, error)
+
 	// AcceptInvitationWithBodyWithResponse request with any body
 	AcceptInvitationWithBodyWithResponse(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptInvitationHTTPResp, error)
 
@@ -33234,6 +34375,20 @@ type ClientWithResponsesInterface interface {
 	// DeleteOrganizationCrdWithResponse request
 	DeleteOrganizationCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteOrganizationCrdHTTPResp, error)
 
+	// GetDagsterWithResponse request
+	GetDagsterWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDagsterHTTPResp, error)
+
+	// DeleteDagsterCrdWithResponse request
+	DeleteDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteDagsterCrdHTTPResp, error)
+
+	// GetDagsterCrdWithResponse request
+	GetDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDagsterCrdHTTPResp, error)
+
+	// PatchDagsterCrdWithBodyWithResponse request with any body
+	PatchDagsterCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchDagsterCrdHTTPResp, error)
+
+	PatchDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchDagsterCrdHTTPResp, error)
+
 	// ListDomainVerificationsWithResponse request
 	ListDomainVerificationsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListDomainVerificationsHTTPResp, error)
 
@@ -33308,13 +34463,35 @@ type ClientWithResponsesInterface interface {
 
 	TestImagePullWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body TestImagePullJSONRequestBody, reqEditors ...RequestEditorFn) (*TestImagePullHTTPResp, error)
 
-	// ListHfCachesWithResponse request
-	ListHfCachesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfCachesHTTPResp, error)
+	// ListDagstersWithResponse request
+	ListDagstersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListDagstersHTTPResp, error)
 
-	// CreateHfCacheCrdWithBodyWithResponse request with any body
-	CreateHfCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfCacheCrdHTTPResp, error)
+	// CreateDagsterCrdWithBodyWithResponse request with any body
+	CreateDagsterCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDagsterCrdHTTPResp, error)
 
-	CreateHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfCacheCrdHTTPResp, error)
+	CreateDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDagsterCrdHTTPResp, error)
+
+	// ListForgejoRunnersWithResponse request
+	ListForgejoRunnersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListForgejoRunnersHTTPResp, error)
+
+	// CreateForgejoRunnerWithBodyWithResponse request with any body
+	CreateForgejoRunnerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateForgejoRunnerHTTPResp, error)
+
+	CreateForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateForgejoRunnerHTTPResp, error)
+
+	// DeleteForgejoRunnerWithResponse request
+	DeleteForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*DeleteForgejoRunnerHTTPResp, error)
+
+	// GetForgejoRunnerWithResponse request
+	GetForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetForgejoRunnerHTTPResp, error)
+
+	// ListHfKeyValueCachesWithResponse request
+	ListHfKeyValueCachesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfKeyValueCachesHTTPResp, error)
+
+	// CreateHfKeyValueCacheCrdWithBodyWithResponse request with any body
+	CreateHfKeyValueCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error)
+
+	CreateHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error)
 
 	// ListManagedPostgresqlsWithResponse request
 	ListManagedPostgresqlsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListManagedPostgresqlsHTTPResp, error)
@@ -33412,19 +34589,19 @@ type ClientWithResponsesInterface interface {
 	// CheckHarborNameAvailableWithResponse request
 	CheckHarborNameAvailableWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*CheckHarborNameAvailableHTTPResp, error)
 
-	// GetHfCacheWithResponse request
-	GetHfCacheWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfCacheHTTPResp, error)
+	// GetHfKeyValueCacheWithResponse request
+	GetHfKeyValueCacheWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheHTTPResp, error)
 
-	// DeleteHfCacheCrdWithResponse request
-	DeleteHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfCacheCrdHTTPResp, error)
+	// DeleteHfKeyValueCacheCrdWithResponse request
+	DeleteHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfKeyValueCacheCrdHTTPResp, error)
 
-	// GetHfCacheCrdWithResponse request
-	GetHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfCacheCrdHTTPResp, error)
+	// GetHfKeyValueCacheCrdWithResponse request
+	GetHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheCrdHTTPResp, error)
 
-	// PatchHfCacheCrdWithBodyWithResponse request with any body
-	PatchHfCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfCacheCrdHTTPResp, error)
+	// PatchHfKeyValueCacheCrdWithBodyWithResponse request with any body
+	PatchHfKeyValueCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error)
 
-	PatchHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfCacheCrdHTTPResp, error)
+	PatchHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error)
 
 	// ListInvitationsWithResponse request
 	ListInvitationsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListInvitationsHTTPResp, error)
@@ -33520,6 +34697,12 @@ type ClientWithResponsesInterface interface {
 
 	// GetDataDockMetricsWithResponse request
 	GetDataDockMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, dataDockId openapi_types.UUID, params *GetDataDockMetricsParams, reqEditors ...RequestEditorFn) (*GetDataDockMetricsHTTPResp, error)
+
+	// GetDevWorkstationResourceMetricsWithResponse request
+	GetDevWorkstationResourceMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, workstationId openapi_types.UUID, params *GetDevWorkstationResourceMetricsParams, reqEditors ...RequestEditorFn) (*GetDevWorkstationResourceMetricsHTTPResp, error)
+
+	// GetHfKeyValueCacheMetricsWithResponse request
+	GetHfKeyValueCacheMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheMetricsHTTPResp, error)
 
 	// GetKafkaMetricsWithResponse request
 	GetKafkaMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaMetricsParams, reqEditors ...RequestEditorFn) (*GetKafkaMetricsHTTPResp, error)
@@ -37170,6 +38353,36 @@ func (r ListHarborDataDockHTTPResp) ContentType() string {
 	return ""
 }
 
+type EnableSqlEngineHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *EnableSqlEngineResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r EnableSqlEngineHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EnableSqlEngineHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r EnableSqlEngineHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type AcceptInvitationHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -38235,6 +39448,124 @@ func (r DeleteOrganizationCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetDagsterHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DagsterResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDagsterHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDagsterHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDagsterHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteDagsterCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteDagsterCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteDagsterCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteDagsterCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDagsterCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DagsterCrdSpecResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDagsterCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDagsterCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDagsterCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchDagsterCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchDagsterCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchDagsterCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchDagsterCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListDomainVerificationsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -38830,14 +40161,14 @@ func (r TestImagePullHTTPResp) ContentType() string {
 	return ""
 }
 
-type ListHfCachesHTTPResp struct {
+type ListDagstersHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]HfCacheResponse
+	JSON200      *[]DagsterResponse
 }
 
 // Status returns HTTPResponse.Status
-func (r ListHfCachesHTTPResp) Status() string {
+func (r ListDagstersHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -38845,7 +40176,7 @@ func (r ListHfCachesHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListHfCachesHTTPResp) StatusCode() int {
+func (r ListDagstersHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -38853,21 +40184,21 @@ func (r ListHfCachesHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ListHfCachesHTTPResp) ContentType() string {
+func (r ListDagstersHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type CreateHfCacheCrdHTTPResp struct {
+type CreateDagsterCrdHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *HfCacheResponse
+	JSON201      *DagsterResponse
 }
 
 // Status returns HTTPResponse.Status
-func (r CreateHfCacheCrdHTTPResp) Status() string {
+func (r CreateDagsterCrdHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -38875,7 +40206,7 @@ func (r CreateHfCacheCrdHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r CreateHfCacheCrdHTTPResp) StatusCode() int {
+func (r CreateDagsterCrdHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -38883,7 +40214,186 @@ func (r CreateHfCacheCrdHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r CreateHfCacheCrdHTTPResp) ContentType() string {
+func (r CreateDagsterCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListForgejoRunnersHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ForgejoRunnerResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r ListForgejoRunnersHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListForgejoRunnersHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListForgejoRunnersHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateForgejoRunnerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *ForgejoRunnerResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateForgejoRunnerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateForgejoRunnerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateForgejoRunnerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteForgejoRunnerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteForgejoRunnerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteForgejoRunnerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteForgejoRunnerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetForgejoRunnerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ForgejoRunnerResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetForgejoRunnerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetForgejoRunnerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetForgejoRunnerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListHfKeyValueCachesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]HfKeyValueCacheResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r ListHfKeyValueCachesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListHfKeyValueCachesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListHfKeyValueCachesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateHfKeyValueCacheCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *HfKeyValueCacheResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateHfKeyValueCacheCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateHfKeyValueCacheCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -39723,14 +41233,14 @@ func (r CheckHarborNameAvailableHTTPResp) ContentType() string {
 	return ""
 }
 
-type GetHfCacheHTTPResp struct {
+type GetHfKeyValueCacheHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *HfCacheResponse
+	JSON200      *HfKeyValueCacheResponse
 }
 
 // Status returns HTTPResponse.Status
-func (r GetHfCacheHTTPResp) Status() string {
+func (r GetHfKeyValueCacheHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -39738,7 +41248,7 @@ func (r GetHfCacheHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetHfCacheHTTPResp) StatusCode() int {
+func (r GetHfKeyValueCacheHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -39746,20 +41256,20 @@ func (r GetHfCacheHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetHfCacheHTTPResp) ContentType() string {
+func (r GetHfKeyValueCacheHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type DeleteHfCacheCrdHTTPResp struct {
+type DeleteHfKeyValueCacheCrdHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r DeleteHfCacheCrdHTTPResp) Status() string {
+func (r DeleteHfKeyValueCacheCrdHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -39767,7 +41277,7 @@ func (r DeleteHfCacheCrdHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DeleteHfCacheCrdHTTPResp) StatusCode() int {
+func (r DeleteHfKeyValueCacheCrdHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -39775,21 +41285,21 @@ func (r DeleteHfCacheCrdHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DeleteHfCacheCrdHTTPResp) ContentType() string {
+func (r DeleteHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type GetHfCacheCrdHTTPResp struct {
+type GetHfKeyValueCacheCrdHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *HfCacheCrdSpecResponse
+	JSON200      *HfKeyValueCacheCrdSpecResponse
 }
 
 // Status returns HTTPResponse.Status
-func (r GetHfCacheCrdHTTPResp) Status() string {
+func (r GetHfKeyValueCacheCrdHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -39797,7 +41307,7 @@ func (r GetHfCacheCrdHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetHfCacheCrdHTTPResp) StatusCode() int {
+func (r GetHfKeyValueCacheCrdHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -39805,20 +41315,20 @@ func (r GetHfCacheCrdHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetHfCacheCrdHTTPResp) ContentType() string {
+func (r GetHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type PatchHfCacheCrdHTTPResp struct {
+type PatchHfKeyValueCacheCrdHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r PatchHfCacheCrdHTTPResp) Status() string {
+func (r PatchHfKeyValueCacheCrdHTTPResp) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -39826,7 +41336,7 @@ func (r PatchHfCacheCrdHTTPResp) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PatchHfCacheCrdHTTPResp) StatusCode() int {
+func (r PatchHfKeyValueCacheCrdHTTPResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -39834,7 +41344,7 @@ func (r PatchHfCacheCrdHTTPResp) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r PatchHfCacheCrdHTTPResp) ContentType() string {
+func (r PatchHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -40636,6 +42146,66 @@ func (r GetDataDockMetricsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetDataDockMetricsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDevWorkstationResourceMetricsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceMetricsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDevWorkstationResourceMetricsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDevWorkstationResourceMetricsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDevWorkstationResourceMetricsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfKeyValueCacheMetricsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceMetricsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfKeyValueCacheMetricsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfKeyValueCacheMetricsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfKeyValueCacheMetricsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -45317,6 +46887,23 @@ func (c *ClientWithResponses) ListHarborDataDockWithResponse(ctx context.Context
 	return ParseListHarborDataDockHTTPResp(rsp)
 }
 
+// EnableSqlEngineWithBodyWithResponse request with arbitrary body returning *EnableSqlEngineHTTPResp
+func (c *ClientWithResponses) EnableSqlEngineWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableSqlEngineHTTPResp, error) {
+	rsp, err := c.EnableSqlEngineWithBody(ctx, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnableSqlEngineHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) EnableSqlEngineWithResponse(ctx context.Context, harborId openapi_types.UUID, body EnableSqlEngineJSONRequestBody, reqEditors ...RequestEditorFn) (*EnableSqlEngineHTTPResp, error) {
+	rsp, err := c.EnableSqlEngine(ctx, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnableSqlEngineHTTPResp(rsp)
+}
+
 // AcceptInvitationWithBodyWithResponse request with arbitrary body returning *AcceptInvitationHTTPResp
 func (c *ClientWithResponses) AcceptInvitationWithBodyWithResponse(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptInvitationHTTPResp, error) {
 	rsp, err := c.AcceptInvitationWithBody(ctx, token, contentType, body, reqEditors...)
@@ -45729,6 +47316,50 @@ func (c *ClientWithResponses) DeleteOrganizationCrdWithResponse(ctx context.Cont
 	return ParseDeleteOrganizationCrdHTTPResp(rsp)
 }
 
+// GetDagsterWithResponse request returning *GetDagsterHTTPResp
+func (c *ClientWithResponses) GetDagsterWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDagsterHTTPResp, error) {
+	rsp, err := c.GetDagster(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDagsterHTTPResp(rsp)
+}
+
+// DeleteDagsterCrdWithResponse request returning *DeleteDagsterCrdHTTPResp
+func (c *ClientWithResponses) DeleteDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteDagsterCrdHTTPResp, error) {
+	rsp, err := c.DeleteDagsterCrd(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteDagsterCrdHTTPResp(rsp)
+}
+
+// GetDagsterCrdWithResponse request returning *GetDagsterCrdHTTPResp
+func (c *ClientWithResponses) GetDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDagsterCrdHTTPResp, error) {
+	rsp, err := c.GetDagsterCrd(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDagsterCrdHTTPResp(rsp)
+}
+
+// PatchDagsterCrdWithBodyWithResponse request with arbitrary body returning *PatchDagsterCrdHTTPResp
+func (c *ClientWithResponses) PatchDagsterCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchDagsterCrdHTTPResp, error) {
+	rsp, err := c.PatchDagsterCrdWithBody(ctx, organizationId, instanceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchDagsterCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PatchDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchDagsterCrdHTTPResp, error) {
+	rsp, err := c.PatchDagsterCrd(ctx, organizationId, instanceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchDagsterCrdHTTPResp(rsp)
+}
+
 // ListDomainVerificationsWithResponse request returning *ListDomainVerificationsHTTPResp
 func (c *ClientWithResponses) ListDomainVerificationsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListDomainVerificationsHTTPResp, error) {
 	rsp, err := c.ListDomainVerifications(ctx, organizationId, reqEditors...)
@@ -45965,30 +47596,100 @@ func (c *ClientWithResponses) TestImagePullWithResponse(ctx context.Context, org
 	return ParseTestImagePullHTTPResp(rsp)
 }
 
-// ListHfCachesWithResponse request returning *ListHfCachesHTTPResp
-func (c *ClientWithResponses) ListHfCachesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfCachesHTTPResp, error) {
-	rsp, err := c.ListHfCaches(ctx, organizationId, harborId, reqEditors...)
+// ListDagstersWithResponse request returning *ListDagstersHTTPResp
+func (c *ClientWithResponses) ListDagstersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListDagstersHTTPResp, error) {
+	rsp, err := c.ListDagsters(ctx, organizationId, harborId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListHfCachesHTTPResp(rsp)
+	return ParseListDagstersHTTPResp(rsp)
 }
 
-// CreateHfCacheCrdWithBodyWithResponse request with arbitrary body returning *CreateHfCacheCrdHTTPResp
-func (c *ClientWithResponses) CreateHfCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfCacheCrdHTTPResp, error) {
-	rsp, err := c.CreateHfCacheCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+// CreateDagsterCrdWithBodyWithResponse request with arbitrary body returning *CreateDagsterCrdHTTPResp
+func (c *ClientWithResponses) CreateDagsterCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDagsterCrdHTTPResp, error) {
+	rsp, err := c.CreateDagsterCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateHfCacheCrdHTTPResp(rsp)
+	return ParseCreateDagsterCrdHTTPResp(rsp)
 }
 
-func (c *ClientWithResponses) CreateHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfCacheCrdHTTPResp, error) {
-	rsp, err := c.CreateHfCacheCrd(ctx, organizationId, harborId, body, reqEditors...)
+func (c *ClientWithResponses) CreateDagsterCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateDagsterCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDagsterCrdHTTPResp, error) {
+	rsp, err := c.CreateDagsterCrd(ctx, organizationId, harborId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateHfCacheCrdHTTPResp(rsp)
+	return ParseCreateDagsterCrdHTTPResp(rsp)
+}
+
+// ListForgejoRunnersWithResponse request returning *ListForgejoRunnersHTTPResp
+func (c *ClientWithResponses) ListForgejoRunnersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListForgejoRunnersHTTPResp, error) {
+	rsp, err := c.ListForgejoRunners(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListForgejoRunnersHTTPResp(rsp)
+}
+
+// CreateForgejoRunnerWithBodyWithResponse request with arbitrary body returning *CreateForgejoRunnerHTTPResp
+func (c *ClientWithResponses) CreateForgejoRunnerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateForgejoRunnerHTTPResp, error) {
+	rsp, err := c.CreateForgejoRunnerWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateForgejoRunnerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateForgejoRunnerHTTPResp, error) {
+	rsp, err := c.CreateForgejoRunner(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateForgejoRunnerHTTPResp(rsp)
+}
+
+// DeleteForgejoRunnerWithResponse request returning *DeleteForgejoRunnerHTTPResp
+func (c *ClientWithResponses) DeleteForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*DeleteForgejoRunnerHTTPResp, error) {
+	rsp, err := c.DeleteForgejoRunner(ctx, organizationId, harborId, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteForgejoRunnerHTTPResp(rsp)
+}
+
+// GetForgejoRunnerWithResponse request returning *GetForgejoRunnerHTTPResp
+func (c *ClientWithResponses) GetForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetForgejoRunnerHTTPResp, error) {
+	rsp, err := c.GetForgejoRunner(ctx, organizationId, harborId, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetForgejoRunnerHTTPResp(rsp)
+}
+
+// ListHfKeyValueCachesWithResponse request returning *ListHfKeyValueCachesHTTPResp
+func (c *ClientWithResponses) ListHfKeyValueCachesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfKeyValueCachesHTTPResp, error) {
+	rsp, err := c.ListHfKeyValueCaches(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListHfKeyValueCachesHTTPResp(rsp)
+}
+
+// CreateHfKeyValueCacheCrdWithBodyWithResponse request with arbitrary body returning *CreateHfKeyValueCacheCrdHTTPResp
+func (c *ClientWithResponses) CreateHfKeyValueCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.CreateHfKeyValueCacheCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfKeyValueCacheCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.CreateHfKeyValueCacheCrd(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
 // ListManagedPostgresqlsWithResponse request returning *ListManagedPostgresqlsHTTPResp
@@ -46291,48 +47992,48 @@ func (c *ClientWithResponses) CheckHarborNameAvailableWithResponse(ctx context.C
 	return ParseCheckHarborNameAvailableHTTPResp(rsp)
 }
 
-// GetHfCacheWithResponse request returning *GetHfCacheHTTPResp
-func (c *ClientWithResponses) GetHfCacheWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfCacheHTTPResp, error) {
-	rsp, err := c.GetHfCache(ctx, organizationId, cacheId, reqEditors...)
+// GetHfKeyValueCacheWithResponse request returning *GetHfKeyValueCacheHTTPResp
+func (c *ClientWithResponses) GetHfKeyValueCacheWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheHTTPResp, error) {
+	rsp, err := c.GetHfKeyValueCache(ctx, organizationId, cacheId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetHfCacheHTTPResp(rsp)
+	return ParseGetHfKeyValueCacheHTTPResp(rsp)
 }
 
-// DeleteHfCacheCrdWithResponse request returning *DeleteHfCacheCrdHTTPResp
-func (c *ClientWithResponses) DeleteHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfCacheCrdHTTPResp, error) {
-	rsp, err := c.DeleteHfCacheCrd(ctx, organizationId, cacheId, reqEditors...)
+// DeleteHfKeyValueCacheCrdWithResponse request returning *DeleteHfKeyValueCacheCrdHTTPResp
+func (c *ClientWithResponses) DeleteHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.DeleteHfKeyValueCacheCrd(ctx, organizationId, cacheId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDeleteHfCacheCrdHTTPResp(rsp)
+	return ParseDeleteHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
-// GetHfCacheCrdWithResponse request returning *GetHfCacheCrdHTTPResp
-func (c *ClientWithResponses) GetHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfCacheCrdHTTPResp, error) {
-	rsp, err := c.GetHfCacheCrd(ctx, organizationId, cacheId, reqEditors...)
+// GetHfKeyValueCacheCrdWithResponse request returning *GetHfKeyValueCacheCrdHTTPResp
+func (c *ClientWithResponses) GetHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.GetHfKeyValueCacheCrd(ctx, organizationId, cacheId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetHfCacheCrdHTTPResp(rsp)
+	return ParseGetHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
-// PatchHfCacheCrdWithBodyWithResponse request with arbitrary body returning *PatchHfCacheCrdHTTPResp
-func (c *ClientWithResponses) PatchHfCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfCacheCrdHTTPResp, error) {
-	rsp, err := c.PatchHfCacheCrdWithBody(ctx, organizationId, cacheId, contentType, body, reqEditors...)
+// PatchHfKeyValueCacheCrdWithBodyWithResponse request with arbitrary body returning *PatchHfKeyValueCacheCrdHTTPResp
+func (c *ClientWithResponses) PatchHfKeyValueCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.PatchHfKeyValueCacheCrdWithBody(ctx, organizationId, cacheId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePatchHfCacheCrdHTTPResp(rsp)
+	return ParsePatchHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
-func (c *ClientWithResponses) PatchHfCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfCacheCrdHTTPResp, error) {
-	rsp, err := c.PatchHfCacheCrd(ctx, organizationId, cacheId, body, reqEditors...)
+func (c *ClientWithResponses) PatchHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error) {
+	rsp, err := c.PatchHfKeyValueCacheCrd(ctx, organizationId, cacheId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePatchHfCacheCrdHTTPResp(rsp)
+	return ParsePatchHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
 // ListInvitationsWithResponse request returning *ListInvitationsHTTPResp
@@ -46632,6 +48333,24 @@ func (c *ClientWithResponses) GetDataDockMetricsWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetDataDockMetricsHTTPResp(rsp)
+}
+
+// GetDevWorkstationResourceMetricsWithResponse request returning *GetDevWorkstationResourceMetricsHTTPResp
+func (c *ClientWithResponses) GetDevWorkstationResourceMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, workstationId openapi_types.UUID, params *GetDevWorkstationResourceMetricsParams, reqEditors ...RequestEditorFn) (*GetDevWorkstationResourceMetricsHTTPResp, error) {
+	rsp, err := c.GetDevWorkstationResourceMetrics(ctx, organizationId, workstationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDevWorkstationResourceMetricsHTTPResp(rsp)
+}
+
+// GetHfKeyValueCacheMetricsWithResponse request returning *GetHfKeyValueCacheMetricsHTTPResp
+func (c *ClientWithResponses) GetHfKeyValueCacheMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheMetricsHTTPResp, error) {
+	rsp, err := c.GetHfKeyValueCacheMetrics(ctx, organizationId, cacheId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfKeyValueCacheMetricsHTTPResp(rsp)
 }
 
 // GetKafkaMetricsWithResponse request returning *GetKafkaMetricsHTTPResp
@@ -50473,6 +52192,32 @@ func ParseListHarborDataDockHTTPResp(rsp *http.Response) (*ListHarborDataDockHTT
 	return response, nil
 }
 
+// ParseEnableSqlEngineHTTPResp parses an HTTP response from a EnableSqlEngineWithResponse call
+func ParseEnableSqlEngineHTTPResp(rsp *http.Response) (*EnableSqlEngineHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EnableSqlEngineHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EnableSqlEngineResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseAcceptInvitationHTTPResp parses an HTTP response from a AcceptInvitationWithResponse call
 func ParseAcceptInvitationHTTPResp(rsp *http.Response) (*AcceptInvitationHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -51259,6 +53004,90 @@ func ParseDeleteOrganizationCrdHTTPResp(rsp *http.Response) (*DeleteOrganization
 	return response, nil
 }
 
+// ParseGetDagsterHTTPResp parses an HTTP response from a GetDagsterWithResponse call
+func ParseGetDagsterHTTPResp(rsp *http.Response) (*GetDagsterHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDagsterHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DagsterResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteDagsterCrdHTTPResp parses an HTTP response from a DeleteDagsterCrdWithResponse call
+func ParseDeleteDagsterCrdHTTPResp(rsp *http.Response) (*DeleteDagsterCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteDagsterCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetDagsterCrdHTTPResp parses an HTTP response from a GetDagsterCrdWithResponse call
+func ParseGetDagsterCrdHTTPResp(rsp *http.Response) (*GetDagsterCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDagsterCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DagsterCrdSpecResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchDagsterCrdHTTPResp parses an HTTP response from a PatchDagsterCrdWithResponse call
+func ParsePatchDagsterCrdHTTPResp(rsp *http.Response) (*PatchDagsterCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchDagsterCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseListDomainVerificationsHTTPResp parses an HTTP response from a ListDomainVerificationsWithResponse call
 func ParseListDomainVerificationsHTTPResp(rsp *http.Response) (*ListDomainVerificationsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -51729,22 +53558,22 @@ func ParseTestImagePullHTTPResp(rsp *http.Response) (*TestImagePullHTTPResp, err
 	return response, nil
 }
 
-// ParseListHfCachesHTTPResp parses an HTTP response from a ListHfCachesWithResponse call
-func ParseListHfCachesHTTPResp(rsp *http.Response) (*ListHfCachesHTTPResp, error) {
+// ParseListDagstersHTTPResp parses an HTTP response from a ListDagstersWithResponse call
+func ParseListDagstersHTTPResp(rsp *http.Response) (*ListDagstersHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListHfCachesHTTPResp{
+	response := &ListDagstersHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []HfCacheResponse
+		var dest []DagsterResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -51755,22 +53584,168 @@ func ParseListHfCachesHTTPResp(rsp *http.Response) (*ListHfCachesHTTPResp, error
 	return response, nil
 }
 
-// ParseCreateHfCacheCrdHTTPResp parses an HTTP response from a CreateHfCacheCrdWithResponse call
-func ParseCreateHfCacheCrdHTTPResp(rsp *http.Response) (*CreateHfCacheCrdHTTPResp, error) {
+// ParseCreateDagsterCrdHTTPResp parses an HTTP response from a CreateDagsterCrdWithResponse call
+func ParseCreateDagsterCrdHTTPResp(rsp *http.Response) (*CreateDagsterCrdHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CreateHfCacheCrdHTTPResp{
+	response := &CreateDagsterCrdHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest HfCacheResponse
+		var dest DagsterResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListForgejoRunnersHTTPResp parses an HTTP response from a ListForgejoRunnersWithResponse call
+func ParseListForgejoRunnersHTTPResp(rsp *http.Response) (*ListForgejoRunnersHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListForgejoRunnersHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ForgejoRunnerResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateForgejoRunnerHTTPResp parses an HTTP response from a CreateForgejoRunnerWithResponse call
+func ParseCreateForgejoRunnerHTTPResp(rsp *http.Response) (*CreateForgejoRunnerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateForgejoRunnerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest ForgejoRunnerResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteForgejoRunnerHTTPResp parses an HTTP response from a DeleteForgejoRunnerWithResponse call
+func ParseDeleteForgejoRunnerHTTPResp(rsp *http.Response) (*DeleteForgejoRunnerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteForgejoRunnerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetForgejoRunnerHTTPResp parses an HTTP response from a GetForgejoRunnerWithResponse call
+func ParseGetForgejoRunnerHTTPResp(rsp *http.Response) (*GetForgejoRunnerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetForgejoRunnerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ForgejoRunnerResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListHfKeyValueCachesHTTPResp parses an HTTP response from a ListHfKeyValueCachesWithResponse call
+func ParseListHfKeyValueCachesHTTPResp(rsp *http.Response) (*ListHfKeyValueCachesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListHfKeyValueCachesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []HfKeyValueCacheResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateHfKeyValueCacheCrdHTTPResp parses an HTTP response from a CreateHfKeyValueCacheCrdWithResponse call
+func ParseCreateHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*CreateHfKeyValueCacheCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateHfKeyValueCacheCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest HfKeyValueCacheResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -52439,22 +54414,22 @@ func ParseCheckHarborNameAvailableHTTPResp(rsp *http.Response) (*CheckHarborName
 	return response, nil
 }
 
-// ParseGetHfCacheHTTPResp parses an HTTP response from a GetHfCacheWithResponse call
-func ParseGetHfCacheHTTPResp(rsp *http.Response) (*GetHfCacheHTTPResp, error) {
+// ParseGetHfKeyValueCacheHTTPResp parses an HTTP response from a GetHfKeyValueCacheWithResponse call
+func ParseGetHfKeyValueCacheHTTPResp(rsp *http.Response) (*GetHfKeyValueCacheHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetHfCacheHTTPResp{
+	response := &GetHfKeyValueCacheHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest HfCacheResponse
+		var dest HfKeyValueCacheResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -52465,15 +54440,15 @@ func ParseGetHfCacheHTTPResp(rsp *http.Response) (*GetHfCacheHTTPResp, error) {
 	return response, nil
 }
 
-// ParseDeleteHfCacheCrdHTTPResp parses an HTTP response from a DeleteHfCacheCrdWithResponse call
-func ParseDeleteHfCacheCrdHTTPResp(rsp *http.Response) (*DeleteHfCacheCrdHTTPResp, error) {
+// ParseDeleteHfKeyValueCacheCrdHTTPResp parses an HTTP response from a DeleteHfKeyValueCacheCrdWithResponse call
+func ParseDeleteHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*DeleteHfKeyValueCacheCrdHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DeleteHfCacheCrdHTTPResp{
+	response := &DeleteHfKeyValueCacheCrdHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -52481,22 +54456,22 @@ func ParseDeleteHfCacheCrdHTTPResp(rsp *http.Response) (*DeleteHfCacheCrdHTTPRes
 	return response, nil
 }
 
-// ParseGetHfCacheCrdHTTPResp parses an HTTP response from a GetHfCacheCrdWithResponse call
-func ParseGetHfCacheCrdHTTPResp(rsp *http.Response) (*GetHfCacheCrdHTTPResp, error) {
+// ParseGetHfKeyValueCacheCrdHTTPResp parses an HTTP response from a GetHfKeyValueCacheCrdWithResponse call
+func ParseGetHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*GetHfKeyValueCacheCrdHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetHfCacheCrdHTTPResp{
+	response := &GetHfKeyValueCacheCrdHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest HfCacheCrdSpecResponse
+		var dest HfKeyValueCacheCrdSpecResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -52507,15 +54482,15 @@ func ParseGetHfCacheCrdHTTPResp(rsp *http.Response) (*GetHfCacheCrdHTTPResp, err
 	return response, nil
 }
 
-// ParsePatchHfCacheCrdHTTPResp parses an HTTP response from a PatchHfCacheCrdWithResponse call
-func ParsePatchHfCacheCrdHTTPResp(rsp *http.Response) (*PatchHfCacheCrdHTTPResp, error) {
+// ParsePatchHfKeyValueCacheCrdHTTPResp parses an HTTP response from a PatchHfKeyValueCacheCrdWithResponse call
+func ParsePatchHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*PatchHfKeyValueCacheCrdHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PatchHfCacheCrdHTTPResp{
+	response := &PatchHfKeyValueCacheCrdHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -53118,6 +55093,58 @@ func ParseGetDataDockMetricsHTTPResp(rsp *http.Response) (*GetDataDockMetricsHTT
 	}
 
 	response := &GetDataDockMetricsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceMetricsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDevWorkstationResourceMetricsHTTPResp parses an HTTP response from a GetDevWorkstationResourceMetricsWithResponse call
+func ParseGetDevWorkstationResourceMetricsHTTPResp(rsp *http.Response) (*GetDevWorkstationResourceMetricsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDevWorkstationResourceMetricsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceMetricsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfKeyValueCacheMetricsHTTPResp parses an HTTP response from a GetHfKeyValueCacheMetricsWithResponse call
+func ParseGetHfKeyValueCacheMetricsHTTPResp(rsp *http.Response) (*GetHfKeyValueCacheMetricsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfKeyValueCacheMetricsHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
