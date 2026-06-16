@@ -105,8 +105,8 @@ func (p *HyperfluidProvider) Configure(ctx context.Context, req provider.Configu
 func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewBucketResource,
-		// M1: container_app, managed_postgresql(+user), model_serving, secret,
-		// backup_target, pipeline, app_instance, hf_cache — clone bucket_resource.go.
+		NewContainerAppResource,
+		// M1 remaining: managed_postgresql(+user), backup_target, app_instance, secret.
 	}
 }
 
