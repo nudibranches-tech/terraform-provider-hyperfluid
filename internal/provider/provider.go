@@ -5,105 +5,120 @@ package provider
 
 import (
 	"context"
-	"net/http"
+	"os"
 
-	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
-	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 )
 
-// Ensure ScaffoldingProvider satisfies various provider interfaces.
-var _ provider.Provider = &ScaffoldingProvider{}
-var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
-var _ provider.ProviderWithEphemeralResources = &ScaffoldingProvider{}
-var _ provider.ProviderWithActions = &ScaffoldingProvider{}
+// Ensure HyperfluidProvider satisfies the provider interface.
+var _ provider.Provider = &HyperfluidProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
-type ScaffoldingProvider struct {
-	// version is set to the provider version on release, "dev" when the
-	// provider is built and ran locally, and "test" when running acceptance
-	// testing.
+// HyperfluidProvider defines the provider implementation.
+type HyperfluidProvider struct {
+	// version is the provider version on release, "dev" locally, "test" in
+	// acceptance testing.
 	version string
 }
 
-// ScaffoldingProviderModel describes the provider data model.
-type ScaffoldingProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
+// providerData is injected into every resource/data source via Configure().
+type providerData struct {
+	API   *client.Client
+	OrgID string
 }
 
-func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
+// HyperfluidProviderModel describes the provider configuration block.
+type HyperfluidProviderModel struct {
+	Endpoint        types.String `tfsdk:"endpoint"`
+	OrganizationID  types.String `tfsdk:"organization_id"`
+	CredentialsFile types.String `tfsdk:"credentials_file"`
+}
+
+func (p *HyperfluidProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "hyperfluid" // → resource prefix `hyperfluid_*`
 	resp.Version = p.version
 }
 
-func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *HyperfluidProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manage Hyperfluid platform resources through the Console external API.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
 				Optional:            true,
+				MarkdownDescription: "Console API base URL. Falls back to `HYPERFLUID_ENDPOINT`, then `console_url` in the credentials file.",
+			},
+			"organization_id": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Organization ID. Falls back to `HYPERFLUID_ORGANIZATION_ID`, then the credentials file.",
+			},
+			"credentials_file": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Path to the service-account JSON (the same file hfctl consumes). Falls back to `HYPERFLUID_CREDENTIALS`. The secret is never written to state.",
 			},
 		},
 	}
 }
 
-func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ScaffoldingProviderModel
-
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
+func (p *HyperfluidProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var cfg HyperfluidProviderModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	endpoint := firstNonEmpty(cfg.Endpoint.ValueString(), os.Getenv("HYPERFLUID_ENDPOINT"))
+	credsFile := firstNonEmpty(cfg.CredentialsFile.ValueString(), os.Getenv("HYPERFLUID_CREDENTIALS"))
+	if credsFile == "" {
+		resp.Diagnostics.AddError(
+			"Missing credentials",
+			"Set the provider `credentials_file` or the HYPERFLUID_CREDENTIALS environment variable to the service-account JSON path.",
+		)
+		return
+	}
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	api, orgID, err := client.NewFromServiceAccount(endpoint, credsFile)
+	if err != nil {
+		resp.Diagnostics.AddError("Authentication failed", err.Error())
+		return
+	}
+	if v := firstNonEmpty(cfg.OrganizationID.ValueString(), os.Getenv("HYPERFLUID_ORGANIZATION_ID")); v != "" {
+		orgID = v
+	}
+	if orgID == "" {
+		resp.Diagnostics.AddError(
+			"Missing organization",
+			"organization_id was not found in the provider config, HYPERFLUID_ORGANIZATION_ID, or the credentials file.",
+		)
+		return
+	}
+
+	pd := &providerData{API: api, OrgID: orgID}
+	resp.ResourceData = pd
+	resp.DataSourceData = pd
 }
 
-func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		NewBucketResource,
+		// M1: container_app, managed_postgresql(+user), model_serving, secret,
+		// backup_target, pipeline, app_instance, hf_cache — clone bucket_resource.go.
 	}
 }
 
-func (p *ScaffoldingProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
-	return []func() ephemeral.EphemeralResource{
-		NewExampleEphemeralResource,
-	}
-}
-
-func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewExampleDataSource,
-	}
-}
-
-func (p *ScaffoldingProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
-}
-
-func (p *ScaffoldingProvider) Actions(ctx context.Context) []func() action.Action {
-	return []func() action.Action{
-		NewExampleAction,
+		NewHarborDataSource,
+		// M1+: storage, bifrost, app_template, bucket_credentials, registry views ...
 	}
 }
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &ScaffoldingProvider{
-			version: version,
-		}
+		return &HyperfluidProvider{version: version}
 	}
 }

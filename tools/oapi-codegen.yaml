@@ -1,0 +1,13 @@
+# oapi-codegen config for the Hyperfluid Console external API client.
+# Run via `make generate` (from the repo root) or `go generate ./...` in tools/.
+package: console
+output: ../internal/console/console.gen.go
+generate:
+  models: true
+  client: true
+output-options:
+  skip-prune: true
+  # The spec has schema components named like `WriteFileResponse`; without a
+  # distinct suffix the generated per-operation response wrappers collide with
+  # them. We reference methods + fields, never these wrapper type names.
+  response-type-suffix: HTTPResp

@@ -9,6 +9,12 @@ install: build
 lint:
 	golangci-lint run
 
+# Refresh the vendored OpenAPI spec from the monorepo (needs gh auth + access).
+# Deliberately NOT a prerequisite of `generate`: codegen must run offline from
+# the committed spec so CI never needs cross-repo credentials.
+fetch-spec:
+	./tools/fetch-spec.sh
+
 generate:
 	cd tools; go generate ./...
 
@@ -21,4 +27,4 @@ test:
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 120m ./...
 
-.PHONY: fmt lint test testacc build install generate
+.PHONY: fmt lint test testacc build install generate fetch-spec
