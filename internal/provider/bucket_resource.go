@@ -110,21 +110,17 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	harbor := plan.Harbor.ValueString()
-	if err := r.p.API.CreateBucket(ctx, harbor, plan.Name.ValueString()); err != nil {
+	name := plan.Name.ValueString()
+	if err := r.p.API.CreateBucket(ctx, harbor, name); err != nil {
 		resp.Diagnostics.AddError("Failed to create bucket", err.Error())
 		return
 	}
 
-	// quota/freeze are not accepted at create → apply via PATCH if set.
-	if !plan.QuotaGB.IsNull() || !plan.FreezeWrites.IsNull() {
-		if err := r.patch(ctx, plan); err != nil {
-			resp.Diagnostics.AddError("Failed to set bucket quota/freeze", err.Error())
-			return
-		}
-	}
-
+	// quota/freeze aren't accepted at create, so they're a follow-up PATCH.
+	// Wait for the bucket to reconcile first (a PATCH should target a ready
+	// bucket, not one still reconciling).
 	b, err := waitForReady(ctx, bucketWaitTimeout, func() (*console.HFBucketDetail, bool, error) {
-		b, err := r.p.API.GetBucket(ctx, harbor, plan.Name.ValueString())
+		b, err := r.p.API.GetBucket(ctx, harbor, name)
 		if err != nil {
 			return nil, false, err
 		}
@@ -133,6 +129,24 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil {
 		resp.Diagnostics.AddError("Bucket did not become ready", err.Error())
 		return
+	}
+
+	if !plan.QuotaGB.IsNull() || !plan.FreezeWrites.IsNull() {
+		if err := r.patch(ctx, plan); err != nil {
+			// The bucket was created but the follow-up PATCH failed. Roll it
+			// back so we don't leave an orphan that 409s on the next apply (H3).
+			// NOTE: the console bucket-PATCH endpoint currently 500s for any
+			// body (backend bug nudibranches-tech/hyperfluid#2596) — setting
+			// quota_gb/freeze_writes fails until that's fixed; creating a
+			// bucket without them works.
+			_ = r.p.API.DeleteBucket(ctx, harbor, name)
+			resp.Diagnostics.AddError("Failed to set bucket quota/freeze (bucket creation rolled back)", err.Error())
+			return
+		}
+		if b, err = r.p.API.GetBucket(ctx, harbor, name); err != nil {
+			resp.Diagnostics.AddError("Failed to read bucket after setting quota/freeze", err.Error())
+			return
+		}
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, r.toModel(harbor, b))...)
