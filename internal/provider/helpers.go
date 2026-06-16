@@ -10,8 +10,60 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 )
+
+// ── tfsdk <-> API value conversions ────────────────────────────────────────
+
+// stringPtr returns nil for null/unknown, else a pointer to the value.
+func stringPtr(v types.String) *string {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	s := v.ValueString()
+	return &s
+}
+
+func boolPtr(v types.Bool) *bool {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	b := v.ValueBool()
+	return &b
+}
+
+// enabledOrDefault defaults a null/unknown bool to true (for required create fields).
+func enabledOrDefault(v types.Bool) bool {
+	if v.IsNull() || v.IsUnknown() {
+		return true
+	}
+	return v.ValueBool()
+}
+
+func int32PtrFromInt64(v types.Int64) *int32 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	n := int32(v.ValueInt64())
+	return &n
+}
+
+// optString maps an optional API string to a tfsdk value (nil → null).
+func optString(s *string) types.String {
+	if s == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(*s)
+}
+
+func optInt64FromInt32(n *int32) types.Int64 {
+	if n == nil {
+		return types.Int64Null()
+	}
+	return types.Int64Value(int64(*n))
+}
 
 // firstNonEmpty returns the first non-empty string (config → env fallback).
 func firstNonEmpty(vals ...string) string {
