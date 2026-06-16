@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
@@ -63,6 +64,42 @@ func optInt64FromInt32(n *int32) types.Int64 {
 		return types.Int64Null()
 	}
 	return types.Int64Value(int64(*n))
+}
+
+// stringSliceToList converts an API []string into a tfsdk list value.
+func stringSliceToList(ctx context.Context, s []string) (types.List, diag.Diagnostics) {
+	return types.ListValueFrom(ctx, types.StringType, s)
+}
+
+// listToStringSlice converts a tfsdk list into []string (nil for null/unknown).
+func listToStringSlice(ctx context.Context, l types.List) ([]string, diag.Diagnostics) {
+	if l.IsNull() || l.IsUnknown() {
+		return nil, nil
+	}
+	var out []string
+	d := l.ElementsAs(ctx, &out, false)
+	return out, d
+}
+
+// parseStorageGB reads the leading integer of a K8s quantity like "10Gi" → 10.
+func parseStorageGB(s string) int64 {
+	var n int64
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			break
+		}
+		n = n*10 + int64(r-'0')
+	}
+	return n
+}
+
+// splitID splits a composite "<a>/<b>" import id into its two parts.
+func splitID(id string) (first, second string, err error) {
+	parts := strings.SplitN(id, "/", 2)
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return "", "", fmt.Errorf("expected import id in the form \"<parent>/<child>\", got %q", id)
+	}
+	return parts[0], parts[1], nil
 }
 
 // firstNonEmpty returns the first non-empty string (config → env fallback).
