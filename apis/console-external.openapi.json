@@ -4600,6 +4600,62 @@
         }
       }
     },
+    "/api/v1/harbors/{harbor_id}/sql-engine/enable": {
+      "post": {
+        "tags": [
+          "Harbors"
+        ],
+        "operationId": "enable_sql_engine",
+        "parameters": [
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableSqlEngineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "SQL engine CRDs applied; operator reconciles asynchronously",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnableSqlEngineResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Harbor not found"
+          },
+          "429": {
+            "description": "DataDock quota exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/invitations/{token}/accept": {
       "post": {
         "tags": [
@@ -6141,6 +6197,185 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/dagsters/{instance_id}": {
+      "get": {
+        "tags": [
+          "Dagsters"
+        ],
+        "operationId": "get_dagster",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dagster instance found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DagsterResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dagster not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/dagsters/{instance_id}/crd": {
+      "get": {
+        "tags": [
+          "Dagsters"
+        ],
+        "operationId": "get_dagster_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dagster CRD spec",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DagsterCrdSpecResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dagster not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dagsters"
+        ],
+        "operationId": "delete_dagster_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Dagster CRD deleted successfully"
+          },
+          "404": {
+            "description": "Dagster not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Dagsters"
+        ],
+        "operationId": "patch_dagster_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchDagsterCrdRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Dagster CRD patched successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Dagster not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/domains": {
       "get": {
         "tags": [
@@ -7153,12 +7388,12 @@
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-caches": {
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/dagsters": {
       "get": {
         "tags": [
-          "HfCaches"
+          "Dagsters"
         ],
-        "operationId": "list_hf_caches",
+        "operationId": "list_dagsters",
         "parameters": [
           {
             "name": "organization_id",
@@ -7181,13 +7416,13 @@
         ],
         "responses": {
           "200": {
-            "description": "List of HfCache instances",
+            "description": "List of Dagster instances",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/HfCacheResponse"
+                    "$ref": "#/components/schemas/DagsterResponse"
                   }
                 }
               }
@@ -7199,12 +7434,12 @@
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-caches/crd": {
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/dagsters/crd": {
       "post": {
         "tags": [
-          "HfCaches"
+          "Dagsters"
         ],
-        "operationId": "create_hf_cache_crd",
+        "operationId": "create_dagster_crd",
         "parameters": [
           {
             "name": "organization_id",
@@ -7229,7 +7464,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateHfCacheCrdRequestBody"
+                "$ref": "#/components/schemas/CreateDagsterCrdRequestBody"
               }
             }
           },
@@ -7237,11 +7472,11 @@
         },
         "responses": {
           "201": {
-            "description": "HfCache CRD created successfully",
+            "description": "Dagster CRD created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HfCacheResponse"
+                  "$ref": "#/components/schemas/DagsterResponse"
                 }
               }
             }
@@ -7253,7 +7488,342 @@
             "description": "Organization or harbor not found"
           },
           "409": {
-            "description": "HfCache already exists"
+            "description": "Dagster already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/forgejo-runners": {
+      "get": {
+        "tags": [
+          "Forgejo Runners"
+        ],
+        "summary": "List all `ForgejoRunner` CRs for the harbor.",
+        "description": "Filters by the `hyperfluid.nudibranches.tech/harbor-id` label set on\ncreation, so runners from other harbors sharing the same org namespace are\nexcluded.",
+        "operationId": "list_forgejo_runners",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of ForgejoRunner CRs for this harbor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ForgejoRunnerResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Caller is not an editor of this harbor"
+          },
+          "404": {
+            "description": "Harbor not found or has no Forgejo app instance"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Forgejo Runners"
+        ],
+        "summary": "Create a `ForgejoRunner` CR for the harbor's forge.",
+        "description": "The forge coordinates are resolved automatically from `harbor_id` —\nthe caller never supplies `forge_namespace` or `forge_container_app`\ndirectly.  Returns 201 on success; 409 if a runner with that name already\nexists in the forge namespace.",
+        "operationId": "create_forgejo_runner",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateForgejoRunnerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "ForgejoRunner CR created; the operator will begin provisioning",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgejoRunnerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid runner name (not a DNS-1123 label) or request body"
+          },
+          "403": {
+            "description": "Caller is not an editor of this harbor"
+          },
+          "404": {
+            "description": "Harbor not found or has no Forgejo app instance"
+          },
+          "409": {
+            "description": "A ForgejoRunner with this name already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/forgejo-runners/{name}": {
+      "get": {
+        "tags": [
+          "Forgejo Runners"
+        ],
+        "summary": "Get a single `ForgejoRunner` CR by name.",
+        "description": "Useful for polling status while the operator provisions the runner.",
+        "operationId": "get_forgejo_runner",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "`metadata.name` of the `ForgejoRunner` CR.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ForgejoRunner CR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgejoRunnerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Caller is not an editor of this harbor"
+          },
+          "404": {
+            "description": "ForgejoRunner not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forgejo Runners"
+        ],
+        "summary": "Delete a `ForgejoRunner` CR by name.",
+        "description": "Idempotent: returns 204 even when the CR does not exist (already deleted or\nnever created).  The operator's finalizer will clean up the Pod and\n`CiliumNetworkPolicy` before the CR is fully removed.",
+        "operationId": "delete_forgejo_runner",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "`metadata.name` of the `ForgejoRunner` CR.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "ForgejoRunner deleted (or was already absent)"
+          },
+          "403": {
+            "description": "Caller is not an editor of this harbor"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-key-value-caches": {
+      "get": {
+        "tags": [
+          "HfKeyValueCaches"
+        ],
+        "operationId": "list_hf_key_value_caches",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of HfKeyValueCache instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HfKeyValueCacheResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-key-value-caches/crd": {
+      "post": {
+        "tags": [
+          "HfKeyValueCaches"
+        ],
+        "operationId": "create_hf_key_value_cache_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHfKeyValueCacheCrdRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "HfKeyValueCache CRD created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HfKeyValueCacheResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Organization or harbor not found"
+          },
+          "409": {
+            "description": "HfKeyValueCache already exists"
           },
           "500": {
             "description": "Internal server error"
@@ -8775,12 +9345,12 @@
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/hf-caches/{cache_id}": {
+    "/api/v1/organizations/{organization_id}/hf-key-value-caches/{cache_id}": {
       "get": {
         "tags": [
-          "HfCaches"
+          "HfKeyValueCaches"
         ],
-        "operationId": "get_hf_cache",
+        "operationId": "get_hf_key_value_cache",
         "parameters": [
           {
             "name": "organization_id",
@@ -8803,17 +9373,17 @@
         ],
         "responses": {
           "200": {
-            "description": "HfCache found",
+            "description": "HfKeyValueCache found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HfCacheResponse"
+                  "$ref": "#/components/schemas/HfKeyValueCacheResponse"
                 }
               }
             }
           },
           "404": {
-            "description": "HfCache not found"
+            "description": "HfKeyValueCache not found"
           },
           "500": {
             "description": "Internal server error"
@@ -8821,12 +9391,12 @@
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/hf-caches/{cache_id}/crd": {
+    "/api/v1/organizations/{organization_id}/hf-key-value-caches/{cache_id}/crd": {
       "get": {
         "tags": [
-          "HfCaches"
+          "HfKeyValueCaches"
         ],
-        "operationId": "get_hf_cache_crd",
+        "operationId": "get_hf_key_value_cache_crd",
         "parameters": [
           {
             "name": "organization_id",
@@ -8849,17 +9419,17 @@
         ],
         "responses": {
           "200": {
-            "description": "HfCache CRD spec",
+            "description": "HfKeyValueCache CRD spec",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HfCacheCrdSpecResponse"
+                  "$ref": "#/components/schemas/HfKeyValueCacheCrdSpecResponse"
                 }
               }
             }
           },
           "404": {
-            "description": "HfCache not found"
+            "description": "HfKeyValueCache not found"
           },
           "500": {
             "description": "Internal server error"
@@ -8868,9 +9438,9 @@
       },
       "delete": {
         "tags": [
-          "HfCaches"
+          "HfKeyValueCaches"
         ],
-        "operationId": "delete_hf_cache_crd",
+        "operationId": "delete_hf_key_value_cache_crd",
         "parameters": [
           {
             "name": "organization_id",
@@ -8893,10 +9463,10 @@
         ],
         "responses": {
           "204": {
-            "description": "HfCache CRD deleted successfully"
+            "description": "HfKeyValueCache CRD deleted successfully"
           },
           "404": {
-            "description": "HfCache not found"
+            "description": "HfKeyValueCache not found"
           },
           "500": {
             "description": "Internal server error"
@@ -8905,9 +9475,9 @@
       },
       "patch": {
         "tags": [
-          "HfCaches"
+          "HfKeyValueCaches"
         ],
-        "operationId": "patch_hf_cache_crd",
+        "operationId": "patch_hf_key_value_cache_crd",
         "parameters": [
           {
             "name": "organization_id",
@@ -8932,7 +9502,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PatchHfCacheCrdRequestBody"
+                "$ref": "#/components/schemas/PatchHfKeyValueCacheCrdRequestBody"
               }
             }
           },
@@ -8940,13 +9510,13 @@
         },
         "responses": {
           "204": {
-            "description": "HfCache CRD patched successfully"
+            "description": "HfKeyValueCache CRD patched successfully"
           },
           "400": {
             "description": "Invalid request"
           },
           "404": {
-            "description": "HfCache not found"
+            "description": "HfKeyValueCache not found"
           },
           "500": {
             "description": "Internal server error"
@@ -10274,6 +10844,123 @@
         "responses": {
           "200": {
             "description": "Data dock (Trino) metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceMetricsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/monitoring/dev-workstations/{workstation_id}/metrics": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Get historical resource metrics for a dev workstation.",
+        "description": "Distinct from the owner-only live `/api/dev/workstations/{id}/metrics`\nendpoint: this serves the same PromQL-backed panel set as every other\nmonitoring resource, scoped to the workstation's single pod.",
+        "operationId": "get_dev_workstation_resource_metrics",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workstation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsRange"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dev workstation metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceMetricsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/monitoring/hf-key-value-caches/{cache_id}/metrics": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Get metrics for a Valkey cache (HfKeyValueCache).",
+        "operationId": "get_hf_key_value_cache_metrics",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cache_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsRange"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Valkey cache metrics",
             "content": {
               "application/json": {
                 "schema": {
@@ -16975,7 +17662,8 @@
         "enum": [
           "show_demo_banner",
           "vauban_preview",
-          "authz_opa_enabled"
+          "authz_opa_enabled",
+          "dagster_enabled"
         ]
       },
       "ContainerAppCrdSpecResponse": {
@@ -17993,6 +18681,59 @@
           }
         }
       },
+      "CreateDagsterCrdRequestBody": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "code_location_image": {
+            "type": "string",
+            "description": "Image of the user-code (code location) gRPC server. When omitted, the\noperator-default image is used.",
+            "nullable": true
+          },
+          "compute_log_bucket": {
+            "type": "string",
+            "description": "Name of an existing object-storage bucket for Dagster compute logs.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description (DB-only, not stored in the CRD).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen."
+          },
+          "node_tier": {
+            "$ref": "#/components/schemas/NodeTier"
+          },
+          "postgres_ref": {
+            "type": "string",
+            "description": "Name of an existing `ManagedPostgreSQL` (in the Harbor namespace) to host\nDagster's run/event/schedule storage. When omitted, the operator\nprovisions a dedicated `ManagedPostgreSQL`.",
+            "nullable": true
+          },
+          "sleep_mode": {
+            "type": "boolean",
+            "description": "Sleep mode: scale webserver + daemon to 0 (schedules stop firing)."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags (DB-only, not stored in the CRD)."
+          },
+          "webserver_replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of Dagster webserver replicas (0-10).",
+            "maximum": 10,
+            "minimum": 0
+          }
+        }
+      },
       "CreateDataDockRequestBody": {
         "type": "object",
         "required": [
@@ -18221,6 +18962,46 @@
           }
         }
       },
+      "CreateForgejoRunnerRequest": {
+        "type": "object",
+        "description": "Request body for creating a `ForgejoRunner` CR.\n\nThe forge coordinates (namespace, container-app label) are resolved\nautomatically from `harbor_id` via `resolve_forge`; the caller never\nsupplies them directly.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "extra_egress_fqdns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Extra FQDNs the runner's `CiliumNetworkPolicy` allows egress to,\nbeyond the mandatory set (in-cluster forge + console token endpoint).",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Forgejo runner labels assigned during registration\n(e.g. `[\"ubuntu-latest\", \"docker\"]`).  Determines which `runs-on:`\ntags the runner accepts.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "CR name — must be a valid DNS-1123 label:\nlowercase alphanumeric characters and hyphens only, 1–63 chars,\ncannot start or end with a hyphen."
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of runner pod replicas. Defaults to 1.",
+            "nullable": true
+          },
+          "runner_image": {
+            "type": "string",
+            "description": "Runner container image. Defaults to the pinned Forgejo runner release\n(`DEFAULT_RUNNER_IMAGE`). Override to pin a different tag or use a\ncustom image compatible with the Forgejo runner binary CLI.",
+            "nullable": true
+          }
+        }
+      },
       "CreateGDrivePipelineRequest": {
         "type": "object",
         "required": [
@@ -18296,7 +19077,7 @@
           }
         }
       },
-      "CreateHfCacheCrdRequestBody": {
+      "CreateHfKeyValueCacheCrdRequestBody": {
         "type": "object",
         "required": [
           "name"
@@ -19358,6 +20139,143 @@
           "secret"
         ]
       },
+      "DagsterCrdSpecResponse": {
+        "type": "object",
+        "description": "The live `Dagster` CRD spec (source of truth in K8s), including fields the DB\ndoes not cache (sleep_mode).",
+        "required": [
+          "webserver_replicas",
+          "sleep_mode"
+        ],
+        "properties": {
+          "code_location_image": {
+            "type": "string",
+            "nullable": true
+          },
+          "compute_log_bucket": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpu_limit": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpu_request": {
+            "type": "string",
+            "nullable": true
+          },
+          "memory_limit": {
+            "type": "string",
+            "nullable": true
+          },
+          "memory_request": {
+            "type": "string",
+            "nullable": true
+          },
+          "postgres_ref": {
+            "type": "string",
+            "nullable": true
+          },
+          "sleep_mode": {
+            "type": "boolean"
+          },
+          "webserver_replicas": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DagsterResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "harbor_id",
+          "name",
+          "slug",
+          "description",
+          "webserver_replicas",
+          "status",
+          "tags",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "code_location_image": {
+            "type": "string",
+            "nullable": true
+          },
+          "compute_log_bucket": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpu_limit": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpu_request": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "harbor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "managed_postgresql_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "memory_limit": {
+            "type": "string",
+            "nullable": true
+          },
+          "memory_request": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "webserver_replicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "webserver_url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "DataContainerOverview": {
         "type": "object",
         "description": "A summary of a data container",
@@ -20278,6 +21196,59 @@
           }
         }
       },
+      "EnableSqlEngineRequest": {
+        "type": "object",
+        "description": "Request body for `POST /api/v1/harbors/{harbor_id}/sql-engine/enable`.\n\nCreates a TrinoInternal DataDock CRD and (optionally) a demo Iceberg\ncatalog + backing HFBucket in one declarative shot. Returns immediately;\nthe operator reconciles all three CRDs in dependency order without any\nsynchronous wait from the console.",
+        "required": [
+          "name",
+          "slug"
+        ],
+        "properties": {
+          "bucket_name": {
+            "type": "string",
+            "description": "Name of the HFBucket to create/reuse for the Iceberg warehouse\n(only used when `seed_demo_catalog = true`). Defaults to\n`\"demo-iceberg\"`."
+          },
+          "catalog_name": {
+            "type": "string",
+            "description": "Name of the Iceberg catalog to create (only used when\n`seed_demo_catalog = true`). Defaults to `\"demo_iceberg\"`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the Trino cluster."
+          },
+          "seed_demo_catalog": {
+            "type": "boolean",
+            "description": "When true, also creates a demo HFBucket and an Iceberg TrinoCatalog\nwith medallion scaffold enabled. Both are idempotent (409 = already\nexists is treated as success). Defaults to false."
+          },
+          "slug": {
+            "type": "string",
+            "description": "K8s-safe slug (lowercase alphanumeric + hyphens). Used as the DataDock\nCRD name and as the `data_dock_ref` in the TrinoCatalog."
+          },
+          "worker_replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of Trino worker replicas. Clamped to ≥1. Defaults to 2."
+          }
+        }
+      },
+      "EnableSqlEngineResponse": {
+        "type": "object",
+        "description": "Response for `POST /api/v1/harbors/{harbor_id}/sql-engine/enable`.\n\nReturned immediately after the CRDs are applied; the operator reconciles\nasynchronously. `catalog_name` is `null` when `seed_demo_catalog` was\n`false`.",
+        "required": [
+          "data_dock_slug"
+        ],
+        "properties": {
+          "catalog_name": {
+            "type": "string",
+            "description": "Name of the Iceberg catalog CRD that was created, or `null` when\n`seed_demo_catalog` was `false`.",
+            "nullable": true
+          },
+          "data_dock_slug": {
+            "type": "string",
+            "description": "Slug of the DataDock CRD that was created."
+          }
+        }
+      },
       "Engine": {
         "type": "string",
         "enum": [
@@ -20890,6 +21861,82 @@
           }
         }
       },
+      "ForgejoRunnerResponse": {
+        "type": "object",
+        "description": "Response DTO for a `ForgejoRunner` CR, including live status fields for\npolling in the UI.",
+        "required": [
+          "name",
+          "organization_id",
+          "harbor_id",
+          "replicas",
+          "status"
+        ],
+        "properties": {
+          "harbor_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owning harbor UUID (from `spec.harbor_id`)."
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Runner registration labels (from `spec.labels`).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "CR `metadata.name`."
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owning organization UUID (from `spec.organization_id`)."
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Configured replica count (from `spec.replicas`)."
+          },
+          "runner_image": {
+            "type": "string",
+            "description": "Runner container image (from `spec.runner_image`).",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ForgejoRunnerStatusResponse"
+          }
+        }
+      },
+      "ForgejoRunnerStatusResponse": {
+        "type": "object",
+        "description": "Lifecycle status of the Forgejo runner, derived from `ForgejoRunnerStatus`.",
+        "required": [
+          "registered"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Human-readable status message (last error or transition reason).",
+            "nullable": true
+          },
+          "observed_pod": {
+            "type": "string",
+            "description": "Name of the Pod currently managed by the operator.  `null` before the\nPod is created or after it is deleted.",
+            "nullable": true
+          },
+          "phase": {
+            "type": "string",
+            "description": "Current lifecycle phase string\n(`\"Pending\"`, `\"Provisioning\"`, `\"Registering\"`, `\"Running\"`, `\"Failed\"`).\n`null` before the operator acts on the CR.",
+            "nullable": true
+          },
+          "registered": {
+            "type": "boolean",
+            "description": "Whether the runner has successfully registered with its Forgejo instance."
+          }
+        }
+      },
       "GDriveExtractionConfig": {
         "type": "object",
         "description": "Optional extraction step appended after the Copy step in a GDrive pipeline",
@@ -20996,6 +22043,11 @@
         "properties": {
           "app_version": {
             "type": "string"
+          },
+          "apps_base_domain": {
+            "type": "string",
+            "description": "Base domain under which ContainerApp workloads are served\n(e.g. `\"apps.192.168.121.100.nip.io\"` in dev). Used by the frontend\nto derive canonical ContainerApp URLs such as the Forgejo public URL.\n`None` when the platform has not configured a CaaS apps domain.",
+            "nullable": true
           },
           "bifrost_api_url": {
             "type": "string"
@@ -21400,7 +22452,35 @@
           }
         }
       },
-      "HfCacheCrdSpecResponse": {
+      "HfCollumn": {
+        "type": "object",
+        "required": [
+          "name",
+          "data_type"
+        ],
+        "properties": {
+          "data_type": {
+            "$ref": "#/components/schemas/HfDataType"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "HfDataType": {
+        "type": "string",
+        "enum": [
+          "Int",
+          "String",
+          "Float",
+          "Double",
+          "Boolean",
+          "Date",
+          "Timestamp",
+          "StringArray"
+        ]
+      },
+      "HfKeyValueCacheCrdSpecResponse": {
         "type": "object",
         "required": [
           "image"
@@ -21423,7 +22503,7 @@
           }
         }
       },
-      "HfCacheResponse": {
+      "HfKeyValueCacheResponse": {
         "type": "object",
         "required": [
           "id",
@@ -21506,34 +22586,6 @@
             "format": "date-time"
           }
         }
-      },
-      "HfCollumn": {
-        "type": "object",
-        "required": [
-          "name",
-          "data_type"
-        ],
-        "properties": {
-          "data_type": {
-            "$ref": "#/components/schemas/HfDataType"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "HfDataType": {
-        "type": "string",
-        "enum": [
-          "Int",
-          "String",
-          "Float",
-          "Double",
-          "Boolean",
-          "Date",
-          "Timestamp",
-          "StringArray"
-        ]
       },
       "HfTable": {
         "type": "object",
@@ -23303,14 +24355,13 @@
       },
       "NodeTier": {
         "type": "string",
-        "description": "Predefined resource tiers for managed PostgreSQL instances.\nMemory limits are always equal to memory requests.",
+        "description": "Predefined resource tiers for the Dagster webserver/daemon pods.\nMemory request and limit are always equal.",
         "enum": [
           "nano",
           "micro",
           "small",
           "medium",
-          "large",
-          "xlarge"
+          "large"
         ]
       },
       "NormalizedMessage": {
@@ -24051,6 +25102,46 @@
           }
         }
       },
+      "PatchDagsterCrdRequestBody": {
+        "type": "object",
+        "properties": {
+          "code_location_image": {
+            "type": "string",
+            "description": "Image of the user-code (code location) gRPC server.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description (DB-only, not stored in the CRD).",
+            "nullable": true
+          },
+          "node_tier": {
+            "$ref": "#/components/schemas/NodeTier",
+            "nullable": true
+          },
+          "sleep_mode": {
+            "type": "boolean",
+            "description": "Sleep mode: scale webserver + daemon to 0.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags (DB-only, not stored in the CRD).",
+            "nullable": true
+          },
+          "webserver_replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of Dagster webserver replicas (0-10).",
+            "maximum": 10,
+            "minimum": 0,
+            "nullable": true
+          }
+        }
+      },
       "PatchHFBucketRequest": {
         "type": "object",
         "properties": {
@@ -24079,7 +25170,7 @@
           }
         }
       },
-      "PatchHfCacheCrdRequestBody": {
+      "PatchHfKeyValueCacheCrdRequestBody": {
         "type": "object",
         "properties": {
           "description": {
@@ -28162,8 +29253,12 @@
       "description": "Domain ownership verifications"
     },
     {
-      "name": "HfCaches",
-      "description": "HfCache management"
+      "name": "HfKeyValueCaches",
+      "description": "HfKeyValueCache management"
+    },
+    {
+      "name": "Dagsters",
+      "description": "Dagster orchestration management"
     },
     {
       "name": "ManagedPostgreSQLs",
@@ -28232,6 +29327,10 @@
     {
       "name": "RegistryViews",
       "description": "Registry catalog / tags / usage read views"
+    },
+    {
+      "name": "Forgejo Runners",
+      "description": "Manage Forgejo CI runner CRs for a harbor's forge instance"
     }
   ]
 }
