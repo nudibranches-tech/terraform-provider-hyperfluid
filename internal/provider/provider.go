@@ -109,7 +109,8 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewManagedPostgresqlResource,
 		NewManagedPostgresqlUserResource,
 		NewKeyValueCacheResource,
-		// M1 remaining: backup_target, app_instance, secret.
+		NewBackupTargetResource,
+		// M1 remaining: app_instance, secret.
 	}
 }
 
