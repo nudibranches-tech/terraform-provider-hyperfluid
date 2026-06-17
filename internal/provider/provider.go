@@ -110,13 +110,15 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewManagedPostgresqlUserResource,
 		NewKeyValueCacheResource,
 		NewBackupTargetResource,
-		// M1 remaining: app_instance, secret.
+		NewSecretResource,
+		// app_instance deferred (Marketplace).
 	}
 }
 
 func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewHarborDataSource,
+		NewSecretDataSource,
 		// M1+: storage, bifrost, app_template, bucket_credentials, registry views ...
 	}
 }
