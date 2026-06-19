@@ -48,7 +48,7 @@ type containerAppResource struct {
 
 type containerAppModel struct {
 	ID              types.String `tfsdk:"id"`
-	Harbor          types.String `tfsdk:"harbor"`
+	Env             types.String `tfsdk:"env"`
 	Name            types.String `tfsdk:"name"`
 	ImageRepository types.String `tfsdk:"image_repository"`
 	ImageTag        types.String `tfsdk:"image_tag"`
@@ -86,9 +86,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 				Computed:      true,
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
-			"harbor": schema.StringAttribute{
+			"env": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Harbor id the app runs in. Changing this forces a new app.",
+				MarkdownDescription: "Environment id the app runs in. Changing this forces a new app.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
@@ -155,7 +155,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	harbor := plan.Harbor.ValueString()
+	env := plan.Env.ValueString()
 	body := console.CreateContainerAppCrdRequestBody{
 		Name:            plan.Name.ValueString(),
 		ImageRepository: plan.ImageRepository.ValueString(),
@@ -171,12 +171,12 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		body.ResourceTier = &tier
 	}
 
-	if err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, harbor, body); err != nil {
+	if err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body); err != nil {
 		resp.Diagnostics.AddError("Failed to create container app", err.Error())
 		return
 	}
 
-	appID, err := r.p.API.FindContainerAppID(ctx, r.p.OrgID, harbor, plan.Name.ValueString())
+	appID, err := r.p.API.FindContainerAppID(ctx, r.p.OrgID, env, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to resolve created container app id", err.Error())
 		return
@@ -187,7 +187,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	state, err := r.readInto(ctx, harbor, appID, plan.ResourceTier)
+	state, err := r.readInto(ctx, env, appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after create", err.Error())
 		return
@@ -202,7 +202,7 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	state, err := r.readInto(ctx, prior.Harbor.ValueString(), prior.ID.ValueString(), prior.ResourceTier)
+	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString(), prior.ResourceTier)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -247,7 +247,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	newState, err := r.readInto(ctx, plan.Harbor.ValueString(), appID, plan.ResourceTier)
+	newState, err := r.readInto(ctx, plan.Env.ValueString(), appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after update", err.Error())
 		return
@@ -306,7 +306,7 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 
 // readInto builds the model from both views. priorTier is carried through
 // because the /crd spec response does not echo resource_tier (M2).
-func (r *containerAppResource) readInto(ctx context.Context, harbor, appID string, priorTier types.String) (containerAppModel, error) {
+func (r *containerAppResource) readInto(ctx context.Context, env, appID string, priorTier types.String) (containerAppModel, error) {
 	spec, err := r.p.API.GetContainerAppSpec(ctx, r.p.OrgID, appID)
 	if err != nil {
 		return containerAppModel{}, err
@@ -318,7 +318,7 @@ func (r *containerAppResource) readInto(ctx context.Context, harbor, appID strin
 
 	m := containerAppModel{
 		ID:                types.StringValue(appID),
-		Harbor:            types.StringValue(harbor),
+		Env:               types.StringValue(env),
 		Name:              types.StringValue(status.Name),
 		ImageRepository:   types.StringValue(spec.ImageRepository),
 		ImageTag:          types.StringValue(spec.ImageTag),

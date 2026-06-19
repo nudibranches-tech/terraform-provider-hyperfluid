@@ -19,12 +19,12 @@ func TestAccBucketResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_bucket" "test" {
-  harbor = data.hyperfluid_harbor.default.id
+  env = data.hyperfluid_env.default.id
   name   = "tf-acc-bucket"
 }
 `,

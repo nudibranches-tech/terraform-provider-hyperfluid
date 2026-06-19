@@ -40,12 +40,12 @@ func TestAccKeyValueCacheResource(t *testing.T) {
 
 func testAccKeyValueCacheConfig(maxmemory string) string {
 	return `
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_key_value_cache" "kv" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "tf-acc-kv"
   maxmemory        = "` + maxmemory + `"
   maxmemory_policy = "allkeys-lru"

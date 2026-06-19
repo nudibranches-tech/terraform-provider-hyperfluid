@@ -46,7 +46,7 @@ type managedPostgresqlResource struct {
 
 type managedPostgresqlModel struct {
 	ID              types.String `tfsdk:"id"`
-	Harbor          types.String `tfsdk:"harbor"`
+	Env             types.String `tfsdk:"env"`
 	Name            types.String `tfsdk:"name"`
 	DatabaseName    types.String `tfsdk:"database_name"`
 	Engine          types.String `tfsdk:"engine"`
@@ -89,9 +89,9 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				Computed:      true,
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
-			"harbor": schema.StringAttribute{
+			"env": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Harbor id the cluster runs in. Changing this forces a new cluster.",
+				MarkdownDescription: "Environment id the cluster runs in. Changing this forces a new cluster.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
@@ -217,7 +217,7 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		body.BackupTargetId = &bt
 	}
 
-	created, err := r.p.API.CreateManagedPostgresql(ctx, r.p.OrgID, plan.Harbor.ValueString(), body)
+	created, err := r.p.API.CreateManagedPostgresql(ctx, r.p.OrgID, plan.Env.ValueString(), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create managed postgresql", err.Error())
 		return
@@ -228,7 +228,7 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, plan.Harbor.ValueString(), id)
+	state, err := r.readInto(ctx, plan.Env.ValueString(), id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after create", err.Error())
 		return
@@ -242,7 +242,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.Harbor.ValueString(), prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString())
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -293,7 +293,7 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		resp.Diagnostics.AddError("Cluster did not become ready after update", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, plan.Harbor.ValueString(), id)
+	newState, err := r.readInto(ctx, plan.Env.ValueString(), id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after update", err.Error())
 		return
@@ -353,7 +353,7 @@ func (r *managedPostgresqlResource) waitReady(ctx context.Context, id string) er
 	return err
 }
 
-func (r *managedPostgresqlResource) readInto(ctx context.Context, harbor, id string) (managedPostgresqlModel, error) {
+func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string) (managedPostgresqlModel, error) {
 	c, err := r.p.API.GetManagedPostgresql(ctx, r.p.OrgID, id)
 	if err != nil {
 		return managedPostgresqlModel{}, err
@@ -365,7 +365,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, harbor, id str
 
 	m := managedPostgresqlModel{
 		ID:               types.StringValue(id),
-		Harbor:           types.StringValue(harbor),
+		Env:              types.StringValue(env),
 		Name:             types.StringValue(c.Name),
 		DatabaseName:     types.StringValue(c.DatabaseName),
 		Engine:           types.StringValue(c.Engine),

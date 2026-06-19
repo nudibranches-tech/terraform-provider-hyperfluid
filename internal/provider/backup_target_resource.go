@@ -44,7 +44,7 @@ type backupTargetResource struct {
 
 type backupTargetModel struct {
 	ID                        types.String `tfsdk:"id"`
-	Harbor                    types.String `tfsdk:"harbor"`
+	Env                       types.String `tfsdk:"env"`
 	Name                      types.String `tfsdk:"name"`
 	EndpointURL               types.String `tfsdk:"endpoint_url"`
 	DestinationPath           types.String `tfsdk:"destination_path"`
@@ -71,9 +71,9 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 				Computed:      true,
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
-			"harbor": schema.StringAttribute{
+			"env": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Harbor id the target belongs to. Changing this forces a new target.",
+				MarkdownDescription: "Environment id the target belongs to. Changing this forces a new target.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
@@ -140,7 +140,7 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	created, err := r.p.API.CreateExternalBackupTarget(ctx, r.p.OrgID, plan.Harbor.ValueString(), client.ExternalBackupTargetInput{
+	created, err := r.p.API.CreateExternalBackupTarget(ctx, r.p.OrgID, plan.Env.ValueString(), client.ExternalBackupTargetInput{
 		Name:                      plan.Name.ValueString(),
 		EndpointURL:               plan.EndpointURL.ValueString(),
 		DestinationPath:           plan.DestinationPath.ValueString(),
@@ -160,7 +160,7 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		resp.Diagnostics.AddError("Backup target did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, plan.Harbor.ValueString(), id)
+	state, err := r.readInto(ctx, plan.Env.ValueString(), id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after create", err.Error())
 		return
@@ -174,7 +174,7 @@ func (r *backupTargetResource) Read(ctx context.Context, req resource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.Harbor.ValueString(), prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString())
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -216,7 +216,7 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 		resp.Diagnostics.AddError("Failed to update backup target", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, plan.Harbor.ValueString(), id)
+	newState, err := r.readInto(ctx, plan.Env.ValueString(), id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after update", err.Error())
 		return
@@ -275,7 +275,7 @@ func (r *backupTargetResource) waitReady(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *backupTargetResource) readInto(ctx context.Context, harbor, id string) (backupTargetModel, error) {
+func (r *backupTargetResource) readInto(ctx context.Context, env, id string) (backupTargetModel, error) {
 	bt, err := r.p.API.GetBackupTarget(ctx, r.p.OrgID, id)
 	if err != nil {
 		return backupTargetModel{}, err
@@ -286,7 +286,7 @@ func (r *backupTargetResource) readInto(ctx context.Context, harbor, id string) 
 	}
 	return backupTargetModel{
 		ID:                        types.StringValue(id),
-		Harbor:                    types.StringValue(harbor),
+		Env:                       types.StringValue(env),
 		Name:                      types.StringValue(bt.Name),
 		EndpointURL:               types.StringValue(bt.EndpointUrl),
 		DestinationPath:           types.StringValue(bt.DestinationPath),

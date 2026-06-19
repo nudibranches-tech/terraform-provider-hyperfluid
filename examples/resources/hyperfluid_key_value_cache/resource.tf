@@ -1,9 +1,9 @@
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_key_value_cache" "sessions" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "sessions"
   maxmemory        = "256mb"
   maxmemory_policy = "allkeys-lru"

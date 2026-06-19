@@ -49,12 +49,12 @@ func TestAccBackupTargetResource(t *testing.T) {
 
 func testAccBackupTargetConfig(endpoint, akSecret, skSecret, desc string) string {
 	return `
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_backup_target" "bt" {
-  harbor                        = data.hyperfluid_harbor.default.id
+  env                        = data.hyperfluid_env.default.id
   name                          = "tf-acc-bt"
   endpoint_url                  = "` + endpoint + `"
   destination_path              = "s3://default-backup/tf-acc/"

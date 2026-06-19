@@ -1,9 +1,9 @@
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_container_app" "web" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"

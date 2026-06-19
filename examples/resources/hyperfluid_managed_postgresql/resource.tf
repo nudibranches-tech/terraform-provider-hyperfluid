@@ -1,9 +1,9 @@
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_managed_postgresql" "db" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "appdb"
   database_name    = "appdb"
   engine           = "postgresql"
