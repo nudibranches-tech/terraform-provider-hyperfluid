@@ -48,12 +48,12 @@ func TestAccContainerAppResource(t *testing.T) {
 
 func testAccContainerAppConfig(replicas int) string {
 	return `
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_container_app" "test" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "tf-acc-app"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"

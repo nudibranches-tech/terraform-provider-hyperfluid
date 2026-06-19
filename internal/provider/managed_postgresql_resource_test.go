@@ -57,12 +57,12 @@ func TestAccManagedPostgresql(t *testing.T) {
 
 func testAccManagedPostgresqlConfig(storageGB int) string {
 	return fmt.Sprintf(`
-data "hyperfluid_harbor" "default" {
+data "hyperfluid_env" "default" {
   name = "default"
 }
 
 resource "hyperfluid_managed_postgresql" "db" {
-  harbor           = data.hyperfluid_harbor.default.id
+  env           = data.hyperfluid_env.default.id
   name             = "tf-acc-pg"
   database_name    = "appdb"
   engine           = "postgresql"

@@ -112,11 +112,11 @@ func firstNonEmpty(vals ...string) string {
 	return ""
 }
 
-// splitHarborName parses a "harbor/name" import id into its two parts.
-func splitHarborName(id string) (harbor, name string, err error) {
+// splitEnvName parses a "env/name" import id into its two parts.
+func splitEnvName(id string) (env, name string, err error) {
 	parts := strings.SplitN(id, "/", 2)
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
-		return "", "", fmt.Errorf("expected import id in the form \"harbor/name\", got %q", id)
+		return "", "", fmt.Errorf("expected import id in the form \"env/name\", got %q", id)
 	}
 	return parts[0], parts[1], nil
 }
