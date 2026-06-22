@@ -68,6 +68,19 @@ func (c *Client) ListHarbors(ctx context.Context, orgID string) ([]console.Harbo
 	return *resp.JSON200, nil
 }
 
+// FindEnv resolves an environment by slug or display name, or ErrNotFound. Envs
+// are ambient (created out-of-band), so this is the lookup the env data source
+// uses to turn a human-known name into the id resources scope against.
+func (c *Client) FindEnv(ctx context.Context, orgID, name string) (*console.Harbor, error) {
+	envs, err := c.ListHarbors(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	return find(envs, func(h *console.Harbor) bool {
+		return h.Slug == name || h.Name == name
+	})
+}
+
 // ── Bucket (resource) ─────────────────────────────────────────────────────
 
 // GetBucket reads the single-bucket detail view (HFBucketDetail) — the only
