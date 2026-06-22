@@ -3,7 +3,6 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_bucket" "lake" {
-  env   = data.hyperfluid_env.default.id
-  name     = "data-lake"
-  quota_gb = 500
+  env  = data.hyperfluid_env.default.id
+  name = "data-lake"
 }
