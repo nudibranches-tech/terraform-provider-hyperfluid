@@ -49,14 +49,16 @@ func (c *Client) FindContainerAppID(ctx context.Context, orgID, harborID, name s
 	if err := statusErr("list container apps", resp.StatusCode(), resp.Body); err != nil {
 		return "", err
 	}
-	if resp.JSON200 != nil {
-		for _, a := range *resp.JSON200 {
-			if a.Name == name {
-				return a.Id.String(), nil
-			}
-		}
+	if resp.JSON200 == nil {
+		return "", ErrNotFound
 	}
-	return "", ErrNotFound
+	app, err := findByName(*resp.JSON200, name, func(a *console.ContainerAppResponse) string {
+		return a.Name
+	})
+	if err != nil {
+		return "", err
+	}
+	return app.Id.String(), nil
 }
 
 // GetContainerAppStatus returns the runtime view (phase, replica counts,
