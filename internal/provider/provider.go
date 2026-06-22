@@ -119,7 +119,12 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 	return []func() datasource.DataSource{
 		NewEnvDataSource,
 		NewSecretDataSource,
-		// M1+: storage, bifrost, app_template, bucket_credentials, registry views ...
+		NewBucketDataSource,
+		NewContainerAppDataSource,
+		NewManagedPostgresqlDataSource,
+		NewManagedPostgresqlUserDataSource,
+		NewKeyValueCacheDataSource,
+		NewBackupTargetDataSource,
 	}
 }
 

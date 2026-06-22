@@ -5,10 +5,13 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 )
 
 // env is ambient context (created out-of-band), so it is a data source, not
@@ -72,19 +75,16 @@ func (d *envDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	envs, err := d.p.API.ListHarbors(ctx, d.p.OrgID)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to list envs", err.Error())
+	want := cfg.Name.ValueString()
+	env, err := d.p.API.FindEnv(ctx, d.p.OrgID, want)
+	if errors.Is(err, client.ErrNotFound) {
+		resp.Diagnostics.AddError("Env not found", "no env named "+want+" in this organization")
 		return
 	}
-
-	want := cfg.Name.ValueString()
-	for _, h := range envs {
-		if h.Slug == want || h.Name == want {
-			cfg.ID = types.StringValue(h.Id.String())
-			resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
-			return
-		}
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to look up env", err.Error())
+		return
 	}
-	resp.Diagnostics.AddError("Env not found", "no env named "+want+" in this organization")
+	cfg.ID = types.StringValue(env.Id.String())
+	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
 }

@@ -122,13 +122,10 @@ func (c *Client) FindSecretByName(ctx context.Context, orgID, name string) (*con
 	if err := statusErr("list secrets", resp.StatusCode(), resp.Body); err != nil {
 		return nil, err
 	}
-	if resp.JSON200 != nil {
-		for _, s := range resp.JSON200.Secrets {
-			if s.Name == name {
-				meta := s
-				return &meta, nil
-			}
-		}
+	if resp.JSON200 == nil {
+		return nil, ErrNotFound
 	}
-	return nil, ErrNotFound
+	return findByName(resp.JSON200.Secrets, name, func(s *console.SecretMetadataResponse) string {
+		return s.Name
+	})
 }

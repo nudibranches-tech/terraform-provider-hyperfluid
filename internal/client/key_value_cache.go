@@ -55,6 +55,36 @@ func (c *Client) GetKeyValueCache(ctx context.Context, orgID, cacheID string) (*
 	return resp.JSON200, nil
 }
 
+// FindKeyValueCache resolves a cache's id by name within an environment, or
+// ErrNotFound. Backs the data source.
+func (c *Client) FindKeyValueCache(ctx context.Context, orgID, harborID, name string) (string, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return "", err
+	}
+	harbor, err := parseUUID("harbor", harborID)
+	if err != nil {
+		return "", err
+	}
+	resp, err := c.api.ListHfKeyValueCachesWithResponse(ctx, org, harbor)
+	if err != nil {
+		return "", err
+	}
+	if err := statusErr("list key-value caches", resp.StatusCode(), resp.Body); err != nil {
+		return "", err
+	}
+	if resp.JSON200 == nil {
+		return "", ErrNotFound
+	}
+	m, err := findByName(*resp.JSON200, name, func(x *console.HfKeyValueCacheResponse) string {
+		return x.Name
+	})
+	if err != nil {
+		return "", err
+	}
+	return m.Id.String(), nil
+}
+
 func (c *Client) PatchKeyValueCache(ctx context.Context, orgID, cacheID string, body console.PatchHfKeyValueCacheCrdRequestBody) error {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {
