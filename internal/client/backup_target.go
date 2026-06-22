@@ -91,6 +91,36 @@ func (c *Client) GetBackupTarget(ctx context.Context, orgID, id string) (*consol
 	return resp.JSON200, nil
 }
 
+// FindBackupTarget resolves a target's id by name within an environment, or
+// ErrNotFound. Backs the data source.
+func (c *Client) FindBackupTarget(ctx context.Context, orgID, harborID, name string) (string, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return "", err
+	}
+	harbor, err := parseUUID("harbor", harborID)
+	if err != nil {
+		return "", err
+	}
+	resp, err := c.api.ListBackupTargetsWithResponse(ctx, org, harbor)
+	if err != nil {
+		return "", err
+	}
+	if err := statusErr("list backup targets", resp.StatusCode(), resp.Body); err != nil {
+		return "", err
+	}
+	if resp.JSON200 == nil {
+		return "", ErrNotFound
+	}
+	m, err := findByName(*resp.JSON200, name, func(x *console.BackupTargetResponse) string {
+		return x.Name
+	})
+	if err != nil {
+		return "", err
+	}
+	return m.Id.String(), nil
+}
+
 func (c *Client) PatchBackupTarget(ctx context.Context, orgID, id string, body console.PatchBackupTargetCrdRequestBody) error {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {

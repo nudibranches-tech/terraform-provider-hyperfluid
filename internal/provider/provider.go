@@ -121,6 +121,10 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewSecretDataSource,
 		NewBucketDataSource,
 		NewContainerAppDataSource,
+		NewManagedPostgresqlDataSource,
+		NewManagedPostgresqlUserDataSource,
+		NewKeyValueCacheDataSource,
+		NewBackupTargetDataSource,
 	}
 }
 

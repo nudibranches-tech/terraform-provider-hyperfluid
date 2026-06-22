@@ -57,6 +57,36 @@ func (c *Client) GetManagedPostgresql(ctx context.Context, orgID, instanceID str
 	return resp.JSON200, nil
 }
 
+// FindManagedPostgresql resolves a cluster's id by name within an environment,
+// or ErrNotFound. Backs the data source.
+func (c *Client) FindManagedPostgresql(ctx context.Context, orgID, harborID, name string) (string, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return "", err
+	}
+	harbor, err := parseUUID("harbor", harborID)
+	if err != nil {
+		return "", err
+	}
+	resp, err := c.api.ListManagedPostgresqlsWithResponse(ctx, org, harbor)
+	if err != nil {
+		return "", err
+	}
+	if err := statusErr("list managed postgresqls", resp.StatusCode(), resp.Body); err != nil {
+		return "", err
+	}
+	if resp.JSON200 == nil {
+		return "", ErrNotFound
+	}
+	m, err := findByName(*resp.JSON200, name, func(x *console.ManagedPostgresqlResponse) string {
+		return x.Name
+	})
+	if err != nil {
+		return "", err
+	}
+	return m.Id.String(), nil
+}
+
 func (c *Client) PatchManagedPostgresql(ctx context.Context, orgID, instanceID string, body console.PatchManagedPostgresqlCrdRequestBody) error {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {
@@ -140,6 +170,32 @@ func (c *Client) GetManagedPostgresqlUser(ctx context.Context, orgID, clusterID,
 		return nil, fmt.Errorf("hyperfluid: get managed postgresql user: empty response")
 	}
 	return resp.JSON200, nil
+}
+
+// FindManagedPostgresqlUser resolves a user by username within a cluster, or
+// ErrNotFound. Returns the object (the data source's toModel needs it).
+func (c *Client) FindManagedPostgresqlUser(ctx context.Context, orgID, clusterID, username string) (*console.ManagedPostgresqlUserResponse, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	cluster, err := parseUUID("managed_postgresql", clusterID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.ListManagedPostgresqlUsersWithResponse(ctx, org, cluster)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("list managed postgresql users", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, ErrNotFound
+	}
+	return findByName(*resp.JSON200, username, func(u *console.ManagedPostgresqlUserResponse) string {
+		return u.Username
+	})
 }
 
 func (c *Client) PatchManagedPostgresqlUser(ctx context.Context, orgID, clusterID, userID string, body console.PatchManagedPostgresqlUserCrdRequestBody) error {
