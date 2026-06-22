@@ -84,6 +84,8 @@ func (d *managedPostgresqlUserDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
+	// Reuse the resource's mapper (it only needs the API client) so the model
+	// mapping lives in one place.
 	state, diags := (&managedPostgresqlUserResource{p: d.p}).toModel(ctx, cluster, u)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

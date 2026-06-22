@@ -88,6 +88,8 @@ func (d *backupTargetDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	// Reuse the resource's mapper (it only needs the API client) so the model
+	// mapping lives in one place.
 	state, err := (&backupTargetResource{p: d.p}).readInto(ctx, env, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target", err.Error())

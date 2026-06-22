@@ -100,6 +100,9 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	// Reuse the resource's mapper so spec/status → model lives in one place; it
+	// only needs the API client, so a zero-value resource with our providerData is
+	// enough. resource_tier isn't returned by the API → null on a data source.
 	state, err := (&containerAppResource{p: d.p}).readInto(ctx, env, appID, types.StringNull())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app", err.Error())

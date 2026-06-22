@@ -13,9 +13,18 @@ Look up an existing managed PostgreSQL user by username within a cluster.
 ## Example Usage
 
 ```terraform
-# Reference an existing PostgreSQL user by username within a cluster.
+data "hyperfluid_env" "default" {
+  name = "default"
+}
+
+# Look up the cluster by name, then a user within it.
+data "hyperfluid_managed_postgresql" "db" {
+  env  = data.hyperfluid_env.default.id
+  name = "appdb"
+}
+
 data "hyperfluid_managed_postgresql_user" "editor" {
-  managed_postgresql = "00000000-0000-0000-0000-000000000000"
+  managed_postgresql = data.hyperfluid_managed_postgresql.db.id
   username           = "app_editor"
 }
 

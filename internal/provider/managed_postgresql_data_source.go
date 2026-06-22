@@ -98,6 +98,8 @@ func (d *managedPostgresqlDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
+	// Reuse the resource's mapper (it only needs the API client) so the model
+	// mapping lives in one place.
 	state, err := (&managedPostgresqlResource{p: d.p}).readInto(ctx, env, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read managed PostgreSQL", err.Error())
