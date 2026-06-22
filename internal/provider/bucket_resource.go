@@ -20,9 +20,14 @@ import (
 )
 
 // bucket_resource.go is the REFERENCE resource — M1 clones this file per
-// resource. It demonstrates every shared pattern: ForceNew identity,
-// patch-only fields, wait-for-ready, delete-poll-to-404, and "env/name"
-// import.
+// resource. It demonstrates the shared patterns: ForceNew identity,
+// wait-for-ready, delete-poll-to-404, and "env/name" import.
+//
+// quota_gb / freeze_writes are deliberately NOT exposed: they are only settable
+// via the console bucket-PATCH endpoint, which currently 500s for any body
+// (backend bug nudibranches-tech/hyperfluid#2596). Both fields remain available
+// in the console UI (Settings → bucket) and can be re-added here once that bug
+// is fixed — see issue #16.
 
 var (
 	_ resource.Resource                = &bucketResource{}
@@ -41,12 +46,10 @@ type bucketResource struct {
 }
 
 type bucketModel struct {
-	ID           types.String `tfsdk:"id"`            // "env/name"
-	Env          types.String `tfsdk:"env"`           // ForceNew
-	Name         types.String `tfsdk:"name"`          // ForceNew
-	QuotaGB      types.Int64  `tfsdk:"quota_gb"`      // patch-only → Optional+Computed
-	FreezeWrites types.Bool   `tfsdk:"freeze_writes"` // patch-only → Optional+Computed
-	Ready        types.Bool   `tfsdk:"ready"`         // computed (status)
+	ID    types.String `tfsdk:"id"`    // "env/name"
+	Env   types.String `tfsdk:"env"`   // ForceNew
+	Name  types.String `tfsdk:"name"`  // ForceNew
+	Ready types.Bool   `tfsdk:"ready"` // computed (status)
 }
 
 func (r *bucketResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -71,16 +74,6 @@ func (r *bucketResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Required:            true,
 				MarkdownDescription: "Bucket name. Changing this forces a new bucket.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
-			},
-			"quota_gb": schema.Int64Attribute{
-				Optional:            true,
-				Computed:            true,
-				MarkdownDescription: "Storage quota in GB. Applied via update (not accepted at create).",
-			},
-			"freeze_writes": schema.BoolAttribute{
-				Optional:            true,
-				Computed:            true,
-				MarkdownDescription: "When true, the bucket rejects writes.",
 			},
 			"ready": schema.BoolAttribute{
 				Computed:            true,
@@ -116,9 +109,6 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// quota/freeze aren't accepted at create, so they're a follow-up PATCH.
-	// Wait for the bucket to reconcile first (a PATCH should target a ready
-	// bucket, not one still reconciling).
 	b, err := waitForReady(ctx, bucketWaitTimeout, func() (*console.HFBucketDetail, bool, error) {
 		b, err := r.p.API.GetBucket(ctx, env, name)
 		if err != nil {
@@ -129,24 +119,6 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil {
 		resp.Diagnostics.AddError("Bucket did not become ready", err.Error())
 		return
-	}
-
-	if !plan.QuotaGB.IsNull() || !plan.FreezeWrites.IsNull() {
-		if err := r.patch(ctx, plan); err != nil {
-			// The bucket was created but the follow-up PATCH failed. Roll it
-			// back so we don't leave an orphan that 409s on the next apply (H3).
-			// NOTE: the console bucket-PATCH endpoint currently 500s for any
-			// body (backend bug nudibranches-tech/hyperfluid#2596) — setting
-			// quota_gb/freeze_writes fails until that's fixed; creating a
-			// bucket without them works.
-			_ = r.p.API.DeleteBucket(ctx, env, name)
-			resp.Diagnostics.AddError("Failed to set bucket quota/freeze (bucket creation rolled back)", err.Error())
-			return
-		}
-		if b, err = r.p.API.GetBucket(ctx, env, name); err != nil {
-			resp.Diagnostics.AddError("Failed to read bucket after setting quota/freeze", err.Error())
-			return
-		}
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, r.toModel(env, b))...)
@@ -173,15 +145,13 @@ func (r *bucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, r.toModel(env, b))...)
 }
 
+// Update has no in-place-updatable fields — env and name both force replacement
+// and there are no other mutable attributes — so it is effectively unreachable.
+// It re-reads the live bucket to keep state consistent if it is ever called.
 func (r *bucketResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan bucketModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if err := r.patch(ctx, plan); err != nil {
-		resp.Diagnostics.AddError("Failed to update bucket", err.Error())
 		return
 	}
 
@@ -230,32 +200,11 @@ func (r *bucketResource) ImportState(ctx context.Context, req resource.ImportSta
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), name)...)
 }
 
-// patch sends only the in-place-updatable fields.
-func (r *bucketResource) patch(ctx context.Context, m bucketModel) error {
-	var body console.PatchHFBucketRequest
-	if !m.QuotaGB.IsNull() && !m.QuotaGB.IsUnknown() {
-		v := int32(m.QuotaGB.ValueInt64())
-		body.QuotaGb = &v
-	}
-	if !m.FreezeWrites.IsNull() && !m.FreezeWrites.IsUnknown() {
-		v := m.FreezeWrites.ValueBool()
-		body.FreezeWrites = &v
-	}
-	return r.p.API.PatchBucket(ctx, m.Env.ValueString(), m.Name.ValueString(), body)
-}
-
 func (r *bucketResource) toModel(env string, b *console.HFBucketDetail) bucketModel {
-	m := bucketModel{
-		ID:           types.StringValue(env + "/" + b.Name),
-		Env:          types.StringValue(env),
-		Name:         types.StringValue(b.Name),
-		FreezeWrites: types.BoolValue(b.FreezeWrites),
-		Ready:        types.BoolValue(b.Ready),
+	return bucketModel{
+		ID:    types.StringValue(env + "/" + b.Name),
+		Env:   types.StringValue(env),
+		Name:  types.StringValue(b.Name),
+		Ready: types.BoolValue(b.Ready),
 	}
-	if b.QuotaGb != nil {
-		m.QuotaGB = types.Int64Value(int64(*b.QuotaGb))
-	} else {
-		m.QuotaGB = types.Int64Null()
-	}
-	return m
 }

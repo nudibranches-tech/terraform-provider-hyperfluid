@@ -18,9 +18,8 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_bucket" "lake" {
-  env   = data.hyperfluid_env.default.id
-  name     = "data-lake"
-  quota_gb = 500
+  env  = data.hyperfluid_env.default.id
+  name = "data-lake"
 }
 ```
 
@@ -31,11 +30,6 @@ resource "hyperfluid_bucket" "lake" {
 
 - `env` (String) Environment id the bucket lives in. Changing this forces a new bucket.
 - `name` (String) Bucket name. Changing this forces a new bucket.
-
-### Optional
-
-- `freeze_writes` (Boolean) When true, the bucket rejects writes.
-- `quota_gb` (Number) Storage quota in GB. Applied via update (not accepted at create).
 
 ### Read-Only
 
