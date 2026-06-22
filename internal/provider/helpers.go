@@ -149,6 +149,28 @@ func waitForReady[T any](ctx context.Context, timeout time.Duration, poll func()
 	}
 }
 
+// conditionMessage scans Kubernetes-style status conditions — which the
+// generated client models as an untyped JSON value (`interface{}`) — and returns
+// the message of the named condition, or "" if it is absent or has no message.
+func conditionMessage(conditions interface{}, condType string) string {
+	arr, ok := conditions.([]interface{})
+	if !ok {
+		return ""
+	}
+	for _, c := range arr {
+		m, ok := c.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if t, _ := m["type"].(string); t == condType {
+			if msg, _ := m["message"].(string); msg != "" {
+				return msg
+			}
+		}
+	}
+	return ""
+}
+
 // pollGoneOn404 polls get until it returns client.ErrNotFound, confirming a
 // delete actually converged (M3: the API may 204 before the resource is gone).
 func pollGoneOn404(ctx context.Context, timeout time.Duration, get func() error) error {

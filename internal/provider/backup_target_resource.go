@@ -270,6 +270,17 @@ func (r *backupTargetResource) waitReady(ctx context.Context, id string) error {
 		if err != nil {
 			return nil, false, err
 		}
+		// Fail fast: the operator sets phase=Failed (with an S3Reachable condition
+		// explaining why — missing secret, unreachable bucket, denied permission)
+		// when the credentials/endpoint probe fails. Surfacing that beats polling
+		// the full timeout only to report a generic "did not become ready".
+		if bt.Phase == "Failed" {
+			msg := conditionMessage(bt.Conditions, "S3Reachable")
+			if msg == "" {
+				msg = "backup target entered the Failed phase"
+			}
+			return nil, false, errors.New(msg)
+		}
 		return bt, bt.Phase == "Ready", nil
 	})
 	return err
