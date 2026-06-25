@@ -42,3 +42,4 @@ output "bucket_ready" {
 - `id` (String) Composite identifier `env/name`.
 - `quota_gb` (Number) Storage quota in GB (null if unset).
 - `ready` (Boolean) Whether the bucket is provisioned and ready.
+- `storage_zone_id` (String) Storage zone the bucket lives in (`default` for the primary).

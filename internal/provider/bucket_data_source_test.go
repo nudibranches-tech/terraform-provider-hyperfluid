@@ -37,6 +37,7 @@ data "hyperfluid_bucket" "by_name" {
 					resource.TestCheckResourceAttr("data.hyperfluid_bucket.by_name", "name", "tf-acc-ds-bucket"),
 					resource.TestCheckResourceAttrPair("data.hyperfluid_bucket.by_name", "id", "hyperfluid_bucket.test", "id"),
 					resource.TestCheckResourceAttr("data.hyperfluid_bucket.by_name", "ready", "true"),
+					resource.TestCheckResourceAttr("data.hyperfluid_bucket.by_name", "storage_zone_id", "default"),
 				),
 			},
 		},

@@ -46,10 +46,11 @@ type bucketResource struct {
 }
 
 type bucketModel struct {
-	ID    types.String `tfsdk:"id"`    // "env/name"
-	Env   types.String `tfsdk:"env"`   // ForceNew
-	Name  types.String `tfsdk:"name"`  // ForceNew
-	Ready types.Bool   `tfsdk:"ready"` // computed (status)
+	ID            types.String `tfsdk:"id"`              // "env/name"
+	Env           types.String `tfsdk:"env"`             // ForceNew
+	Name          types.String `tfsdk:"name"`            // ForceNew
+	StorageZoneID types.String `tfsdk:"storage_zone_id"` // ForceNew, computed when omitted
+	Ready         types.Bool   `tfsdk:"ready"`           // computed (status)
 }
 
 func (r *bucketResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -74,6 +75,22 @@ func (r *bucketResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Required:            true,
 				MarkdownDescription: "Bucket name. Changing this forces a new bucket.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
+			},
+			"storage_zone_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "Storage zone the bucket is placed in. Omit for the org's " +
+					"primary zone (`default`). Placement is fixed at creation, so changing " +
+					"this forces a new bucket. A non-default value must be a zone the org has enabled.",
+				PlanModifiers: []planmodifier.String{
+					// Hold the resolved zone (the API fills "default" when omitted) so an
+					// unconfigured bucket keeps its stored value instead of planning unknown.
+					stringplanmodifier.UseStateForUnknown(),
+					// Only force replacement when the zone is explicitly configured and
+					// changes — an omitted zone resolves to the stored value (see above),
+					// so it must never look like a change that recreates the bucket.
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
 			},
 			"ready": schema.BoolAttribute{
 				Computed:            true,
@@ -104,7 +121,7 @@ func (r *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	env := plan.Env.ValueString()
 	name := plan.Name.ValueString()
-	if err := r.p.API.CreateBucket(ctx, env, name); err != nil {
+	if err := r.p.API.CreateBucket(ctx, env, name, plan.StorageZoneID.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Failed to create bucket", err.Error())
 		return
 	}
@@ -202,9 +219,10 @@ func (r *bucketResource) ImportState(ctx context.Context, req resource.ImportSta
 
 func (r *bucketResource) toModel(env string, b *console.HFBucketDetail) bucketModel {
 	return bucketModel{
-		ID:    types.StringValue(env + "/" + b.Name),
-		Env:   types.StringValue(env),
-		Name:  types.StringValue(b.Name),
-		Ready: types.BoolValue(b.Ready),
+		ID:            types.StringValue(env + "/" + b.Name),
+		Env:           types.StringValue(env),
+		Name:          types.StringValue(b.Name),
+		StorageZoneID: types.StringValue(b.ZoneId),
+		Ready:         types.BoolValue(b.Ready),
 	}
 }

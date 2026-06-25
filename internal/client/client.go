@@ -103,12 +103,18 @@ func (c *Client) GetBucket(ctx context.Context, harborID, name string) (*console
 	return resp.JSON200, nil
 }
 
-func (c *Client) CreateBucket(ctx context.Context, harborID, name string) error {
+// CreateBucket places the bucket in zoneID, or the org's primary zone when
+// zoneID is empty (the API resolves an omitted zone_id to "default").
+func (c *Client) CreateBucket(ctx context.Context, harborID, name, zoneID string) error {
 	harbor, err := parseUUID("harbor", harborID)
 	if err != nil {
 		return err
 	}
-	resp, err := c.api.CreateHarborBucketWithResponse(ctx, harbor, console.CreateHFBucketRequest{Name: name})
+	body := console.CreateHFBucketRequest{Name: name}
+	if zoneID != "" {
+		body.ZoneId = &zoneID
+	}
+	resp, err := c.api.CreateHarborBucketWithResponse(ctx, harbor, body)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,26 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/.well-known/terraform.json": {
+      "get": {
+        "tags": [
+          "Terraform Registry"
+        ],
+        "operationId": "well_known",
+        "responses": {
+          "200": {
+            "description": "Terraform service discovery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/dev/forgejo/{harbor_id}/repositories": {
       "get": {
         "tags": [
@@ -959,6 +979,50 @@
         }
       }
     },
+    "/api/dev/workstations/{id}/agent/permissions": {
+      "get": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "list_pending_permissions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently pending permission requests across all sessions of the workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingPermission"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
     "/api/dev/workstations/{id}/agent/sessions": {
       "get": {
         "tags": [
@@ -1048,6 +1112,92 @@
           },
           "404": {
             "description": "Workstation not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/sessions/{sid}": {
+      "delete": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "delete_session",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "sid",
+            "in": "path",
+            "description": "Opencode session id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session deleted"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation or session not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/sessions/{sid}/abort": {
+      "post": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "abort_session",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "sid",
+            "in": "path",
+            "description": "Opencode session id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "In-flight turn aborted (or nothing was running)"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation or session not found"
           },
           "502": {
             "description": "Opencode upstream error"
@@ -1202,6 +1352,68 @@
           },
           "404": {
             "description": "Workstation or session not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/sessions/{sid}/permissions/{rid}/reply": {
+      "post": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "reply_permission",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "sid",
+            "in": "path",
+            "description": "Opencode session id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rid",
+            "in": "path",
+            "description": "Opencode permission request id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermissionReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Permission reply forwarded to opencode"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation, session or permission not found"
           },
           "502": {
             "description": "Opencode upstream error"
@@ -3422,6 +3634,135 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/data-docks/{data_dock_id}/catalogs": {
+      "get": {
+        "tags": [
+          "super::catalog_handlers"
+        ],
+        "operationId": "list_data_dock_catalogs",
+        "parameters": [
+          {
+            "name": "data_dock_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of TrinoCatalog CRDs in the DataDock namespace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DataDockCatalogInfo"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DataDock not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "super::catalog_handlers"
+        ],
+        "operationId": "create_data_dock_catalog",
+        "parameters": [
+          {
+            "name": "data_dock_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDataDockCatalogRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "TrinoCatalog CRD applied; operator reconciles asynchronously",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateDataDockCatalogResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request: bad name format or missing bucket_name for Iceberg kind"
+          },
+          "404": {
+            "description": "DataDock not found"
+          },
+          "409": {
+            "description": "A TrinoCatalog with this name already exists in the DataDock"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/data-docks/{data_dock_id}/catalogs/{catalog_name}": {
+      "delete": {
+        "tags": [
+          "super::catalog_handlers"
+        ],
+        "operationId": "delete_data_dock_catalog",
+        "parameters": [
+          {
+            "name": "data_dock_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "catalog_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "TrinoCatalog CRD deleted; operator handles teardown asynchronously"
+          },
+          "404": {
+            "description": "DataDock or TrinoCatalog not found"
           },
           "500": {
             "description": "Internal server error"
@@ -5964,6 +6305,9 @@
           "400": {
             "description": "Bad request — e.g. clear_health_check combined with path/port, or port-only update without an existing health check"
           },
+          "403": {
+            "description": "Organization capacity quota exceeded"
+          },
           "404": {
             "description": "Container app not found"
           },
@@ -7320,6 +7664,9 @@
           "400": {
             "description": "Invalid request"
           },
+          "403": {
+            "description": "Organization capacity quota exceeded"
+          },
           "404": {
             "description": "Organization or harbor not found"
           },
@@ -7554,7 +7901,7 @@
           "Forgejo Runners"
         ],
         "summary": "Create a `ForgejoRunner` CR for the harbor's forge.",
-        "description": "The forge coordinates are resolved automatically from `harbor_id` —\nthe caller never supplies `forge_namespace` or `forge_container_app`\ndirectly.  Returns 201 on success; 409 if a runner with that name already\nexists in the forge namespace.",
+        "description": "The forge coordinates are resolved automatically from `harbor_id` —\nthe caller never supplies `forge_namespace` or `forge_container_app`\ndirectly.  Returns 201 on success; 409 if a runner with that name already\nexists in the forge namespace.\n\n## CI registry wiring (best-effort, console-internal)\n\nAfter the CR is created the console automatically:\n1. Creates (or rotates) a harbor-scoped service account with the `editor`\n   role so CI jobs can pull, push, and delete images within the harbor's\n   registry projects.\n2. Sets three org-level Forgejo Actions secrets (`REGISTRY_HOST`,\n   `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`) so workflow steps can\n   `docker login` without any manual configuration.\n\nThe registry host (`registry.<base-domain>`) is injected into\n`spec.extra_egress_fqdns` so the operator's `CiliumNetworkPolicy` allows\noutbound HTTPS to the registry from inside the Kata microVM.\n\nOn clusters with a private platform CA (mkcert / corporate PKI) the\noperator additionally mounts the CA cert into the `dind` sidecar at\n`/etc/docker/certs.d/<registry_host>/ca.crt`; this is driven by\n`spec.registry_host` (set here) and the operator's `platform_ca_cert_b64`.\n\n**Provisioning failures do not roll back the CR.** The runner itself is\nfunctional regardless. If provisioning fails it is logged as a warning;\ndeleting and re-creating the runner retries it (idempotent via Vault).\nThe best-effort choice matches the operator's own pattern of decoupling\nCR creation from reconciliation: the CR is the authority, wiring is async.",
         "operationId": "create_forgejo_runner",
         "parameters": [
           {
@@ -8739,7 +9086,7 @@
         "tags": [
           "RegistryViews"
         ],
-        "summary": "List tags for `<org>/<harbor>/<project>/<image>`, with each tag's manifest digest and\nbest-effort size, **gated on the caller's Hyperfluid org role**.",
+        "summary": "List tags for `<harbor>/<project>/<image>`, with each tag's manifest digest and\nbest-effort size, **gated on the caller's Hyperfluid org role**.",
         "description": "Any org member (viewer / editor / owner) can read tags for any project in\nthe harbor's registry. A caller with no org role gets `404` (indistinguishable\nfrom \"no such project\" — no existence leak). This mirrors how caas / dbaas /\nbuckets are gated — a single org-level role, no per-project membership table.",
         "operationId": "get_registry_image_tags",
         "parameters": [
@@ -8773,7 +9120,7 @@
           {
             "name": "image",
             "in": "path",
-            "description": "The image (repository leaf) under the project — the `<image>` segment of\n`<org>/<harbor>/<project>/<image>`.",
+            "description": "The image (repository leaf) under the project — the `<image>` segment of\n`<harbor>/<project>/<image>`.",
             "required": true,
             "schema": {
               "type": "string"
@@ -11361,6 +11708,53 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/pipelines/test-imap-connection": {
+      "post": {
+        "tags": [
+          "Pipelines"
+        ],
+        "operationId": "test_imap_connection",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestImapConnectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "IMAP connection test result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestImapConnectionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/pipelines/{pipeline_id}": {
       "get": {
         "tags": [
@@ -12908,6 +13302,86 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/storage/zones": {
+      "get": {
+        "tags": [
+          "OrgStorage"
+        ],
+        "operationId": "list_org_storage_zones",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StorageZoneView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/storage/zones/{zone_id}": {
+      "post": {
+        "tags": [
+          "OrgStorage"
+        ],
+        "operationId": "enable_org_storage_zone",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "zone_id",
+            "in": "path",
+            "description": "Catalog id of the storage zone (matches a `cephZones` entry and the\nOrgStorage CR name in the org namespace).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zone enabled (or already enabled)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgStorageView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Primary zone, unknown zone id, or zone shares the primary's CephCluster"
+          },
+          "404": {
+            "description": "Primary storage backend not provisioned for this organization"
           }
         }
       }
@@ -15824,6 +16298,39 @@
         }
       }
     },
+    "/downloads/terraform-provider/{version}/{filename}": {
+      "get": {
+        "tags": [
+          "Terraform Registry"
+        ],
+        "operationId": "download_artifact",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Provider version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "description": "Artifact filename (zip / SHA256SUMS / .sig)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider artifact (zip / SHA256SUMS / .sig)"
+          }
+        }
+      }
+    },
     "/registry/token": {
       "get": {
         "tags": [
@@ -15878,6 +16385,113 @@
           },
           "503": {
             "description": "Signing key not yet available (cert-manager Secret not mounted)"
+          }
+        }
+      }
+    },
+    "/v1/providers/{namespace}/{provider_type}/versions": {
+      "get": {
+        "tags": [
+          "Terraform Registry"
+        ],
+        "operationId": "list_versions",
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "description": "Provider namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider_type",
+            "in": "path",
+            "description": "Provider type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available provider versions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/providers/{namespace}/{provider_type}/{version}/download/{os}/{arch}": {
+      "get": {
+        "tags": [
+          "Terraform Registry"
+        ],
+        "operationId": "download",
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "description": "Provider namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider_type",
+            "in": "path",
+            "description": "Provider type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Provider version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "os",
+            "in": "path",
+            "description": "Target operating system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "arch",
+            "in": "path",
+            "description": "Target architecture",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Download metadata for a provider build",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -16993,6 +17607,47 @@
           }
         }
       },
+      "CapacityUsageItemResponse": {
+        "type": "object",
+        "required": [
+          "dimension",
+          "status",
+          "current",
+          "requested",
+          "limit",
+          "percentage",
+          "unit"
+        ],
+        "properties": {
+          "current": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dimension": {
+            "$ref": "#/components/schemas/QuotaCapacityDimension"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double",
+            "description": "Usage percentage (0-100+) based on post-admission value (current + requested),\nor -1 if unlimited (limit < 0)."
+          },
+          "requested": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "$ref": "#/components/schemas/QuotaStatus"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Canonical display unit for the dimension's values (millicores / MiB / GiB)."
+          }
+        }
+      },
       "CatalogExposureResponse": {
         "type": "object",
         "required": [
@@ -17638,16 +18293,31 @@
       },
       "ConnectorDescriptorResponse": {
         "type": "object",
-        "description": "Static description of one opendata connector (slug + human title + JSON\nSchema of the connector's params, used to drive the dynamic UI form).",
+        "description": "Static description of one opendata connector: slug, human title, a one-line\nsummary, catalog facets (category + region), and the JSON Schema of the\nconnector's params used to drive the dynamic UI form.",
         "required": [
           "slug",
           "title",
+          "description",
+          "category",
+          "region",
           "params_schema"
         ],
         "properties": {
+          "category": {
+            "type": "string",
+            "description": "Broad subject area (snake_case), e.g. `health`, `finance`, `transport`."
+          },
+          "description": {
+            "type": "string",
+            "description": "One-line, human description of what the source provides."
+          },
           "params_schema": {
             "type": "object",
             "description": "JSON Schema object describing the connector's `params` shape."
+          },
+          "region": {
+            "type": "string",
+            "description": "Geographic coverage (snake_case), e.g. `global`, `france`, `united_kingdom`."
           },
           "slug": {
             "type": "string"
@@ -17812,7 +18482,11 @@
           "updated_replicas",
           "updated_ready_replicas",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "replicas",
+          "vcpu_millis",
+          "ram_mib",
+          "storage_gib"
         ],
         "properties": {
           "available_replicas": {
@@ -17855,8 +18529,20 @@
             "type": "string",
             "nullable": true
           },
+          "ram_mib": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32"
+          },
           "slug": {
             "type": "string"
+          },
+          "storage_gib": {
+            "type": "integer",
+            "format": "int32"
           },
           "tags": {
             "type": "array",
@@ -17873,6 +18559,10 @@
             "format": "int32"
           },
           "updated_replicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vcpu_millis": {
             "type": "integer",
             "format": "int32"
           }
@@ -18734,6 +19424,46 @@
           }
         }
       },
+      "CreateDataDockCatalogRequest": {
+        "type": "object",
+        "description": "Request body for `POST /api/v1/data-docks/{data_dock_id}/catalogs`.\n\nDeclaratively applies a `TrinoCatalog` CRD in the dock namespace. Returns\nimmediately with 201; the operator reconciles asynchronously.\n`wait_for_trino_catalog_ready` is **never** called.",
+        "required": [
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "bucket_name": {
+            "type": "string",
+            "description": "`HFBucket` name that backs the Iceberg warehouse. Required when\n`kind = Iceberg`; ignored for all other kinds.",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/DataDockCatalogKind"
+          },
+          "name": {
+            "type": "string",
+            "description": "Catalog name — becomes both `metadata.name` and `spec.name` on the\n`TrinoCatalog` CR. Must be a K8s RFC1123 DNS label: lowercase\nalphanumeric + hyphens, no leading/trailing hyphens, ≤ 63 characters."
+          }
+        }
+      },
+      "CreateDataDockCatalogResponse": {
+        "type": "object",
+        "description": "Response for `POST /api/v1/data-docks/{data_dock_id}/catalogs`.\n\nReturned immediately after the `TrinoCatalog` CRD is applied.",
+        "required": [
+          "catalog_name",
+          "data_dock_slug"
+        ],
+        "properties": {
+          "catalog_name": {
+            "type": "string",
+            "description": "Name of the `TrinoCatalog` CR that was created."
+          },
+          "data_dock_slug": {
+            "type": "string",
+            "description": "Slug of the DataDock that owns the catalog."
+          }
+        }
+      },
       "CreateDataDockRequestBody": {
         "type": "object",
         "required": [
@@ -19007,21 +19737,27 @@
         "required": [
           "pipeline",
           "source",
-          "destination_data_container_id"
+          "harbor_id",
+          "bucket_name"
         ],
         "properties": {
-          "destination_data_container_id": {
+          "bucket_name": {
             "type": "string",
-            "format": "uuid",
-            "description": "Destination S3 DataDock to land the files into"
+            "description": "HFBucket CRD name (must be Ready)"
           },
           "destination_prefix": {
             "type": "string",
+            "description": "Optional prefix path within the destination bucket",
             "nullable": true
           },
           "extraction": {
             "$ref": "#/components/schemas/GDriveExtractionConfig",
             "nullable": true
+          },
+          "harbor_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Harbor UUID that owns the destination bucket"
           },
           "pipeline": {
             "$ref": "#/components/schemas/PipelineMetadata"
@@ -19059,6 +19795,11 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "zone_id": {
+            "type": "string",
+            "description": "Storage zone the bucket lands in; omit for the primary. A non-default\nvalue must be a zone the org has enabled.",
+            "nullable": true
           }
         }
       },
@@ -19197,6 +19938,30 @@
           "table_properties": {
             "$ref": "#/components/schemas/Value",
             "nullable": true
+          }
+        }
+      },
+      "CreateInboundEmailPipelineRequest": {
+        "type": "object",
+        "description": "Inbound email pipeline request: extract attachments from incoming emails and land to S3.\nTransport-agnostic — the `source` config determines how emails are received (IMAP, SMTP, etc.)",
+        "required": [
+          "pipeline",
+          "source",
+          "destination"
+        ],
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/InboundEmailDestinationConfig"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/InboundEmailExtractionConfig",
+            "nullable": true
+          },
+          "pipeline": {
+            "$ref": "#/components/schemas/PipelineMetadata"
+          },
+          "source": {
+            "$ref": "#/components/schemas/InboundEmailSourceConfig"
           }
         }
       },
@@ -19710,6 +20475,28 @@
           {
             "allOf": [
               {
+                "$ref": "#/components/schemas/CreateInboundEmailPipelineRequest"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "inbound_email"
+                    ]
+                  }
+                }
+              }
+            ],
+            "description": "InboundEmail: extract attachments from incoming emails (IMAP, SMTP, etc.) and load into S3"
+          },
+          {
+            "allOf": [
+              {
                 "$ref": "#/components/schemas/CreateOpenDataPipelineRequest"
               },
               {
@@ -19783,7 +20570,7 @@
           },
           "name": {
             "type": "string",
-            "description": "The `<project>` path segment in `<org>/<harbor>/<project>/<image>`."
+            "description": "The `<project>` path segment in `<harbor>/<project>/<image>`."
           }
         }
       },
@@ -20395,6 +21182,44 @@
           }
         }
       },
+      "DataDockCatalogInfo": {
+        "type": "object",
+        "description": "CRD status summary for a single `TrinoCatalog`, as returned by\n`GET /api/v1/data-docks/{data_dock_id}/catalogs`.\n\nCarries the connector `kind` and the current operator reconcile `phase`\nthat the Trino metadata endpoint (`/catalog`) does not expose, letting the\nSQL Engine Catalogs UI show type + status badges.",
+        "required": [
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Connector kind as a lowercase string (e.g. `\"iceberg\"`, `\"tpch\"`).\nDerived from `spec.type` via [`TrinoCatalogType`]'s `Display` impl."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable operator message (`status.message`), or `null`.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Catalog name (`spec.name` on the `TrinoCatalog` CR)."
+          },
+          "phase": {
+            "type": "string",
+            "description": "Current reconcile phase (`status.phase`), or `null` if the operator\nhas not yet written a status (CR just applied, no reconcile yet).",
+            "nullable": true
+          }
+        }
+      },
+      "DataDockCatalogKind": {
+        "type": "string",
+        "description": "Connector kind — the four non-blocking management-UI-facing catalog variants.\n\n`Postgresql` is intentionally omitted: PostgreSQL catalogs carry a\ncredential lifecycle that the imperative data-container flow manages.",
+        "enum": [
+          "Iceberg",
+          "Tpch",
+          "Tpcds",
+          "Faker"
+        ]
+      },
       "DataDockExternalResponseData": {
         "type": "object",
         "description": "External API response — strips infra details (namespaces) from user-facing endpoints.",
@@ -20457,20 +21282,6 @@
           {
             "type": "object",
             "required": [
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "Trino"
-                ]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "required": [
               "content",
               "type"
             ],
@@ -20516,24 +21327,6 @@
             ],
             "properties": {
               "content": {
-                "$ref": "#/components/schemas/TrinoConfigResponse"
-              },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "Trino"
-                ]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "required": [
-              "content",
-              "type"
-            ],
-            "properties": {
-              "content": {
                 "$ref": "#/components/schemas/TrinoInternalConfigResponse"
               },
               "type": {
@@ -20566,24 +21359,6 @@
       },
       "DataDockKindRequest": {
         "oneOf": [
-          {
-            "type": "object",
-            "required": [
-              "content",
-              "type"
-            ],
-            "properties": {
-              "content": {
-                "$ref": "#/components/schemas/TrinoConfigRequest"
-              },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "Trino"
-                ]
-              }
-            }
-          },
           {
             "type": "object",
             "required": [
@@ -20969,6 +21744,17 @@
           }
         }
       },
+      "DiscoveryResponse": {
+        "type": "object",
+        "required": [
+          "providers.v1"
+        ],
+        "properties": {
+          "providers.v1": {
+            "type": "string"
+          }
+        }
+      },
       "DomainVerificationResponse": {
         "type": "object",
         "required": [
@@ -21041,6 +21827,53 @@
           "verified"
         ]
       },
+      "DownloadResponse": {
+        "type": "object",
+        "required": [
+          "protocols",
+          "os",
+          "arch",
+          "filename",
+          "download_url",
+          "shasums_url",
+          "shasums_signature_url",
+          "shasum",
+          "signing_keys"
+        ],
+        "properties": {
+          "arch": {
+            "type": "string"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "Root-relative; Terraform resolves it against the registry host it queried."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "os": {
+            "type": "string"
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shasum": {
+            "type": "string"
+          },
+          "shasums_signature_url": {
+            "type": "string"
+          },
+          "shasums_url": {
+            "type": "string"
+          },
+          "signing_keys": {
+            "$ref": "#/components/schemas/SigningKeys"
+          }
+        }
+      },
       "DownloadServiceAccountResponse": {
         "type": "object",
         "required": [
@@ -21048,9 +21881,16 @@
           "client_secret",
           "auth_uri",
           "token_uri",
-          "issuer"
+          "issuer",
+          "org",
+          "org_id",
+          "api_url"
         ],
         "properties": {
+          "api_url": {
+            "type": "string",
+            "description": "Console API base URL the CLI should target (same value used to generate\nthe install script)."
+          },
           "auth_uri": {
             "type": "string"
           },
@@ -21062,6 +21902,15 @@
           },
           "issuer": {
             "type": "string"
+          },
+          "org": {
+            "type": "string",
+            "description": "Organization slug — lets `hfctl auth login --service-account` configure\nthe org automatically, no manual `hfctl config set` needed."
+          },
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Organization UUID — cached client-side so hfctl skips the slug→id lookup."
           },
           "token_uri": {
             "type": "string"
@@ -22038,6 +22887,7 @@
           "app_version",
           "sapience_api_url",
           "console_base_domain",
+          "console_public_url",
           "ceph_zones"
         ],
         "properties": {
@@ -22065,6 +22915,10 @@
           "console_base_domain": {
             "type": "string",
             "description": "The base domain for the console (e.g., \"localhost\" for dev, \"hyperfluid.app\" for prod)."
+          },
+          "console_public_url": {
+            "type": "string",
+            "description": "Full canonical public URL of the console (e.g. \"https://console.hyperfluid.cloud\").\nLets the frontend show canonical URLs (e.g. the CLI install command) instead\nof the org-subdomain origin the user happens to be browsing."
           },
           "console_service_account_client_id": {
             "type": "string"
@@ -22201,6 +23055,21 @@
           }
         }
       },
+      "GpgPublicKey": {
+        "type": "object",
+        "required": [
+          "key_id",
+          "ascii_armor"
+        ],
+        "properties": {
+          "ascii_armor": {
+            "type": "string"
+          },
+          "key_id": {
+            "type": "string"
+          }
+        }
+      },
       "Grant": {
         "type": "object",
         "description": "A persisted authorization grant. Exactly one of `role_id` / `permission_id`\nis set (role-bundle grant vs fine-grained grant). The resource *type* is not\nstored: it is derived from each permission's family at projection time, so a\ngrant can't drift from the permission it gates.",
@@ -22263,8 +23132,11 @@
         "required": [
           "name",
           "harbor_name",
+          "zone_id",
           "created_at",
           "ready",
+          "quota_is_default",
+          "region",
           "freeze_writes"
         ],
         "properties": {
@@ -22278,7 +23150,7 @@
           },
           "endpoint": {
             "type": "string",
-            "description": "S3 endpoint URL servicing this bucket.",
+            "description": "External HTTPS S3 endpoint URL clients use to reach this bucket.",
             "nullable": true
           },
           "freeze_writes": {
@@ -22300,11 +23172,19 @@
           "quota_gb": {
             "type": "integer",
             "format": "int32",
-            "description": "Per-bucket quota in GB (spec override if set, otherwise the org default).",
+            "description": "Effective per-bucket quota in GB actually enforced on RGW: an explicit\n`spec.quotaGb` override if set, otherwise the org-wide default. `None`\nmeans no quota is enforced (genuinely unlimited).",
             "nullable": true
+          },
+          "quota_is_default": {
+            "type": "boolean",
+            "description": "True when `quota_gb` reflects the org-wide default rather than an\nexplicit per-bucket override (the bucket has no `spec.quotaGb` and\ninherits `OrgStorage.defaultPerBucketQuotaGb`). Lets the UI show the\ninherited value without pinning it as an override on save."
           },
           "ready": {
             "type": "boolean"
+          },
+          "region": {
+            "type": "string",
+            "description": "S3-protocol region clients must sign with. This is the RGW zonegroup\n`api_name` the backend signs SigV4 against (`\"default\"`), **not** a\nphysical location — surfaced so SDKs can be configured correctly."
           },
           "size_bytes": {
             "type": "integer",
@@ -22315,6 +23195,10 @@
           "status_message": {
             "type": "string",
             "nullable": true
+          },
+          "zone_id": {
+            "type": "string",
+            "description": "Storage zone the bucket lives in (`\"default\"` for the primary)."
           }
         }
       },
@@ -22324,6 +23208,7 @@
           "name",
           "namespace",
           "harbor_name",
+          "zone_id",
           "ready"
         ],
         "properties": {
@@ -22348,6 +23233,10 @@
           "status_message": {
             "type": "string",
             "nullable": true
+          },
+          "zone_id": {
+            "type": "string",
+            "description": "Storage zone the bucket lives in (`\"default\"` for the primary)."
           }
         }
       },
@@ -22389,6 +23278,7 @@
           "namespace",
           "harbor_slug",
           "tenant",
+          "zone_id",
           "quota_gb",
           "ready",
           "tenant_ensured",
@@ -22449,6 +23339,10 @@
           },
           "tenant_ensured": {
             "type": "boolean"
+          },
+          "zone_id": {
+            "type": "string",
+            "description": "Storage zone this tenant lives in (`\"default\"` for the primary)."
           }
         }
       },
@@ -23040,6 +23934,56 @@
           }
         }
       },
+      "ImapTransportConfig": {
+        "type": "object",
+        "description": "IMAP transport configuration (used within InboundEmailSourceConfig)",
+        "required": [
+          "host",
+          "port",
+          "username",
+          "password",
+          "folder"
+        ],
+        "properties": {
+          "ca_cert": {
+            "type": "string",
+            "description": "Optional PEM-encoded CA certificate for TLS verification",
+            "nullable": true
+          },
+          "catch_all": {
+            "type": "boolean",
+            "description": "Whether to process all messages (true) or only those with attachments (false)"
+          },
+          "folder": {
+            "type": "string",
+            "description": "IMAP folder to poll (e.g. \"INBOX\")"
+          },
+          "host": {
+            "type": "string",
+            "description": "IMAP server host"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "IMAP password"
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "description": "IMAP server port (usually 993 for SSL/TLS)",
+            "minimum": 0
+          },
+          "use_tls": {
+            "type": "boolean",
+            "description": "Use TLS (default: true). Set to false for plain IMAP, e.g. local dev without certs.",
+            "default": true
+          },
+          "username": {
+            "type": "string",
+            "description": "IMAP username"
+          }
+        }
+      },
       "ImportApiExtraFilter": {
         "type": "object",
         "description": "Filter on a field within the `extra` JSON object returned by the Import API.",
@@ -23057,6 +24001,117 @@
             "description": "Expected string value"
           }
         }
+      },
+      "InboundEmailDestinationConfig": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Legacy path: resolve via DataContainerBucket UUID.",
+            "required": [
+              "data_container_id",
+              "type"
+            ],
+            "properties": {
+              "data_container_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Data Container ID for the destination bucket"
+              },
+              "destination_prefix": {
+                "type": "string",
+                "description": "Optional prefix path within the destination bucket",
+                "nullable": true
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "data_container"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "ADR-0008 path: resolve via Harbor-scoped HFBucket CRD.",
+            "required": [
+              "harbor_id",
+              "bucket_name",
+              "type"
+            ],
+            "properties": {
+              "bucket_name": {
+                "type": "string",
+                "description": "HFBucket CRD name (must be Ready)"
+              },
+              "destination_prefix": {
+                "type": "string",
+                "description": "Optional prefix path within the destination bucket",
+                "nullable": true
+              },
+              "harbor_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Harbor UUID that owns the bucket"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "harbor_bucket"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "S3 destination for an inbound email pipeline.\n\nTwo variants are accepted:\n\n* **`DataContainer`** (legacy) — a `DataContainerBucket` UUID from Postgres.\n\n* **`HarborBucket`** (ADR-0008) — an `HFBucket` CRD name under a Harbor UUID.\n  The bucket must exist and be Ready. No legacy fallback."
+      },
+      "InboundEmailExtractionConfig": {
+        "type": "object",
+        "description": "Optional extraction step appended after landing attachments to S3 in an inbound email pipeline",
+        "required": [
+          "metadata_storage"
+        ],
+        "properties": {
+          "metadata_storage": {
+            "$ref": "#/components/schemas/MetadataStorageConfig"
+          },
+          "ocr_api_key": {
+            "type": "string",
+            "format": "password",
+            "description": "API key for Mistral OCR. Required when ocr_provider is Mistral (the default).",
+            "nullable": true
+          },
+          "ocr_provider": {
+            "$ref": "#/components/schemas/OcrProviderConfig",
+            "nullable": true
+          }
+        }
+      },
+      "InboundEmailSourceConfig": {
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImapTransportConfig"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "transport"
+                ],
+                "properties": {
+                  "transport": {
+                    "type": "string",
+                    "enum": [
+                      "imap"
+                    ]
+                  }
+                }
+              }
+            ],
+            "description": "Poll an IMAP mailbox for new messages"
+          }
+        ],
+        "description": "Transport-agnostic inbound email source configuration.\nThe transport variant determines how emails are physically received."
       },
       "InvitationPreview": {
         "type": "object",
@@ -24859,9 +25914,16 @@
         "type": "object",
         "required": [
           "profile",
-          "usage"
+          "usage",
+          "capacity"
         ],
         "properties": {
+          "capacity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapacityUsageItemResponse"
+            }
+          },
           "profile": {
             "$ref": "#/components/schemas/QuotaProfileResponse"
           },
@@ -25305,6 +26367,37 @@
           }
         }
       },
+      "PendingPermission": {
+        "type": "object",
+        "description": "One opencode permission request that is CURRENTLY pending (awaiting a user\ndecision), normalized into the same `{ id, sessionId, action, resources }`\nshape the frontend already derives from the live `permission.asked` event\nstream. The list endpoint returns ALL pending requests across ALL sessions\nof the workstation (parent + `task` sub-agents) so the browser can reconcile\nprompts it never saw on the socket (reconnect, connection gap) and so a\nprompt is never lost.",
+        "required": [
+          "id",
+          "session_id",
+          "action",
+          "resources"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The permission being requested (e.g. `bash`, `external_directory`)."
+          },
+          "id": {
+            "type": "string",
+            "description": "Opencode permission request id (`per_...`); reply via the existing\n`.../permissions/{rid}/reply` route."
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Human-readable subjects of the request: the request's `patterns` when\npresent, else the single command / filepath from `metadata`, else empty."
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Opencode session id (`ses_...`) the request belongs to — parent or a\n`task` sub-agent's child session."
+          }
+        }
+      },
       "PermissionCatalogEntry": {
         "type": "object",
         "description": "A row of the permission catalog, as exposed to the management UI.",
@@ -25342,6 +26435,31 @@
           "viewer",
           "editor"
         ]
+      },
+      "PermissionReply": {
+        "type": "string",
+        "description": "How the user answered an opencode permission prompt. Mirrors opencode's\nreply endpoint contract: `once` allows this single invocation, `always`\nallows future invocations of the same action, `reject` denies it. Invalid\nvalues are rejected at deserialize time so the BFF never forwards garbage.",
+        "enum": [
+          "once",
+          "always",
+          "reject"
+        ]
+      },
+      "PermissionReplyRequest": {
+        "type": "object",
+        "required": [
+          "reply"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Optional human note forwarded to opencode (e.g. a reject reason).",
+            "nullable": true
+          },
+          "reply": {
+            "$ref": "#/components/schemas/PermissionReply"
+          }
+        }
       },
       "PersistenceInput": {
         "type": "object",
@@ -25846,8 +26964,24 @@
           "Omnifeed",
           "ContextEnricher",
           "OpenData",
-          "GDriveConnector"
+          "GDriveConnector",
+          "InboundEmail"
         ]
+      },
+      "Platform": {
+        "type": "object",
+        "required": [
+          "os",
+          "arch"
+        ],
+        "properties": {
+          "arch": {
+            "type": "string"
+          },
+          "os": {
+            "type": "string"
+          }
+        }
       },
       "PostMessageRequest": {
         "type": "object",
@@ -26318,6 +27452,15 @@
             "type": "string"
           }
         }
+      },
+      "QuotaCapacityDimension": {
+        "type": "string",
+        "description": "The three compute dimensions that can be capacity-constrained.\n\nProfile limits use integer columns (`max_vcpu` cores, `max_ram_gb` GiB,\n`max_storage_gb` GiB). [`QuotaProfile::capacity_limit`] converts them to\nthe canonical units used throughout the enforcement path.",
+        "enum": [
+          "vcpu",
+          "ram",
+          "storage"
+        ]
       },
       "QuotaProfileResponse": {
         "type": "object",
@@ -27557,6 +28700,60 @@
           }
         }
       },
+      "SigningKeys": {
+        "type": "object",
+        "required": [
+          "gpg_public_keys"
+        ],
+        "properties": {
+          "gpg_public_keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GpgPublicKey"
+            }
+          }
+        }
+      },
+      "StorageZoneView": {
+        "type": "object",
+        "description": "A `cephZones` catalog entry joined with whether the org has enabled it.",
+        "required": [
+          "zone_id",
+          "name",
+          "primary",
+          "enabled",
+          "ready"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether an OrgStorage exists for this org in this zone."
+          },
+          "external_endpoint": {
+            "type": "string",
+            "description": "External S3 endpoint of the zone's OrgStorage, once provisioned.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean",
+            "description": "The primary zone every org has; always enabled and never removable."
+          },
+          "ready": {
+            "type": "boolean",
+            "description": "Whether the zone's OrgStorage is Ready (only meaningful when enabled)."
+          },
+          "zone_id": {
+            "type": "string"
+          }
+        }
+      },
       "TableClassificationResponse": {
         "type": "object",
         "description": "Response for a table classification.",
@@ -27869,6 +29066,58 @@
           }
         }
       },
+      "TestImapConnectionRequest": {
+        "type": "object",
+        "required": [
+          "host",
+          "port",
+          "username",
+          "password",
+          "folder"
+        ],
+        "properties": {
+          "ca_cert": {
+            "type": "string",
+            "nullable": true
+          },
+          "folder": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "use_tls": {
+            "type": "boolean",
+            "default": true
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "TestImapConnectionResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
       "TestOciLoginFailure": {
         "type": "object",
         "required": [
@@ -27962,53 +29211,6 @@
             "items": {
               "$ref": "#/components/schemas/TrinoSchema"
             }
-          }
-        }
-      },
-      "TrinoConfigRequest": {
-        "type": "object",
-        "required": [
-          "host",
-          "port",
-          "service_account_id",
-          "service_account_secret",
-          "token_issuer_endpoint"
-        ],
-        "properties": {
-          "host": {
-            "type": "string"
-          },
-          "port": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "service_account_id": {
-            "type": "string"
-          },
-          "service_account_secret": {
-            "type": "string"
-          },
-          "token_issuer_endpoint": {
-            "type": "string"
-          }
-        }
-      },
-      "TrinoConfigResponse": {
-        "type": "object",
-        "required": [
-          "service_account_id",
-          "service_account_secret",
-          "token_issuer_endpoint"
-        ],
-        "properties": {
-          "service_account_id": {
-            "type": "string"
-          },
-          "service_account_secret": {
-            "type": "string"
-          },
-          "token_issuer_endpoint": {
-            "type": "string"
           }
         }
       },
@@ -28872,6 +30074,45 @@
         ]
       },
       "Value": {},
+      "VersionEntry": {
+        "type": "object",
+        "required": [
+          "version",
+          "protocols",
+          "platforms"
+        ],
+        "properties": {
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Platform"
+            }
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "VersionsResponse": {
+        "type": "object",
+        "required": [
+          "versions"
+        ],
+        "properties": {
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionEntry"
+            }
+          }
+        }
+      },
       "VettedBaseResponse": {
         "type": "object",
         "description": "A single vetted base image entry returned by the base-picker endpoint.",
@@ -29191,6 +30432,10 @@
     {
       "name": "CLI",
       "description": "CLI distribution"
+    },
+    {
+      "name": "Terraform Registry",
+      "description": "Terraform/OpenTofu provider registry"
     },
     {
       "name": "Service Accounts",
