@@ -33,12 +33,13 @@ type bucketDataSource struct {
 }
 
 type bucketDataSourceModel struct {
-	Env          types.String `tfsdk:"env"`
-	Name         types.String `tfsdk:"name"`
-	ID           types.String `tfsdk:"id"`
-	QuotaGB      types.Int64  `tfsdk:"quota_gb"`
-	FreezeWrites types.Bool   `tfsdk:"freeze_writes"`
-	Ready        types.Bool   `tfsdk:"ready"`
+	Env           types.String `tfsdk:"env"`
+	Name          types.String `tfsdk:"name"`
+	ID            types.String `tfsdk:"id"`
+	StorageZoneID types.String `tfsdk:"storage_zone_id"`
+	QuotaGB       types.Int64  `tfsdk:"quota_gb"`
+	FreezeWrites  types.Bool   `tfsdk:"freeze_writes"`
+	Ready         types.Bool   `tfsdk:"ready"`
 }
 
 func (d *bucketDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -49,12 +50,13 @@ func (d *bucketDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Look up an existing object-storage bucket by name within an environment.",
 		Attributes: map[string]schema.Attribute{
-			"env":           schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the bucket lives in."},
-			"name":          schema.StringAttribute{Required: true, MarkdownDescription: "Bucket name."},
-			"id":            schema.StringAttribute{Computed: true, MarkdownDescription: "Composite identifier `env/name`."},
-			"quota_gb":      schema.Int64Attribute{Computed: true, MarkdownDescription: "Storage quota in GB (null if unset)."},
-			"freeze_writes": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the bucket rejects writes."},
-			"ready":         schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the bucket is provisioned and ready."},
+			"env":             schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the bucket lives in."},
+			"name":            schema.StringAttribute{Required: true, MarkdownDescription: "Bucket name."},
+			"id":              schema.StringAttribute{Computed: true, MarkdownDescription: "Composite identifier `env/name`."},
+			"storage_zone_id": schema.StringAttribute{Computed: true, MarkdownDescription: "Storage zone the bucket lives in (`default` for the primary)."},
+			"quota_gb":        schema.Int64Attribute{Computed: true, MarkdownDescription: "Storage quota in GB (null if unset)."},
+			"freeze_writes":   schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the bucket rejects writes."},
+			"ready":           schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the bucket is provisioned and ready."},
 		},
 	}
 }
@@ -91,6 +93,7 @@ func (d *bucketDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	cfg.ID = types.StringValue(env + "/" + b.Name)
+	cfg.StorageZoneID = types.StringValue(b.ZoneId)
 	cfg.FreezeWrites = types.BoolValue(b.FreezeWrites)
 	cfg.Ready = types.BoolValue(b.Ready)
 	if b.QuotaGb != nil {

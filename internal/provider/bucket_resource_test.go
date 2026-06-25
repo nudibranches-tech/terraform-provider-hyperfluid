@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 // TestAccBucketResource exercises the full create → read → import → destroy
@@ -31,8 +32,29 @@ resource "hyperfluid_bucket" "test" {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("hyperfluid_bucket.test", "name", "tf-acc-bucket"),
 					resource.TestCheckResourceAttr("hyperfluid_bucket.test", "ready", "true"),
+					// storage_zone_id is omitted → resolves to the primary zone.
+					resource.TestCheckResourceAttr("hyperfluid_bucket.test", "storage_zone_id", "default"),
 					resource.TestCheckResourceAttrSet("hyperfluid_bucket.test", "id"),
 				),
+			},
+			{
+				// Re-applying the same config (storage_zone_id omitted) must be a
+				// no-op: the resolved "default" zone is held in state, so the bucket
+				// is never planned for replacement. Guards against the Optional+Computed
+				// plan-modifier ordering that would otherwise force perpetual recreate.
+				Config: `
+data "hyperfluid_env" "default" {
+  name = "default"
+}
+
+resource "hyperfluid_bucket" "test" {
+  env = data.hyperfluid_env.default.id
+  name   = "tf-acc-bucket"
+}
+`,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{plancheck.ExpectEmptyPlan()},
+				},
 			},
 			{
 				ResourceName:      "hyperfluid_bucket.test",
