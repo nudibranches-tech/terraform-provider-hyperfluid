@@ -22,16 +22,17 @@ resource "hyperfluid_bucket" "lake" {
   name = "data-lake"
 }
 
-# Place a bucket in a specific (non-primary) storage zone. The zone must be
-# enabled for the organization. Omit storage_zone_id to use the primary zone.
-data "hyperfluid_storage_zone" "eu" {
-  zone_id = "eu-west"
+# Pin a bucket to an explicit storage zone (here the primary "default" zone).
+# The zone must be enabled for the organization; omit storage_zone_id to use
+# the primary zone implicitly.
+data "hyperfluid_storage_zone" "default" {
+  zone_id = "default"
 }
 
-resource "hyperfluid_bucket" "lake_eu" {
+resource "hyperfluid_bucket" "lake_pinned" {
   env             = data.hyperfluid_env.default.id
-  name            = "data-lake-eu"
-  storage_zone_id = data.hyperfluid_storage_zone.eu.zone_id
+  name            = "data-lake-pinned"
+  storage_zone_id = data.hyperfluid_storage_zone.default.zone_id
 }
 ```
 
