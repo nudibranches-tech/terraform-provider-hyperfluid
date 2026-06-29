@@ -66,13 +66,28 @@ func (c *Client) GetApiKey(ctx context.Context, orgID, keyID string) (*console.A
 	return nil, ErrNotFound
 }
 
-// FindApiKeyByName resolves a key by name, or ErrNotFound. Backs the data source.
+// FindApiKeyByName resolves a key by name. API key names are not unique
+// (no UNIQUE constraint server-side), so this returns ErrNotFound for no match
+// and an explicit error for more than one — never an arbitrary first match.
 func (c *Client) FindApiKeyByName(ctx context.Context, orgID, name string) (*console.ApiKeyResponse, error) {
 	keys, err := c.ListApiKeys(ctx, orgID)
 	if err != nil {
 		return nil, err
 	}
-	return findByName(keys, name, func(k *console.ApiKeyResponse) string { return k.Name })
+	var matches []*console.ApiKeyResponse
+	for i := range keys {
+		if keys[i].Name == name {
+			matches = append(matches, &keys[i])
+		}
+	}
+	switch len(matches) {
+	case 0:
+		return nil, ErrNotFound
+	case 1:
+		return matches[0], nil
+	default:
+		return nil, fmt.Errorf("hyperfluid: %d API keys named %q — names are not unique; look the key up by id", len(matches), name)
+	}
 }
 
 func (c *Client) RevokeApiKey(ctx context.Context, orgID, keyID string) error {

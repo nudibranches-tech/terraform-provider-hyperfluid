@@ -94,6 +94,21 @@ func listToStringSlice(ctx context.Context, l types.List) ([]string, diag.Diagno
 	return out, d
 }
 
+// stringSliceToSet converts an API []string into a tfsdk set value (order-insensitive).
+func stringSliceToSet(ctx context.Context, s []string) (types.Set, diag.Diagnostics) {
+	return types.SetValueFrom(ctx, types.StringType, s)
+}
+
+// setToStringSlice converts a tfsdk set into []string (nil for null/unknown).
+func setToStringSlice(ctx context.Context, s types.Set) ([]string, diag.Diagnostics) {
+	if s.IsNull() || s.IsUnknown() {
+		return nil, nil
+	}
+	var out []string
+	d := s.ElementsAs(ctx, &out, false)
+	return out, d
+}
+
 // parseStorageGB reads the leading integer of a K8s quantity like "10Gi" → 10.
 func parseStorageGB(s string) int64 {
 	var n int64

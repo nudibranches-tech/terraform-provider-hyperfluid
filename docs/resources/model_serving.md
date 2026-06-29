@@ -45,7 +45,7 @@ output "endpoint" {
 - `gpu` (Number) GPU count. Changing this forces a new serving.
 - `max_model_len` (Number) Maximum model context length (generation models). Changing this forces a new serving.
 - `memory` (String) Memory request, e.g. "8Gi". Changing this forces a new serving.
-- `replicas` (Number) Desired replica count. The one attribute that updates in place (scaling).
+- `replicas` (Number) Desired replica count (at least 1). The one attribute that updates in place (scaling). Scale-to-zero is not supported.
 
 ### Read-Only
 

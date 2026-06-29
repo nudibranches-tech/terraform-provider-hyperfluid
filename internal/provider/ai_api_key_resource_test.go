@@ -22,7 +22,7 @@ func TestAccAiApiKeyResource(t *testing.T) {
 				Config: testAccAiApiKeyConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("hyperfluid_ai_api_key.test", "name", "tf-acc-key"),
-					resource.TestCheckResourceAttr("hyperfluid_ai_api_key.test", "scopes.0", "model:*"),
+					resource.TestCheckTypeSetElemAttr("hyperfluid_ai_api_key.test", "scopes.*", "model:*"),
 					resource.TestCheckResourceAttrSet("hyperfluid_ai_api_key.test", "id"),
 					resource.TestCheckResourceAttrSet("hyperfluid_ai_api_key.test", "key"),
 					resource.TestCheckResourceAttrSet("hyperfluid_ai_api_key.test", "key_prefix"),

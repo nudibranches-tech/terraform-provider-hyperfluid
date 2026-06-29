@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -134,8 +135,10 @@ func (r *modelServingResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Desired replica count. The one attribute that updates in place (scaling).",
-				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Desired replica count (at least 1). The one attribute that updates in place (scaling). " +
+					"Scale-to-zero is not supported.",
+				Validators:    []validator.Int64{int64validator.AtLeast(1)},
+				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 
 			"cpu":            schema.StringAttribute{Computed: true, MarkdownDescription: "CPU request resolved by the platform."},

@@ -13,8 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -47,7 +47,7 @@ type aiApiKeyResource struct {
 type aiApiKeyModel struct {
 	ID            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`            // ForceNew
-	Scopes        types.List   `tfsdk:"scopes"`          // ForceNew, opt+computed
+	Scopes        types.Set    `tfsdk:"scopes"`          // ForceNew, opt+computed (order-insensitive)
 	ExpiresInDays types.Int64  `tfsdk:"expires_in_days"` // ForceNew, not echoed by the API
 	Key           types.String `tfsdk:"key"`             // write-once secret, kept sensitive
 
@@ -78,15 +78,16 @@ func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				MarkdownDescription: "Key name. Changing this forces a new key.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
-			"scopes": schema.ListAttribute{
+			"scopes": schema.SetAttribute{
 				ElementType: types.StringType,
 				Optional:    true, Computed: true,
-				MarkdownDescription: "Scopes granted to the key. Changing this forces a new key.",
-				PlanModifiers: []planmodifier.List{
+				MarkdownDescription: "Scopes granted to the key, e.g. `model:*` (all models) or `model:<model_id>`. " +
+					"Changing this forces a new key. Modelled as a set, so ordering never causes a diff.",
+				PlanModifiers: []planmodifier.Set{
 					// Hold the resolved scopes (the API may default them) so an omitted
-					// list keeps its stored value instead of re-planning every apply.
-					listplanmodifier.UseStateForUnknown(),
-					listplanmodifier.RequiresReplace(),
+					// set keeps its stored value instead of re-planning every apply.
+					setplanmodifier.UseStateForUnknown(),
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"expires_in_days": schema.Int64Attribute{
@@ -128,7 +129,7 @@ func (r *aiApiKeyResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	scopes, d := listToStringSlice(ctx, plan.Scopes)
+	scopes, d := setToStringSlice(ctx, plan.Scopes)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -148,7 +149,7 @@ func (r *aiApiKeyResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	scopeList, d := stringSliceToList(ctx, created.Scopes)
+	scopeSet, d := stringSliceToSet(ctx, created.Scopes)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -156,7 +157,7 @@ func (r *aiApiKeyResource) Create(ctx context.Context, req resource.CreateReques
 	state := aiApiKeyModel{
 		ID:            types.StringValue(created.Id.String()),
 		Name:          types.StringValue(created.Name),
-		Scopes:        scopeList,
+		Scopes:        scopeSet,
 		ExpiresInDays: plan.ExpiresInDays, // not echoed by the API
 		Key:           types.StringValue(created.Key),
 		KeyPrefix:     types.StringValue(created.KeyPrefix),
@@ -246,7 +247,7 @@ func (r *aiApiKeyResource) ImportState(ctx context.Context, req resource.ImportS
 // toModel maps the (secret-free) list/read view; the caller restores key and
 // expires_in_days, which the API never echoes.
 func (r *aiApiKeyResource) toModel(ctx context.Context, k *console.ApiKeyResponse) (aiApiKeyModel, diag.Diagnostics) {
-	scopes, d := stringSliceToList(ctx, k.Scopes)
+	scopes, d := stringSliceToSet(ctx, k.Scopes)
 	return aiApiKeyModel{
 		ID:         types.StringValue(k.Id.String()),
 		Name:       types.StringValue(k.Name),

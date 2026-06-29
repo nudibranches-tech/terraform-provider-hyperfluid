@@ -41,7 +41,7 @@ output "api_key" {
 ### Optional
 
 - `expires_in_days` (Number) Lifetime in days. Omit for a non-expiring key. Changing this forces a new key. Not echoed by the API, so it cannot be recovered on import.
-- `scopes` (List of String) Scopes granted to the key. Changing this forces a new key.
+- `scopes` (Set of String) Scopes granted to the key, e.g. `model:*` (all models) or `model:<model_id>`. Changing this forces a new key. Modelled as a set, so ordering never causes a diff.
 
 ### Read-Only
 

@@ -3,12 +3,12 @@
 page_title: "hyperfluid_ai_api_key Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing API key's metadata by name. The secret key itself is never returned.
+  Look up an existing API key's metadata by name. The secret key itself is never returned. API key names are not guaranteed unique; if more than one key shares the name this errors rather than resolving an arbitrary match — look such keys up by id instead.
 ---
 
 # hyperfluid_ai_api_key (Data Source)
 
-Look up an existing API key's metadata by name. The secret key itself is never returned.
+Look up an existing API key's metadata by name. The secret key itself is never returned. API key names are not guaranteed unique; if more than one key shares the name this errors rather than resolving an arbitrary match — look such keys up by id instead.
 
 ## Example Usage
 
@@ -28,7 +28,7 @@ output "key_prefix" {
 
 ### Required
 
-- `name` (String) API key name.
+- `name` (String) API key name. Must match exactly one key.
 
 ### Read-Only
 
@@ -37,4 +37,4 @@ output "key_prefix" {
 - `id` (String) API key id (uuid).
 - `key_prefix` (String) Non-secret key prefix.
 - `last_used_at` (String) Last-used timestamp (RFC3339), if ever used.
-- `scopes` (List of String) Scopes granted to the key.
+- `scopes` (Set of String) Scopes granted to the key.

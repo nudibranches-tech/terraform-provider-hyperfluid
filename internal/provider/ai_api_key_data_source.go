@@ -40,12 +40,14 @@ func (d *aiApiKeyDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing API key's metadata by name. The secret key itself is never returned.",
+		MarkdownDescription: "Look up an existing API key's metadata by name. The secret key itself is never returned. " +
+			"API key names are not guaranteed unique; if more than one key shares the name this errors rather than " +
+			"resolving an arbitrary match — look such keys up by id instead.",
 		Attributes: map[string]schema.Attribute{
-			"name":         schema.StringAttribute{Required: true, MarkdownDescription: "API key name."},
+			"name":         schema.StringAttribute{Required: true, MarkdownDescription: "API key name. Must match exactly one key."},
 			"id":           cs("API key id (uuid)."),
 			"key_prefix":   cs("Non-secret key prefix."),
-			"scopes":       schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Scopes granted to the key."},
+			"scopes":       schema.SetAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Scopes granted to the key."},
 			"created_at":   cs("Creation timestamp (RFC3339)."),
 			"expires_at":   cs("Expiry timestamp (RFC3339), if the key expires."),
 			"last_used_at": cs("Last-used timestamp (RFC3339), if ever used."),
@@ -70,7 +72,7 @@ type aiApiKeyDataModel struct {
 	Name       types.String `tfsdk:"name"`
 	ID         types.String `tfsdk:"id"`
 	KeyPrefix  types.String `tfsdk:"key_prefix"`
-	Scopes     types.List   `tfsdk:"scopes"`
+	Scopes     types.Set    `tfsdk:"scopes"`
 	CreatedAt  types.String `tfsdk:"created_at"`
 	ExpiresAt  types.String `tfsdk:"expires_at"`
 	LastUsedAt types.String `tfsdk:"last_used_at"`
@@ -94,7 +96,7 @@ func (d *aiApiKeyDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	scopes, dg := stringSliceToList(ctx, k.Scopes)
+	scopes, dg := stringSliceToSet(ctx, k.Scopes)
 	resp.Diagnostics.Append(dg...)
 	if resp.Diagnostics.HasError() {
 		return
