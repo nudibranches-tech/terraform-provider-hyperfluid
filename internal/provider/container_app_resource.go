@@ -116,8 +116,8 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"expose_to_internet": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to true. When false, the app is reachable only in-cluster.",
-				Default:             booldefault.StaticBool(true),
+				MarkdownDescription: "Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.",
+				Default:             booldefault.StaticBool(false),
 			},
 			"resource_tier": schema.StringAttribute{
 				Optional:            true,

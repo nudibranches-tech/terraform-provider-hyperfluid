@@ -142,8 +142,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"expose_to_internet": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to true. When false, no external endpoint is published and the cluster is reachable only in-cluster.",
-				Default:             booldefault.StaticBool(true),
+				MarkdownDescription: "Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish an external endpoint.",
+				Default:             booldefault.StaticBool(false),
 			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
 			"tags": schema.ListAttribute{

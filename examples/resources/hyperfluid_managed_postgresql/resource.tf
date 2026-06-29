@@ -12,8 +12,8 @@ resource "hyperfluid_managed_postgresql" "db" {
   storage_capacity = 5
   configuration    = "standalone"
 
-  # Defaults to true (external NodePort endpoint published). Set false to keep
-  # the cluster reachable only in-cluster.
+  # Defaults to false (reachable only in-cluster). Set true to publish an
+  # external NodePort endpoint.
   expose_to_internet = true
 }
 

@@ -11,8 +11,8 @@ resource "hyperfluid_container_app" "web" {
   replicas         = 1
   resource_tier    = "nano"
 
-  # Defaults to true (internet-facing routes created). Set false to keep the app
-  # reachable only in-cluster.
+  # Defaults to false (reachable only in-cluster). Set true to create
+  # internet-facing routes.
   expose_to_internet = true
 }
 
