@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -45,19 +46,20 @@ type managedPostgresqlResource struct {
 }
 
 type managedPostgresqlModel struct {
-	ID              types.String `tfsdk:"id"`
-	Env             types.String `tfsdk:"env"`
-	Name            types.String `tfsdk:"name"`
-	DatabaseName    types.String `tfsdk:"database_name"`
-	Engine          types.String `tfsdk:"engine"`
-	Version         types.String `tfsdk:"version"`
-	NodeTier        types.String `tfsdk:"node_tier"`
-	StorageCapacity types.Int64  `tfsdk:"storage_capacity"`
-	BackupPolicy    types.String `tfsdk:"backup_policy"`
-	BackupTargetID  types.String `tfsdk:"backup_target_id"`
-	Configuration   types.String `tfsdk:"configuration"`
-	Description     types.String `tfsdk:"description"`
-	Tags            types.List   `tfsdk:"tags"`
+	ID               types.String `tfsdk:"id"`
+	Env              types.String `tfsdk:"env"`
+	Name             types.String `tfsdk:"name"`
+	DatabaseName     types.String `tfsdk:"database_name"`
+	Engine           types.String `tfsdk:"engine"`
+	Version          types.String `tfsdk:"version"`
+	NodeTier         types.String `tfsdk:"node_tier"`
+	StorageCapacity  types.Int64  `tfsdk:"storage_capacity"`
+	BackupPolicy     types.String `tfsdk:"backup_policy"`
+	BackupTargetID   types.String `tfsdk:"backup_target_id"`
+	Configuration    types.String `tfsdk:"configuration"`
+	ExposeToInternet types.Bool   `tfsdk:"expose_to_internet"`
+	Description      types.String `tfsdk:"description"`
+	Tags             types.List   `tfsdk:"tags"`
 
 	// computed
 	Phase            types.String `tfsdk:"phase"`
@@ -138,6 +140,11 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				MarkdownDescription: "Topology: standalone or high-availability.",
 				Validators:          []validator.String{stringvalidator.OneOf("standalone", "high-availability")},
 			},
+			"expose_to_internet": schema.BoolAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish an external endpoint.",
+				Default:             booldefault.StaticBool(false),
+			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
@@ -181,10 +188,11 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	body := console.CreateManagedPostgresqlCrdRequestBody{
-		Name:            plan.Name.ValueString(),
-		DatabaseName:    plan.DatabaseName.ValueString(),
-		Description:     stringPtr(plan.Description),
-		StorageCapacity: int32PtrFromInt64(plan.StorageCapacity),
+		Name:             plan.Name.ValueString(),
+		DatabaseName:     plan.DatabaseName.ValueString(),
+		Description:      stringPtr(plan.Description),
+		StorageCapacity:  int32PtrFromInt64(plan.StorageCapacity),
+		ExposeToInternet: boolPtr(plan.ExposeToInternet),
 	}
 	if tags != nil {
 		body.Tags = &tags
@@ -269,8 +277,9 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	body := console.PatchManagedPostgresqlCrdRequestBody{
-		Description:     stringPtr(plan.Description),
-		StorageCapacity: int32PtrFromInt64(plan.StorageCapacity),
+		Description:      stringPtr(plan.Description),
+		StorageCapacity:  int32PtrFromInt64(plan.StorageCapacity),
+		ExposeToInternet: boolPtr(plan.ExposeToInternet),
 	}
 	if tags != nil {
 		body.Tags = &tags
@@ -358,6 +367,12 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string
 	if err != nil {
 		return managedPostgresqlModel{}, err
 	}
+	// expose_to_internet lives on the CRD spec, not the status view, so it needs a
+	// separate /crd GET (mirrors container_app's spec/status split).
+	spec, err := r.p.API.GetManagedPostgresqlSpec(ctx, r.p.OrgID, id)
+	if err != nil {
+		return managedPostgresqlModel{}, err
+	}
 	tags, d := stringSliceToList(ctx, c.Tags)
 	if d.HasError() {
 		return managedPostgresqlModel{}, errors.New("failed to convert tags")
@@ -374,6 +389,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string
 		StorageCapacity:  types.Int64Value(parseStorageGB(c.StorageSize)),
 		BackupPolicy:     optString(&c.BackupPolicy),
 		Configuration:    types.StringValue(c.Configuration),
+		ExposeToInternet: types.BoolValue(spec.ExposeToInternet),
 		Description:      optString(c.Description),
 		Tags:             tags,
 		Phase:            optString(c.Phase),

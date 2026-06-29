@@ -11,6 +11,10 @@ resource "hyperfluid_managed_postgresql" "db" {
   node_tier        = "nano"
   storage_capacity = 5
   configuration    = "standalone"
+
+  # Defaults to false (reachable only in-cluster). Set true to publish an
+  # external NodePort endpoint.
+  expose_to_internet = true
 }
 
 output "write_endpoint" {

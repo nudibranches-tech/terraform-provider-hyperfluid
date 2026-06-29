@@ -44,6 +44,7 @@ output "write_endpoint" {
 - `database_name` (String) Application database name.
 - `description` (String) Free-form description.
 - `engine` (String) Database engine.
+- `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service.
 - `external_endpoint` (String) External endpoint, if exposed.
 - `id` (String) Cluster id.
 - `instances` (Number) Configured instance count.

@@ -10,6 +10,10 @@ resource "hyperfluid_container_app" "web" {
   port             = 8080
   replicas         = 1
   resource_tier    = "nano"
+
+  # Defaults to false (reachable only in-cluster). Set true to create
+  # internet-facing routes.
+  expose_to_internet = true
 }
 
 output "endpoint" {

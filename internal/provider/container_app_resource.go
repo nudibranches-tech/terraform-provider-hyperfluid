@@ -47,17 +47,18 @@ type containerAppResource struct {
 }
 
 type containerAppModel struct {
-	ID              types.String `tfsdk:"id"`
-	Env             types.String `tfsdk:"env"`
-	Name            types.String `tfsdk:"name"`
-	ImageRepository types.String `tfsdk:"image_repository"`
-	ImageTag        types.String `tfsdk:"image_tag"`
-	Port            types.Int64  `tfsdk:"port"`
-	Replicas        types.Int64  `tfsdk:"replicas"`
-	Enabled         types.Bool   `tfsdk:"enabled"`
-	ResourceTier    types.String `tfsdk:"resource_tier"`
-	HealthCheckPath types.String `tfsdk:"health_check_path"`
-	HealthCheckPort types.Int64  `tfsdk:"health_check_port"`
+	ID               types.String `tfsdk:"id"`
+	Env              types.String `tfsdk:"env"`
+	Name             types.String `tfsdk:"name"`
+	ImageRepository  types.String `tfsdk:"image_repository"`
+	ImageTag         types.String `tfsdk:"image_tag"`
+	Port             types.Int64  `tfsdk:"port"`
+	Replicas         types.Int64  `tfsdk:"replicas"`
+	Enabled          types.Bool   `tfsdk:"enabled"`
+	ExposeToInternet types.Bool   `tfsdk:"expose_to_internet"`
+	ResourceTier     types.String `tfsdk:"resource_tier"`
+	HealthCheckPath  types.String `tfsdk:"health_check_path"`
+	HealthCheckPort  types.Int64  `tfsdk:"health_check_port"`
 
 	// computed
 	ResourceVersion   types.String `tfsdk:"resource_version"`
@@ -113,6 +114,11 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 				MarkdownDescription: "Whether the app is running. Defaults to true.",
 				Default:             booldefault.StaticBool(true),
 			},
+			"expose_to_internet": schema.BoolAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.",
+				Default:             booldefault.StaticBool(false),
+			},
 			"resource_tier": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "Resource tier: nano, micro, small, medium, large, xlarge. Maps to cpu/memory server-side.",
@@ -157,14 +163,15 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 
 	env := plan.Env.ValueString()
 	body := console.CreateContainerAppCrdRequestBody{
-		Name:            plan.Name.ValueString(),
-		ImageRepository: plan.ImageRepository.ValueString(),
-		ImageTag:        plan.ImageTag.ValueString(),
-		Enabled:         enabledOrDefault(plan.Enabled),
-		Port:            int32PtrFromInt64(plan.Port),
-		Replicas:        int32PtrFromInt64(plan.Replicas),
-		HealthCheckPath: stringPtr(plan.HealthCheckPath),
-		HealthCheckPort: int32PtrFromInt64(plan.HealthCheckPort),
+		Name:             plan.Name.ValueString(),
+		ImageRepository:  plan.ImageRepository.ValueString(),
+		ImageTag:         plan.ImageTag.ValueString(),
+		Enabled:          enabledOrDefault(plan.Enabled),
+		ExposeToInternet: boolPtr(plan.ExposeToInternet),
+		Port:             int32PtrFromInt64(plan.Port),
+		Replicas:         int32PtrFromInt64(plan.Replicas),
+		HealthCheckPath:  stringPtr(plan.HealthCheckPath),
+		HealthCheckPort:  int32PtrFromInt64(plan.HealthCheckPort),
 	}
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
@@ -224,14 +231,15 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 
 	appID := state.ID.ValueString()
 	body := console.PatchContainerAppCrdRequestBody{
-		ImageRepository: stringPtr(plan.ImageRepository),
-		ImageTag:        stringPtr(plan.ImageTag),
-		Enabled:         boolPtr(plan.Enabled),
-		Port:            int32PtrFromInt64(plan.Port),
-		Replicas:        int32PtrFromInt64(plan.Replicas),
-		HealthCheckPath: stringPtr(plan.HealthCheckPath),
-		HealthCheckPort: int32PtrFromInt64(plan.HealthCheckPort),
-		ResourceVersion: stringPtr(state.ResourceVersion), // H4 optimistic concurrency
+		ImageRepository:  stringPtr(plan.ImageRepository),
+		ImageTag:         stringPtr(plan.ImageTag),
+		Enabled:          boolPtr(plan.Enabled),
+		ExposeToInternet: boolPtr(plan.ExposeToInternet),
+		Port:             int32PtrFromInt64(plan.Port),
+		Replicas:         int32PtrFromInt64(plan.Replicas),
+		HealthCheckPath:  stringPtr(plan.HealthCheckPath),
+		HealthCheckPort:  int32PtrFromInt64(plan.HealthCheckPort),
+		ResourceVersion:  stringPtr(state.ResourceVersion), // H4 optimistic concurrency
 	}
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
@@ -325,6 +333,7 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 		Port:              types.Int64Value(int64(spec.Port)),
 		Replicas:          types.Int64Value(int64(spec.Replicas)),
 		Enabled:           types.BoolValue(spec.Enabled),
+		ExposeToInternet:  types.BoolValue(spec.ExposeToInternet),
 		ResourceTier:      priorTier, // preserved; not returned by the API
 		HealthCheckPath:   optString(spec.HealthCheckPath),
 		HealthCheckPort:   optInt64FromInt32(spec.HealthCheckPort),

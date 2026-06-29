@@ -23,6 +23,8 @@ func TestAccContainerAppResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "name", "tf-acc-app"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "replicas", "1"),
+					// omitted from config above → asserts the default is false (private).
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "expose_to_internet", "false"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "phase", "Ready"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "id"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "endpoint"),

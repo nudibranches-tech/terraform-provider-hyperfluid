@@ -704,6 +704,27 @@ func (e Effect) Valid() bool {
 	}
 }
 
+// Defines values for EmailAuthPolicy.
+const (
+	Permissive          EmailAuthPolicy = "permissive"
+	RejectOnAnyAuthFail EmailAuthPolicy = "reject_on_any_auth_fail"
+	RejectOnDmarcFail   EmailAuthPolicy = "reject_on_dmarc_fail"
+)
+
+// Valid indicates whether the value is a known member of the EmailAuthPolicy enum.
+func (e EmailAuthPolicy) Valid() bool {
+	switch e {
+	case Permissive:
+		return true
+	case RejectOnAnyAuthFail:
+		return true
+	case RejectOnDmarcFail:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Engine.
 const (
 	Postgis     Engine = "postgis"
@@ -1481,24 +1502,6 @@ func (e PrepareArchiveImportResponse1UploadType) Valid() bool {
 	}
 }
 
-// Defines values for ProjectMemberRole.
-const (
-	ProjectMemberRoleEditor ProjectMemberRole = "editor"
-	ProjectMemberRoleViewer ProjectMemberRole = "viewer"
-)
-
-// Valid indicates whether the value is a known member of the ProjectMemberRole enum.
-func (e ProjectMemberRole) Valid() bool {
-	switch e {
-	case ProjectMemberRoleEditor:
-		return true
-	case ProjectMemberRoleViewer:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for QuotaCapacityDimension.
 const (
 	Ram     QuotaCapacityDimension = "ram"
@@ -1600,19 +1603,19 @@ func (e RefStatus) Valid() bool {
 
 // Defines values for RegistryRole.
 const (
-	Editor RegistryRole = "editor"
-	Owner  RegistryRole = "owner"
-	Viewer RegistryRole = "viewer"
+	RegistryRoleEditor RegistryRole = "editor"
+	RegistryRoleOwner  RegistryRole = "owner"
+	RegistryRoleViewer RegistryRole = "viewer"
 )
 
 // Valid indicates whether the value is a known member of the RegistryRole enum.
 func (e RegistryRole) Valid() bool {
 	switch e {
-	case Editor:
+	case RegistryRoleEditor:
 		return true
-	case Owner:
+	case RegistryRoleOwner:
 		return true
-	case Viewer:
+	case RegistryRoleViewer:
 		return true
 	default:
 		return false
@@ -1962,24 +1965,6 @@ type AbortMultipartUploadRequest struct {
 // AcceptInvitationBody defines model for AcceptInvitationBody.
 type AcceptInvitationBody = map[string]interface{}
 
-// AddRegistryProjectMemberRequestBody defines model for AddRegistryProjectMemberRequestBody.
-type AddRegistryProjectMemberRequestBody struct {
-	// Role Role of a **named user** member within a registry project, expressed as the
-	// set of grants they hold at the project scope path.
-	//
-	// ## Design note — owner vs editor
-	//
-	// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-	// implementation, `owner` is indistinguishable from `editor`: both hold
-	// `registry:pull + registry:push + registry:delete` at the project scope.
-	// The management API therefore exposes only `viewer | editor`. If
-	// per-project-owner semantics (e.g. a `registry:manage` permission for
-	// adding/removing members) are needed in the future, add a new permission key
-	// rather than re-introducing a members table or a third role variant.
-	Role   ProjectMemberRole  `json:"role"`
-	UserId openapi_types.UUID `json:"user_id"`
-}
-
 // AddUser defines model for AddUser.
 type AddUser struct {
 	Email string `json:"email"`
@@ -2094,6 +2079,19 @@ type AnalyticsTrendPoint struct {
 type AnalyticsTrends struct {
 	Granularity string                `json:"granularity"`
 	Points      []AnalyticsTrendPoint `json:"points"`
+}
+
+// AntivirusConfig Antivirus scanning configuration. Disabled by default; ClamAV slot for future use.
+type AntivirusConfig struct {
+	// Enabled Enable AV scanning. Requires `endpoint` to be set.
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Endpoint ClamAV clamd endpoint, e.g. `"tcp://clamav:3310"` or `"unix:///var/run/clamav/clamd.sock"`.
+	Endpoint *string `json:"endpoint,omitempty"`
+
+	// QuarantinePrefix S3 prefix for quarantined attachments.
+	// Defaults to `"<destination_prefix>/quarantine/"` when not set.
+	QuarantinePrefix *string `json:"quarantine_prefix,omitempty"`
 }
 
 // ApiKeyResponse defines model for ApiKeyResponse.
@@ -2748,22 +2746,26 @@ type ConsoleConfigFeatureFlag string
 
 // ContainerAppCrdSpecResponse defines model for ContainerAppCrdSpecResponse.
 type ContainerAppCrdSpecResponse struct {
-	CpuLimit         *string                `json:"cpu_limit,omitempty"`
-	CpuRequest       *string                `json:"cpu_request,omitempty"`
-	CustomDomains    []CustomDomainResponse `json:"custom_domains"`
-	Enabled          bool                   `json:"enabled"`
-	Env              []EnvVarSpecResponse   `json:"env"`
-	FileMounts       []FileMountResponse    `json:"file_mounts"`
-	HealthCheckPath  *string                `json:"health_check_path,omitempty"`
-	HealthCheckPort  *int32                 `json:"health_check_port,omitempty"`
-	ImagePullSecrets []string               `json:"image_pull_secrets"`
-	ImageRepository  string                 `json:"image_repository"`
-	ImageTag         string                 `json:"image_tag"`
-	MemoryLimit      *string                `json:"memory_limit,omitempty"`
-	MemoryRequest    *string                `json:"memory_request,omitempty"`
-	Persistence      []PersistenceResponse  `json:"persistence"`
-	Port             int32                  `json:"port"`
-	Replicas         int32                  `json:"replicas"`
+	CpuLimit      *string                `json:"cpu_limit,omitempty"`
+	CpuRequest    *string                `json:"cpu_request,omitempty"`
+	CustomDomains []CustomDomainResponse `json:"custom_domains"`
+	Enabled       bool                   `json:"enabled"`
+	Env           []EnvVarSpecResponse   `json:"env"`
+
+	// ExposeToInternet Whether internet-facing routes are enabled for this app. Reflects the live CRD
+	// value so the edit dialog can prefill the current state.
+	ExposeToInternet bool                  `json:"expose_to_internet"`
+	FileMounts       []FileMountResponse   `json:"file_mounts"`
+	HealthCheckPath  *string               `json:"health_check_path,omitempty"`
+	HealthCheckPort  *int32                `json:"health_check_port,omitempty"`
+	ImagePullSecrets []string              `json:"image_pull_secrets"`
+	ImageRepository  string                `json:"image_repository"`
+	ImageTag         string                `json:"image_tag"`
+	MemoryLimit      *string               `json:"memory_limit,omitempty"`
+	MemoryRequest    *string               `json:"memory_request,omitempty"`
+	Persistence      []PersistenceResponse `json:"persistence"`
+	Port             int32                 `json:"port"`
+	Replicas         int32                 `json:"replicas"`
 
 	// ResourceVersion The Kubernetes resourceVersion of this object at read time.
 	// Must be round-tripped verbatim as `resource_version` in PATCH requests
@@ -3135,6 +3137,12 @@ type CreateContainerAppCrdRequestBody struct {
 	CustomDomains *[]CustomDomainInput `json:"custom_domains,omitempty"`
 	Enabled       bool                 `json:"enabled"`
 	Env           *[]EnvVarInput       `json:"env,omitempty"`
+
+	// ExposeToInternet Whether to create internet-facing routes (platform host route and custom-domain
+	// routes) for this app. Defaults to `false` — new apps are private by default.
+	// When `false`, the operator keeps the ClusterIP Service so the app is still
+	// reachable in-cluster. Set to `true` to opt into a public endpoint explicitly.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
 	// FileMounts Files to mount into the container at startup. Each entry is either an
 	// inline literal or a reference to a platform secret. Inline content is
@@ -3584,6 +3592,11 @@ type CreateIcebergTableMetadataRequest struct {
 // CreateInboundEmailPipelineRequest Inbound email pipeline request: extract attachments from incoming emails and land to S3.
 // Transport-agnostic — the `source` config determines how emails are received (IMAP, SMTP, etc.)
 type CreateInboundEmailPipelineRequest struct {
+	// AllowedSenders Optional allowlist of sender patterns. When non-empty, only emails whose
+	// `From` address matches at least one pattern are processed; all others are
+	// skipped and marked as seen without uploading attachments.
+	AllowedSenders *[]SenderPattern `json:"allowed_senders,omitempty"`
+
 	// Destination S3 destination for an inbound email pipeline.
 	//
 	// Two variants are accepted:
@@ -3599,6 +3612,11 @@ type CreateInboundEmailPipelineRequest struct {
 
 	// Pipeline Pipeline metadata configuration (common to all pipeline types)
 	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Security Security policy applied to every email, regardless of transport.
+	// Verdicts from SPF/DKIM/DMARC are always surfaced in attachment metadata so downstream
+	// consumers can apply their own policy on top of whatever the pipeline enforces.
+	Security *InboundEmailSecurityConfig `json:"security,omitempty"`
 
 	// Source Transport-agnostic inbound email source configuration.
 	// The transport variant determines how emails are physically received.
@@ -3647,6 +3665,11 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// Description Optional description for this database instance
 	Description *string `json:"description,omitempty"`
 	Engine      *Engine `json:"engine,omitempty"`
+
+	// ExposeToInternet When true, the operator creates an external NodePort Service and publishes
+	// the endpoint. Defaults to false — clusters are private (in-cluster only)
+	// unless explicitly opted in.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
 	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
 	Name string `json:"name"`
@@ -4008,6 +4031,11 @@ type CreatePipelineRequestV27Type string
 
 // CreatePipelineRequestV28 defines model for .
 type CreatePipelineRequestV28 struct {
+	// AllowedSenders Optional allowlist of sender patterns. When non-empty, only emails whose
+	// `From` address matches at least one pattern are processed; all others are
+	// skipped and marked as seen without uploading attachments.
+	AllowedSenders *[]SenderPattern `json:"allowed_senders,omitempty"`
+
 	// Destination S3 destination for an inbound email pipeline.
 	//
 	// Two variants are accepted:
@@ -4023,6 +4051,11 @@ type CreatePipelineRequestV28 struct {
 
 	// Pipeline Pipeline metadata configuration (common to all pipeline types)
 	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Security Security policy applied to every email, regardless of transport.
+	// Verdicts from SPF/DKIM/DMARC are always surfaced in attachment metadata so downstream
+	// consumers can apply their own policy on top of whatever the pipeline enforces.
+	Security *InboundEmailSecurityConfig `json:"security,omitempty"`
 
 	// Source Transport-agnostic inbound email source configuration.
 	// The transport variant determines how emails are physically received.
@@ -4061,27 +4094,6 @@ type CreatePostgresqlDataContainerRequestBody struct {
 
 	// Name Trino catalog name.
 	Name string `json:"name"`
-}
-
-// CreateRegistryHarborRobotRequestBody defines model for CreateRegistryHarborRobotRequestBody.
-type CreateRegistryHarborRobotRequestBody struct {
-	// Name Human-readable name for the robot; also used as the display name of the
-	// underlying service account. Must be 3–64 characters.
-	Name string `json:"name"`
-
-	// Role Role of a **named user** member within a registry project, expressed as the
-	// set of grants they hold at the project scope path.
-	//
-	// ## Design note — owner vs editor
-	//
-	// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-	// implementation, `owner` is indistinguishable from `editor`: both hold
-	// `registry:pull + registry:push + registry:delete` at the project scope.
-	// The management API therefore exposes only `viewer | editor`. If
-	// per-project-owner semantics (e.g. a `registry:manage` permission for
-	// adding/removing members) are needed in the future, add a new permission key
-	// rather than re-introducing a members table or a third role variant.
-	Role ProjectMemberRole `json:"role"`
 }
 
 // CreateRegistryProjectRequestBody defines model for CreateRegistryProjectRequestBody.
@@ -4772,6 +4784,10 @@ type EffectiveSecuritySettingsResponse struct {
 	TableLabelMatching            bool     `json:"table_label_matching"`
 	ZeroTrustMode                 bool     `json:"zero_trust_mode"`
 }
+
+// EmailAuthPolicy How the pipeline responds to email authentication failures (SPF/DKIM/DMARC).
+// Verdicts are always recorded in attachment metadata regardless of policy.
+type EmailAuthPolicy string
 
 // EnableSqlEngineRequest Request body for `POST /api/v1/harbors/{harbor_id}/sql-engine/enable`.
 //
@@ -5774,6 +5790,32 @@ type InboundEmailExtractionConfig struct {
 	OcrProvider *OcrProviderConfig `json:"ocr_provider,omitempty"`
 }
 
+// InboundEmailSecurityConfig Security policy applied to every email, regardless of transport.
+// Verdicts from SPF/DKIM/DMARC are always surfaced in attachment metadata so downstream
+// consumers can apply their own policy on top of whatever the pipeline enforces.
+type InboundEmailSecurityConfig struct {
+	// AllowedContentTypes If set, only these MIME content-types are accepted.
+	// Takes precedence over `blocked_content_types`.
+	AllowedContentTypes *[]string `json:"allowed_content_types,omitempty"`
+
+	// Antivirus Antivirus scanning configuration. Disabled by default; ClamAV slot for future use.
+	Antivirus *AntivirusConfig `json:"antivirus,omitempty"`
+
+	// AuthPolicy How the pipeline responds to email authentication failures (SPF/DKIM/DMARC).
+	// Verdicts are always recorded in attachment metadata regardless of policy.
+	AuthPolicy *EmailAuthPolicy `json:"auth_policy,omitempty"`
+
+	// BlockedContentTypes MIME content-types that are always rejected (e.g. `["application/x-msdownload"]`).
+	// Matched as a prefix so `"application/x-"` blocks all `application/x-*` types.
+	BlockedContentTypes *[]string `json:"blocked_content_types,omitempty"`
+
+	// MaxAttachmentBytes Maximum size in bytes for a single attachment. `null` = unlimited.
+	MaxAttachmentBytes *int64 `json:"max_attachment_bytes,omitempty"`
+
+	// MaxEmailBytes Maximum total raw email size in bytes. `null` = unlimited.
+	MaxEmailBytes *int64 `json:"max_email_bytes,omitempty"`
+}
+
 // InboundEmailSourceConfig Transport-agnostic inbound email source configuration.
 // The transport variant determines how emails are physically received.
 type InboundEmailSourceConfig struct {
@@ -6047,6 +6089,7 @@ type ManagedPostgresqlCrdSpecResponse struct {
 	CpuRequest            *string `json:"cpu_request,omitempty"`
 	EnableSuperuserAccess bool    `json:"enable_superuser_access"`
 	Engine                string  `json:"engine"`
+	ExposeToInternet      bool    `json:"expose_to_internet"`
 	HasBackup             bool    `json:"has_backup"`
 	HasPooler             bool    `json:"has_pooler"`
 	Instances             int32   `json:"instances"`
@@ -6590,6 +6633,11 @@ type PatchContainerAppCrdRequestBody struct {
 	Enabled       *bool                `json:"enabled,omitempty"`
 	Env           *[]EnvVarInput       `json:"env,omitempty"`
 
+	// ExposeToInternet When set, flips internet exposure on or off. `false` removes the platform
+	// host route and all custom-domain routes while keeping the ClusterIP Service.
+	// `true` restores them. Omit to leave the current value unchanged.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
+
 	// FileMounts Files to mount into the container. PATCH semantics: `null` (omit) leaves
 	// existing entries alone; an empty array clears them; a non-empty array
 	// replaces the full list. Subject to the same per-file and total inline
@@ -6718,6 +6766,10 @@ type PatchManagedPostgresqlCrdRequestBody struct {
 
 	// Description Optional description (DB-only, not stored in CRD)
 	Description *string `json:"description,omitempty"`
+
+	// ExposeToInternet When false, no external NodePort Service is created and no public endpoint
+	// is published. Flippable after creation.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
 	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
 	// Memory request and limit are always equal.
@@ -7247,20 +7299,6 @@ type PreviewUrl struct {
 	Url  string `json:"url"`
 }
 
-// ProjectMemberRole Role of a **named user** member within a registry project, expressed as the
-// set of grants they hold at the project scope path.
-//
-// ## Design note — owner vs editor
-//
-// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-// implementation, `owner` is indistinguishable from `editor`: both hold
-// `registry:pull + registry:push + registry:delete` at the project scope.
-// The management API therefore exposes only `viewer | editor`. If
-// per-project-owner semantics (e.g. a `registry:manage` permission for
-// adding/removing members) are needed in the future, add a new permission key
-// rather than re-introducing a members table or a third role variant.
-type ProjectMemberRole string
-
 // QueryHistoryEntry defines model for QueryHistoryEntry.
 type QueryHistoryEntry struct {
 	AnalysisTimeMs     *int64              `json:"analysis_time_ms,omitempty"`
@@ -7406,60 +7444,6 @@ type RegisterInvitationRequest struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Password  string `json:"password"`
-}
-
-// RegistryHarborRobotCreatedResponse Response returned **once** when a harbor robot is created or its secret is
-// rotated.
-type RegistryHarborRobotCreatedResponse struct {
-	ClientId         string             `json:"client_id"`
-	ClientSecret     string             `json:"client_secret"`
-	Name             string             `json:"name"`
-	ServiceAccountId openapi_types.UUID `json:"service_account_id"`
-}
-
-// RegistryHarborRobotListItem Summary of a registry harbor robot (SA) returned by the list endpoint.
-type RegistryHarborRobotListItem struct {
-	// ClientId Stable identifier: the Keycloak `clientId` of the service account.
-	ClientId string `json:"client_id"`
-
-	// Name Human-readable name given at creation time.
-	Name string `json:"name"`
-
-	// Role Role of a **named user** member within a registry project, expressed as the
-	// set of grants they hold at the project scope path.
-	//
-	// ## Design note — owner vs editor
-	//
-	// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-	// implementation, `owner` is indistinguishable from `editor`: both hold
-	// `registry:pull + registry:push + registry:delete` at the project scope.
-	// The management API therefore exposes only `viewer | editor`. If
-	// per-project-owner semantics (e.g. a `registry:manage` permission for
-	// adding/removing members) are needed in the future, add a new permission key
-	// rather than re-introducing a members table or a third role variant.
-	Role ProjectMemberRole `json:"role"`
-
-	// ServiceAccountId DB UUID of the service account row.
-	ServiceAccountId openapi_types.UUID `json:"service_account_id"`
-}
-
-// RegistryProjectMemberListItem API response for a single project member — list variant (no `added_at`
-// when we batch-group grants; timestamp is the earliest grant for this user).
-type RegistryProjectMemberListItem struct {
-	// Role Role of a **named user** member within a registry project, expressed as the
-	// set of grants they hold at the project scope path.
-	//
-	// ## Design note — owner vs editor
-	//
-	// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-	// implementation, `owner` is indistinguishable from `editor`: both hold
-	// `registry:pull + registry:push + registry:delete` at the project scope.
-	// The management API therefore exposes only `viewer | editor`. If
-	// per-project-owner semantics (e.g. a `registry:manage` permission for
-	// adding/removing members) are needed in the future, add a new permission key
-	// rather than re-introducing a members table or a third role variant.
-	Role   ProjectMemberRole  `json:"role"`
-	UserId openapi_types.UUID `json:"user_id"`
 }
 
 // RegistryProjectResponse defines model for RegistryProjectResponse.
@@ -7649,14 +7633,6 @@ type Role struct {
 	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
-// RotateRegistryHarborRobotRequestBody defines model for RotateRegistryHarborRobotRequestBody.
-type RotateRegistryHarborRobotRequestBody struct {
-	// Name Human-readable name to preserve on the new SA. Required to avoid a
-	// round-trip lookup (the old SA's name is not guaranteed to survive the
-	// delete-recreate cycle in all timing windows).
-	Name string `json:"name"`
-}
-
 // S3OutputParameters defines model for S3OutputParameters.
 type S3OutputParameters = map[string]interface{}
 
@@ -7792,6 +7768,12 @@ type SecretValue2Type string
 type SecretValueResponse struct {
 	Name  string      `json:"name"`
 	Value SecretValue `json:"value"`
+}
+
+// SenderPattern A sender pattern used to filter inbound email by the `From` address.
+// The pattern is matched case-insensitively as an exact address or domain suffix.
+type SenderPattern struct {
+	Pattern string `json:"pattern"`
 }
 
 // SensitivityLevel Sensitivity level for data classification
@@ -8280,23 +8262,6 @@ type UpdateRefRequest struct {
 	PipelineChecksum string             `json:"pipeline_checksum"`
 	PipelineId       openapi_types.UUID `json:"pipeline_id"`
 	Status           RefStatus          `json:"status"`
-}
-
-// UpdateRegistryProjectMemberRequestBody defines model for UpdateRegistryProjectMemberRequestBody.
-type UpdateRegistryProjectMemberRequestBody struct {
-	// Role Role of a **named user** member within a registry project, expressed as the
-	// set of grants they hold at the project scope path.
-	//
-	// ## Design note — owner vs editor
-	//
-	// ADR-0014 v1 defined `viewer | editor | owner`. In the grants-based
-	// implementation, `owner` is indistinguishable from `editor`: both hold
-	// `registry:pull + registry:push + registry:delete` at the project scope.
-	// The management API therefore exposes only `viewer | editor`. If
-	// per-project-owner semantics (e.g. a `registry:manage` permission for
-	// adding/removing members) are needed in the future, add a new permission key
-	// rather than re-introducing a members table or a third role variant.
-	Role ProjectMemberRole `json:"role"`
 }
 
 // UpdateSavedQueryRequest defines model for UpdateSavedQueryRequest.
@@ -9102,18 +9067,6 @@ type CreateManagedPostgresqlCrdJSONRequestBody = CreateManagedPostgresqlCrdReque
 
 // CreateRegistryProjectJSONRequestBody defines body for CreateRegistryProject for application/json ContentType.
 type CreateRegistryProjectJSONRequestBody = CreateRegistryProjectRequestBody
-
-// AddRegistryProjectMemberJSONRequestBody defines body for AddRegistryProjectMember for application/json ContentType.
-type AddRegistryProjectMemberJSONRequestBody = AddRegistryProjectMemberRequestBody
-
-// UpdateRegistryProjectMemberJSONRequestBody defines body for UpdateRegistryProjectMember for application/json ContentType.
-type UpdateRegistryProjectMemberJSONRequestBody = UpdateRegistryProjectMemberRequestBody
-
-// CreateRegistryHarborRobotJSONRequestBody defines body for CreateRegistryHarborRobot for application/json ContentType.
-type CreateRegistryHarborRobotJSONRequestBody = CreateRegistryHarborRobotRequestBody
-
-// RotateRegistryHarborRobotJSONRequestBody defines body for RotateRegistryHarborRobot for application/json ContentType.
-type RotateRegistryHarborRobotJSONRequestBody = RotateRegistryHarborRobotRequestBody
 
 // PatchHfKeyValueCacheCrdJSONRequestBody defines body for PatchHfKeyValueCacheCrd for application/json ContentType.
 type PatchHfKeyValueCacheCrdJSONRequestBody = PatchHfKeyValueCacheCrdRequestBody
@@ -11787,38 +11740,6 @@ type ClientInterface interface {
 
 	// GetRegistryImageTags request
 	GetRegistryImageTags(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, image string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListRegistryProjectMembers request
-	ListRegistryProjectMembers(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// AddRegistryProjectMemberWithBody request with any body
-	AddRegistryProjectMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	AddRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, body AddRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RemoveRegistryProjectMember request
-	RemoveRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UpdateRegistryProjectMemberWithBody request with any body
-	UpdateRegistryProjectMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, body UpdateRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListRegistryHarborRobots request
-	ListRegistryHarborRobots(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateRegistryHarborRobotWithBody request with any body
-	CreateRegistryHarborRobotWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteRegistryHarborRobot request
-	DeleteRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RotateRegistryHarborRobotWithBody request with any body
-	RotateRegistryHarborRobotWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	RotateRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, body RotateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetRegistryUsage request
 	GetRegistryUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -15549,150 +15470,6 @@ func (c *Client) TriggerImageScan(ctx context.Context, organizationId openapi_ty
 
 func (c *Client) GetRegistryImageTags(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, image string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetRegistryImageTagsRequest(c.Server, organizationId, harborId, projectId, image)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListRegistryProjectMembers(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListRegistryProjectMembersRequest(c.Server, organizationId, harborId, projectId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) AddRegistryProjectMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddRegistryProjectMemberRequestWithBody(c.Server, organizationId, harborId, projectId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) AddRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, body AddRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddRegistryProjectMemberRequest(c.Server, organizationId, harborId, projectId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RemoveRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRemoveRegistryProjectMemberRequest(c.Server, organizationId, harborId, projectId, userId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateRegistryProjectMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateRegistryProjectMemberRequestWithBody(c.Server, organizationId, harborId, projectId, userId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateRegistryProjectMember(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, body UpdateRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateRegistryProjectMemberRequest(c.Server, organizationId, harborId, projectId, userId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListRegistryHarborRobots(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListRegistryHarborRobotsRequest(c.Server, organizationId, harborId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateRegistryHarborRobotWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateRegistryHarborRobotRequestWithBody(c.Server, organizationId, harborId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateRegistryHarborRobotRequest(c.Server, organizationId, harborId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteRegistryHarborRobotRequest(c.Server, organizationId, harborId, clientId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RotateRegistryHarborRobotWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRotateRegistryHarborRobotRequestWithBody(c.Server, organizationId, harborId, clientId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RotateRegistryHarborRobot(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, body RotateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRotateRegistryHarborRobotRequest(c.Server, organizationId, harborId, clientId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -27321,442 +27098,6 @@ func NewGetRegistryImageTagsRequest(server string, organizationId openapi_types.
 	return req, nil
 }
 
-// NewListRegistryProjectMembersRequest generates requests for ListRegistryProjectMembers
-func NewListRegistryProjectMembersRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "project_id", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/projects/%s/members", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewAddRegistryProjectMemberRequest calls the generic AddRegistryProjectMember builder with application/json body
-func NewAddRegistryProjectMemberRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, body AddRegistryProjectMemberJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewAddRegistryProjectMemberRequestWithBody(server, organizationId, harborId, projectId, "application/json", bodyReader)
-}
-
-// NewAddRegistryProjectMemberRequestWithBody generates requests for AddRegistryProjectMember with any type of body
-func NewAddRegistryProjectMemberRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "project_id", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/projects/%s/members", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewRemoveRegistryProjectMemberRequest generates requests for RemoveRegistryProjectMember
-func NewRemoveRegistryProjectMemberRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "project_id", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam3 string
-
-	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "user_id", userId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/projects/%s/members/%s", pathParam0, pathParam1, pathParam2, pathParam3)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewUpdateRegistryProjectMemberRequest calls the generic UpdateRegistryProjectMember builder with application/json body
-func NewUpdateRegistryProjectMemberRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, body UpdateRegistryProjectMemberJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateRegistryProjectMemberRequestWithBody(server, organizationId, harborId, projectId, userId, "application/json", bodyReader)
-}
-
-// NewUpdateRegistryProjectMemberRequestWithBody generates requests for UpdateRegistryProjectMember with any type of body
-func NewUpdateRegistryProjectMemberRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "project_id", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam3 string
-
-	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "user_id", userId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/projects/%s/members/%s", pathParam0, pathParam1, pathParam2, pathParam3)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewListRegistryHarborRobotsRequest generates requests for ListRegistryHarborRobots
-func NewListRegistryHarborRobotsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/robots", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateRegistryHarborRobotRequest calls the generic CreateRegistryHarborRobot builder with application/json body
-func NewCreateRegistryHarborRobotRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryHarborRobotJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateRegistryHarborRobotRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
-}
-
-// NewCreateRegistryHarborRobotRequestWithBody generates requests for CreateRegistryHarborRobot with any type of body
-func NewCreateRegistryHarborRobotRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/robots", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewDeleteRegistryHarborRobotRequest generates requests for DeleteRegistryHarborRobot
-func NewDeleteRegistryHarborRobotRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "client_id", clientId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/robots/%s", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewRotateRegistryHarborRobotRequest calls the generic RotateRegistryHarborRobot builder with application/json body
-func NewRotateRegistryHarborRobotRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, body RotateRegistryHarborRobotJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewRotateRegistryHarborRobotRequestWithBody(server, organizationId, harborId, clientId, "application/json", bodyReader)
-}
-
-// NewRotateRegistryHarborRobotRequestWithBody generates requests for RotateRegistryHarborRobot with any type of body
-func NewRotateRegistryHarborRobotRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "client_id", clientId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/robots/%s/rotate", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewGetRegistryUsageRequest generates requests for GetRegistryUsage
 func NewGetRegistryUsageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -35971,38 +35312,6 @@ type ClientWithResponsesInterface interface {
 	// GetRegistryImageTagsWithResponse request
 	GetRegistryImageTagsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, image string, reqEditors ...RequestEditorFn) (*GetRegistryImageTagsHTTPResp, error)
 
-	// ListRegistryProjectMembersWithResponse request
-	ListRegistryProjectMembersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryProjectMembersHTTPResp, error)
-
-	// AddRegistryProjectMemberWithBodyWithResponse request with any body
-	AddRegistryProjectMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddRegistryProjectMemberHTTPResp, error)
-
-	AddRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, body AddRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*AddRegistryProjectMemberHTTPResp, error)
-
-	// RemoveRegistryProjectMemberWithResponse request
-	RemoveRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveRegistryProjectMemberHTTPResp, error)
-
-	// UpdateRegistryProjectMemberWithBodyWithResponse request with any body
-	UpdateRegistryProjectMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRegistryProjectMemberHTTPResp, error)
-
-	UpdateRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, body UpdateRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRegistryProjectMemberHTTPResp, error)
-
-	// ListRegistryHarborRobotsWithResponse request
-	ListRegistryHarborRobotsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryHarborRobotsHTTPResp, error)
-
-	// CreateRegistryHarborRobotWithBodyWithResponse request with any body
-	CreateRegistryHarborRobotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRegistryHarborRobotHTTPResp, error)
-
-	CreateRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRegistryHarborRobotHTTPResp, error)
-
-	// DeleteRegistryHarborRobotWithResponse request
-	DeleteRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*DeleteRegistryHarborRobotHTTPResp, error)
-
-	// RotateRegistryHarborRobotWithBodyWithResponse request with any body
-	RotateRegistryHarborRobotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateRegistryHarborRobotHTTPResp, error)
-
-	RotateRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, body RotateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*RotateRegistryHarborRobotHTTPResp, error)
-
 	// GetRegistryUsageWithResponse request
 	GetRegistryUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRegistryUsageHTTPResp, error)
 
@@ -42605,244 +41914,6 @@ func (r GetRegistryImageTagsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetRegistryImageTagsHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ListRegistryProjectMembersHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]RegistryProjectMemberListItem
-}
-
-// Status returns HTTPResponse.Status
-func (r ListRegistryProjectMembersHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListRegistryProjectMembersHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ListRegistryProjectMembersHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type AddRegistryProjectMemberHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *RegistryProjectMemberListItem
-}
-
-// Status returns HTTPResponse.Status
-func (r AddRegistryProjectMemberHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r AddRegistryProjectMemberHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r AddRegistryProjectMemberHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type RemoveRegistryProjectMemberHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r RemoveRegistryProjectMemberHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RemoveRegistryProjectMemberHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r RemoveRegistryProjectMemberHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type UpdateRegistryProjectMemberHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *RegistryProjectMemberListItem
-}
-
-// Status returns HTTPResponse.Status
-func (r UpdateRegistryProjectMemberHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UpdateRegistryProjectMemberHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r UpdateRegistryProjectMemberHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ListRegistryHarborRobotsHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]RegistryHarborRobotListItem
-}
-
-// Status returns HTTPResponse.Status
-func (r ListRegistryHarborRobotsHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListRegistryHarborRobotsHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ListRegistryHarborRobotsHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type CreateRegistryHarborRobotHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *RegistryHarborRobotCreatedResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateRegistryHarborRobotHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateRegistryHarborRobotHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r CreateRegistryHarborRobotHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type DeleteRegistryHarborRobotHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteRegistryHarborRobotHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteRegistryHarborRobotHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DeleteRegistryHarborRobotHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type RotateRegistryHarborRobotHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *RegistryHarborRobotCreatedResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r RotateRegistryHarborRobotHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RotateRegistryHarborRobotHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r RotateRegistryHarborRobotHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -49813,110 +48884,6 @@ func (c *ClientWithResponses) GetRegistryImageTagsWithResponse(ctx context.Conte
 	return ParseGetRegistryImageTagsHTTPResp(rsp)
 }
 
-// ListRegistryProjectMembersWithResponse request returning *ListRegistryProjectMembersHTTPResp
-func (c *ClientWithResponses) ListRegistryProjectMembersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryProjectMembersHTTPResp, error) {
-	rsp, err := c.ListRegistryProjectMembers(ctx, organizationId, harborId, projectId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListRegistryProjectMembersHTTPResp(rsp)
-}
-
-// AddRegistryProjectMemberWithBodyWithResponse request with arbitrary body returning *AddRegistryProjectMemberHTTPResp
-func (c *ClientWithResponses) AddRegistryProjectMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddRegistryProjectMemberHTTPResp, error) {
-	rsp, err := c.AddRegistryProjectMemberWithBody(ctx, organizationId, harborId, projectId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAddRegistryProjectMemberHTTPResp(rsp)
-}
-
-func (c *ClientWithResponses) AddRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, body AddRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*AddRegistryProjectMemberHTTPResp, error) {
-	rsp, err := c.AddRegistryProjectMember(ctx, organizationId, harborId, projectId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAddRegistryProjectMemberHTTPResp(rsp)
-}
-
-// RemoveRegistryProjectMemberWithResponse request returning *RemoveRegistryProjectMemberHTTPResp
-func (c *ClientWithResponses) RemoveRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveRegistryProjectMemberHTTPResp, error) {
-	rsp, err := c.RemoveRegistryProjectMember(ctx, organizationId, harborId, projectId, userId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRemoveRegistryProjectMemberHTTPResp(rsp)
-}
-
-// UpdateRegistryProjectMemberWithBodyWithResponse request with arbitrary body returning *UpdateRegistryProjectMemberHTTPResp
-func (c *ClientWithResponses) UpdateRegistryProjectMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRegistryProjectMemberHTTPResp, error) {
-	rsp, err := c.UpdateRegistryProjectMemberWithBody(ctx, organizationId, harborId, projectId, userId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateRegistryProjectMemberHTTPResp(rsp)
-}
-
-func (c *ClientWithResponses) UpdateRegistryProjectMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, userId openapi_types.UUID, body UpdateRegistryProjectMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRegistryProjectMemberHTTPResp, error) {
-	rsp, err := c.UpdateRegistryProjectMember(ctx, organizationId, harborId, projectId, userId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateRegistryProjectMemberHTTPResp(rsp)
-}
-
-// ListRegistryHarborRobotsWithResponse request returning *ListRegistryHarborRobotsHTTPResp
-func (c *ClientWithResponses) ListRegistryHarborRobotsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryHarborRobotsHTTPResp, error) {
-	rsp, err := c.ListRegistryHarborRobots(ctx, organizationId, harborId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListRegistryHarborRobotsHTTPResp(rsp)
-}
-
-// CreateRegistryHarborRobotWithBodyWithResponse request with arbitrary body returning *CreateRegistryHarborRobotHTTPResp
-func (c *ClientWithResponses) CreateRegistryHarborRobotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRegistryHarborRobotHTTPResp, error) {
-	rsp, err := c.CreateRegistryHarborRobotWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateRegistryHarborRobotHTTPResp(rsp)
-}
-
-func (c *ClientWithResponses) CreateRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRegistryHarborRobotHTTPResp, error) {
-	rsp, err := c.CreateRegistryHarborRobot(ctx, organizationId, harborId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateRegistryHarborRobotHTTPResp(rsp)
-}
-
-// DeleteRegistryHarborRobotWithResponse request returning *DeleteRegistryHarborRobotHTTPResp
-func (c *ClientWithResponses) DeleteRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*DeleteRegistryHarborRobotHTTPResp, error) {
-	rsp, err := c.DeleteRegistryHarborRobot(ctx, organizationId, harborId, clientId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteRegistryHarborRobotHTTPResp(rsp)
-}
-
-// RotateRegistryHarborRobotWithBodyWithResponse request with arbitrary body returning *RotateRegistryHarborRobotHTTPResp
-func (c *ClientWithResponses) RotateRegistryHarborRobotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateRegistryHarborRobotHTTPResp, error) {
-	rsp, err := c.RotateRegistryHarborRobotWithBody(ctx, organizationId, harborId, clientId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRotateRegistryHarborRobotHTTPResp(rsp)
-}
-
-func (c *ClientWithResponses) RotateRegistryHarborRobotWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, clientId string, body RotateRegistryHarborRobotJSONRequestBody, reqEditors ...RequestEditorFn) (*RotateRegistryHarborRobotHTTPResp, error) {
-	rsp, err := c.RotateRegistryHarborRobot(ctx, organizationId, harborId, clientId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRotateRegistryHarborRobotHTTPResp(rsp)
-}
-
 // GetRegistryUsageWithResponse request returning *GetRegistryUsageHTTPResp
 func (c *ClientWithResponses) GetRegistryUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRegistryUsageHTTPResp, error) {
 	rsp, err := c.GetRegistryUsage(ctx, organizationId, harborId, reqEditors...)
@@ -56337,194 +55304,6 @@ func ParseGetRegistryImageTagsHTTPResp(rsp *http.Response) (*GetRegistryImageTag
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest TagsResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListRegistryProjectMembersHTTPResp parses an HTTP response from a ListRegistryProjectMembersWithResponse call
-func ParseListRegistryProjectMembersHTTPResp(rsp *http.Response) (*ListRegistryProjectMembersHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListRegistryProjectMembersHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []RegistryProjectMemberListItem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseAddRegistryProjectMemberHTTPResp parses an HTTP response from a AddRegistryProjectMemberWithResponse call
-func ParseAddRegistryProjectMemberHTTPResp(rsp *http.Response) (*AddRegistryProjectMemberHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &AddRegistryProjectMemberHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest RegistryProjectMemberListItem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseRemoveRegistryProjectMemberHTTPResp parses an HTTP response from a RemoveRegistryProjectMemberWithResponse call
-func ParseRemoveRegistryProjectMemberHTTPResp(rsp *http.Response) (*RemoveRegistryProjectMemberHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RemoveRegistryProjectMemberHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseUpdateRegistryProjectMemberHTTPResp parses an HTTP response from a UpdateRegistryProjectMemberWithResponse call
-func ParseUpdateRegistryProjectMemberHTTPResp(rsp *http.Response) (*UpdateRegistryProjectMemberHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UpdateRegistryProjectMemberHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest RegistryProjectMemberListItem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListRegistryHarborRobotsHTTPResp parses an HTTP response from a ListRegistryHarborRobotsWithResponse call
-func ParseListRegistryHarborRobotsHTTPResp(rsp *http.Response) (*ListRegistryHarborRobotsHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListRegistryHarborRobotsHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []RegistryHarborRobotListItem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreateRegistryHarborRobotHTTPResp parses an HTTP response from a CreateRegistryHarborRobotWithResponse call
-func ParseCreateRegistryHarborRobotHTTPResp(rsp *http.Response) (*CreateRegistryHarborRobotHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateRegistryHarborRobotHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest RegistryHarborRobotCreatedResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteRegistryHarborRobotHTTPResp parses an HTTP response from a DeleteRegistryHarborRobotWithResponse call
-func ParseDeleteRegistryHarborRobotHTTPResp(rsp *http.Response) (*DeleteRegistryHarborRobotHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteRegistryHarborRobotHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseRotateRegistryHarborRobotHTTPResp parses an HTTP response from a RotateRegistryHarborRobotWithResponse call
-func ParseRotateRegistryHarborRobotHTTPResp(rsp *http.Response) (*RotateRegistryHarborRobotHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RotateRegistryHarborRobotHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest RegistryHarborRobotCreatedResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

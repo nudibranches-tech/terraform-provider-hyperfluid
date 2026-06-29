@@ -8,7 +8,7 @@
 # checkout with HYPERFLUID_MONOREPO=/path/to/hyperfluid (skips the network).
 set -euo pipefail
 
-REF="${HYPERFLUID_SPEC_REF:-1b8b770756f8de8031460c443cbba8b6ce33be7a}"
+REF="${HYPERFLUID_SPEC_REF:-c18afc13e06564eaf04d810d11bf48f330d70a2d}"
 SPEC_PATH="apis/generated/console-external.openapi.json"
 OUT="apis/console-external.openapi.json"
 

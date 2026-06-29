@@ -25,6 +25,8 @@ func TestAccManagedPostgresql(t *testing.T) {
 					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql.db", "name", "tf-acc-pg"),
 					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql.db", "storage_capacity", "1"),
 					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql.db", "node_tier", "nano"),
+					// omitted from config above → asserts the default is false (private).
+					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql.db", "expose_to_internet", "false"),
 					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql.db", "backup_policy", "manual"),
 					resource.TestCheckResourceAttrSet("hyperfluid_managed_postgresql.db", "write_endpoint"),
 					resource.TestCheckResourceAttr("hyperfluid_managed_postgresql_user.editor", "username", "app_editor"),
