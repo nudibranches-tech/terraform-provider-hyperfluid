@@ -57,6 +57,31 @@ func (c *Client) GetManagedPostgresql(ctx context.Context, orgID, instanceID str
 	return resp.JSON200, nil
 }
 
+// GetManagedPostgresqlSpec returns the desired CRD spec (the read-mapping source
+// for spec-only fields like expose_to_internet that the status view does not echo).
+// Only the /crd GET carries them.
+func (c *Client) GetManagedPostgresqlSpec(ctx context.Context, orgID, instanceID string) (*console.ManagedPostgresqlCrdSpecResponse, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	inst, err := parseUUID("id", instanceID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.GetManagedPostgresqlCrdWithResponse(ctx, org, inst)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("get managed postgresql spec", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: get managed postgresql spec: empty response")
+	}
+	return resp.JSON200, nil
+}
+
 // FindManagedPostgresql resolves a cluster's id by name within an environment,
 // or ErrNotFound. Backs the data source.
 func (c *Client) FindManagedPostgresql(ctx context.Context, orgID, harborID, name string) (string, error) {

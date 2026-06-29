@@ -53,6 +53,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"port":               ci("Container port."),
 			"replicas":           ci("Desired replica count."),
 			"enabled":            schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app is running."},
+			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether internet-facing routes are created for the app."},
 			"resource_tier":      cs("Resource tier — not returned by the API, so always null on a data source."),
 			"health_check_path":  cs("HTTP health check path."),
 			"health_check_port":  ci("HTTP health check port."),

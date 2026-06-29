@@ -8274,6 +8274,9 @@
           "400": {
             "description": "Invalid request"
           },
+          "403": {
+            "description": "Organization capacity quota exceeded"
+          },
           "404": {
             "description": "Organization or harbor not found"
           },
@@ -9140,461 +9143,6 @@
           },
           "404": {
             "description": "Project/registry not found, or caller has no org role"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/registry/projects/{project_id}/members": {
-      "get": {
-        "tags": [
-          "RegistryProjectMembers"
-        ],
-        "operationId": "list_registry_project_members",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "project_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of project members",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RegistryProjectMemberListItem"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Harbor or registry project not found"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "RegistryProjectMembers"
-        ],
-        "operationId": "add_registry_project_member",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "project_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddRegistryProjectMemberRequestBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Member added",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistryProjectMemberListItem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Harbor, project, or user not found"
-          },
-          "409": {
-            "description": "User is already a member (idempotent ensure — returns 201 regardless)"
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/registry/projects/{project_id}/members/{user_id}": {
-      "put": {
-        "tags": [
-          "RegistryProjectMembers"
-        ],
-        "operationId": "update_registry_project_member",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "project_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateRegistryProjectMemberRequestBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Member role updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistryProjectMemberListItem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Harbor, project, or user not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "RegistryProjectMembers"
-        ],
-        "operationId": "remove_registry_project_member",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "project_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Member removed"
-          },
-          "404": {
-            "description": "Harbor or project not found"
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/registry/robots": {
-      "get": {
-        "tags": [
-          "RegistryHarborRobots"
-        ],
-        "operationId": "list_registry_harbor_robots",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of harbor robots",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RegistryHarborRobotListItem"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Harbor not found or has no registry"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "RegistryHarborRobots"
-        ],
-        "operationId": "create_registry_harbor_robot",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateRegistryHarborRobotRequestBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Harbor robot created — credentials shown ONCE",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistryHarborRobotCreatedResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid robot name or role"
-          },
-          "404": {
-            "description": "Harbor not found or has no registry"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/registry/robots/{client_id}": {
-      "delete": {
-        "tags": [
-          "RegistryHarborRobots"
-        ],
-        "operationId": "delete_registry_harbor_robot",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "client_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Harbor robot deleted"
-          },
-          "404": {
-            "description": "Harbor, registry, or robot not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/registry/robots/{client_id}/rotate": {
-      "post": {
-        "tags": [
-          "RegistryHarborRobots"
-        ],
-        "operationId": "rotate_registry_harbor_robot",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "client_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RotateRegistryHarborRobotRequestBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Harbor robot rotated — new credentials shown ONCE",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistryHarborRobotCreatedResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Harbor, registry, or robot not found"
           },
           "500": {
             "description": "Internal server error"
@@ -10676,6 +10224,9 @@
           },
           "400": {
             "description": "Invalid request"
+          },
+          "403": {
+            "description": "Organization capacity quota exceeded"
           },
           "404": {
             "description": "Managed PostgreSQL not found"
@@ -16521,22 +16072,6 @@
       "AcceptInvitationBody": {
         "type": "object"
       },
-      "AddRegistryProjectMemberRequestBody": {
-        "type": "object",
-        "required": [
-          "user_id",
-          "role"
-        ],
-        "properties": {
-          "role": {
-            "$ref": "#/components/schemas/ProjectMemberRole"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "AddUser": {
         "type": "object",
         "required": [
@@ -16810,6 +16345,26 @@
             "items": {
               "$ref": "#/components/schemas/AnalyticsTrendPoint"
             }
+          }
+        }
+      },
+      "AntivirusConfig": {
+        "type": "object",
+        "description": "Antivirus scanning configuration. Disabled by default; ClamAV slot for future use.",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Enable AV scanning. Requires `endpoint` to be set."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "ClamAV clamd endpoint, e.g. `\"tcp://clamav:3310\"` or `\"unix:///var/run/clamav/clamd.sock\"`.",
+            "nullable": true
+          },
+          "quarantine_prefix": {
+            "type": "string",
+            "description": "S3 prefix for quarantined attachments.\nDefaults to `\"<destination_prefix>/quarantine/\"` when not set.",
+            "nullable": true
           }
         }
       },
@@ -18350,7 +17905,8 @@
           "image_pull_secrets",
           "custom_domains",
           "persistence",
-          "file_mounts"
+          "file_mounts",
+          "expose_to_internet"
         ],
         "properties": {
           "cpu_limit": {
@@ -18375,6 +17931,10 @@
             "items": {
               "$ref": "#/components/schemas/EnvVarSpecResponse"
             }
+          },
+          "expose_to_internet": {
+            "type": "boolean",
+            "description": "Whether internet-facing routes are enabled for this app. Reflects the live CRD\nvalue so the edit dialog can prefill the current state."
           },
           "file_mounts": {
             "type": "array",
@@ -19205,6 +18765,10 @@
               "$ref": "#/components/schemas/EnvVarInput"
             }
           },
+          "expose_to_internet": {
+            "type": "boolean",
+            "description": "Whether to create internet-facing routes (platform host route and custom-domain\nroutes) for this app. Defaults to `false` — new apps are private by default.\nWhen `false`, the operator keeps the ClusterIP Service so the app is still\nreachable in-cluster. Set to `true` to opt into a public endpoint explicitly."
+          },
           "file_mounts": {
             "type": "array",
             "items": {
@@ -19950,6 +19514,13 @@
           "destination"
         ],
         "properties": {
+          "allowed_senders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderPattern"
+            },
+            "description": "Optional allowlist of sender patterns. When non-empty, only emails whose\n`From` address matches at least one pattern are processed; all others are\nskipped and marked as seen without uploading attachments."
+          },
           "destination": {
             "$ref": "#/components/schemas/InboundEmailDestinationConfig"
           },
@@ -19959,6 +19530,9 @@
           },
           "pipeline": {
             "$ref": "#/components/schemas/PipelineMetadata"
+          },
+          "security": {
+            "$ref": "#/components/schemas/InboundEmailSecurityConfig"
           },
           "source": {
             "$ref": "#/components/schemas/InboundEmailSourceConfig"
@@ -20068,6 +19642,10 @@
           },
           "engine": {
             "$ref": "#/components/schemas/Engine"
+          },
+          "expose_to_internet": {
+            "type": "boolean",
+            "description": "When true, the operator creates an external NodePort Service and publishes\nthe endpoint. Defaults to false — clusters are private (in-cluster only)\nunless explicitly opted in."
           },
           "name": {
             "type": "string",
@@ -20539,22 +20117,6 @@
           "name": {
             "type": "string",
             "description": "Trino catalog name."
-          }
-        }
-      },
-      "CreateRegistryHarborRobotRequestBody": {
-        "type": "object",
-        "required": [
-          "name",
-          "role"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Human-readable name for the robot; also used as the display name of the\nunderlying service account. Must be 3–64 characters."
-          },
-          "role": {
-            "$ref": "#/components/schemas/ProjectMemberRole"
           }
         }
       },
@@ -22044,6 +21606,15 @@
             "type": "boolean"
           }
         }
+      },
+      "EmailAuthPolicy": {
+        "type": "string",
+        "description": "How the pipeline responds to email authentication failures (SPF/DKIM/DMARC).\nVerdicts are always recorded in attachment metadata regardless of policy.",
+        "enum": [
+          "permissive",
+          "reject_on_dmarc_fail",
+          "reject_on_any_auth_fail"
+        ]
       },
       "EnableSqlEngineRequest": {
         "type": "object",
@@ -24086,6 +23657,47 @@
           }
         }
       },
+      "InboundEmailSecurityConfig": {
+        "type": "object",
+        "description": "Security policy applied to every email, regardless of transport.\nVerdicts from SPF/DKIM/DMARC are always surfaced in attachment metadata so downstream\nconsumers can apply their own policy on top of whatever the pipeline enforces.",
+        "properties": {
+          "allowed_content_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "If set, only these MIME content-types are accepted.\nTakes precedence over `blocked_content_types`.",
+            "nullable": true
+          },
+          "antivirus": {
+            "$ref": "#/components/schemas/AntivirusConfig"
+          },
+          "auth_policy": {
+            "$ref": "#/components/schemas/EmailAuthPolicy"
+          },
+          "blocked_content_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "MIME content-types that are always rejected (e.g. `[\"application/x-msdownload\"]`).\nMatched as a prefix so `\"application/x-\"` blocks all `application/x-*` types."
+          },
+          "max_attachment_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum size in bytes for a single attachment. `null` = unlimited.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "max_email_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum total raw email size in bytes. `null` = unlimited.",
+            "minimum": 0,
+            "nullable": true
+          }
+        }
+      },
       "InboundEmailSourceConfig": {
         "oneOf": [
           {
@@ -24740,6 +24352,7 @@
           "instances",
           "storage_size",
           "enable_superuser_access",
+          "expose_to_internet",
           "has_backup",
           "has_pooler"
         ],
@@ -24765,6 +24378,9 @@
           },
           "engine": {
             "type": "string"
+          },
+          "expose_to_internet": {
+            "type": "boolean"
           },
           "has_backup": {
             "type": "boolean"
@@ -26068,6 +25684,11 @@
             },
             "nullable": true
           },
+          "expose_to_internet": {
+            "type": "boolean",
+            "description": "When set, flips internet exposure on or off. `false` removes the platform\nhost route and all custom-domain routes while keeping the ClusterIP Service.\n`true` restores them. Omit to leave the current value unchanged.",
+            "nullable": true
+          },
           "file_mounts": {
             "type": "array",
             "items": {
@@ -26279,6 +25900,11 @@
           "description": {
             "type": "string",
             "description": "Optional description (DB-only, not stored in CRD)",
+            "nullable": true
+          },
+          "expose_to_internet": {
+            "type": "boolean",
+            "description": "When false, no external NodePort Service is created and no public endpoint\nis published. Flippable after creation.",
             "nullable": true
           },
           "node_tier": {
@@ -27263,14 +26889,6 @@
           }
         }
       },
-      "ProjectMemberRole": {
-        "type": "string",
-        "description": "Role of a **named user** member within a registry project, expressed as the\nset of grants they hold at the project scope path.\n\n## Design note — owner vs editor\n\nADR-0014 v1 defined `viewer | editor | owner`. In the grants-based\nimplementation, `owner` is indistinguishable from `editor`: both hold\n`registry:pull + registry:push + registry:delete` at the project scope.\nThe management API therefore exposes only `viewer | editor`. If\nper-project-owner semantics (e.g. a `registry:manage` permission for\nadding/removing members) are needed in the future, add a new permission key\nrather than re-introducing a members table or a third role variant.",
-        "enum": [
-          "viewer",
-          "editor"
-        ]
-      },
       "QueryHistoryEntry": {
         "type": "object",
         "required": [
@@ -27741,76 +27359,6 @@
           }
         }
       },
-      "RegistryHarborRobotCreatedResponse": {
-        "type": "object",
-        "description": "Response returned **once** when a harbor robot is created or its secret is\nrotated.",
-        "required": [
-          "client_id",
-          "client_secret",
-          "name",
-          "service_account_id"
-        ],
-        "properties": {
-          "client_id": {
-            "type": "string"
-          },
-          "client_secret": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "service_account_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "RegistryHarborRobotListItem": {
-        "type": "object",
-        "description": "Summary of a registry harbor robot (SA) returned by the list endpoint.",
-        "required": [
-          "client_id",
-          "name",
-          "service_account_id",
-          "role"
-        ],
-        "properties": {
-          "client_id": {
-            "type": "string",
-            "description": "Stable identifier: the Keycloak `clientId` of the service account."
-          },
-          "name": {
-            "type": "string",
-            "description": "Human-readable name given at creation time."
-          },
-          "role": {
-            "$ref": "#/components/schemas/ProjectMemberRole"
-          },
-          "service_account_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "DB UUID of the service account row."
-          }
-        }
-      },
-      "RegistryProjectMemberListItem": {
-        "type": "object",
-        "description": "API response for a single project member — list variant (no `added_at`\nwhen we batch-group grants; timestamp is the earliest grant for this user).",
-        "required": [
-          "user_id",
-          "role"
-        ],
-        "properties": {
-          "role": {
-            "$ref": "#/components/schemas/ProjectMemberRole"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "RegistryProjectResponse": {
         "type": "object",
         "required": [
@@ -28191,18 +27739,6 @@
           }
         }
       },
-      "RotateRegistryHarborRobotRequestBody": {
-        "type": "object",
-        "required": [
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Human-readable name to preserve on the new SA. Required to avoid a\nround-trip lookup (the old SA's name is not guaranteed to survive the\ndelete-recreate cycle in all timing windows)."
-          }
-        }
-      },
       "S3OutputParameters": {
         "type": "object"
       },
@@ -28525,6 +28061,18 @@
           },
           "value": {
             "$ref": "#/components/schemas/SecretValue"
+          }
+        }
+      },
+      "SenderPattern": {
+        "type": "object",
+        "description": "A sender pattern used to filter inbound email by the `From` address.\nThe pattern is matched case-insensitively as an exact address or domain suffix.",
+        "required": [
+          "pattern"
+        ],
+        "properties": {
+          "pattern": {
+            "type": "string"
           }
         }
       },
@@ -29818,17 +29366,6 @@
           }
         }
       },
-      "UpdateRegistryProjectMemberRequestBody": {
-        "type": "object",
-        "required": [
-          "role"
-        ],
-        "properties": {
-          "role": {
-            "$ref": "#/components/schemas/ProjectMemberRole"
-          }
-        }
-      },
       "UpdateSavedQueryRequest": {
         "type": "object",
         "properties": {
@@ -30556,14 +30093,6 @@
     {
       "name": "RegistryProjects",
       "description": "Registry project management"
-    },
-    {
-      "name": "RegistryProjectMembers",
-      "description": "Registry project member management"
-    },
-    {
-      "name": "RegistryHarborRobots",
-      "description": "Registry harbor robot management"
     },
     {
       "name": "Registries",

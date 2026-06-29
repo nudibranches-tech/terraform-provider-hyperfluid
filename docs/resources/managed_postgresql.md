@@ -26,6 +26,10 @@ resource "hyperfluid_managed_postgresql" "db" {
   node_tier        = "nano"
   storage_capacity = 5
   configuration    = "standalone"
+
+  # Defaults to true (external NodePort endpoint published). Set false to keep
+  # the cluster reachable only in-cluster.
+  expose_to_internet = true
 }
 
 output "write_endpoint" {
@@ -49,6 +53,7 @@ output "write_endpoint" {
 - `configuration` (String) Topology: standalone or high-availability.
 - `description` (String) Free-form description.
 - `engine` (String) Engine: postgresql, postgis, timescaledb.
+- `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to true. When false, no external endpoint is published and the cluster is reachable only in-cluster.
 - `node_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge.
 - `storage_capacity` (Number) Storage capacity in GB (1-30). Growth is applied in place but is eventually consistent — `plan` may show the increase as pending until the underlying volume finishes expanding.
 - `tags` (List of String) User-defined tags.

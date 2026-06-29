@@ -44,6 +44,7 @@ output "app_endpoint" {
 - `desired_replicas` (Number) Desired replicas reported by the platform.
 - `enabled` (Boolean) Whether the app is running.
 - `endpoint` (String) Public endpoint, once provisioned.
+- `expose_to_internet` (Boolean) Whether internet-facing routes are created for the app.
 - `health_check_path` (String) HTTP health check path.
 - `health_check_port` (Number) HTTP health check port.
 - `id` (String) App id.

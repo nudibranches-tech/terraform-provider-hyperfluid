@@ -25,6 +25,10 @@ resource "hyperfluid_container_app" "web" {
   port             = 8080
   replicas         = 1
   resource_tier    = "nano"
+
+  # Defaults to true (internet-facing routes created). Set false to keep the app
+  # reachable only in-cluster.
+  expose_to_internet = true
 }
 
 output "endpoint" {
@@ -45,6 +49,7 @@ output "endpoint" {
 ### Optional
 
 - `enabled` (Boolean) Whether the app is running. Defaults to true.
+- `expose_to_internet` (Boolean) Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to true. When false, the app is reachable only in-cluster.
 - `health_check_path` (String) HTTP health check path.
 - `health_check_port` (Number) HTTP health check port.
 - `port` (Number) Container port.
