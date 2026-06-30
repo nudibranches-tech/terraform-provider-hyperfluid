@@ -66,6 +66,19 @@ func optInt64FromInt32(n *int32) types.Int64 {
 	return types.Int64Value(int64(*n))
 }
 
+// timeString formats an API timestamp as RFC3339 for a computed string attribute.
+func timeString(t time.Time) types.String {
+	return types.StringValue(t.Format(time.RFC3339))
+}
+
+// optTimeString formats an optional API timestamp (nil → null).
+func optTimeString(t *time.Time) types.String {
+	if t == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(t.Format(time.RFC3339))
+}
+
 // stringSliceToList converts an API []string into a tfsdk list value.
 func stringSliceToList(ctx context.Context, s []string) (types.List, diag.Diagnostics) {
 	return types.ListValueFrom(ctx, types.StringType, s)
@@ -78,6 +91,21 @@ func listToStringSlice(ctx context.Context, l types.List) ([]string, diag.Diagno
 	}
 	var out []string
 	d := l.ElementsAs(ctx, &out, false)
+	return out, d
+}
+
+// stringSliceToSet converts an API []string into a tfsdk set value (order-insensitive).
+func stringSliceToSet(ctx context.Context, s []string) (types.Set, diag.Diagnostics) {
+	return types.SetValueFrom(ctx, types.StringType, s)
+}
+
+// setToStringSlice converts a tfsdk set into []string (nil for null/unknown).
+func setToStringSlice(ctx context.Context, s types.Set) ([]string, diag.Diagnostics) {
+	if s.IsNull() || s.IsUnknown() {
+		return nil, nil
+	}
+	var out []string
+	d := s.ElementsAs(ctx, &out, false)
 	return out, d
 }
 
