@@ -57,8 +57,11 @@ func (p *HyperfluidProvider) Schema(_ context.Context, _ provider.SchemaRequest,
 				MarkdownDescription: "Organization ID. Falls back to `HYPERFLUID_ORGANIZATION_ID`, then the credentials file.",
 			},
 			"credentials_file": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "Path to the service-account JSON (the same file hfctl consumes). Falls back to `HYPERFLUID_CREDENTIALS`. The secret is never written to state.",
+				Optional: true,
+				MarkdownDescription: "Path to the service-account JSON (the same file hfctl consumes). " +
+					"When unset, falls back to the `HYPERFLUID_CREDENTIALS` environment variable, then to " +
+					"the file `hfctl tf auth` writes at `<user-config-dir>/hyperfluid/terraform/credentials.json` " +
+					"(so `hfctl auth login` + `hfctl tf auth` is all that's needed). The secret is never written to state.",
 			},
 		},
 	}
@@ -72,11 +75,14 @@ func (p *HyperfluidProvider) Configure(ctx context.Context, req provider.Configu
 	}
 
 	endpoint := firstNonEmpty(cfg.Endpoint.ValueString(), os.Getenv("HYPERFLUID_ENDPOINT"))
-	credsFile := firstNonEmpty(cfg.CredentialsFile.ValueString(), os.Getenv("HYPERFLUID_CREDENTIALS"))
+	credsFile := resolveCredentialsPath(cfg.CredentialsFile.ValueString())
 	if credsFile == "" {
 		resp.Diagnostics.AddError(
-			"Missing credentials",
-			"Set the provider `credentials_file` or the HYPERFLUID_CREDENTIALS environment variable to the service-account JSON path.",
+			"Missing Hyperfluid credentials",
+			"No Hyperfluid credentials found. Run `hfctl tf auth` to wire the Terraform provider to "+
+				"your active hfctl profile, or set the HYPERFLUID_CREDENTIALS environment variable "+
+				"(e.g. `eval $(hfctl tf auth --export)`), or the provider `credentials_file`, to a "+
+				"service-account JSON path.",
 		)
 		return
 	}
@@ -100,6 +106,34 @@ func (p *HyperfluidProvider) Configure(ctx context.Context, req provider.Configu
 	pd := &providerData{API: api, OrgID: orgID}
 	resp.ResourceData = pd
 	resp.DataSourceData = pd
+}
+
+// resolveCredentialsPath applies the credential resolution order (first present
+// wins), returning "" when no source yields a usable path so Configure can emit
+// the "run `hfctl tf auth`" diagnostic:
+//
+//  1. explicit `credentials_file` from the provider block
+//  2. the HYPERFLUID_CREDENTIALS environment variable (CI / `hfctl tf auth --export`)
+//  3. the well-known file written by `hfctl tf auth` — used only when it exists,
+//     so a missing file falls through to the actionable error rather than a raw
+//     "no such file" from the parser
+//
+// Rungs 1–2 are explicit paths and win by being non-empty (even if the file is
+// absent, so the parser surfaces the user's own typo); rung 3 wins only when the
+// file is actually present.
+func resolveCredentialsPath(explicit string) string {
+	if explicit != "" {
+		return explicit
+	}
+	if env := os.Getenv("HYPERFLUID_CREDENTIALS"); env != "" {
+		return env
+	}
+	if p, err := client.DefaultCredentialsPath(); err == nil {
+		if _, statErr := os.Stat(p); statErr == nil {
+			return p
+		}
+	}
+	return ""
 }
 
 func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Resource {
