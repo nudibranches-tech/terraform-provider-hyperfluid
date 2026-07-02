@@ -214,20 +214,20 @@ func (e Configuration) Valid() bool {
 
 // Defines values for ConsoleConfigFeatureFlag.
 const (
-	AuthzOpaEnabled ConsoleConfigFeatureFlag = "authz_opa_enabled"
-	DagsterEnabled  ConsoleConfigFeatureFlag = "dagster_enabled"
-	ShowDemoBanner  ConsoleConfigFeatureFlag = "show_demo_banner"
-	VaubanPreview   ConsoleConfigFeatureFlag = "vauban_preview"
+	DagsterEnabled ConsoleConfigFeatureFlag = "dagster_enabled"
+	ShowDemoBanner ConsoleConfigFeatureFlag = "show_demo_banner"
+	ShowMarketing  ConsoleConfigFeatureFlag = "show_marketing"
+	VaubanPreview  ConsoleConfigFeatureFlag = "vauban_preview"
 )
 
 // Valid indicates whether the value is a known member of the ConsoleConfigFeatureFlag enum.
 func (e ConsoleConfigFeatureFlag) Valid() bool {
 	switch e {
-	case AuthzOpaEnabled:
-		return true
 	case DagsterEnabled:
 		return true
 	case ShowDemoBanner:
+		return true
+	case ShowMarketing:
 		return true
 	case VaubanPreview:
 		return true
@@ -688,16 +688,16 @@ func (e DomainVerificationStateDto) Valid() bool {
 
 // Defines values for Effect.
 const (
-	Allow Effect = "allow"
-	Deny  Effect = "deny"
+	EffectAllow Effect = "allow"
+	EffectDeny  Effect = "deny"
 )
 
 // Valid indicates whether the value is a known member of the Effect enum.
 func (e Effect) Valid() bool {
 	switch e {
-	case Allow:
+	case EffectAllow:
 		return true
-	case Deny:
+	case EffectDeny:
 		return true
 	default:
 		return false
@@ -1277,6 +1277,432 @@ func (e PanelKind) Valid() bool {
 	}
 }
 
+// Defines values for PermissionAction.
+const (
+	PermissionActionAllow PermissionAction = "allow"
+	PermissionActionAsk   PermissionAction = "ask"
+	PermissionActionDeny  PermissionAction = "deny"
+)
+
+// Valid indicates whether the value is a known member of the PermissionAction enum.
+func (e PermissionAction) Valid() bool {
+	switch e {
+	case PermissionActionAllow:
+		return true
+	case PermissionActionAsk:
+		return true
+	case PermissionActionDeny:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PermissionKey.
+const (
+	PermissionKeyApiKeyCreate                  PermissionKey = "api_key:create"
+	PermissionKeyApiKeyDelete                  PermissionKey = "api_key:delete"
+	PermissionKeyApiKeyRead                    PermissionKey = "api_key:read"
+	PermissionKeyAppInstanceCreate             PermissionKey = "app_instance:create"
+	PermissionKeyAppInstanceDelete             PermissionKey = "app_instance:delete"
+	PermissionKeyAppInstanceRead               PermissionKey = "app_instance:read"
+	PermissionKeyAppInstanceUpdate             PermissionKey = "app_instance:update"
+	PermissionKeyAuditLogRead                  PermissionKey = "audit_log:read"
+	PermissionKeyBackupTargetCreate            PermissionKey = "backup_target:create"
+	PermissionKeyBackupTargetDelete            PermissionKey = "backup_target:delete"
+	PermissionKeyBackupTargetRead              PermissionKey = "backup_target:read"
+	PermissionKeyBackupTargetUpdate            PermissionKey = "backup_target:update"
+	PermissionKeyBucketCreate                  PermissionKey = "bucket:create"
+	PermissionKeyBucketDelete                  PermissionKey = "bucket:delete"
+	PermissionKeyBucketRead                    PermissionKey = "bucket:read"
+	PermissionKeyBucketUpdate                  PermissionKey = "bucket:update"
+	PermissionKeyContainerAppCreate            PermissionKey = "container_app:create"
+	PermissionKeyContainerAppDelete            PermissionKey = "container_app:delete"
+	PermissionKeyContainerAppRead              PermissionKey = "container_app:read"
+	PermissionKeyContainerAppRestart           PermissionKey = "container_app:restart"
+	PermissionKeyContainerAppUpdate            PermissionKey = "container_app:update"
+	PermissionKeyDagsterCreate                 PermissionKey = "dagster:create"
+	PermissionKeyDagsterDelete                 PermissionKey = "dagster:delete"
+	PermissionKeyDagsterRead                   PermissionKey = "dagster:read"
+	PermissionKeyDagsterUpdate                 PermissionKey = "dagster:update"
+	PermissionKeyDataContainerCreate           PermissionKey = "data_container:create"
+	PermissionKeyDataContainerDelete           PermissionKey = "data_container:delete"
+	PermissionKeyDataContainerRead             PermissionKey = "data_container:read"
+	PermissionKeyDataContainerUpdate           PermissionKey = "data_container:update"
+	PermissionKeyDataDockCreate                PermissionKey = "data_dock:create"
+	PermissionKeyDataDockDelete                PermissionKey = "data_dock:delete"
+	PermissionKeyDataDockRead                  PermissionKey = "data_dock:read"
+	PermissionKeyDataDockUpdate                PermissionKey = "data_dock:update"
+	PermissionKeyDevWorkstationCreate          PermissionKey = "dev_workstation:create"
+	PermissionKeyDevWorkstationDelete          PermissionKey = "dev_workstation:delete"
+	PermissionKeyDevWorkstationRead            PermissionKey = "dev_workstation:read"
+	PermissionKeyDevWorkstationUpdate          PermissionKey = "dev_workstation:update"
+	PermissionKeyDomainVerificationCreate      PermissionKey = "domain_verification:create"
+	PermissionKeyDomainVerificationDelete      PermissionKey = "domain_verification:delete"
+	PermissionKeyDomainVerificationRead        PermissionKey = "domain_verification:read"
+	PermissionKeyDomainVerificationUpdate      PermissionKey = "domain_verification:update"
+	PermissionKeyForgejoRunnerManage           PermissionKey = "forgejo_runner:manage"
+	PermissionKeyForgejoRunnerRead             PermissionKey = "forgejo_runner:read"
+	PermissionKeyGrantCreate                   PermissionKey = "grant:create"
+	PermissionKeyGrantDelete                   PermissionKey = "grant:delete"
+	PermissionKeyGrantRead                     PermissionKey = "grant:read"
+	PermissionKeyGroupCreate                   PermissionKey = "group:create"
+	PermissionKeyGroupDelete                   PermissionKey = "group:delete"
+	PermissionKeyGroupRead                     PermissionKey = "group:read"
+	PermissionKeyGroupUpdate                   PermissionKey = "group:update"
+	PermissionKeyHarborCreate                  PermissionKey = "harbor:create"
+	PermissionKeyHarborDelete                  PermissionKey = "harbor:delete"
+	PermissionKeyHarborRead                    PermissionKey = "harbor:read"
+	PermissionKeyHfKeyValueCacheManage         PermissionKey = "hf_key_value_cache:manage"
+	PermissionKeyHfKeyValueCacheRead           PermissionKey = "hf_key_value_cache:read"
+	PermissionKeyInferenceServiceCreate        PermissionKey = "inference_service:create"
+	PermissionKeyInferenceServiceDelete        PermissionKey = "inference_service:delete"
+	PermissionKeyInferenceServiceInvoke        PermissionKey = "inference_service:invoke"
+	PermissionKeyInferenceServiceRead          PermissionKey = "inference_service:read"
+	PermissionKeyInferenceServiceUpdate        PermissionKey = "inference_service:update"
+	PermissionKeyKafkaHfServiceCreate          PermissionKey = "kafka_hf_service:create"
+	PermissionKeyKafkaHfServiceDelete          PermissionKey = "kafka_hf_service:delete"
+	PermissionKeyKafkaHfServiceRead            PermissionKey = "kafka_hf_service:read"
+	PermissionKeyKafkaHfServiceUpdate          PermissionKey = "kafka_hf_service:update"
+	PermissionKeyLabelCreate                   PermissionKey = "label:create"
+	PermissionKeyLabelDelete                   PermissionKey = "label:delete"
+	PermissionKeyLabelRead                     PermissionKey = "label:read"
+	PermissionKeyLabelUpdate                   PermissionKey = "label:update"
+	PermissionKeyManagedPostgresqlBackupCreate PermissionKey = "managed_postgresql_backup:create"
+	PermissionKeyManagedPostgresqlBackupDelete PermissionKey = "managed_postgresql_backup:delete"
+	PermissionKeyManagedPostgresqlBackupRead   PermissionKey = "managed_postgresql_backup:read"
+	PermissionKeyManagedPostgresqlCreate       PermissionKey = "managed_postgresql:create"
+	PermissionKeyManagedPostgresqlDelete       PermissionKey = "managed_postgresql:delete"
+	PermissionKeyManagedPostgresqlRead         PermissionKey = "managed_postgresql:read"
+	PermissionKeyManagedPostgresqlUpdate       PermissionKey = "managed_postgresql:update"
+	PermissionKeyManagedPostgresqlUserCreate   PermissionKey = "managed_postgresql_user:create"
+	PermissionKeyManagedPostgresqlUserDelete   PermissionKey = "managed_postgresql_user:delete"
+	PermissionKeyManagedPostgresqlUserRead     PermissionKey = "managed_postgresql_user:read"
+	PermissionKeyManagedPostgresqlUserUpdate   PermissionKey = "managed_postgresql_user:update"
+	PermissionKeyMonitoringRead                PermissionKey = "monitoring:read"
+	PermissionKeyOrgStorageRead                PermissionKey = "org_storage:read"
+	PermissionKeyOrgStorageUpdate              PermissionKey = "org_storage:update"
+	PermissionKeyOrganizationDelete            PermissionKey = "organization:delete"
+	PermissionKeyOrganizationPolicyCreate      PermissionKey = "organization_policy:create"
+	PermissionKeyOrganizationPolicyDelete      PermissionKey = "organization_policy:delete"
+	PermissionKeyOrganizationPolicyRead        PermissionKey = "organization_policy:read"
+	PermissionKeyOrganizationRead              PermissionKey = "organization:read"
+	PermissionKeyOrganizationUpdate            PermissionKey = "organization:update"
+	PermissionKeyPipelineCreate                PermissionKey = "pipeline:create"
+	PermissionKeyPipelineDelete                PermissionKey = "pipeline:delete"
+	PermissionKeyPipelineRead                  PermissionKey = "pipeline:read"
+	PermissionKeyPipelineRun                   PermissionKey = "pipeline:run"
+	PermissionKeyPipelineUpdate                PermissionKey = "pipeline:update"
+	PermissionKeyQueryCancel                   PermissionKey = "query:cancel"
+	PermissionKeyQueryCreate                   PermissionKey = "query:create"
+	PermissionKeyQueryDelete                   PermissionKey = "query:delete"
+	PermissionKeyQueryExecute                  PermissionKey = "query:execute"
+	PermissionKeyQueryRead                     PermissionKey = "query:read"
+	PermissionKeyQueryUpdate                   PermissionKey = "query:update"
+	PermissionKeyRegistryAdmin                 PermissionKey = "registry:admin"
+	PermissionKeyRegistryDelete                PermissionKey = "registry:delete"
+	PermissionKeyRegistryManage                PermissionKey = "registry:manage"
+	PermissionKeyRegistryPull                  PermissionKey = "registry:pull"
+	PermissionKeyRegistryPush                  PermissionKey = "registry:push"
+	PermissionKeyRegistryRead                  PermissionKey = "registry:read"
+	PermissionKeyRoleCreate                    PermissionKey = "role:create"
+	PermissionKeyRoleDelete                    PermissionKey = "role:delete"
+	PermissionKeyRoleRead                      PermissionKey = "role:read"
+	PermissionKeyRoleUpdate                    PermissionKey = "role:update"
+	PermissionKeySecretAccess                  PermissionKey = "secret:access"
+	PermissionKeySecretCreate                  PermissionKey = "secret:create"
+	PermissionKeySecretDelete                  PermissionKey = "secret:delete"
+	PermissionKeySecretRead                    PermissionKey = "secret:read"
+	PermissionKeySecretUpdate                  PermissionKey = "secret:update"
+	PermissionKeyServiceAccountCreate          PermissionKey = "service_account:create"
+	PermissionKeyServiceAccountDelete          PermissionKey = "service_account:delete"
+	PermissionKeyServiceAccountRead            PermissionKey = "service_account:read"
+	PermissionKeyServiceAccountUpdate          PermissionKey = "service_account:update"
+	PermissionKeyUserAttributeAssign           PermissionKey = "user_attribute:assign"
+	PermissionKeyUserAttributeRead             PermissionKey = "user_attribute:read"
+	PermissionKeyUserInvite                    PermissionKey = "user:invite"
+	PermissionKeyUserRead                      PermissionKey = "user:read"
+	PermissionKeyUserRemove                    PermissionKey = "user:remove"
+	PermissionKeyUserUpdate                    PermissionKey = "user:update"
+	PermissionKeyVaubanRuleCreate              PermissionKey = "vauban_rule:create"
+	PermissionKeyVaubanRuleDelete              PermissionKey = "vauban_rule:delete"
+	PermissionKeyVaubanRuleRead                PermissionKey = "vauban_rule:read"
+	PermissionKeyVaubanRuleUpdate              PermissionKey = "vauban_rule:update"
+	PermissionKeyWorkstationTemplateCreate     PermissionKey = "workstation_template:create"
+	PermissionKeyWorkstationTemplateDelete     PermissionKey = "workstation_template:delete"
+	PermissionKeyWorkstationTemplateUpdate     PermissionKey = "workstation_template:update"
+)
+
+// Valid indicates whether the value is a known member of the PermissionKey enum.
+func (e PermissionKey) Valid() bool {
+	switch e {
+	case PermissionKeyApiKeyCreate:
+		return true
+	case PermissionKeyApiKeyDelete:
+		return true
+	case PermissionKeyApiKeyRead:
+		return true
+	case PermissionKeyAppInstanceCreate:
+		return true
+	case PermissionKeyAppInstanceDelete:
+		return true
+	case PermissionKeyAppInstanceRead:
+		return true
+	case PermissionKeyAppInstanceUpdate:
+		return true
+	case PermissionKeyAuditLogRead:
+		return true
+	case PermissionKeyBackupTargetCreate:
+		return true
+	case PermissionKeyBackupTargetDelete:
+		return true
+	case PermissionKeyBackupTargetRead:
+		return true
+	case PermissionKeyBackupTargetUpdate:
+		return true
+	case PermissionKeyBucketCreate:
+		return true
+	case PermissionKeyBucketDelete:
+		return true
+	case PermissionKeyBucketRead:
+		return true
+	case PermissionKeyBucketUpdate:
+		return true
+	case PermissionKeyContainerAppCreate:
+		return true
+	case PermissionKeyContainerAppDelete:
+		return true
+	case PermissionKeyContainerAppRead:
+		return true
+	case PermissionKeyContainerAppRestart:
+		return true
+	case PermissionKeyContainerAppUpdate:
+		return true
+	case PermissionKeyDagsterCreate:
+		return true
+	case PermissionKeyDagsterDelete:
+		return true
+	case PermissionKeyDagsterRead:
+		return true
+	case PermissionKeyDagsterUpdate:
+		return true
+	case PermissionKeyDataContainerCreate:
+		return true
+	case PermissionKeyDataContainerDelete:
+		return true
+	case PermissionKeyDataContainerRead:
+		return true
+	case PermissionKeyDataContainerUpdate:
+		return true
+	case PermissionKeyDataDockCreate:
+		return true
+	case PermissionKeyDataDockDelete:
+		return true
+	case PermissionKeyDataDockRead:
+		return true
+	case PermissionKeyDataDockUpdate:
+		return true
+	case PermissionKeyDevWorkstationCreate:
+		return true
+	case PermissionKeyDevWorkstationDelete:
+		return true
+	case PermissionKeyDevWorkstationRead:
+		return true
+	case PermissionKeyDevWorkstationUpdate:
+		return true
+	case PermissionKeyDomainVerificationCreate:
+		return true
+	case PermissionKeyDomainVerificationDelete:
+		return true
+	case PermissionKeyDomainVerificationRead:
+		return true
+	case PermissionKeyDomainVerificationUpdate:
+		return true
+	case PermissionKeyForgejoRunnerManage:
+		return true
+	case PermissionKeyForgejoRunnerRead:
+		return true
+	case PermissionKeyGrantCreate:
+		return true
+	case PermissionKeyGrantDelete:
+		return true
+	case PermissionKeyGrantRead:
+		return true
+	case PermissionKeyGroupCreate:
+		return true
+	case PermissionKeyGroupDelete:
+		return true
+	case PermissionKeyGroupRead:
+		return true
+	case PermissionKeyGroupUpdate:
+		return true
+	case PermissionKeyHarborCreate:
+		return true
+	case PermissionKeyHarborDelete:
+		return true
+	case PermissionKeyHarborRead:
+		return true
+	case PermissionKeyHfKeyValueCacheManage:
+		return true
+	case PermissionKeyHfKeyValueCacheRead:
+		return true
+	case PermissionKeyInferenceServiceCreate:
+		return true
+	case PermissionKeyInferenceServiceDelete:
+		return true
+	case PermissionKeyInferenceServiceInvoke:
+		return true
+	case PermissionKeyInferenceServiceRead:
+		return true
+	case PermissionKeyInferenceServiceUpdate:
+		return true
+	case PermissionKeyKafkaHfServiceCreate:
+		return true
+	case PermissionKeyKafkaHfServiceDelete:
+		return true
+	case PermissionKeyKafkaHfServiceRead:
+		return true
+	case PermissionKeyKafkaHfServiceUpdate:
+		return true
+	case PermissionKeyLabelCreate:
+		return true
+	case PermissionKeyLabelDelete:
+		return true
+	case PermissionKeyLabelRead:
+		return true
+	case PermissionKeyLabelUpdate:
+		return true
+	case PermissionKeyManagedPostgresqlBackupCreate:
+		return true
+	case PermissionKeyManagedPostgresqlBackupDelete:
+		return true
+	case PermissionKeyManagedPostgresqlBackupRead:
+		return true
+	case PermissionKeyManagedPostgresqlCreate:
+		return true
+	case PermissionKeyManagedPostgresqlDelete:
+		return true
+	case PermissionKeyManagedPostgresqlRead:
+		return true
+	case PermissionKeyManagedPostgresqlUpdate:
+		return true
+	case PermissionKeyManagedPostgresqlUserCreate:
+		return true
+	case PermissionKeyManagedPostgresqlUserDelete:
+		return true
+	case PermissionKeyManagedPostgresqlUserRead:
+		return true
+	case PermissionKeyManagedPostgresqlUserUpdate:
+		return true
+	case PermissionKeyMonitoringRead:
+		return true
+	case PermissionKeyOrgStorageRead:
+		return true
+	case PermissionKeyOrgStorageUpdate:
+		return true
+	case PermissionKeyOrganizationDelete:
+		return true
+	case PermissionKeyOrganizationPolicyCreate:
+		return true
+	case PermissionKeyOrganizationPolicyDelete:
+		return true
+	case PermissionKeyOrganizationPolicyRead:
+		return true
+	case PermissionKeyOrganizationRead:
+		return true
+	case PermissionKeyOrganizationUpdate:
+		return true
+	case PermissionKeyPipelineCreate:
+		return true
+	case PermissionKeyPipelineDelete:
+		return true
+	case PermissionKeyPipelineRead:
+		return true
+	case PermissionKeyPipelineRun:
+		return true
+	case PermissionKeyPipelineUpdate:
+		return true
+	case PermissionKeyQueryCancel:
+		return true
+	case PermissionKeyQueryCreate:
+		return true
+	case PermissionKeyQueryDelete:
+		return true
+	case PermissionKeyQueryExecute:
+		return true
+	case PermissionKeyQueryRead:
+		return true
+	case PermissionKeyQueryUpdate:
+		return true
+	case PermissionKeyRegistryAdmin:
+		return true
+	case PermissionKeyRegistryDelete:
+		return true
+	case PermissionKeyRegistryManage:
+		return true
+	case PermissionKeyRegistryPull:
+		return true
+	case PermissionKeyRegistryPush:
+		return true
+	case PermissionKeyRegistryRead:
+		return true
+	case PermissionKeyRoleCreate:
+		return true
+	case PermissionKeyRoleDelete:
+		return true
+	case PermissionKeyRoleRead:
+		return true
+	case PermissionKeyRoleUpdate:
+		return true
+	case PermissionKeySecretAccess:
+		return true
+	case PermissionKeySecretCreate:
+		return true
+	case PermissionKeySecretDelete:
+		return true
+	case PermissionKeySecretRead:
+		return true
+	case PermissionKeySecretUpdate:
+		return true
+	case PermissionKeyServiceAccountCreate:
+		return true
+	case PermissionKeyServiceAccountDelete:
+		return true
+	case PermissionKeyServiceAccountRead:
+		return true
+	case PermissionKeyServiceAccountUpdate:
+		return true
+	case PermissionKeyUserAttributeAssign:
+		return true
+	case PermissionKeyUserAttributeRead:
+		return true
+	case PermissionKeyUserInvite:
+		return true
+	case PermissionKeyUserRead:
+		return true
+	case PermissionKeyUserRemove:
+		return true
+	case PermissionKeyUserUpdate:
+		return true
+	case PermissionKeyVaubanRuleCreate:
+		return true
+	case PermissionKeyVaubanRuleDelete:
+		return true
+	case PermissionKeyVaubanRuleRead:
+		return true
+	case PermissionKeyVaubanRuleUpdate:
+		return true
+	case PermissionKeyWorkstationTemplateCreate:
+		return true
+	case PermissionKeyWorkstationTemplateDelete:
+		return true
+	case PermissionKeyWorkstationTemplateUpdate:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PermissionLevel.
 const (
 	PermissionLevelEditor PermissionLevel = "editor"
@@ -1442,6 +1868,30 @@ func (e PipelineType) Valid() bool {
 	case PipelineTypeOpenData:
 		return true
 	case PipelineTypePageSplitter:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PolicyPreset.
+const (
+	AllowAll PolicyPreset = "allow_all"
+	Custom   PolicyPreset = "custom"
+	Default  PolicyPreset = "default"
+	ReadOnly PolicyPreset = "read_only"
+)
+
+// Valid indicates whether the value is a known member of the PolicyPreset enum.
+func (e PolicyPreset) Valid() bool {
+	switch e {
+	case AllowAll:
+		return true
+	case Custom:
+		return true
+	case Default:
+		return true
+	case ReadOnly:
 		return true
 	default:
 		return false
@@ -1965,6 +2415,80 @@ type AbortMultipartUploadRequest struct {
 // AcceptInvitationBody defines model for AcceptInvitationBody.
 type AcceptInvitationBody = map[string]interface{}
 
+// AccessBinding One access binding at a resource scope, for the resource-anchored "Access"
+// view (who can do what *here*). A flattened `grants` row joined with the
+// principal's display name and the role/permission name, so the UI can list
+// bindings on a resource without N per-principal lookups. Each binding is a
+// `grants` row, so `grant_id` is what the delete-grant endpoint revokes.
+type AccessBinding struct {
+	// Effect `"allow"` | `"deny"`.
+	Effect string `json:"effect"`
+
+	// GrantId The `grants` row id — pass to the delete-grant endpoint to revoke.
+	GrantId openapi_types.UUID `json:"grant_id"`
+
+	// Inherited `true` when the binding is not attached to exactly this resource but
+	// reaches it through inheritance — an org-wide grant, an ancestor folder,
+	// or a covering wildcard. Inherited bindings are read-only on this resource
+	// (managed on the ancestor they are attached to). Only populated by the
+	// inheritance-aware listing; defaults to `false` for the exact-scope list.
+	Inherited *bool `json:"inherited,omitempty"`
+
+	// PermissionId Set when the binding confers a single permission; `permission_key` is its
+	// `resource:action` label.
+	PermissionId  *openapi_types.UUID `json:"permission_id,omitempty"`
+	PermissionKey *string             `json:"permission_key,omitempty"`
+	PrincipalId   openapi_types.UUID  `json:"principal_id"`
+
+	// PrincipalName Human-readable principal: a user's email or a service account's name
+	// (falls back to the id for an orphaned row).
+	PrincipalName string `json:"principal_name"`
+
+	// PrincipalType `"user"` | `"service_account"`.
+	PrincipalType string `json:"principal_type"`
+
+	// ResourceUuid Attached-tier anchor: the concrete resource id when bound from the
+	// resource itself (survives a slug rename). `None` = pattern-tier.
+	ResourceUuid *openapi_types.UUID `json:"resource_uuid,omitempty"`
+
+	// RoleId Set when the binding confers a whole role bundle; `role_name` is its label.
+	RoleId   *openapi_types.UUID `json:"role_id,omitempty"`
+	RoleName *string             `json:"role_name,omitempty"`
+
+	// ScopePath The resource path the binding is scoped to (matches the query `scope_path`).
+	ScopePath *string `json:"scope_path,omitempty"`
+}
+
+// AccessCheckItem One `(action, resource)` pair to test for the caller.
+type AccessCheckItem struct {
+	// Action A control-plane permission key, `<resource_type>:<action>`.
+	Action PermissionKey `json:"action"`
+
+	// ResourceId Resource scope path / HRN id; empty for an org- or collection-level action.
+	ResourceId *string `json:"resource_id,omitempty"`
+}
+
+// AccessCheckRequestBody defines model for AccessCheckRequestBody.
+type AccessCheckRequestBody struct {
+	Checks []AccessCheckItem `json:"checks"`
+}
+
+// AccessCheckResult The verdict for one checked pair (echoed back so the client can map results).
+type AccessCheckResult struct {
+	// Action A control-plane permission key, `<resource_type>:<action>`.
+	Action     PermissionKey `json:"action"`
+	Allowed    bool          `json:"allowed"`
+	ResourceId string        `json:"resource_id"`
+}
+
+// AddGroupMemberRequestBody defines model for AddGroupMemberRequestBody.
+type AddGroupMemberRequestBody struct {
+	PrincipalId openapi_types.UUID `json:"principal_id"`
+
+	// PrincipalType `user` | `service_account`.
+	PrincipalType string `json:"principal_type"`
+}
+
 // AddUser defines model for AddUser.
 type AddUser struct {
 	Email string `json:"email"`
@@ -2478,7 +3002,8 @@ type CatalogRepositoryResponse struct {
 	// Project The `<project-name>` segment (the logical project this repo lives under).
 	Project string `json:"project"`
 
-	// Repository Full repository path `<org-slug>/<harbor-slug>/<project-name>/<image>`.
+	// Repository Full repository path `<harbor-slug>/<project-name>/<image>` (the org is
+	// in the registry Host, not the path — ADR-0014 §Scoping amendment).
 	Repository string `json:"repository"`
 }
 
@@ -3504,12 +4029,27 @@ type CreateGrantRequestBody struct {
 	Effect       *Effect            `json:"effect,omitempty"`
 	PermissionId openapi_types.UUID `json:"permission_id"`
 
+	// ResourceUuid Optional exact-resource anchor: the immutable DB id of the one resource
+	// this grant targets. Set it (with `scope_path` = that resource's exact path,
+	// no wildcard) for a grant managed from the resource itself — it then
+	// survives a slug rename and is cascade-removed when the resource is deleted.
+	// Omit for a path/pattern grant.
+	ResourceUuid *openapi_types.UUID `json:"resource_uuid,omitempty"`
+
 	// ScopePath Optional scope: a path in the org resource tree (exact, an ancestor
 	// folder, or a `*`-suffixed wildcard), interpreted within the permission's
 	// own resource family. Omit (or empty) for an org-wide grant. The resource
 	// *type* is derived from `permission_id` — never sent — so a grant's type
 	// can't drift from the permission it gates.
 	ScopePath *string `json:"scope_path,omitempty"`
+}
+
+// CreateGroupRequestBody defines model for CreateGroupRequestBody.
+type CreateGroupRequestBody struct {
+	Description *string `json:"description,omitempty"`
+
+	// Name Display name; unique within the organization.
+	Name string `json:"name"`
 }
 
 // CreateHFBucketRequest defines model for CreateHFBucketRequest.
@@ -3654,7 +4194,8 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	BackupPolicy *BackupPolicy `json:"backup_policy,omitempty"`
 
 	// BackupTargetId BackupTarget to use for on-demand and scheduled backups. Required when
-	// `backup_policy` is `automated`; ignored when `manual`.
+	// `backup_policy` is `automated`. Optional for `manual`, where it enables
+	// on-demand backups (target only, no schedule).
 	BackupTargetId *openapi_types.UUID `json:"backup_target_id,omitempty"`
 	Configuration  *Configuration      `json:"configuration,omitempty"`
 
@@ -5381,6 +5922,36 @@ type Grant struct {
 	ScopePath *string `json:"scope_path,omitempty"`
 }
 
+// Group A named, org-scoped collection of principals. Binding an access level to a
+// group (a [`Grant`] with `principal_type = "group"` and `principal_id` = this
+// id) applies that access to every member, resolved through the OPA projection.
+type Group struct {
+	Description *string            `json:"description,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+
+	// MemberCount Number of principals (users + service accounts) in the group. Computed by
+	// every group-returning query via a correlated count, so it is always
+	// populated — a query that omits it fails loudly in `FromRow` rather than
+	// silently reporting 0.
+	MemberCount    int64              `json:"member_count"`
+	Name           string             `json:"name"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+}
+
+// GroupMember One member of a [`Group`]: a polymorphic principal (a user or a service
+// account), keyed the same way `grants` keys a principal. Carries the
+// principal's human-readable name so the management UI can list members without
+// an N+1 lookup.
+type GroupMember struct {
+	PrincipalId openapi_types.UUID `json:"principal_id"`
+
+	// PrincipalName A user's email or a service account's name (falls back to the id).
+	PrincipalName string `json:"principal_name"`
+
+	// PrincipalType `"user"` | `"service_account"`.
+	PrincipalType string `json:"principal_type"`
+}
+
 // HFBucketDetail defines model for HFBucketDetail.
 type HFBucketDetail struct {
 	// BucketName Tenant-prefixed bucket name materialized by the operator on RGW
@@ -6840,6 +7411,11 @@ type PendingPermission struct {
 	SessionId string `json:"session_id"`
 }
 
+// PermissionAction The standing permission policy for a tool, as opencode evaluates it before
+// each invocation. `ask` prompts the user (surfaced as a `PendingPermission`),
+// `allow` runs silently, `deny` blocks the call outright.
+type PermissionAction string
+
 // PermissionCatalogEntry A row of the permission catalog, as exposed to the management UI.
 type PermissionCatalogEntry struct {
 	Action      string             `json:"action"`
@@ -6851,8 +7427,30 @@ type PermissionCatalogEntry struct {
 	ResourceType string `json:"resource_type"`
 }
 
+// PermissionKey A control-plane permission key, `<resource_type>:<action>`.
+type PermissionKey string
+
 // PermissionLevel Permission level granted to the Postgres role.
 type PermissionLevel string
+
+// PermissionPolicyView The current standing permission policy of a workstation's opencode agent,
+// read from `~/.config/opencode/opencode.json` via opencode's own config API.
+type PermissionPolicyView struct {
+	// AllowAll True when the global policy is the bare string `"allow"` — every tool
+	// runs without a prompt. When true, `tools` is empty.
+	AllowAll bool `json:"allow_all"`
+
+	// Preset A named, one-click permission policy. `Default` mirrors the workstation's
+	// provisioned policy (write-class → ask, read-class → allow); `AllowAll` is the
+	// live equivalent of `WS_OPENCODE_AUTOAPPROVE` (skip every prompt); `ReadOnly`
+	// denies all write-class tools while keeping reads silent. `Custom` is reported
+	// (never sent) when the live per-tool policy matches none of the presets.
+	Preset PolicyPreset `json:"preset"`
+
+	// Tools Per-tool actions for the known tool set, sorted by tool name. Empty when
+	// `allow_all` is true.
+	Tools []ToolPermission `json:"tools"`
+}
 
 // PermissionReply How the user answered an opencode permission prompt. Mirrors opencode's
 // reply endpoint contract: `once` allows this single invocation, `always`
@@ -7170,6 +7768,13 @@ type Platform struct {
 	Arch string `json:"arch"`
 	Os   string `json:"os"`
 }
+
+// PolicyPreset A named, one-click permission policy. `Default` mirrors the workstation's
+// provisioned policy (write-class → ask, read-class → allow); `AllowAll` is the
+// live equivalent of `WS_OPENCODE_AUTOAPPROVE` (skip every prompt); `ReadOnly`
+// denies all write-class tools while keeping reads silent. `Custom` is reported
+// (never sent) when the live per-tool policy matches none of the presets.
+type PolicyPreset string
 
 // PostMessageRequest defines model for PostMessageRequest.
 type PostMessageRequest struct {
@@ -7491,7 +8096,8 @@ type RegistryResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 
 	// ExternalEndpoint The external registry host once the reconciler reconciles the
-	// Ingress/HTTPRoute (`registry.<base-domain>`). `None` until ready.
+	// Gateway/HTTPRoute — the per-org subdomain `<org>.rg.<base-domain>`
+	// (ADR-0014 §Scoping amendment). `None` until ready.
 	ExternalEndpoint *string `json:"external_endpoint,omitempty"`
 
 	// HarborId Harbor that owns this registry (one-per-harbor, ADR-0014 §Scoping).
@@ -7567,6 +8173,40 @@ type RenameTerminalRequest struct {
 	// Name New tmux session name. Must match the same charset as creation
 	// (`[A-Za-z0-9_-]`, max 64); the server re-sanitizes regardless.
 	Name string `json:"name"`
+}
+
+// ResolvedGrant One fully-resolved effective permission for a principal: a permission the
+// principal can exercise — directly, expanded from a role bundle, or inherited
+// through a group — together with the scope it applies at and its effect. This
+// is the exact projection the OPA enforcement reads, filtered to one subject,
+// so the "resolved access" preview can never drift from what is enforced.
+type ResolvedGrant struct {
+	// Conditional `true` when the grant carries a principal-attribute condition, so the
+	// effective access is conditional rather than unconditional.
+	Conditional bool `json:"conditional"`
+
+	// Effect `"allow"` | `"deny"`.
+	Effect string `json:"effect"`
+
+	// PermissionKey `resource:action` permission key.
+	PermissionKey string `json:"permission_key"`
+
+	// ResourceId Scope key within the family (a harbor slug, a folder path, or a `*`
+	// wildcard); `None` with `resource_type` = organization-wide.
+	ResourceId *string `json:"resource_id,omitempty"`
+
+	// ResourceType Resource family the scope targets; `None` = organization-wide.
+	ResourceType *string `json:"resource_type,omitempty"`
+}
+
+// ResourceFamily One node of the resource hierarchy: a family and the family it nests under.
+type ResourceFamily struct {
+	// Family Family key, e.g. `secret`, `data_dock`, `bucket`.
+	Family string `json:"family"`
+
+	// Parent The family this one nests under (ancestor grants cascade down), or `null`
+	// for a root / org-scoped family.
+	Parent *string `json:"parent,omitempty"`
 }
 
 // ResourceMetricsResponse defines model for ResourceMetricsResponse.
@@ -7811,6 +8451,14 @@ type SessionSummary struct {
 
 	// Title Human title set at create time; empty if opencode had none.
 	Title string `json:"title"`
+}
+
+// SetRolePermissionsRequestBody Replace a role's whole permission bundle in one request. The role editor
+// stages adds/removes locally and saves the final set here, so a save is one
+// round-trip + one projection refresh instead of one per toggle.
+type SetRolePermissionsRequestBody struct {
+	// PermissionIds The complete set of permission ids the role should hold after the save.
+	PermissionIds []openapi_types.UUID `json:"permission_ids"`
 }
 
 // SetUserAttributesRequest Request to set all attributes for a user (replaces existing).
@@ -8061,6 +8709,16 @@ type TestOciLoginResponse struct {
 // TestOciLoginVerdict defines model for TestOciLoginVerdict.
 type TestOciLoginVerdict string
 
+// ToolPermission One tool's standing permission. `tool` is an opencode tool key (e.g. `bash`,
+// `edit`, `read`).
+type ToolPermission struct {
+	// Action The standing permission policy for a tool, as opencode evaluates it before
+	// each invocation. `ask` prompts the user (surfaced as a `PendingPermission`),
+	// `allow` runs silently, `deny` blocks the call outright.
+	Action PermissionAction `json:"action"`
+	Tool   string           `json:"tool"`
+}
+
 // TrinoCatalog defines model for TrinoCatalog.
 type TrinoCatalog struct {
 	CatalogName string        `json:"catalog_name"`
@@ -8213,6 +8871,12 @@ type UpdateFakerTableRequest struct {
 	Fields []FakerTableFields `json:"fields"`
 }
 
+// UpdateGroupRequestBody defines model for UpdateGroupRequestBody.
+type UpdateGroupRequestBody struct {
+	Description *string `json:"description,omitempty"`
+	Name        string  `json:"name"`
+}
+
 // UpdateKafkaHFServiceRequest defines model for UpdateKafkaHFServiceRequest.
 type UpdateKafkaHFServiceRequest struct {
 	BrokerReplicas        *int32  `json:"broker_replicas,omitempty"`
@@ -8244,6 +8908,21 @@ type UpdateOrgSecuritySettingsBody struct {
 	OfficeHoursEndUtc   *string `json:"office_hours_end_utc,omitempty"`
 	OfficeHoursStartUtc *string `json:"office_hours_start_utc,omitempty"`
 	ZeroTrustMode       *bool   `json:"zero_trust_mode,omitempty"`
+}
+
+// UpdatePermissionPolicyRequest Update the standing permission policy. Either pass a `preset` (applied as a
+// whole, `tools` ignored) or an explicit per-tool `tools` list. `Custom` is not
+// a valid input preset — send `tools` instead.
+type UpdatePermissionPolicyRequest struct {
+	// Preset A named, one-click permission policy. `Default` mirrors the workstation's
+	// provisioned policy (write-class → ask, read-class → allow); `AllowAll` is the
+	// live equivalent of `WS_OPENCODE_AUTOAPPROVE` (skip every prompt); `ReadOnly`
+	// denies all write-class tools while keeping reads silent. `Custom` is reported
+	// (never sent) when the live per-tool policy matches none of the presets.
+	Preset *PolicyPreset `json:"preset,omitempty"`
+
+	// Tools Explicit per-tool policy. Used when `preset` is absent.
+	Tools *[]ToolPermission `json:"tools,omitempty"`
 }
 
 // UpdatePipelineRequest Request body for PATCH /organizations/{org_id}/pipelines/{pipeline_id}
@@ -8605,10 +9284,44 @@ type ListKafkaHfServicesParams struct {
 	Offset *int64 `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
+// ListResourceAccessParams defines parameters for ListResourceAccess.
+type ListResourceAccessParams struct {
+	// ScopePath The resource's path in the org tree (e.g. a harbor slug `team-a`).
+	ScopePath string `form:"scope_path" json:"scope_path"`
+
+	// IncludeInherited When `true`, also return the bindings that reach this resource through
+	// inheritance (org-wide, ancestor folders, covering wildcards), each flagged
+	// `inherited` — the GCP/Azure "inherited from a parent" rows. Defaults to
+	// `false`, returning only the bindings attached to exactly this path.
+	IncludeInherited *bool `form:"include_inherited,omitempty" json:"include_inherited,omitempty"`
+}
+
 // StreamPodLogsParams defines parameters for StreamPodLogs.
 type StreamPodLogsParams struct {
 	// TailLines Number of tail lines to start from (default: 100)
 	TailLines *int64 `form:"tail_lines,omitempty" json:"tail_lines,omitempty"`
+}
+
+// UnbindRoleFromGroupParams defines parameters for UnbindRoleFromGroup.
+type UnbindRoleFromGroupParams struct {
+	ScopePath    *string             `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ResourceUuid *openapi_types.UUID `form:"resource_uuid,omitempty" json:"resource_uuid,omitempty"`
+
+	// ResourceType Resource family of the bound resource (e.g. `secret`). Filters the role
+	// bundle to that family so a scoped role grant applies only its same-family
+	// permissions. Only valid with an exact `scope_path`.
+	ResourceType *string `form:"resource_type,omitempty" json:"resource_type,omitempty"`
+}
+
+// BindRoleToGroupParams defines parameters for BindRoleToGroup.
+type BindRoleToGroupParams struct {
+	ScopePath    *string             `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ResourceUuid *openapi_types.UUID `form:"resource_uuid,omitempty" json:"resource_uuid,omitempty"`
+
+	// ResourceType Resource family of the bound resource (e.g. `secret`). Filters the role
+	// bundle to that family so a scoped role grant applies only its same-family
+	// permissions. Only valid with an exact `scope_path`.
+	ResourceType *string `form:"resource_type,omitempty" json:"resource_type,omitempty"`
 }
 
 // ListHarborsParams defines parameters for ListHarbors.
@@ -8732,12 +9445,24 @@ type DeleteDirectoryParams struct {
 
 // UnbindRoleFromServiceAccountParams defines parameters for UnbindRoleFromServiceAccount.
 type UnbindRoleFromServiceAccountParams struct {
-	ScopePath *string `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ScopePath    *string             `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ResourceUuid *openapi_types.UUID `form:"resource_uuid,omitempty" json:"resource_uuid,omitempty"`
+
+	// ResourceType Resource family of the bound resource (e.g. `secret`). Filters the role
+	// bundle to that family so a scoped role grant applies only its same-family
+	// permissions. Only valid with an exact `scope_path`.
+	ResourceType *string `form:"resource_type,omitempty" json:"resource_type,omitempty"`
 }
 
 // BindRoleToServiceAccountParams defines parameters for BindRoleToServiceAccount.
 type BindRoleToServiceAccountParams struct {
-	ScopePath *string `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ScopePath    *string             `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ResourceUuid *openapi_types.UUID `form:"resource_uuid,omitempty" json:"resource_uuid,omitempty"`
+
+	// ResourceType Resource family of the bound resource (e.g. `secret`). Filters the role
+	// bundle to that family so a scoped role grant applies only its same-family
+	// permissions. Only valid with an exact `scope_path`.
+	ResourceType *string `form:"resource_type,omitempty" json:"resource_type,omitempty"`
 }
 
 // ListContextualRestrictionsHandlerParams defines parameters for ListContextualRestrictionsHandler.
@@ -8903,6 +9628,9 @@ type GitDiscardJSONRequestBody = DiscardRequest
 // GitPrJSONRequestBody defines body for GitPr for application/json ContentType.
 type GitPrJSONRequestBody = PrRequest
 
+// UpdatePermissionPolicyJSONRequestBody defines body for UpdatePermissionPolicy for application/json ContentType.
+type UpdatePermissionPolicyJSONRequestBody = UpdatePermissionPolicyRequest
+
 // CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
 type CreateSessionJSONRequestBody = CreateSessionRequest
 
@@ -9014,6 +9742,9 @@ type CreateOrganizationCrdJSONRequestBody = CreateOrganizationRequestBody
 // CreateKafkaHfServiceJSONRequestBody defines body for CreateKafkaHfService for application/json ContentType.
 type CreateKafkaHfServiceJSONRequestBody = CreateKafkaHFServiceRequest
 
+// CheckAccessJSONRequestBody defines body for CheckAccess for application/json ContentType.
+type CheckAccessJSONRequestBody = AccessCheckRequestBody
+
 // CreateApiKeyJSONRequestBody defines body for CreateApiKey for application/json ContentType.
 type CreateApiKeyJSONRequestBody = CreateApiKeyRequest
 
@@ -9034,6 +9765,18 @@ type PatchDagsterCrdJSONRequestBody = PatchDagsterCrdRequestBody
 
 // CreateDomainVerificationJSONRequestBody defines body for CreateDomainVerification for application/json ContentType.
 type CreateDomainVerificationJSONRequestBody = CreateDomainVerificationRequestBody
+
+// CreateGroupJSONRequestBody defines body for CreateGroup for application/json ContentType.
+type CreateGroupJSONRequestBody = CreateGroupRequestBody
+
+// UpdateGroupJSONRequestBody defines body for UpdateGroup for application/json ContentType.
+type UpdateGroupJSONRequestBody = UpdateGroupRequestBody
+
+// CreateGroupGrantJSONRequestBody defines body for CreateGroupGrant for application/json ContentType.
+type CreateGroupGrantJSONRequestBody = CreateGrantRequestBody
+
+// AddGroupMemberJSONRequestBody defines body for AddGroupMember for application/json ContentType.
+type AddGroupMemberJSONRequestBody = AddGroupMemberRequestBody
 
 // CreateHarborCrdJSONRequestBody defines body for CreateHarborCrd for application/json ContentType.
 type CreateHarborCrdJSONRequestBody = CreateHarborCrdRequestBody
@@ -9163,6 +9906,9 @@ type CountRefsJSONRequestBody = CountRefRequest
 
 // UpdateRefJSONRequestBody defines body for UpdateRef for application/json ContentType.
 type UpdateRefJSONRequestBody = UpdateRefRequest
+
+// SetRolePermissionsJSONRequestBody defines body for SetRolePermissions for application/json ContentType.
+type SetRolePermissionsJSONRequestBody = SetRolePermissionsRequestBody
 
 // ExecuteQueryHandlerJSONRequestBody defines body for ExecuteQueryHandler for application/json ContentType.
 type ExecuteQueryHandlerJSONRequestBody = ExecuteRequest
@@ -11088,6 +11834,17 @@ type ClientInterface interface {
 	// ListAgentModes request
 	ListAgentModes(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPermissionPolicy request
+	GetPermissionPolicy(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdatePermissionPolicyWithBody request with any body
+	UpdatePermissionPolicyWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdatePermissionPolicy(ctx context.Context, id openapi_types.UUID, body UpdatePermissionPolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetSessionApprovals request
+	ResetSessionApprovals(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPendingPermissions request
 	ListPendingPermissions(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -11501,6 +12258,14 @@ type ClientInterface interface {
 	// GetOrganizationById request
 	GetOrganizationById(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListResourceAccess request
+	ListResourceAccess(ctx context.Context, organizationId openapi_types.UUID, params *ListResourceAccessParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CheckAccessWithBody request with any body
+	CheckAccessWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CheckAccess(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListApiKeys request
 	ListApiKeys(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -11601,6 +12366,50 @@ type ClientInterface interface {
 
 	// DeleteGrant request
 	DeleteGrant(ctx context.Context, organizationId openapi_types.UUID, grantId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListGroups request
+	ListGroups(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGroupWithBody request with any body
+	CreateGroupWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateGroup(ctx context.Context, organizationId openapi_types.UUID, body CreateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteGroup request
+	DeleteGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetGroup request
+	GetGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateGroupWithBody request with any body
+	UpdateGroupWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body UpdateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListGroupGrants request
+	ListGroupGrants(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGroupGrantWithBody request with any body
+	CreateGroupGrantWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateGroupGrant(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body CreateGroupGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListGroupMembers request
+	ListGroupMembers(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddGroupMemberWithBody request with any body
+	AddGroupMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddGroupMember(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body AddGroupMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveGroupMember request
+	RemoveGroupMember(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnbindRoleFromGroup request
+	UnbindRoleFromGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *UnbindRoleFromGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BindRoleToGroup request
+	BindRoleToGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListHarbors request
 	ListHarbors(ctx context.Context, organizationId openapi_types.UUID, params *ListHarborsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -11928,6 +12737,12 @@ type ClientInterface interface {
 	// TriggerPipeline request
 	TriggerPipeline(ctx context.Context, organizationId openapi_types.UUID, pipelineId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListPrincipalGroups request
+	ListPrincipalGroups(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPrincipalResolvedAccess request
+	ListPrincipalResolvedAccess(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListSecrets request
 	ListSecrets(ctx context.Context, organizationId openapi_types.UUID, params *ListSecretsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -12144,8 +12959,16 @@ type ClientInterface interface {
 
 	UpdateRef(ctx context.Context, key string, body UpdateRefJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListResourceFamilies request
+	ListResourceFamilies(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListRolePermissions request
 	ListRolePermissions(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetRolePermissionsWithBody request with any body
+	SetRolePermissionsWithBody(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetRolePermissions(ctx context.Context, roleId openapi_types.UUID, body SetRolePermissionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RemovePermissionFromRole request
 	RemovePermissionFromRole(ctx context.Context, roleId openapi_types.UUID, permissionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -12638,6 +13461,54 @@ func (c *Client) ListModels(ctx context.Context, id openapi_types.UUID, reqEdito
 
 func (c *Client) ListAgentModes(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListAgentModesRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPermissionPolicy(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPermissionPolicyRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePermissionPolicyWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePermissionPolicyRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePermissionPolicy(ctx context.Context, id openapi_types.UUID, body UpdatePermissionPolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePermissionPolicyRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetSessionApprovals(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetSessionApprovalsRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -14448,6 +15319,42 @@ func (c *Client) GetOrganizationById(ctx context.Context, organizationId openapi
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListResourceAccess(ctx context.Context, organizationId openapi_types.UUID, params *ListResourceAccessParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListResourceAccessRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CheckAccessWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckAccessRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CheckAccess(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckAccessRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListApiKeys(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListApiKeysRequest(c.Server, organizationId)
 	if err != nil {
@@ -14870,6 +15777,198 @@ func (c *Client) VerifyDomainVerificationNow(ctx context.Context, organizationId
 
 func (c *Client) DeleteGrant(ctx context.Context, organizationId openapi_types.UUID, grantId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteGrantRequest(c.Server, organizationId, grantId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListGroups(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListGroupsRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGroupWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGroupRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGroup(ctx context.Context, organizationId openapi_types.UUID, body CreateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGroupRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteGroupRequest(c.Server, organizationId, groupId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetGroupRequest(c.Server, organizationId, groupId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGroupWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGroupRequestWithBody(c.Server, organizationId, groupId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body UpdateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGroupRequest(c.Server, organizationId, groupId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListGroupGrants(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListGroupGrantsRequest(c.Server, organizationId, groupId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGroupGrantWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGroupGrantRequestWithBody(c.Server, organizationId, groupId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGroupGrant(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body CreateGroupGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGroupGrantRequest(c.Server, organizationId, groupId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListGroupMembers(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListGroupMembersRequest(c.Server, organizationId, groupId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddGroupMemberWithBody(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddGroupMemberRequestWithBody(c.Server, organizationId, groupId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddGroupMember(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body AddGroupMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddGroupMemberRequest(c.Server, organizationId, groupId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveGroupMember(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveGroupMemberRequest(c.Server, organizationId, groupId, principalType, principalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnbindRoleFromGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *UnbindRoleFromGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnbindRoleFromGroupRequest(c.Server, organizationId, groupId, roleId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BindRoleToGroup(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBindRoleToGroupRequest(c.Server, organizationId, groupId, roleId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -16272,6 +17371,30 @@ func (c *Client) TriggerPipeline(ctx context.Context, organizationId openapi_typ
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListPrincipalGroups(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPrincipalGroupsRequest(c.Server, organizationId, principalType, principalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListPrincipalResolvedAccess(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPrincipalResolvedAccessRequest(c.Server, organizationId, principalType, principalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListSecrets(ctx context.Context, organizationId openapi_types.UUID, params *ListSecretsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSecretsRequest(c.Server, organizationId, params)
 	if err != nil {
@@ -17220,8 +18343,44 @@ func (c *Client) UpdateRef(ctx context.Context, key string, body UpdateRefJSONRe
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListResourceFamilies(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListResourceFamiliesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListRolePermissions(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRolePermissionsRequest(c.Server, roleId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRolePermissionsWithBody(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRolePermissionsRequestWithBody(c.Server, roleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRolePermissions(ctx context.Context, roleId openapi_types.UUID, body SetRolePermissionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRolePermissionsRequest(c.Server, roleId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -18797,6 +19956,121 @@ func NewListAgentModesRequest(server string, id openapi_types.UUID) (*http.Reque
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetPermissionPolicyRequest generates requests for GetPermissionPolicy
+func NewGetPermissionPolicyRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/permission-policy", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdatePermissionPolicyRequest calls the generic UpdatePermissionPolicy builder with application/json body
+func NewUpdatePermissionPolicyRequest(server string, id openapi_types.UUID, body UpdatePermissionPolicyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdatePermissionPolicyRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdatePermissionPolicyRequestWithBody generates requests for UpdatePermissionPolicy with any type of body
+func NewUpdatePermissionPolicyRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/permission-policy", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewResetSessionApprovalsRequest generates requests for ResetSessionApprovals
+func NewResetSessionApprovalsRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/permission-policy/reset-session", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23855,6 +25129,122 @@ func NewGetOrganizationByIdRequest(server string, organizationId openapi_types.U
 	return req, nil
 }
 
+// NewListResourceAccessRequest generates requests for ListResourceAccess
+func NewListResourceAccessRequest(server string, organizationId openapi_types.UUID, params *ListResourceAccessParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/access", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.IncludeInherited != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include_inherited", *params.IncludeInherited, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCheckAccessRequest calls the generic CheckAccess builder with application/json body
+func NewCheckAccessRequest(server string, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCheckAccessRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewCheckAccessRequestWithBody generates requests for CheckAccess with any type of body
+func NewCheckAccessRequestWithBody(server string, organizationId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/access/check", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListApiKeysRequest generates requests for ListApiKeys
 func NewListApiKeysRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -25120,6 +26510,666 @@ func NewDeleteGrantRequest(server string, organizationId openapi_types.UUID, gra
 	}
 
 	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListGroupsRequest generates requests for ListGroups
+func NewListGroupsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateGroupRequest calls the generic CreateGroup builder with application/json body
+func NewCreateGroupRequest(server string, organizationId openapi_types.UUID, body CreateGroupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateGroupRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewCreateGroupRequestWithBody generates requests for CreateGroup with any type of body
+func NewCreateGroupRequestWithBody(server string, organizationId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteGroupRequest generates requests for DeleteGroup
+func NewDeleteGroupRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetGroupRequest generates requests for GetGroup
+func NewGetGroupRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateGroupRequest calls the generic UpdateGroup builder with application/json body
+func NewUpdateGroupRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, body UpdateGroupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateGroupRequestWithBody(server, organizationId, groupId, "application/json", bodyReader)
+}
+
+// NewUpdateGroupRequestWithBody generates requests for UpdateGroup with any type of body
+func NewUpdateGroupRequestWithBody(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListGroupGrantsRequest generates requests for ListGroupGrants
+func NewListGroupGrantsRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/grants", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateGroupGrantRequest calls the generic CreateGroupGrant builder with application/json body
+func NewCreateGroupGrantRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, body CreateGroupGrantJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateGroupGrantRequestWithBody(server, organizationId, groupId, "application/json", bodyReader)
+}
+
+// NewCreateGroupGrantRequestWithBody generates requests for CreateGroupGrant with any type of body
+func NewCreateGroupGrantRequestWithBody(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/grants", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListGroupMembersRequest generates requests for ListGroupMembers
+func NewListGroupMembersRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/members", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAddGroupMemberRequest calls the generic AddGroupMember builder with application/json body
+func NewAddGroupMemberRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, body AddGroupMemberJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddGroupMemberRequestWithBody(server, organizationId, groupId, "application/json", bodyReader)
+}
+
+// NewAddGroupMemberRequestWithBody generates requests for AddGroupMember with any type of body
+func NewAddGroupMemberRequestWithBody(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/members", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveGroupMemberRequest generates requests for RemoveGroupMember
+func NewRemoveGroupMemberRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, principalType string, principalId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "principal_type", principalType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "principal_id", principalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/members/%s/%s", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUnbindRoleFromGroupRequest generates requests for UnbindRoleFromGroup
+func NewUnbindRoleFromGroupRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *UnbindRoleFromGroupParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/roles/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ScopePath != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", *params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceUuid != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_uuid", *params.ResourceUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_type", *params.ResourceType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBindRoleToGroupRequest generates requests for BindRoleToGroup
+func NewBindRoleToGroupRequest(server string, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToGroupParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "group_id", groupId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/groups/%s/roles/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ScopePath != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", *params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceUuid != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_uuid", *params.ResourceUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_type", *params.ResourceType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -29837,6 +31887,102 @@ func NewTriggerPipelineRequest(server string, organizationId openapi_types.UUID,
 	return req, nil
 }
 
+// NewListPrincipalGroupsRequest generates requests for ListPrincipalGroups
+func NewListPrincipalGroupsRequest(server string, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "principal_type", principalType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "principal_id", principalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/principals/%s/%s/groups", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPrincipalResolvedAccessRequest generates requests for ListPrincipalResolvedAccess
+func NewListPrincipalResolvedAccessRequest(server string, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "principal_type", principalType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "principal_id", principalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/principals/%s/%s/resolved-access", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListSecretsRequest generates requests for ListSecrets
 func NewListSecretsRequest(server string, organizationId openapi_types.UUID, params *ListSecretsParams) (*http.Request, error) {
 	var err error
@@ -30610,6 +32756,30 @@ func NewUnbindRoleFromServiceAccountRequest(server string, organizationId openap
 
 		}
 
+		if params.ResourceUuid != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_uuid", *params.ResourceUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_type", *params.ResourceType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -30676,6 +32846,30 @@ func NewBindRoleToServiceAccountRequest(server string, organizationId openapi_ty
 		if params.ScopePath != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", *params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceUuid != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_uuid", *params.ResourceUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_type", *params.ResourceType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -32682,6 +34876,33 @@ func NewUpdateRefRequestWithBody(server string, key string, contentType string, 
 	return req, nil
 }
 
+// NewListResourceFamiliesRequest generates requests for ListResourceFamilies
+func NewListResourceFamiliesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/resource-families")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListRolePermissionsRequest generates requests for ListRolePermissions
 func NewListRolePermissionsRequest(server string, roleId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -32712,6 +34933,53 @@ func NewListRolePermissionsRequest(server string, roleId openapi_types.UUID) (*h
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewSetRolePermissionsRequest calls the generic SetRolePermissions builder with application/json body
+func NewSetRolePermissionsRequest(server string, roleId openapi_types.UUID, body SetRolePermissionsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetRolePermissionsRequestWithBody(server, roleId, "application/json", bodyReader)
+}
+
+// NewSetRolePermissionsRequestWithBody generates requests for SetRolePermissions with any type of body
+func NewSetRolePermissionsRequestWithBody(server string, roleId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles/%s/permissions", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -34659,6 +36927,17 @@ type ClientWithResponsesInterface interface {
 	// ListAgentModesWithResponse request
 	ListAgentModesWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAgentModesHTTPResp, error)
 
+	// GetPermissionPolicyWithResponse request
+	GetPermissionPolicyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPermissionPolicyHTTPResp, error)
+
+	// UpdatePermissionPolicyWithBodyWithResponse request with any body
+	UpdatePermissionPolicyWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePermissionPolicyHTTPResp, error)
+
+	UpdatePermissionPolicyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdatePermissionPolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePermissionPolicyHTTPResp, error)
+
+	// ResetSessionApprovalsWithResponse request
+	ResetSessionApprovalsWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ResetSessionApprovalsHTTPResp, error)
+
 	// ListPendingPermissionsWithResponse request
 	ListPendingPermissionsWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPendingPermissionsHTTPResp, error)
 
@@ -35072,6 +37351,14 @@ type ClientWithResponsesInterface interface {
 	// GetOrganizationByIdWithResponse request
 	GetOrganizationByIdWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrganizationByIdHTTPResp, error)
 
+	// ListResourceAccessWithResponse request
+	ListResourceAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListResourceAccessParams, reqEditors ...RequestEditorFn) (*ListResourceAccessHTTPResp, error)
+
+	// CheckAccessWithBodyWithResponse request with any body
+	CheckAccessWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CheckAccessHTTPResp, error)
+
+	CheckAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*CheckAccessHTTPResp, error)
+
 	// ListApiKeysWithResponse request
 	ListApiKeysWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListApiKeysHTTPResp, error)
 
@@ -35172,6 +37459,50 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteGrantWithResponse request
 	DeleteGrantWithResponse(ctx context.Context, organizationId openapi_types.UUID, grantId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteGrantHTTPResp, error)
+
+	// ListGroupsWithResponse request
+	ListGroupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupsHTTPResp, error)
+
+	// CreateGroupWithBodyWithResponse request with any body
+	CreateGroupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGroupHTTPResp, error)
+
+	CreateGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGroupHTTPResp, error)
+
+	// DeleteGroupWithResponse request
+	DeleteGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteGroupHTTPResp, error)
+
+	// GetGroupWithResponse request
+	GetGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetGroupHTTPResp, error)
+
+	// UpdateGroupWithBodyWithResponse request with any body
+	UpdateGroupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGroupHTTPResp, error)
+
+	UpdateGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body UpdateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGroupHTTPResp, error)
+
+	// ListGroupGrantsWithResponse request
+	ListGroupGrantsWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupGrantsHTTPResp, error)
+
+	// CreateGroupGrantWithBodyWithResponse request with any body
+	CreateGroupGrantWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGroupGrantHTTPResp, error)
+
+	CreateGroupGrantWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body CreateGroupGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGroupGrantHTTPResp, error)
+
+	// ListGroupMembersWithResponse request
+	ListGroupMembersWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupMembersHTTPResp, error)
+
+	// AddGroupMemberWithBodyWithResponse request with any body
+	AddGroupMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGroupMemberHTTPResp, error)
+
+	AddGroupMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body AddGroupMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGroupMemberHTTPResp, error)
+
+	// RemoveGroupMemberWithResponse request
+	RemoveGroupMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveGroupMemberHTTPResp, error)
+
+	// UnbindRoleFromGroupWithResponse request
+	UnbindRoleFromGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *UnbindRoleFromGroupParams, reqEditors ...RequestEditorFn) (*UnbindRoleFromGroupHTTPResp, error)
+
+	// BindRoleToGroupWithResponse request
+	BindRoleToGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToGroupParams, reqEditors ...RequestEditorFn) (*BindRoleToGroupHTTPResp, error)
 
 	// ListHarborsWithResponse request
 	ListHarborsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListHarborsParams, reqEditors ...RequestEditorFn) (*ListHarborsHTTPResp, error)
@@ -35499,6 +37830,12 @@ type ClientWithResponsesInterface interface {
 	// TriggerPipelineWithResponse request
 	TriggerPipelineWithResponse(ctx context.Context, organizationId openapi_types.UUID, pipelineId openapi_types.UUID, reqEditors ...RequestEditorFn) (*TriggerPipelineHTTPResp, error)
 
+	// ListPrincipalGroupsWithResponse request
+	ListPrincipalGroupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPrincipalGroupsHTTPResp, error)
+
+	// ListPrincipalResolvedAccessWithResponse request
+	ListPrincipalResolvedAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPrincipalResolvedAccessHTTPResp, error)
+
 	// ListSecretsWithResponse request
 	ListSecretsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListSecretsParams, reqEditors ...RequestEditorFn) (*ListSecretsHTTPResp, error)
 
@@ -35715,8 +38052,16 @@ type ClientWithResponsesInterface interface {
 
 	UpdateRefWithResponse(ctx context.Context, key string, body UpdateRefJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRefHTTPResp, error)
 
+	// ListResourceFamiliesWithResponse request
+	ListResourceFamiliesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListResourceFamiliesHTTPResp, error)
+
 	// ListRolePermissionsWithResponse request
 	ListRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRolePermissionsHTTPResp, error)
+
+	// SetRolePermissionsWithBodyWithResponse request with any body
+	SetRolePermissionsWithBodyWithResponse(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRolePermissionsHTTPResp, error)
+
+	SetRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, body SetRolePermissionsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRolePermissionsHTTPResp, error)
 
 	// RemovePermissionFromRoleWithResponse request
 	RemovePermissionFromRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, permissionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemovePermissionFromRoleHTTPResp, error)
@@ -36547,6 +38892,95 @@ func (r ListAgentModesHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetPermissionPolicyHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PermissionPolicyView
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPermissionPolicyHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPermissionPolicyHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetPermissionPolicyHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdatePermissionPolicyHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PermissionPolicyView
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdatePermissionPolicyHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdatePermissionPolicyHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdatePermissionPolicyHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ResetSessionApprovalsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetSessionApprovalsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetSessionApprovalsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ResetSessionApprovalsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListPendingPermissionsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -36757,7 +39191,6 @@ func (r ListSessionMessagesHTTPResp) ContentType() string {
 type PostSessionMessageHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *NormalizedMessage
 }
 
 // Status returns HTTPResponse.Status
@@ -39902,6 +42335,66 @@ func (r GetOrganizationByIdHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListResourceAccessHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AccessBinding
+}
+
+// Status returns HTTPResponse.Status
+func (r ListResourceAccessHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListResourceAccessHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListResourceAccessHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CheckAccessHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AccessCheckResult
+}
+
+// Status returns HTTPResponse.Status
+func (r CheckAccessHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CheckAccessHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CheckAccessHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListApiKeysHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -40753,6 +43246,361 @@ func (r DeleteGrantHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r DeleteGrantHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListGroupsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Group
+}
+
+// Status returns HTTPResponse.Status
+func (r ListGroupsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListGroupsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListGroupsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Group
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateGroupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteGroupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Group
+}
+
+// Status returns HTTPResponse.Status
+func (r GetGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetGroupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Group
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateGroupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListGroupGrantsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Grant
+}
+
+// Status returns HTTPResponse.Status
+func (r ListGroupGrantsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListGroupGrantsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListGroupGrantsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateGroupGrantHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Grant
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateGroupGrantHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateGroupGrantHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateGroupGrantHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListGroupMembersHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]GroupMember
+}
+
+// Status returns HTTPResponse.Status
+func (r ListGroupMembersHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListGroupMembersHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListGroupMembersHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AddGroupMemberHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r AddGroupMemberHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddGroupMemberHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AddGroupMemberHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveGroupMemberHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveGroupMemberHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveGroupMemberHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveGroupMemberHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UnbindRoleFromGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UnbindRoleFromGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnbindRoleFromGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UnbindRoleFromGroupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type BindRoleToGroupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r BindRoleToGroupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BindRoleToGroupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r BindRoleToGroupHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -43552,6 +46400,66 @@ func (r TriggerPipelineHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListPrincipalGroupsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Group
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPrincipalGroupsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPrincipalGroupsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListPrincipalGroupsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListPrincipalResolvedAccessHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ResolvedGrant
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPrincipalResolvedAccessHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPrincipalResolvedAccessHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListPrincipalResolvedAccessHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListSecretsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -45280,6 +48188,36 @@ func (r UpdateRefHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListResourceFamiliesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ResourceFamily
+}
+
+// Status returns HTTPResponse.Status
+func (r ListResourceFamiliesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListResourceFamiliesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListResourceFamiliesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListRolePermissionsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -45304,6 +48242,35 @@ func (r ListRolePermissionsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListRolePermissionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetRolePermissionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetRolePermissionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetRolePermissionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetRolePermissionsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -46815,6 +49782,41 @@ func (c *ClientWithResponses) ListAgentModesWithResponse(ctx context.Context, id
 	return ParseListAgentModesHTTPResp(rsp)
 }
 
+// GetPermissionPolicyWithResponse request returning *GetPermissionPolicyHTTPResp
+func (c *ClientWithResponses) GetPermissionPolicyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPermissionPolicyHTTPResp, error) {
+	rsp, err := c.GetPermissionPolicy(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPermissionPolicyHTTPResp(rsp)
+}
+
+// UpdatePermissionPolicyWithBodyWithResponse request with arbitrary body returning *UpdatePermissionPolicyHTTPResp
+func (c *ClientWithResponses) UpdatePermissionPolicyWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePermissionPolicyHTTPResp, error) {
+	rsp, err := c.UpdatePermissionPolicyWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePermissionPolicyHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdatePermissionPolicyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdatePermissionPolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePermissionPolicyHTTPResp, error) {
+	rsp, err := c.UpdatePermissionPolicy(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePermissionPolicyHTTPResp(rsp)
+}
+
+// ResetSessionApprovalsWithResponse request returning *ResetSessionApprovalsHTTPResp
+func (c *ClientWithResponses) ResetSessionApprovalsWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ResetSessionApprovalsHTTPResp, error) {
+	rsp, err := c.ResetSessionApprovals(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetSessionApprovalsHTTPResp(rsp)
+}
+
 // ListPendingPermissionsWithResponse request returning *ListPendingPermissionsHTTPResp
 func (c *ClientWithResponses) ListPendingPermissionsWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPendingPermissionsHTTPResp, error) {
 	rsp, err := c.ListPendingPermissions(ctx, id, reqEditors...)
@@ -48128,6 +51130,32 @@ func (c *ClientWithResponses) GetOrganizationByIdWithResponse(ctx context.Contex
 	return ParseGetOrganizationByIdHTTPResp(rsp)
 }
 
+// ListResourceAccessWithResponse request returning *ListResourceAccessHTTPResp
+func (c *ClientWithResponses) ListResourceAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListResourceAccessParams, reqEditors ...RequestEditorFn) (*ListResourceAccessHTTPResp, error) {
+	rsp, err := c.ListResourceAccess(ctx, organizationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListResourceAccessHTTPResp(rsp)
+}
+
+// CheckAccessWithBodyWithResponse request with arbitrary body returning *CheckAccessHTTPResp
+func (c *ClientWithResponses) CheckAccessWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CheckAccessHTTPResp, error) {
+	rsp, err := c.CheckAccessWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCheckAccessHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CheckAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*CheckAccessHTTPResp, error) {
+	rsp, err := c.CheckAccess(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCheckAccessHTTPResp(rsp)
+}
+
 // ListApiKeysWithResponse request returning *ListApiKeysHTTPResp
 func (c *ClientWithResponses) ListApiKeysWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListApiKeysHTTPResp, error) {
 	rsp, err := c.ListApiKeys(ctx, organizationId, reqEditors...)
@@ -48443,6 +51471,146 @@ func (c *ClientWithResponses) DeleteGrantWithResponse(ctx context.Context, organ
 		return nil, err
 	}
 	return ParseDeleteGrantHTTPResp(rsp)
+}
+
+// ListGroupsWithResponse request returning *ListGroupsHTTPResp
+func (c *ClientWithResponses) ListGroupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupsHTTPResp, error) {
+	rsp, err := c.ListGroups(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListGroupsHTTPResp(rsp)
+}
+
+// CreateGroupWithBodyWithResponse request with arbitrary body returning *CreateGroupHTTPResp
+func (c *ClientWithResponses) CreateGroupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGroupHTTPResp, error) {
+	rsp, err := c.CreateGroupWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGroupHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGroupHTTPResp, error) {
+	rsp, err := c.CreateGroup(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGroupHTTPResp(rsp)
+}
+
+// DeleteGroupWithResponse request returning *DeleteGroupHTTPResp
+func (c *ClientWithResponses) DeleteGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteGroupHTTPResp, error) {
+	rsp, err := c.DeleteGroup(ctx, organizationId, groupId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteGroupHTTPResp(rsp)
+}
+
+// GetGroupWithResponse request returning *GetGroupHTTPResp
+func (c *ClientWithResponses) GetGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetGroupHTTPResp, error) {
+	rsp, err := c.GetGroup(ctx, organizationId, groupId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetGroupHTTPResp(rsp)
+}
+
+// UpdateGroupWithBodyWithResponse request with arbitrary body returning *UpdateGroupHTTPResp
+func (c *ClientWithResponses) UpdateGroupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGroupHTTPResp, error) {
+	rsp, err := c.UpdateGroupWithBody(ctx, organizationId, groupId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGroupHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body UpdateGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGroupHTTPResp, error) {
+	rsp, err := c.UpdateGroup(ctx, organizationId, groupId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGroupHTTPResp(rsp)
+}
+
+// ListGroupGrantsWithResponse request returning *ListGroupGrantsHTTPResp
+func (c *ClientWithResponses) ListGroupGrantsWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupGrantsHTTPResp, error) {
+	rsp, err := c.ListGroupGrants(ctx, organizationId, groupId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListGroupGrantsHTTPResp(rsp)
+}
+
+// CreateGroupGrantWithBodyWithResponse request with arbitrary body returning *CreateGroupGrantHTTPResp
+func (c *ClientWithResponses) CreateGroupGrantWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGroupGrantHTTPResp, error) {
+	rsp, err := c.CreateGroupGrantWithBody(ctx, organizationId, groupId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGroupGrantHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateGroupGrantWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body CreateGroupGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGroupGrantHTTPResp, error) {
+	rsp, err := c.CreateGroupGrant(ctx, organizationId, groupId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGroupGrantHTTPResp(rsp)
+}
+
+// ListGroupMembersWithResponse request returning *ListGroupMembersHTTPResp
+func (c *ClientWithResponses) ListGroupMembersWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGroupMembersHTTPResp, error) {
+	rsp, err := c.ListGroupMembers(ctx, organizationId, groupId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListGroupMembersHTTPResp(rsp)
+}
+
+// AddGroupMemberWithBodyWithResponse request with arbitrary body returning *AddGroupMemberHTTPResp
+func (c *ClientWithResponses) AddGroupMemberWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGroupMemberHTTPResp, error) {
+	rsp, err := c.AddGroupMemberWithBody(ctx, organizationId, groupId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddGroupMemberHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) AddGroupMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, body AddGroupMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGroupMemberHTTPResp, error) {
+	rsp, err := c.AddGroupMember(ctx, organizationId, groupId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddGroupMemberHTTPResp(rsp)
+}
+
+// RemoveGroupMemberWithResponse request returning *RemoveGroupMemberHTTPResp
+func (c *ClientWithResponses) RemoveGroupMemberWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveGroupMemberHTTPResp, error) {
+	rsp, err := c.RemoveGroupMember(ctx, organizationId, groupId, principalType, principalId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveGroupMemberHTTPResp(rsp)
+}
+
+// UnbindRoleFromGroupWithResponse request returning *UnbindRoleFromGroupHTTPResp
+func (c *ClientWithResponses) UnbindRoleFromGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *UnbindRoleFromGroupParams, reqEditors ...RequestEditorFn) (*UnbindRoleFromGroupHTTPResp, error) {
+	rsp, err := c.UnbindRoleFromGroup(ctx, organizationId, groupId, roleId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnbindRoleFromGroupHTTPResp(rsp)
+}
+
+// BindRoleToGroupWithResponse request returning *BindRoleToGroupHTTPResp
+func (c *ClientWithResponses) BindRoleToGroupWithResponse(ctx context.Context, organizationId openapi_types.UUID, groupId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToGroupParams, reqEditors ...RequestEditorFn) (*BindRoleToGroupHTTPResp, error) {
+	rsp, err := c.BindRoleToGroup(ctx, organizationId, groupId, roleId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBindRoleToGroupHTTPResp(rsp)
 }
 
 // ListHarborsWithResponse request returning *ListHarborsHTTPResp
@@ -49467,6 +52635,24 @@ func (c *ClientWithResponses) TriggerPipelineWithResponse(ctx context.Context, o
 	return ParseTriggerPipelineHTTPResp(rsp)
 }
 
+// ListPrincipalGroupsWithResponse request returning *ListPrincipalGroupsHTTPResp
+func (c *ClientWithResponses) ListPrincipalGroupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPrincipalGroupsHTTPResp, error) {
+	rsp, err := c.ListPrincipalGroups(ctx, organizationId, principalType, principalId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPrincipalGroupsHTTPResp(rsp)
+}
+
+// ListPrincipalResolvedAccessWithResponse request returning *ListPrincipalResolvedAccessHTTPResp
+func (c *ClientWithResponses) ListPrincipalResolvedAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPrincipalResolvedAccessHTTPResp, error) {
+	rsp, err := c.ListPrincipalResolvedAccess(ctx, organizationId, principalType, principalId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPrincipalResolvedAccessHTTPResp(rsp)
+}
+
 // ListSecretsWithResponse request returning *ListSecretsHTTPResp
 func (c *ClientWithResponses) ListSecretsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListSecretsParams, reqEditors ...RequestEditorFn) (*ListSecretsHTTPResp, error) {
 	rsp, err := c.ListSecrets(ctx, organizationId, params, reqEditors...)
@@ -50157,6 +53343,15 @@ func (c *ClientWithResponses) UpdateRefWithResponse(ctx context.Context, key str
 	return ParseUpdateRefHTTPResp(rsp)
 }
 
+// ListResourceFamiliesWithResponse request returning *ListResourceFamiliesHTTPResp
+func (c *ClientWithResponses) ListResourceFamiliesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListResourceFamiliesHTTPResp, error) {
+	rsp, err := c.ListResourceFamilies(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListResourceFamiliesHTTPResp(rsp)
+}
+
 // ListRolePermissionsWithResponse request returning *ListRolePermissionsHTTPResp
 func (c *ClientWithResponses) ListRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRolePermissionsHTTPResp, error) {
 	rsp, err := c.ListRolePermissions(ctx, roleId, reqEditors...)
@@ -50164,6 +53359,23 @@ func (c *ClientWithResponses) ListRolePermissionsWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseListRolePermissionsHTTPResp(rsp)
+}
+
+// SetRolePermissionsWithBodyWithResponse request with arbitrary body returning *SetRolePermissionsHTTPResp
+func (c *ClientWithResponses) SetRolePermissionsWithBodyWithResponse(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRolePermissionsHTTPResp, error) {
+	rsp, err := c.SetRolePermissionsWithBody(ctx, roleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRolePermissionsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, body SetRolePermissionsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRolePermissionsHTTPResp, error) {
+	rsp, err := c.SetRolePermissions(ctx, roleId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRolePermissionsHTTPResp(rsp)
 }
 
 // RemovePermissionFromRoleWithResponse request returning *RemovePermissionFromRoleHTTPResp
@@ -51178,6 +54390,74 @@ func ParseListAgentModesHTTPResp(rsp *http.Response) (*ListAgentModesHTTPResp, e
 	return response, nil
 }
 
+// ParseGetPermissionPolicyHTTPResp parses an HTTP response from a GetPermissionPolicyWithResponse call
+func ParseGetPermissionPolicyHTTPResp(rsp *http.Response) (*GetPermissionPolicyHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPermissionPolicyHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PermissionPolicyView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdatePermissionPolicyHTTPResp parses an HTTP response from a UpdatePermissionPolicyWithResponse call
+func ParseUpdatePermissionPolicyHTTPResp(rsp *http.Response) (*UpdatePermissionPolicyHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdatePermissionPolicyHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PermissionPolicyView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseResetSessionApprovalsHTTPResp parses an HTTP response from a ResetSessionApprovalsWithResponse call
+func ParseResetSessionApprovalsHTTPResp(rsp *http.Response) (*ResetSessionApprovalsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetSessionApprovalsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseListPendingPermissionsHTTPResp parses an HTTP response from a ListPendingPermissionsWithResponse call
 func ParseListPendingPermissionsHTTPResp(rsp *http.Response) (*ListPendingPermissionsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -51341,16 +54621,6 @@ func ParsePostSessionMessageHTTPResp(rsp *http.Response) (*PostSessionMessageHTT
 	response := &PostSessionMessageHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest NormalizedMessage
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	}
 
 	return response, nil
@@ -53766,6 +57036,58 @@ func ParseGetOrganizationByIdHTTPResp(rsp *http.Response) (*GetOrganizationByIdH
 	return response, nil
 }
 
+// ParseListResourceAccessHTTPResp parses an HTTP response from a ListResourceAccessWithResponse call
+func ParseListResourceAccessHTTPResp(rsp *http.Response) (*ListResourceAccessHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListResourceAccessHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AccessBinding
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCheckAccessHTTPResp parses an HTTP response from a CheckAccessWithResponse call
+func ParseCheckAccessHTTPResp(rsp *http.Response) (*CheckAccessHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CheckAccessHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AccessCheckResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListApiKeysHTTPResp parses an HTTP response from a ListApiKeysWithResponse call
 func ParseListApiKeysHTTPResp(rsp *http.Response) (*ListApiKeysHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -54383,6 +57705,268 @@ func ParseDeleteGrantHTTPResp(rsp *http.Response) (*DeleteGrantHTTPResp, error) 
 	}
 
 	response := &DeleteGrantHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseListGroupsHTTPResp parses an HTTP response from a ListGroupsWithResponse call
+func ParseListGroupsHTTPResp(rsp *http.Response) (*ListGroupsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListGroupsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Group
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateGroupHTTPResp parses an HTTP response from a CreateGroupWithResponse call
+func ParseCreateGroupHTTPResp(rsp *http.Response) (*CreateGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateGroupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Group
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteGroupHTTPResp parses an HTTP response from a DeleteGroupWithResponse call
+func ParseDeleteGroupHTTPResp(rsp *http.Response) (*DeleteGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteGroupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetGroupHTTPResp parses an HTTP response from a GetGroupWithResponse call
+func ParseGetGroupHTTPResp(rsp *http.Response) (*GetGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetGroupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Group
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateGroupHTTPResp parses an HTTP response from a UpdateGroupWithResponse call
+func ParseUpdateGroupHTTPResp(rsp *http.Response) (*UpdateGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateGroupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Group
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListGroupGrantsHTTPResp parses an HTTP response from a ListGroupGrantsWithResponse call
+func ParseListGroupGrantsHTTPResp(rsp *http.Response) (*ListGroupGrantsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListGroupGrantsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Grant
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateGroupGrantHTTPResp parses an HTTP response from a CreateGroupGrantWithResponse call
+func ParseCreateGroupGrantHTTPResp(rsp *http.Response) (*CreateGroupGrantHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateGroupGrantHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Grant
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListGroupMembersHTTPResp parses an HTTP response from a ListGroupMembersWithResponse call
+func ParseListGroupMembersHTTPResp(rsp *http.Response) (*ListGroupMembersHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListGroupMembersHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []GroupMember
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAddGroupMemberHTTPResp parses an HTTP response from a AddGroupMemberWithResponse call
+func ParseAddGroupMemberHTTPResp(rsp *http.Response) (*AddGroupMemberHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddGroupMemberHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRemoveGroupMemberHTTPResp parses an HTTP response from a RemoveGroupMemberWithResponse call
+func ParseRemoveGroupMemberHTTPResp(rsp *http.Response) (*RemoveGroupMemberHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveGroupMemberHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseUnbindRoleFromGroupHTTPResp parses an HTTP response from a UnbindRoleFromGroupWithResponse call
+func ParseUnbindRoleFromGroupHTTPResp(rsp *http.Response) (*UnbindRoleFromGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnbindRoleFromGroupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseBindRoleToGroupHTTPResp parses an HTTP response from a BindRoleToGroupWithResponse call
+func ParseBindRoleToGroupHTTPResp(rsp *http.Response) (*BindRoleToGroupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BindRoleToGroupHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -56564,6 +60148,58 @@ func ParseTriggerPipelineHTTPResp(rsp *http.Response) (*TriggerPipelineHTTPResp,
 	return response, nil
 }
 
+// ParseListPrincipalGroupsHTTPResp parses an HTTP response from a ListPrincipalGroupsWithResponse call
+func ParseListPrincipalGroupsHTTPResp(rsp *http.Response) (*ListPrincipalGroupsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPrincipalGroupsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Group
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPrincipalResolvedAccessHTTPResp parses an HTTP response from a ListPrincipalResolvedAccessWithResponse call
+func ParseListPrincipalResolvedAccessHTTPResp(rsp *http.Response) (*ListPrincipalResolvedAccessHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPrincipalResolvedAccessHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ResolvedGrant
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListSecretsHTTPResp parses an HTTP response from a ListSecretsWithResponse call
 func ParseListSecretsHTTPResp(rsp *http.Response) (*ListSecretsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -57952,6 +61588,32 @@ func ParseUpdateRefHTTPResp(rsp *http.Response) (*UpdateRefHTTPResp, error) {
 	return response, nil
 }
 
+// ParseListResourceFamiliesHTTPResp parses an HTTP response from a ListResourceFamiliesWithResponse call
+func ParseListResourceFamiliesHTTPResp(rsp *http.Response) (*ListResourceFamiliesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListResourceFamiliesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ResourceFamily
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListRolePermissionsHTTPResp parses an HTTP response from a ListRolePermissionsWithResponse call
 func ParseListRolePermissionsHTTPResp(rsp *http.Response) (*ListRolePermissionsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -57973,6 +61635,22 @@ func ParseListRolePermissionsHTTPResp(rsp *http.Response) (*ListRolePermissionsH
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseSetRolePermissionsHTTPResp parses an HTTP response from a SetRolePermissionsWithResponse call
+func ParseSetRolePermissionsHTTPResp(rsp *http.Response) (*SetRolePermissionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetRolePermissionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
