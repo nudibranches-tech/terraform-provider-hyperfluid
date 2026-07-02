@@ -156,6 +156,8 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewEnvDataSource,
 		NewSecretDataSource,
 		NewBucketDataSource,
+		NewBucketCredentialsDataSource,
+		NewBifrostDataSource,
 		NewContainerAppDataSource,
 		NewManagedPostgresqlDataSource,
 		NewManagedPostgresqlUserDataSource,

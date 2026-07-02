@@ -979,6 +979,133 @@
         }
       }
     },
+    "/api/dev/workstations/{id}/agent/permission-policy": {
+      "get": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "get_permission_policy",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current standing tool-permission policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionPolicyView"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "update_permission_policy",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePermissionPolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Policy after the update (re-read from opencode)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionPolicyView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Neither a preset nor a tools list was provided"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/permission-policy/reset-session": {
+      "post": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "operationId": "reset_session_approvals",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session approvals cleared (instances disposed)"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Workstation not found"
+          },
+          "502": {
+            "description": "Opencode upstream error"
+          }
+        }
+      }
+    },
     "/api/dev/workstations/{id}/agent/permissions": {
       "get": {
         "tags": [
@@ -1337,24 +1464,14 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "Assistant reply (opencode resolves synchronously)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NormalizedMessage"
-                }
-              }
-            }
+          "202": {
+            "description": "Turn accepted; opencode runs it asynchronously and streams progress over the agent events WebSocket"
           },
           "403": {
             "description": "Forbidden"
           },
           "404": {
             "description": "Workstation or session not found"
-          },
-          "502": {
-            "description": "Opencode upstream error"
           }
         }
       }
@@ -5734,6 +5851,105 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/access": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_resource_access",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "scope_path",
+            "in": "query",
+            "description": "The resource's path in the org tree (e.g. a harbor slug `team-a`).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_inherited",
+            "in": "query",
+            "description": "When `true`, also return the bindings that reach this resource through\ninheritance (org-wide, ancestor folders, covering wildcards), each flagged\n`inherited` — the GCP/Azure \"inherited from a parent\" rows. Defaults to\n`false`, returning only the bindings attached to exactly this path.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access bindings scoped to the resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessBinding"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/access/check": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "check_access",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessCheckRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Per-pair allow verdicts for the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessCheckResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/api-keys": {
       "get": {
         "tags": [
@@ -7025,6 +7241,636 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/groups": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_groups",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Groups in the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "create_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Group created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/groups/{group_id}": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "get_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "update_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Group updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "delete_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Group deleted"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/groups/{group_id}/grants": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_group_grants",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grants bound to the group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Grant"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "create_group_grant",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGrantRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Grant bound to the group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/groups/{group_id}/members": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_group_members",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupMember"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "add_group_member",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddGroupMemberRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Member added"
+          },
+          "400": {
+            "description": "Invalid principal type"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/groups/{group_id}/members/{principal_type}/{principal_id}": {
+      "delete": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "remove_group_member",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "principal_type",
+            "in": "path",
+            "description": "`user` | `service_account`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "principal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Member removed"
+          },
+          "400": {
+            "description": "Invalid principal type"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group not found"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/groups/{group_id}/roles/{role_id}": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "bind_role_to_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "scope_path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "Resource family of the bound resource (e.g. `secret`). Filters the role\nbundle to that family so a scoped role grant applies only its same-family\npermissions. Only valid with an exact `scope_path`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role bound to the group"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group or role not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "unbind_role_from_group",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "scope_path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "Resource family of the bound resource (e.g. `secret`). Filters the role\nbundle to that family so a scoped role grant applies only its same-family\npermissions. Only valid with an exact `scope_path`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role unbound from the group"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Group or role not found"
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/harbors": {
       "get": {
         "tags": [
@@ -7901,7 +8747,7 @@
           "Forgejo Runners"
         ],
         "summary": "Create a `ForgejoRunner` CR for the harbor's forge.",
-        "description": "The forge coordinates are resolved automatically from `harbor_id` —\nthe caller never supplies `forge_namespace` or `forge_container_app`\ndirectly.  Returns 201 on success; 409 if a runner with that name already\nexists in the forge namespace.\n\n## CI registry wiring (best-effort, console-internal)\n\nAfter the CR is created the console automatically:\n1. Creates (or rotates) a harbor-scoped service account with the `editor`\n   role so CI jobs can pull, push, and delete images within the harbor's\n   registry projects.\n2. Sets three org-level Forgejo Actions secrets (`REGISTRY_HOST`,\n   `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`) so workflow steps can\n   `docker login` without any manual configuration.\n\nThe registry host (`registry.<base-domain>`) is injected into\n`spec.extra_egress_fqdns` so the operator's `CiliumNetworkPolicy` allows\noutbound HTTPS to the registry from inside the Kata microVM.\n\nOn clusters with a private platform CA (mkcert / corporate PKI) the\noperator additionally mounts the CA cert into the `dind` sidecar at\n`/etc/docker/certs.d/<registry_host>/ca.crt`; this is driven by\n`spec.registry_host` (set here) and the operator's `platform_ca_cert_b64`.\n\n**Provisioning failures do not roll back the CR.** The runner itself is\nfunctional regardless. If provisioning fails it is logged as a warning;\ndeleting and re-creating the runner retries it (idempotent via Vault).\nThe best-effort choice matches the operator's own pattern of decoupling\nCR creation from reconciliation: the CR is the authority, wiring is async.",
+        "description": "The forge coordinates are resolved automatically from `harbor_id` —\nthe caller never supplies `forge_namespace` or `forge_container_app`\ndirectly.  Returns 201 on success; 409 if a runner with that name already\nexists in the forge namespace.\n\n## CI registry wiring (best-effort, console-internal)\n\nAfter the CR is created the console automatically:\n1. Creates (or rotates) a harbor-scoped service account with the `editor`\n   role so CI jobs can pull, push, and delete images within the harbor's\n   registry projects.\n2. Sets three org-level Forgejo Actions secrets (`REGISTRY_HOST`,\n   `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`) so workflow steps can\n   `docker login` without any manual configuration.\n\nThe registry host (`<org>.rg.<base-domain>`) is injected into\n`spec.extra_egress_fqdns` so the operator's `CiliumNetworkPolicy` allows\noutbound HTTPS to the registry from inside the Kata microVM.\n\nOn clusters with a private platform CA (mkcert / corporate PKI) the\noperator additionally mounts the CA cert into the `dind` sidecar at\n`/etc/docker/certs.d/<registry_host>/ca.crt`; this is driven by\n`spec.registry_host` (set here) and the operator's `platform_ca_cert_b64`.\n\n**Provisioning failures do not roll back the CR.** The runner itself is\nfunctional regardless. If provisioning fails it is logged as a warning;\ndeleting and re-creating the runner retries it (idempotent via Vault).\nThe best-effort choice matches the operator's own pattern of decoupling\nCR creation from reconciliation: the CR is the authority, wiring is async.",
         "operationId": "create_forgejo_runner",
         "parameters": [
           {
@@ -11854,6 +12700,122 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/principals/{principal_type}/{principal_id}/groups": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_principal_groups",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "principal_type",
+            "in": "path",
+            "description": "`user` | `service_account`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "principal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Groups the principal belongs to",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid principal_type"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/principals/{principal_type}/{principal_id}/resolved-access": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_principal_resolved_access",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "principal_type",
+            "in": "path",
+            "description": "`user` | `service_account`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "principal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every effective permission the principal holds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResolvedGrant"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid principal_type"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/secrets": {
       "get": {
         "tags": [
@@ -12584,6 +13546,26 @@
               "type": "string",
               "nullable": true
             }
+          },
+          {
+            "name": "resource_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "Resource family of the bound resource (e.g. `secret`). Filters the role\nbundle to that family so a scoped role grant applies only its same-family\npermissions. Only valid with an exact `scope_path`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -12637,6 +13619,26 @@
           {
             "name": "scope_path",
             "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "Resource family of the bound resource (e.g. `secret`). Filters the role\nbundle to that family so a scoped role grant applies only its same-family\npermissions. Only valid with an exact `scope_path`.",
             "required": false,
             "schema": {
               "type": "string",
@@ -14532,6 +15534,29 @@
         }
       }
     },
+    "/api/v1/resource-families": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_resource_families",
+        "responses": {
+          "200": {
+            "description": "Resource family tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResourceFamily"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/roles/{role_id}/permissions": {
       "get": {
         "tags": [
@@ -14562,6 +15587,44 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "set_role_permissions",
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRolePermissionsRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Role permission bundle replaced"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "500": {
             "description": "Internal server error"
@@ -16072,6 +17135,142 @@
       "AcceptInvitationBody": {
         "type": "object"
       },
+      "AccessBinding": {
+        "type": "object",
+        "description": "One access binding at a resource scope, for the resource-anchored \"Access\"\nview (who can do what *here*). A flattened `grants` row joined with the\nprincipal's display name and the role/permission name, so the UI can list\nbindings on a resource without N per-principal lookups. Each binding is a\n`grants` row, so `grant_id` is what the delete-grant endpoint revokes.",
+        "required": [
+          "grant_id",
+          "principal_type",
+          "principal_id",
+          "principal_name",
+          "effect"
+        ],
+        "properties": {
+          "effect": {
+            "type": "string",
+            "description": "`\"allow\"` | `\"deny\"`."
+          },
+          "grant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The `grants` row id — pass to the delete-grant endpoint to revoke."
+          },
+          "inherited": {
+            "type": "boolean",
+            "description": "`true` when the binding is not attached to exactly this resource but\nreaches it through inheritance — an org-wide grant, an ancestor folder,\nor a covering wildcard. Inherited bindings are read-only on this resource\n(managed on the ancestor they are attached to). Only populated by the\ninheritance-aware listing; defaults to `false` for the exact-scope list."
+          },
+          "permission_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Set when the binding confers a single permission; `permission_key` is its\n`resource:action` label.",
+            "nullable": true
+          },
+          "permission_key": {
+            "type": "string",
+            "nullable": true
+          },
+          "principal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "principal_name": {
+            "type": "string",
+            "description": "Human-readable principal: a user's email or a service account's name\n(falls back to the id for an orphaned row)."
+          },
+          "principal_type": {
+            "type": "string",
+            "description": "`\"user\"` | `\"service_account\"`."
+          },
+          "resource_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Attached-tier anchor: the concrete resource id when bound from the\nresource itself (survives a slug rename). `None` = pattern-tier.",
+            "nullable": true
+          },
+          "role_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Set when the binding confers a whole role bundle; `role_name` is its label.",
+            "nullable": true
+          },
+          "role_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope_path": {
+            "type": "string",
+            "description": "The resource path the binding is scoped to (matches the query `scope_path`).",
+            "nullable": true
+          }
+        }
+      },
+      "AccessCheckItem": {
+        "type": "object",
+        "description": "One `(action, resource)` pair to test for the caller.",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/PermissionKey"
+          },
+          "resource_id": {
+            "type": "string",
+            "description": "Resource scope path / HRN id; empty for an org- or collection-level action."
+          }
+        }
+      },
+      "AccessCheckRequestBody": {
+        "type": "object",
+        "required": [
+          "checks"
+        ],
+        "properties": {
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessCheckItem"
+            }
+          }
+        }
+      },
+      "AccessCheckResult": {
+        "type": "object",
+        "description": "The verdict for one checked pair (echoed back so the client can map results).",
+        "required": [
+          "action",
+          "resource_id",
+          "allowed"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/PermissionKey"
+          },
+          "allowed": {
+            "type": "boolean"
+          },
+          "resource_id": {
+            "type": "string"
+          }
+        }
+      },
+      "AddGroupMemberRequestBody": {
+        "type": "object",
+        "required": [
+          "principal_type",
+          "principal_id"
+        ],
+        "properties": {
+          "principal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "principal_type": {
+            "type": "string",
+            "description": "`user` | `service_account`."
+          }
+        }
+      },
       "AddUser": {
         "type": "object",
         "required": [
@@ -17315,7 +18514,7 @@
           },
           "repository": {
             "type": "string",
-            "description": "Full repository path `<org-slug>/<harbor-slug>/<project-name>/<image>`."
+            "description": "Full repository path `<harbor-slug>/<project-name>/<image>` (the org is\nin the registry Host, not the path — ADR-0014 §Scoping amendment)."
           }
         }
       },
@@ -17887,8 +19086,8 @@
         "enum": [
           "show_demo_banner",
           "vauban_preview",
-          "authz_opa_enabled",
-          "dagster_enabled"
+          "dagster_enabled",
+          "show_marketing"
         ]
       },
       "ContainerAppCrdSpecResponse": {
@@ -19344,10 +20543,32 @@
             "type": "string",
             "format": "uuid"
           },
+          "resource_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional exact-resource anchor: the immutable DB id of the one resource\nthis grant targets. Set it (with `scope_path` = that resource's exact path,\nno wildcard) for a grant managed from the resource itself — it then\nsurvives a slug rename and is cascade-removed when the resource is deleted.\nOmit for a path/pattern grant.",
+            "nullable": true
+          },
           "scope_path": {
             "type": "string",
             "description": "Optional scope: a path in the org resource tree (exact, an ancestor\nfolder, or a `*`-suffixed wildcard), interpreted within the permission's\nown resource family. Omit (or empty) for an org-wide grant. The resource\n*type* is derived from `permission_id` — never sent — so a grant's type\ncan't drift from the permission it gates.",
             "nullable": true
+          }
+        }
+      },
+      "CreateGroupRequestBody": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name; unique within the organization."
           }
         }
       },
@@ -19625,7 +20846,7 @@
           "backup_target_id": {
             "type": "string",
             "format": "uuid",
-            "description": "BackupTarget to use for on-demand and scheduled backups. Required when\n`backup_policy` is `automated`; ignored when `manual`.",
+            "description": "BackupTarget to use for on-demand and scheduled backups. Required when\n`backup_policy` is `automated`. Optional for `manual`, where it enables\non-demand backups (target only, no schedule).",
             "nullable": true
           },
           "configuration": {
@@ -22695,6 +23916,61 @@
             "type": "string",
             "description": "A path in the org's resource tree the grant is scoped to: exact, an\nancestor folder (matches descendants), or a `*`-suffixed wildcard. `None`\n= org-wide. The enforcement key the OPA projection composes into an HRN.",
             "nullable": true
+          }
+        }
+      },
+      "Group": {
+        "type": "object",
+        "description": "A named, org-scoped collection of principals. Binding an access level to a\ngroup (a [`Grant`] with `principal_type = \"group\"` and `principal_id` = this\nid) applies that access to every member, resolved through the OPA projection.",
+        "required": [
+          "id",
+          "organization_id",
+          "name",
+          "member_count"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "member_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of principals (users + service accounts) in the group. Computed by\nevery group-returning query via a correlated count, so it is always\npopulated — a query that omits it fails loudly in `FromRow` rather than\nsilently reporting 0."
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "GroupMember": {
+        "type": "object",
+        "description": "One member of a [`Group`]: a polymorphic principal (a user or a service\naccount), keyed the same way `grants` keys a principal. Carries the\nprincipal's human-readable name so the management UI can list members without\nan N+1 lookup.",
+        "required": [
+          "principal_type",
+          "principal_id",
+          "principal_name"
+        ],
+        "properties": {
+          "principal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "principal_name": {
+            "type": "string",
+            "description": "A user's email or a service account's name (falls back to the id)."
+          },
+          "principal_type": {
+            "type": "string",
+            "description": "`\"user\"` | `\"service_account\"`."
           }
         }
       },
@@ -26024,6 +27300,15 @@
           }
         }
       },
+      "PermissionAction": {
+        "type": "string",
+        "description": "The standing permission policy for a tool, as opencode evaluates it before\neach invocation. `ask` prompts the user (surfaced as a `PendingPermission`),\n`allow` runs silently, `deny` blocks the call outright.",
+        "enum": [
+          "ask",
+          "allow",
+          "deny"
+        ]
+      },
       "PermissionCatalogEntry": {
         "type": "object",
         "description": "A row of the permission catalog, as exposed to the management UI.",
@@ -26054,6 +27339,143 @@
           }
         }
       },
+      "PermissionKey": {
+        "type": "string",
+        "description": "A control-plane permission key, `<resource_type>:<action>`.",
+        "enum": [
+          "organization:read",
+          "organization:update",
+          "organization:delete",
+          "harbor:create",
+          "harbor:read",
+          "harbor:delete",
+          "data_dock:create",
+          "data_dock:read",
+          "data_dock:update",
+          "data_dock:delete",
+          "data_container:create",
+          "data_container:read",
+          "data_container:update",
+          "data_container:delete",
+          "query:read",
+          "query:execute",
+          "query:cancel",
+          "query:create",
+          "query:update",
+          "query:delete",
+          "pipeline:create",
+          "pipeline:read",
+          "pipeline:update",
+          "pipeline:delete",
+          "pipeline:run",
+          "secret:create",
+          "secret:read",
+          "secret:access",
+          "secret:update",
+          "secret:delete",
+          "inference_service:create",
+          "inference_service:read",
+          "inference_service:update",
+          "inference_service:delete",
+          "inference_service:invoke",
+          "bucket:create",
+          "bucket:read",
+          "bucket:update",
+          "bucket:delete",
+          "org_storage:read",
+          "org_storage:update",
+          "backup_target:create",
+          "backup_target:read",
+          "backup_target:update",
+          "backup_target:delete",
+          "kafka_hf_service:create",
+          "kafka_hf_service:read",
+          "kafka_hf_service:update",
+          "kafka_hf_service:delete",
+          "managed_postgresql:create",
+          "managed_postgresql:read",
+          "managed_postgresql:update",
+          "managed_postgresql:delete",
+          "managed_postgresql_user:create",
+          "managed_postgresql_user:read",
+          "managed_postgresql_user:update",
+          "managed_postgresql_user:delete",
+          "managed_postgresql_backup:create",
+          "managed_postgresql_backup:read",
+          "managed_postgresql_backup:delete",
+          "dagster:create",
+          "dagster:read",
+          "dagster:update",
+          "dagster:delete",
+          "container_app:create",
+          "container_app:read",
+          "container_app:update",
+          "container_app:restart",
+          "container_app:delete",
+          "app_instance:create",
+          "app_instance:read",
+          "app_instance:update",
+          "app_instance:delete",
+          "domain_verification:create",
+          "domain_verification:read",
+          "domain_verification:update",
+          "domain_verification:delete",
+          "workstation_template:create",
+          "workstation_template:update",
+          "workstation_template:delete",
+          "dev_workstation:create",
+          "dev_workstation:read",
+          "dev_workstation:update",
+          "dev_workstation:delete",
+          "api_key:create",
+          "api_key:read",
+          "api_key:delete",
+          "user:invite",
+          "user:read",
+          "user:update",
+          "user:remove",
+          "service_account:create",
+          "service_account:read",
+          "service_account:update",
+          "service_account:delete",
+          "group:create",
+          "group:read",
+          "group:update",
+          "group:delete",
+          "role:create",
+          "role:read",
+          "role:update",
+          "role:delete",
+          "grant:read",
+          "grant:create",
+          "grant:delete",
+          "organization_policy:read",
+          "organization_policy:create",
+          "organization_policy:delete",
+          "user_attribute:read",
+          "user_attribute:assign",
+          "audit_log:read",
+          "vauban_rule:create",
+          "vauban_rule:read",
+          "vauban_rule:update",
+          "vauban_rule:delete",
+          "label:create",
+          "label:read",
+          "label:update",
+          "label:delete",
+          "monitoring:read",
+          "registry:pull",
+          "registry:push",
+          "registry:delete",
+          "registry:read",
+          "registry:manage",
+          "registry:admin",
+          "forgejo_runner:read",
+          "forgejo_runner:manage",
+          "hf_key_value_cache:read",
+          "hf_key_value_cache:manage"
+        ]
+      },
       "PermissionLevel": {
         "type": "string",
         "description": "Permission level granted to the Postgres role.",
@@ -26061,6 +27483,31 @@
           "viewer",
           "editor"
         ]
+      },
+      "PermissionPolicyView": {
+        "type": "object",
+        "description": "The current standing permission policy of a workstation's opencode agent,\nread from `~/.config/opencode/opencode.json` via opencode's own config API.",
+        "required": [
+          "allow_all",
+          "tools",
+          "preset"
+        ],
+        "properties": {
+          "allow_all": {
+            "type": "boolean",
+            "description": "True when the global policy is the bare string `\"allow\"` — every tool\nruns without a prompt. When true, `tools` is empty."
+          },
+          "preset": {
+            "$ref": "#/components/schemas/PolicyPreset"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolPermission"
+            },
+            "description": "Per-tool actions for the known tool set, sorted by tool name. Empty when\n`allow_all` is true."
+          }
+        }
       },
       "PermissionReply": {
         "type": "string",
@@ -26608,6 +28055,16 @@
             "type": "string"
           }
         }
+      },
+      "PolicyPreset": {
+        "type": "string",
+        "description": "A named, one-click permission policy. `Default` mirrors the workstation's\nprovisioned policy (write-class → ask, read-class → allow); `AllowAll` is the\nlive equivalent of `WS_OPENCODE_AUTOAPPROVE` (skip every prompt); `ReadOnly`\ndenies all write-class tools while keeping reads silent. `Custom` is reported\n(never sent) when the live per-tool policy matches none of the presets.",
+        "enum": [
+          "default",
+          "allow_all",
+          "read_only",
+          "custom"
+        ]
       },
       "PostMessageRequest": {
         "type": "object",
@@ -27449,7 +28906,7 @@
           },
           "external_endpoint": {
             "type": "string",
-            "description": "The external registry host once the reconciler reconciles the\nIngress/HTTPRoute (`registry.<base-domain>`). `None` until ready.",
+            "description": "The external registry host once the reconciler reconciles the\nGateway/HTTPRoute — the per-org subdomain `<org>.rg.<base-domain>`\n(ADR-0014 §Scoping amendment). `None` until ready.",
             "nullable": true
           },
           "harbor_id": {
@@ -27577,6 +29034,57 @@
           "name": {
             "type": "string",
             "description": "New tmux session name. Must match the same charset as creation\n(`[A-Za-z0-9_-]`, max 64); the server re-sanitizes regardless."
+          }
+        }
+      },
+      "ResolvedGrant": {
+        "type": "object",
+        "description": "One fully-resolved effective permission for a principal: a permission the\nprincipal can exercise — directly, expanded from a role bundle, or inherited\nthrough a group — together with the scope it applies at and its effect. This\nis the exact projection the OPA enforcement reads, filtered to one subject,\nso the \"resolved access\" preview can never drift from what is enforced.",
+        "required": [
+          "permission_key",
+          "effect",
+          "conditional"
+        ],
+        "properties": {
+          "conditional": {
+            "type": "boolean",
+            "description": "`true` when the grant carries a principal-attribute condition, so the\neffective access is conditional rather than unconditional."
+          },
+          "effect": {
+            "type": "string",
+            "description": "`\"allow\"` | `\"deny\"`."
+          },
+          "permission_key": {
+            "type": "string",
+            "description": "`resource:action` permission key."
+          },
+          "resource_id": {
+            "type": "string",
+            "description": "Scope key within the family (a harbor slug, a folder path, or a `*`\nwildcard); `None` with `resource_type` = organization-wide.",
+            "nullable": true
+          },
+          "resource_type": {
+            "type": "string",
+            "description": "Resource family the scope targets; `None` = organization-wide.",
+            "nullable": true
+          }
+        }
+      },
+      "ResourceFamily": {
+        "type": "object",
+        "description": "One node of the resource hierarchy: a family and the family it nests under.",
+        "required": [
+          "family"
+        ],
+        "properties": {
+          "family": {
+            "type": "string",
+            "description": "Family key, e.g. `secret`, `data_dock`, `bucket`."
+          },
+          "parent": {
+            "type": "string",
+            "description": "The family this one nests under (ancestor grants cascade down), or `null`\nfor a root / org-scoped family.",
+            "nullable": true
           }
         }
       },
@@ -28157,6 +29665,23 @@
           "title": {
             "type": "string",
             "description": "Human title set at create time; empty if opencode had none."
+          }
+        }
+      },
+      "SetRolePermissionsRequestBody": {
+        "type": "object",
+        "description": "Replace a role's whole permission bundle in one request. The role editor\nstages adds/removes locally and saves the final set here, so a save is one\nround-trip + one projection refresh instead of one per toggle.",
+        "required": [
+          "permission_ids"
+        ],
+        "properties": {
+          "permission_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The complete set of permission ids the role should hold after the save."
           }
         }
       },
@@ -28744,6 +30269,22 @@
           "ANONYMOUS_ACCEPTED"
         ]
       },
+      "ToolPermission": {
+        "type": "object",
+        "description": "One tool's standing permission. `tool` is an opencode tool key (e.g. `bash`,\n`edit`, `read`).",
+        "required": [
+          "tool",
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/PermissionAction"
+          },
+          "tool": {
+            "type": "string"
+          }
+        }
+      },
       "TrinoCatalog": {
         "type": "object",
         "required": [
@@ -29195,6 +30736,21 @@
           }
         }
       },
+      "UpdateGroupRequestBody": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateKafkaHFServiceRequest": {
         "type": "object",
         "properties": {
@@ -29305,6 +30861,24 @@
           },
           "zero_trust_mode": {
             "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "UpdatePermissionPolicyRequest": {
+        "type": "object",
+        "description": "Update the standing permission policy. Either pass a `preset` (applied as a\nwhole, `tools` ignored) or an explicit per-tool `tools` list. `Custom` is not\na valid input preset — send `tools` instead.",
+        "properties": {
+          "preset": {
+            "$ref": "#/components/schemas/PolicyPreset",
+            "nullable": true
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolPermission"
+            },
+            "description": "Explicit per-tool policy. Used when `preset` is absent.",
             "nullable": true
           }
         }

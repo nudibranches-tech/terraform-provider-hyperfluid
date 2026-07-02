@@ -144,3 +144,27 @@ func (c *Client) DeleteBucket(ctx context.Context, harborID, name string) error 
 	}
 	return statusErr("delete bucket", resp.StatusCode(), resp.Body)
 }
+
+// ── Bucket credentials (data source) ──────────────────────────────────────
+
+// GetBucketCredentials returns the derived S3 credentials (access key, secret
+// key, endpoint) for a bucket. The console mints these from the environment's
+// object-storage owner; they are sensitive, so the data source that surfaces
+// them keeps the secret out of logs and callers must treat state as secret.
+func (c *Client) GetBucketCredentials(ctx context.Context, harborID, bucketName string) (*console.BucketCredentials, error) {
+	harbor, err := parseUUID("harbor", harborID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.GetBucketCredentialsWithResponse(ctx, harbor, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("get bucket credentials", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: get bucket credentials %q: empty response", bucketName)
+	}
+	return resp.JSON200, nil
+}
