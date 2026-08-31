@@ -27,7 +27,9 @@ func TestAccContainerAppResource(t *testing.T) {
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "expose_to_internet", "false"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "phase", "Ready"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "id"),
-					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "endpoint"),
+					// Private app: there is no public endpoint to report, which is the
+					// point of the expose_to_internet default asserted above.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.test", "endpoint"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "cpu_request"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.#", "1"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.name", "http"),

@@ -275,7 +275,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	state, err := r.readInto(ctx, env, appID, plan.ResourceTier)
+	state, err := r.readInto(ctx, appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after create", err.Error())
 		return
@@ -290,7 +290,7 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString(), prior.ResourceTier)
+	state, err := r.readInto(ctx, prior.ID.ValueString(), prior.ResourceTier)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -351,7 +351,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	newState, err := r.readInto(ctx, plan.Env.ValueString(), appID, plan.ResourceTier)
+	newState, err := r.readInto(ctx, appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after update", err.Error())
 		return
@@ -476,7 +476,7 @@ func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
 
 // readInto builds the model from both views. priorTier is carried through
 // because the /crd spec response does not echo resource_tier (M2).
-func (r *containerAppResource) readInto(ctx context.Context, env, appID string, priorTier types.String) (containerAppModel, error) {
+func (r *containerAppResource) readInto(ctx context.Context, appID string, priorTier types.String) (containerAppModel, error) {
 	spec, err := r.p.API.GetContainerAppSpec(ctx, r.p.OrgID, appID)
 	if err != nil {
 		return containerAppModel{}, err
@@ -492,7 +492,7 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 
 	m := containerAppModel{
 		ID:                types.StringValue(appID),
-		Env:               types.StringValue(env),
+		Env:               types.StringValue(status.HarborId.String()),
 		Name:              types.StringValue(status.Name),
 		ImageRepository:   types.StringValue(spec.ImageRepository),
 		ImageTag:          types.StringValue(spec.ImageTag),

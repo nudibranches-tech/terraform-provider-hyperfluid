@@ -157,7 +157,7 @@ func (r *keyValueCacheResource) Create(ctx context.Context, req resource.CreateR
 		resp.Diagnostics.AddError("Cache did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	state, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cache after create", err.Error())
 		return
@@ -171,7 +171,7 @@ func (r *keyValueCacheResource) Read(ctx context.Context, req resource.ReadReque
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.ID.ValueString())
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -212,7 +212,7 @@ func (r *keyValueCacheResource) Update(ctx context.Context, req resource.UpdateR
 		resp.Diagnostics.AddError("Failed to update key-value cache", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	newState, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cache after update", err.Error())
 		return
@@ -272,7 +272,7 @@ func (r *keyValueCacheResource) waitReady(ctx context.Context, id string) error 
 	return err
 }
 
-func (r *keyValueCacheResource) readInto(ctx context.Context, env, id string) (keyValueCacheModel, error) {
+func (r *keyValueCacheResource) readInto(ctx context.Context, id string) (keyValueCacheModel, error) {
 	c, err := r.p.API.GetKeyValueCache(ctx, r.p.OrgID, id)
 	if err != nil {
 		return keyValueCacheModel{}, err
@@ -284,7 +284,7 @@ func (r *keyValueCacheResource) readInto(ctx context.Context, env, id string) (k
 
 	return keyValueCacheModel{
 		ID:                    types.StringValue(id),
-		Env:                   types.StringValue(env),
+		Env:                   types.StringValue(c.HarborId.String()),
 		Name:                  types.StringValue(c.Name),
 		Image:                 types.StringValue(c.Image),
 		Maxmemory:             optString(c.Maxmemory),

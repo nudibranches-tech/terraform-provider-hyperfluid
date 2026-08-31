@@ -238,7 +238,7 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	state, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after create", err.Error())
 		return
@@ -252,7 +252,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.ID.ValueString())
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -304,7 +304,7 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		resp.Diagnostics.AddError("Cluster did not become ready after update", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	newState, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after update", err.Error())
 		return
@@ -364,7 +364,7 @@ func (r *managedPostgresqlResource) waitReady(ctx context.Context, id string) er
 	return err
 }
 
-func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string) (managedPostgresqlModel, error) {
+func (r *managedPostgresqlResource) readInto(ctx context.Context, id string) (managedPostgresqlModel, error) {
 	c, err := r.p.API.GetManagedPostgresql(ctx, r.p.OrgID, id)
 	if err != nil {
 		return managedPostgresqlModel{}, err
@@ -382,7 +382,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string
 
 	m := managedPostgresqlModel{
 		ID:               types.StringValue(id),
-		Env:              types.StringValue(env),
+		Env:              types.StringValue(c.HarborId.String()),
 		Name:             types.StringValue(c.Name),
 		DatabaseName:     types.StringValue(c.DatabaseName),
 		Engine:           types.StringValue(c.Engine),
