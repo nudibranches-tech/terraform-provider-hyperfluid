@@ -71,9 +71,17 @@ func TestAccServiceLinkResource(t *testing.T) {
 					// A fixed-port kind gets its port opened without asking.
 					resource.TestCheckNoResourceAttr("hyperfluid_service_link.web_to_db", "target_ports.0.port"),
 
-					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "target_ports.0.port", "8080"),
+					// A non-primary port, which the deprecated single `port` cannot express.
+					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "target_ports.0.port", "9090"),
 					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "target_ports.0.protocol", "TCP"),
-					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "ports.0.port", "8080"),
+					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "ports.0.port", "9090"),
+
+					// The multi-port app round-trips its declared ports.
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.#", "2"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.0.name", "http"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.0.primary", "true"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.1.name", "metrics"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.1.protocol", "TCP"),
 
 					// The app's own ports attribute assigned straight through.
 					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api_all", "ports.0.port", "8080"),
@@ -116,7 +124,9 @@ resource "hyperfluid_container_app" "web" {
   name             = "tf-acc-sl-web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
+  ports = [
+    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+  ]
   resource_tier    = "nano"
 }
 
@@ -125,13 +135,18 @@ resource "hyperfluid_container_app" "api" {
   name             = "tf-acc-sl-api"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
   resource_tier    = "nano"
+
+  ports = [
+    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "metrics", port = 9090 },
+  ]
 }
 
 resource "hyperfluid_managed_postgresql" "db" {
-  env  = data.hyperfluid_env.default.id
-  name = "tf-acc-sl-db"
+  env           = data.hyperfluid_env.default.id
+  name          = "tf-acc-sl-db"
+  database_name = "app"
 }
 
 resource "hyperfluid_service_link" "web_to_db" {
@@ -144,7 +159,7 @@ resource "hyperfluid_service_link" "web_to_api" {
   env          = data.hyperfluid_env.default.id
   consumer     = { kind = "ContainerApp", name = hyperfluid_container_app.web.slug }
   target       = { kind = "ContainerApp", name = hyperfluid_container_app.api.slug }
-  target_ports = [{ port = 8080 }]
+  target_ports = [{ port = 9090 }]
 }
 
 resource "hyperfluid_service_link" "web_to_api_all" {

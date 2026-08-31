@@ -28,13 +28,16 @@ resource "hyperfluid_container_app" "web" {
   name             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
-  resource_tier    = "nano"
+  ports = [
+    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+  ]
+  resource_tier = "nano"
 }
 
 resource "hyperfluid_managed_postgresql" "main" {
-  env  = data.hyperfluid_env.default.id
-  name = "main"
+  env           = data.hyperfluid_env.default.id
+  name          = "main"
+  database_name = "app"
 }
 
 # Postgres publishes one known port, so the platform opens it — no target_ports.
@@ -52,13 +55,27 @@ resource "hyperfluid_service_link" "web_to_db" {
   }
 }
 
+# A multi-port app: only the primary port gets a public route, the rest are
+# reachable in-cluster — which is exactly what a link opens.
 resource "hyperfluid_container_app" "api" {
   env              = data.hyperfluid_env.default.id
   name             = "api"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
   resource_tier    = "nano"
+
+  ports = [
+    {
+      name         = "http"
+      port         = 8080
+      app_protocol = "HTTP"
+      primary      = true
+    },
+    {
+      name = "metrics"
+      port = 9090
+    },
+  ]
 }
 
 # A container app is the one kind publishing several ports, so which of them to
@@ -77,7 +94,7 @@ resource "hyperfluid_service_link" "web_to_api" {
   }
 
   target_ports = [
-    { port = 8080 }, # protocol defaults to TCP
+    { port = 9090 }, # the metrics port; protocol defaults to TCP
   ]
 }
 

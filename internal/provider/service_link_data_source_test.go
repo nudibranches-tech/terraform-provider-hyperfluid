@@ -39,13 +39,16 @@ resource "hyperfluid_container_app" "web" {
   name             = "tf-acc-sl-ds-web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
+  ports = [
+    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+  ]
   resource_tier    = "nano"
 }
 
 resource "hyperfluid_managed_postgresql" "db" {
-  env  = data.hyperfluid_env.default.id
-  name = "tf-acc-sl-ds-db"
+  env           = data.hyperfluid_env.default.id
+  name          = "tf-acc-sl-ds-db"
+  database_name = "app"
 }
 
 resource "hyperfluid_service_link" "web_to_db" {

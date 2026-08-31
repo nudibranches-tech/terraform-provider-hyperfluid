@@ -3,13 +3,15 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_container_app" "web" {
-  env           = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_env.default.id
   name             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
-  replicas         = 1
-  resource_tier    = "nano"
+  ports = [
+    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+  ]
+  replicas      = 1
+  resource_tier = "nano"
 
   # Defaults to false (reachable only in-cluster). Set true to create
   # internet-facing routes.

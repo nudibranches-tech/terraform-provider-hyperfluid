@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -21,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -66,17 +69,35 @@ type serviceLinkPortModel struct {
 	Protocol types.String `tfsdk:"protocol"`
 }
 
+// The collection and object attributes are framework types, not plain Go slices
+// and structs: a config may point them at another resource's computed attribute
+// (`target_ports = hyperfluid_container_app.api.ports`), which is unknown at plan
+// time, and only the framework types can carry an unknown value.
 type serviceLinkModel struct {
-	ID          types.String           `tfsdk:"id"`
-	Env         types.String           `tfsdk:"env"`
-	Name        types.String           `tfsdk:"name"`
-	Consumer    *serviceRefModel       `tfsdk:"consumer"`
-	Target      *serviceRefModel       `tfsdk:"target"`
-	TargetPorts []serviceLinkPortModel `tfsdk:"target_ports"`
+	ID          types.String `tfsdk:"id"`
+	Env         types.String `tfsdk:"env"`
+	Name        types.String `tfsdk:"name"`
+	Consumer    types.Object `tfsdk:"consumer"`
+	Target      types.Object `tfsdk:"target"`
+	TargetPorts types.Set    `tfsdk:"target_ports"`
 
 	// computed
-	Ports []serviceLinkPortModel `tfsdk:"ports"`
-	Ready types.Bool             `tfsdk:"ready"`
+	Ports types.List `tfsdk:"ports"`
+	Ready types.Bool `tfsdk:"ready"`
+}
+
+func serviceRefType() attr.Type {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"kind": types.StringType,
+		"name": types.StringType,
+	}}
+}
+
+func serviceLinkPortType() attr.Type {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"port":     types.Int64Type,
+		"protocol": types.StringType,
+	}}
 }
 
 func (r *serviceLinkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -189,10 +210,18 @@ func (r *serviceLinkResource) Configure(_ context.Context, req resource.Configur
 func (r *serviceLinkResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var cfg serviceLinkModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
-	if resp.Diagnostics.HasError() || len(cfg.TargetPorts) == 0 || cfg.Target == nil {
+	if resp.Diagnostics.HasError() {
 		return
 	}
-	kind := cfg.Target.Kind
+	if cfg.TargetPorts.IsNull() || cfg.TargetPorts.IsUnknown() || len(cfg.TargetPorts.Elements()) == 0 {
+		return
+	}
+	target, d := serviceRefFromObject(ctx, cfg.Target)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() || target == nil {
+		return
+	}
+	kind := target.Kind
 	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == "ContainerApp" {
 		return
 	}
@@ -213,11 +242,19 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	env := plan.Env.ValueString()
-	target := console.ServiceRef{
-		Kind: console.ServiceLinkKind(plan.Target.Kind.ValueString()),
-		Name: plan.Target.Name.ValueString(),
+	consumerRef, d := serviceRefFromObject(ctx, plan.Consumer)
+	resp.Diagnostics.Append(d...)
+	targetRef, d := serviceRefFromObject(ctx, plan.Target)
+	resp.Diagnostics.Append(d...)
+	ports, d := toAPIPorts(ctx, plan.TargetPorts)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() || consumerRef == nil || targetRef == nil {
+		return
 	}
-	ports := toAPIPorts(plan.TargetPorts)
+	target := console.ServiceRef{
+		Kind: console.ServiceLinkKind(targetRef.Kind.ValueString()),
+		Name: targetRef.Name.ValueString(),
+	}
 
 	if len(ports) > 0 {
 		if err := r.checkPortsDeclared(ctx, env, target, ports); err != nil {
@@ -228,8 +265,8 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 
 	body := console.CreateServiceLinkRequestBody{
 		Consumer: console.ServiceRef{
-			Kind: console.ServiceLinkKind(plan.Consumer.Kind.ValueString()),
-			Name: plan.Consumer.Name.ValueString(),
+			Kind: console.ServiceLinkKind(consumerRef.Kind.ValueString()),
+			Name: consumerRef.Name.ValueString(),
 		},
 		Target: target,
 	}
@@ -252,7 +289,11 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	state := toServiceLinkModel(env, link)
+	state, d := toServiceLinkModel(ctx, env, link)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	state.TargetPorts = plan.TargetPorts
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -273,7 +314,11 @@ func (r *serviceLinkResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.AddError("Failed to read service link", err.Error())
 		return
 	}
-	state := toServiceLinkModel(env, link)
+	state, d := toServiceLinkModel(ctx, env, link)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	// target_ports is a choice, not a reading: the API echoes only the ports it
 	// opened, which include the ones it picked itself. Carry the prior value.
 	state.TargetPorts = prior.TargetPorts
@@ -382,38 +427,76 @@ func formatPorts(ports []console.ServiceLinkPort) string {
 	return strings.Join(parts, ", ")
 }
 
-func toAPIPorts(ports []serviceLinkPortModel) []console.ServiceLinkPort {
-	out := make([]console.ServiceLinkPort, 0, len(ports))
-	for _, p := range ports {
+// serviceRefFromObject reads one endpoint out of its object value. Returns nil
+// when the object is absent or not yet resolved, which a caller must tolerate at
+// plan time.
+func serviceRefFromObject(ctx context.Context, obj types.Object) (*serviceRefModel, diag.Diagnostics) {
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil, nil
+	}
+	var ref serviceRefModel
+	d := obj.As(ctx, &ref, basetypes.ObjectAsOptions{})
+	if d.HasError() {
+		return nil, d
+	}
+	return &ref, d
+}
+
+func toAPIPorts(ctx context.Context, set types.Set) ([]console.ServiceLinkPort, diag.Diagnostics) {
+	if set.IsNull() || set.IsUnknown() {
+		return nil, nil
+	}
+	var models []serviceLinkPortModel
+	d := set.ElementsAs(ctx, &models, false)
+	if d.HasError() {
+		return nil, d
+	}
+	out := make([]console.ServiceLinkPort, 0, len(models))
+	for _, p := range models {
 		out = append(out, console.ServiceLinkPort{
 			Port:     int32(p.Port.ValueInt64()),
 			Protocol: p.Protocol.ValueString(),
 		})
 	}
-	return out
+	return out, d
 }
 
-func fromAPIPorts(ports []console.ServiceLinkPort) []serviceLinkPortModel {
-	out := make([]serviceLinkPortModel, 0, len(ports))
+func portsToList(ctx context.Context, ports []console.ServiceLinkPort) (types.List, diag.Diagnostics) {
+	models := make([]serviceLinkPortModel, 0, len(ports))
 	for _, p := range ports {
-		out = append(out, serviceLinkPortModel{
+		models = append(models, serviceLinkPortModel{
 			Port:     types.Int64Value(int64(p.Port)),
 			Protocol: types.StringValue(p.Protocol),
 		})
 	}
-	return out
+	return types.ListValueFrom(ctx, serviceLinkPortType(), models)
+}
+
+func serviceRefToObject(ctx context.Context, kind console.ServiceLinkKind, name string) (types.Object, diag.Diagnostics) {
+	return types.ObjectValueFrom(ctx, serviceRefType().(types.ObjectType).AttrTypes, serviceRefModel{
+		Kind: types.StringValue(string(kind)),
+		Name: types.StringValue(name),
+	})
 }
 
 // toServiceLinkModel maps the API view into state. target_ports is left to the
 // caller: it is config, not something the API reports back.
-func toServiceLinkModel(env string, link *console.ServiceLinkResponse) serviceLinkModel {
+func toServiceLinkModel(ctx context.Context, env string, link *console.ServiceLinkResponse) (serviceLinkModel, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	consumer, d := serviceRefToObject(ctx, link.Consumer.Kind, link.Consumer.Name)
+	diags.Append(d...)
+	target, d := serviceRefToObject(ctx, link.Target.Kind, link.Target.Name)
+	diags.Append(d...)
+	ports, d := portsToList(ctx, link.Ports)
+	diags.Append(d...)
+
 	return serviceLinkModel{
 		ID:       types.StringValue(env + "/" + link.Name),
 		Env:      types.StringValue(env),
 		Name:     types.StringValue(link.Name),
-		Consumer: &serviceRefModel{Kind: types.StringValue(string(link.Consumer.Kind)), Name: types.StringValue(link.Consumer.Name)},
-		Target:   &serviceRefModel{Kind: types.StringValue(string(link.Target.Kind)), Name: types.StringValue(link.Target.Name)},
-		Ports:    fromAPIPorts(link.Ports),
+		Consumer: consumer,
+		Target:   target,
+		Ports:    ports,
 		Ready:    types.BoolValue(link.Ready),
-	}
+	}, diags
 }

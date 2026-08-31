@@ -8,7 +8,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -61,26 +64,40 @@ type containerAppModel struct {
 	HealthCheckPort  types.Int64  `tfsdk:"health_check_port"`
 
 	// computed
-	ResourceVersion   types.String            `tfsdk:"resource_version"`
-	CPURequest        types.String            `tfsdk:"cpu_request"`
-	CPULimit          types.String            `tfsdk:"cpu_limit"`
-	MemoryRequest     types.String            `tfsdk:"memory_request"`
-	MemoryLimit       types.String            `tfsdk:"memory_limit"`
-	Phase             types.String            `tfsdk:"phase"`
-	Endpoint          types.String            `tfsdk:"endpoint"`
-	DesiredReplicas   types.Int64             `tfsdk:"desired_replicas"`
-	AvailableReplicas types.Int64             `tfsdk:"available_replicas"`
-	Slug              types.String            `tfsdk:"slug"`
-	Ports             []containerAppPortModel `tfsdk:"ports"`
+	ResourceVersion   types.String `tfsdk:"resource_version"`
+	CPURequest        types.String `tfsdk:"cpu_request"`
+	CPULimit          types.String `tfsdk:"cpu_limit"`
+	MemoryRequest     types.String `tfsdk:"memory_request"`
+	MemoryLimit       types.String `tfsdk:"memory_limit"`
+	Phase             types.String `tfsdk:"phase"`
+	Endpoint          types.String `tfsdk:"endpoint"`
+	DesiredReplicas   types.Int64  `tfsdk:"desired_replicas"`
+	AvailableReplicas types.Int64  `tfsdk:"available_replicas"`
+	Slug              types.String `tfsdk:"slug"`
+
+	// A framework type, not a Go slice: `ports` is Optional+Computed, so it is
+	// unknown in the plan whenever the config leaves it out, and only these types
+	// can carry an unknown value.
+	Ports types.List `tfsdk:"ports"`
 }
 
-// containerAppPortModel is one published port. Read-only: the write path still
-// sends the single `port`.
+// containerAppPortModel is one published port.
 type containerAppPortModel struct {
-	Name     types.String `tfsdk:"name"`
-	Port     types.Int64  `tfsdk:"port"`
-	Protocol types.String `tfsdk:"protocol"`
-	Primary  types.Bool   `tfsdk:"primary"`
+	Name        types.String `tfsdk:"name"`
+	Port        types.Int64  `tfsdk:"port"`
+	Protocol    types.String `tfsdk:"protocol"`
+	Primary     types.Bool   `tfsdk:"primary"`
+	AppProtocol types.String `tfsdk:"app_protocol"`
+}
+
+func containerAppPortType() attr.Type {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"name":         types.StringType,
+		"port":         types.Int64Type,
+		"protocol":     types.StringType,
+		"primary":      types.BoolType,
+		"app_protocol": types.StringType,
+	}}
 }
 
 func (r *containerAppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -112,8 +129,12 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"image_tag":        schema.StringAttribute{Required: true, MarkdownDescription: "Container image tag."},
 			"port": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Container port.",
-				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				MarkdownDescription: "The app's single container port. **Deprecated — use `ports`**, which " +
+					"this conflicts with.\n\n" +
+					"~> The platform ignores writes to this attribute once the app's spec carries a " +
+					"non-empty `ports`, so on such an app a change here applies cleanly in Terraform and " +
+					"does nothing. Move the app to `ports` rather than editing this.",
+				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
@@ -151,15 +172,38 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
 			"slug":               computedString("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot."),
 			"ports": schema.ListNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "Every port the app publishes. Assignable straight to a " +
-					"`hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry.",
+				Optional: true, Computed: true,
+				MarkdownDescription: "The ports the container listens on, replacing the deprecated single " +
+					"`port`. Only the port marked `primary` gets a public route; the rest are reachable " +
+					"in-cluster through the app's Service. Leave it out and the platform derives a single " +
+					"entry from `port`.\n\n" +
+					"Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the " +
+					"`port` and `protocol` of each entry.",
+				Validators: []validator.List{listvalidator.ConflictsWith(path.MatchRoot("port"))},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"name":     schema.StringAttribute{Computed: true, MarkdownDescription: "Port name, or null for an app still on the single-`port` form."},
-						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},
-						"protocol": schema.StringAttribute{Computed: true, MarkdownDescription: "L4 protocol: `TCP`, `UDP` or `SCTP`."},
-						"primary":  schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
+						"name": schema.StringAttribute{
+							Required: true,
+							MarkdownDescription: "Port name, unique within the app, e.g. `http` or `metrics`. " +
+								"A DNS-1123 label of at most 15 characters.",
+						},
+						"port": schema.Int64Attribute{Required: true, MarkdownDescription: "Port the container listens on."},
+						"protocol": schema.StringAttribute{
+							Optional: true, Computed: true,
+							MarkdownDescription: "L4 protocol: `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.",
+							Validators:          []validator.String{stringvalidator.OneOf("TCP", "UDP", "SCTP")},
+						},
+						"primary": schema.BoolAttribute{
+							Optional: true, Computed: true,
+							MarkdownDescription: "Marks the port public routes and the default health probe " +
+								"target. Optional when the app declares a single port with an `app_protocol`.",
+						},
+						"app_protocol": schema.StringAttribute{
+							Optional: true, Computed: true,
+							MarkdownDescription: "L7 protocol, for a port the platform ingress should route. " +
+								"`HTTP` is the only value the ingress has a listener for today.",
+							Validators: []validator.String{stringvalidator.OneOf("HTTP")},
+						},
 					},
 				},
 			},
@@ -180,8 +224,15 @@ func (r *containerAppResource) Configure(_ context.Context, req resource.Configu
 }
 
 func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan containerAppModel
+	var plan, cfg containerAppModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ports, d := portInputs(ctx, cfg.Ports)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -201,6 +252,11 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
 		body.ResourceTier = &tier
+	}
+	// `ports` replaces `port`, so only one of the two is ever sent.
+	if ports != nil {
+		body.Ports = &ports
+		body.Port = nil
 	}
 
 	if err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body); err != nil {
@@ -247,9 +303,20 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 }
 
 func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state containerAppModel
+	var plan, state, cfg containerAppModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// The config, not the plan: `ports` is Optional+Computed, so the plan carries
+	// the prior value when the config omits it, and PATCH distinguishes the two —
+	// an omitted `ports` leaves the existing entries alone, an empty one clears
+	// them, a non-empty one replaces the list.
+	ports, d := portInputs(ctx, cfg.Ports)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -269,6 +336,10 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
 		body.ResourceTier = &tier
+	}
+	if ports != nil {
+		body.Ports = &ports
+		body.Port = nil
 	}
 
 	if err := r.p.API.PatchContainerApp(ctx, r.p.OrgID, appID, body); err != nil {
@@ -337,17 +408,55 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 	return err
 }
 
-func containerAppPorts(ports []console.ContainerAppPortResponse) []containerAppPortModel {
+func containerAppPorts(ctx context.Context, ports []console.ContainerAppPortResponse) (types.List, diag.Diagnostics) {
 	out := make([]containerAppPortModel, 0, len(ports))
 	for _, p := range ports {
+		appProtocol := types.StringNull()
+		if p.AppProtocol != nil {
+			appProtocol = types.StringValue(string(*p.AppProtocol))
+		}
 		out = append(out, containerAppPortModel{
-			Name:     optString(p.Name),
-			Port:     types.Int64Value(int64(p.ContainerPort)),
-			Protocol: types.StringValue(string(p.Protocol)),
-			Primary:  types.BoolValue(p.Primary),
+			Name:        optString(p.Name),
+			Port:        types.Int64Value(int64(p.ContainerPort)),
+			Protocol:    types.StringValue(string(p.Protocol)),
+			Primary:     types.BoolValue(p.Primary),
+			AppProtocol: appProtocol,
 		})
 	}
-	return out
+	return types.ListValueFrom(ctx, containerAppPortType(), out)
+}
+
+// portInputs converts a configured `ports` into the API input. Returns nil when
+// the config leaves it out, which the caller sends as an absent field.
+func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPortInput, diag.Diagnostics) {
+	if list.IsNull() || list.IsUnknown() {
+		return nil, nil
+	}
+	var models []containerAppPortModel
+	d := list.ElementsAs(ctx, &models, false)
+	if d.HasError() {
+		return nil, d
+	}
+	out := make([]console.ContainerAppPortInput, 0, len(models))
+	for _, m := range models {
+		in := console.ContainerAppPortInput{
+			Name:          m.Name.ValueString(),
+			ContainerPort: int32(m.Port.ValueInt64()),
+		}
+		if !m.Protocol.IsNull() && !m.Protocol.IsUnknown() {
+			proto := console.PortProtocol(m.Protocol.ValueString())
+			in.Protocol = &proto
+		}
+		if !m.Primary.IsNull() && !m.Primary.IsUnknown() {
+			in.Primary = m.Primary.ValueBoolPointer()
+		}
+		if !m.AppProtocol.IsNull() && !m.AppProtocol.IsUnknown() {
+			ap := console.AppProtocol(m.AppProtocol.ValueString())
+			in.AppProtocol = &ap
+		}
+		out = append(out, in)
+	}
+	return out, d
 }
 
 // primaryPort reads the single port this schema exposes. The API's `port` is
@@ -376,6 +485,10 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 	if err != nil {
 		return containerAppModel{}, err
 	}
+	ports, d := containerAppPorts(ctx, spec.Ports)
+	if d.HasError() {
+		return containerAppModel{}, errors.New("failed to convert container app ports")
+	}
 
 	m := containerAppModel{
 		ID:                types.StringValue(appID),
@@ -400,7 +513,7 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 		DesiredReplicas:   types.Int64Value(int64(status.DesiredReplicas)),
 		AvailableReplicas: types.Int64Value(int64(status.AvailableReplicas)),
 		Slug:              types.StringValue(status.Slug),
-		Ports:             containerAppPorts(spec.Ports),
+		Ports:             ports,
 	}
 	return m, nil
 }

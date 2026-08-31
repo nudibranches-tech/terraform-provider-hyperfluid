@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 )
@@ -112,7 +113,11 @@ func (d *serviceLinkDataSource) Read(ctx context.Context, req datasource.ReadReq
 		resp.Diagnostics.AddError("Failed to read service link", err.Error())
 		return
 	}
-	state := toServiceLinkModel(env, link)
-	state.TargetPorts = nil
+	state, diags := toServiceLinkModel(ctx, env, link)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	state.TargetPorts = types.SetNull(serviceLinkPortType())
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
