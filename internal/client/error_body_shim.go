@@ -36,17 +36,16 @@ func (t errorBodyShim) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp.Body = io.NopCloser(bytes.NewReader(raw))
 
+	// Only a body that really is a bare string gets rewritten; anything else is
+	// handed back exactly as it arrived.
 	var message string
-	if json.Unmarshal(raw, &message) != nil {
-		return resp, nil // not a bare string: leave it alone
+	if json.Unmarshal(raw, &message) == nil {
+		if rewritten, err := json.Marshal(map[string]string{"message": message}); err == nil {
+			resp.Body = io.NopCloser(bytes.NewReader(rewritten))
+			resp.ContentLength = int64(len(rewritten))
+			resp.Header.Set("Content-Length", "")
+		}
 	}
-	rewritten, marshalErr := json.Marshal(map[string]string{"message": message})
-	if marshalErr != nil {
-		return resp, nil
-	}
-	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
-	resp.ContentLength = int64(len(rewritten))
-	resp.Header.Set("Content-Length", "")
 	return resp, nil
 }
 

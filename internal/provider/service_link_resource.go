@@ -86,7 +86,7 @@ type serviceLinkModel struct {
 	Ready types.Bool `tfsdk:"ready"`
 }
 
-func serviceRefType() attr.Type {
+func serviceRefType() types.ObjectType {
 	return types.ObjectType{AttrTypes: map[string]attr.Type{
 		"kind": types.StringType,
 		"name": types.StringType,
@@ -478,7 +478,7 @@ func portsToList(ctx context.Context, ports []console.ServiceLinkPort) (types.Li
 }
 
 func serviceRefToObject(ctx context.Context, kind console.ServiceLinkKind, name string) (types.Object, diag.Diagnostics) {
-	return types.ObjectValueFrom(ctx, serviceRefType().(types.ObjectType).AttrTypes, serviceRefModel{
+	return types.ObjectValueFrom(ctx, serviceRefType().AttrTypes, serviceRefModel{
 		Kind: types.StringValue(string(kind)),
 		Name: types.StringValue(name),
 	})
