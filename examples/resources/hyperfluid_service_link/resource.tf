@@ -19,6 +19,10 @@ resource "hyperfluid_managed_postgresql" "main" {
   database_name = "app"
 }
 
+# A link is only enforced in an environment whose network isolation is strict.
+# Under the default lenient mode every service in the environment can already
+# reach every other, so a link records intent rather than changing reachability.
+#
 # Postgres publishes one known port, so the platform opens it — no target_ports.
 resource "hyperfluid_service_link" "web_to_db" {
   env = data.hyperfluid_env.default.id

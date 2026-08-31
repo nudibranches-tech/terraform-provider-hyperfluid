@@ -3,14 +3,17 @@
 page_title: "hyperfluid_service_link Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A declared network path from one service to another within an environment. Workloads are isolated by default, so a service is reachable only over the links declared for it.
+  A declared network path from one service to another within an environment.
+  ~> Whether a link is enforced depends on the environment. An environment's network isolation is lenient unless it has been set to strict, and under lenient any service in the environment can already reach any other — so a link changes nothing about reachability there, it only records the intent that survives a later switch to strict. Under strict the blanket allow is gone and a service is reachable only over its declared links. Even then, enforcement covers ContainerApp, HfKeyValueCache and ManagedPostgreSQL; Trino and Kafka links are recorded but not yet enforced. The mode is a property of the environment and is not manageable through this provider.
   ~> Every configurable attribute forces replacement. A link is immutable — the API has no update endpoint and the underlying resource rejects any change to its endpoints or ports — so editing env, consumer, target or target_ports destroys the link and creates a new one. Reachability is therefore briefly interrupted on such a change.
   Deleting either endpoint also removes the links that name it.
 ---
 
 # hyperfluid_service_link (Resource)
 
-A declared network path from one service to another within an environment. Workloads are isolated by default, so a service is reachable only over the links declared for it.
+A declared network path from one service to another within an environment.
+
+~> **Whether a link is enforced depends on the environment.** An environment's network isolation is `lenient` unless it has been set to `strict`, and under `lenient` any service in the environment can already reach any other — so a link changes nothing about reachability there, it only records the intent that survives a later switch to `strict`. Under `strict` the blanket allow is gone and a service is reachable only over its declared links. Even then, enforcement covers `ContainerApp`, `HfKeyValueCache` and `ManagedPostgreSQL`; `Trino` and `Kafka` links are recorded but not yet enforced. The mode is a property of the environment and is not manageable through this provider.
 
 ~> **Every configurable attribute forces replacement.** A link is immutable — the API has no update endpoint and the underlying resource rejects any change to its endpoints or ports — so editing `env`, `consumer`, `target` or `target_ports` destroys the link and creates a new one. Reachability is therefore briefly interrupted on such a change.
 
@@ -40,6 +43,10 @@ resource "hyperfluid_managed_postgresql" "main" {
   database_name = "app"
 }
 
+# A link is only enforced in an environment whose network isolation is strict.
+# Under the default lenient mode every service in the environment can already
+# reach every other, so a link records intent rather than changing reachability.
+#
 # Postgres publishes one known port, so the platform opens it — no target_ports.
 resource "hyperfluid_service_link" "web_to_db" {
   env = data.hyperfluid_env.default.id
@@ -140,14 +147,14 @@ output "open_ports" {
 - `id` (String) Composite identifier `env/name`.
 - `name` (String) The link's name, derived by the platform from the linked pair (`<consumer>-<target>`, truncated to 63 characters). Also its identifier within the environment.
 - `ports` (Attributes List) The ports actually opened for this link, including the ones the platform picked when `target_ports` was omitted. Reported as the L4 protocol the platform opened, so an app's `HTTP` port reads back as `TCP` here. Empty until the link has been reconciled. (see [below for nested schema](#nestedatt--ports))
-- `ready` (Boolean) Whether the platform has opened the ports for this link.
+- `ready` (Boolean) Whether the platform has reconciled this link and opened its ports. True regardless of the environment's isolation mode — it reports that the link exists, not that anything was blocked without it.
 
 <a id="nestedatt--consumer"></a>
 ### Nested Schema for `consumer`
 
 Required:
 
-- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. Changing this forces a new link.
+- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
 - `name` (String) The service's slug — the `slug` attribute of the resource, not its display name. Both endpoints must live in `env`. Changing this forces a new link.
 
 
@@ -156,7 +163,7 @@ Required:
 
 Required:
 
-- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. Changing this forces a new link.
+- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
 - `name` (String) The service's slug — the `slug` attribute of the resource, not its display name. Both endpoints must live in `env`. Changing this forces a new link.
 
 

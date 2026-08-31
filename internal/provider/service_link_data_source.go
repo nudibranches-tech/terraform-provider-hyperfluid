@@ -47,7 +47,9 @@ func (d *serviceLinkDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 		}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up a declared network path between two services by name within an environment.",
+		MarkdownDescription: "Look up a declared network path between two services by name within an " +
+			"environment. Whether the link is enforced depends on the environment's network isolation mode — " +
+			"see `hyperfluid_service_link`.",
 		Attributes: map[string]schema.Attribute{
 			"env": schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the link belongs to."},
 			"name": schema.StringAttribute{

@@ -3,12 +3,12 @@
 page_title: "hyperfluid_service_link Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up a declared network path between two services by name within an environment.
+  Look up a declared network path between two services by name within an environment. Whether the link is enforced depends on the environment's network isolation mode — see hyperfluid_service_link.
 ---
 
 # hyperfluid_service_link (Data Source)
 
-Look up a declared network path between two services by name within an environment.
+Look up a declared network path between two services by name within an environment. Whether the link is enforced depends on the environment's network isolation mode — see `hyperfluid_service_link`.
 
 ## Example Usage
 
