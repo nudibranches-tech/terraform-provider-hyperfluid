@@ -64,6 +64,7 @@ func (d *managedPostgresqlDataSource) Schema(_ context.Context, _ datasource.Sch
 			"write_endpoint":     cs("Primary (read-write) endpoint."),
 			"read_endpoint":      cs("Read endpoint."),
 			"external_endpoint":  cs("External endpoint, if exposed."),
+			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
 		},
 	}
 }
@@ -101,7 +102,7 @@ func (d *managedPostgresqlDataSource) Read(ctx context.Context, req datasource.R
 
 	// Reuse the resource's mapper (it only needs the API client) so the model
 	// mapping lives in one place.
-	state, err := (&managedPostgresqlResource{p: d.p}).readInto(ctx, env, id)
+	state, err := (&managedPostgresqlResource{p: d.p}).readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read managed PostgreSQL", err.Error())
 		return

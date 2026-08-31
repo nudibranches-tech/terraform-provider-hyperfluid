@@ -52,6 +52,7 @@ output "write_endpoint" {
 - `phase` (String) Current lifecycle phase.
 - `read_endpoint` (String) Read endpoint.
 - `ready_instances` (Number) Ready instance count.
+- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
 - `storage_capacity` (Number) Storage capacity in GB.
 - `tags` (List of String) User-defined tags.
 - `version` (String) Engine version.

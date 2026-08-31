@@ -27,8 +27,19 @@ func TestAccContainerAppResource(t *testing.T) {
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "expose_to_internet", "false"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "phase", "Ready"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "id"),
-					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "endpoint"),
+					// Private app: there is no public endpoint to report, which is the
+					// point of the expose_to_internet default asserted above.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.test", "endpoint"),
 					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "cpu_request"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.#", "1"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.name", "http"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.port", "8080"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.primary", "true"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.protocol", "HTTP"),
+					// `port` is deprecated but still computed: the platform reports
+					// the primary port there.
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "port", "8080"),
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "slug"),
 				),
 			},
 			{
@@ -55,11 +66,13 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_container_app" "test" {
-  env           = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_env.default.id
   name             = "tf-acc-app"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
   replicas         = ` + strconv.Itoa(replicas) + `
   resource_tier    = "nano"
 }

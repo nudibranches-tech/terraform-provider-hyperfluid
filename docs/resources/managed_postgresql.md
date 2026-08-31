@@ -67,6 +67,7 @@ output "write_endpoint" {
 - `phase` (String) Current lifecycle phase.
 - `read_endpoint` (String) Read-only endpoint.
 - `ready_instances` (Number) Ready instance count.
+- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
 - `write_endpoint` (String) Primary (read-write) endpoint.
 
 ## Import

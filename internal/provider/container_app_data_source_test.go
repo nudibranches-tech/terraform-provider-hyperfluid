@@ -27,7 +27,9 @@ resource "hyperfluid_container_app" "test" {
   name             = "tf-acc-ds-app"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
   replicas         = 1
   resource_tier    = "nano"
 }

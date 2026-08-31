@@ -50,7 +50,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
-			"port":               ci("Container port."),
+			"port":               ci("The app's single container port. Deprecated by the API in favour of `ports`; for an app publishing several, this reports the primary one."),
 			"replicas":           ci("Desired replica count."),
 			"enabled":            schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app is running."},
 			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether internet-facing routes are created for the app."},
@@ -66,6 +66,19 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
+			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
+			"ports": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Every port the app publishes.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name":     cs("Port name, or null for an app still on the single-`port` form."),
+						"port":     ci("Port the container listens on."),
+						"protocol": cs("One of `HTTP`, `TCP` or `UDP`."),
+						"primary":  schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
+					},
+				},
+			},
 		},
 	}
 }
@@ -104,7 +117,7 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 	// Reuse the resource's mapper so spec/status → model lives in one place; it
 	// only needs the API client, so a zero-value resource with our providerData is
 	// enough. resource_tier isn't returned by the API → null on a data source.
-	state, err := (&containerAppResource{p: d.p}).readInto(ctx, env, appID, types.StringNull())
+	state, err := (&containerAppResource{p: d.p}).readInto(ctx, appID, types.StringNull())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app", err.Error())
 		return

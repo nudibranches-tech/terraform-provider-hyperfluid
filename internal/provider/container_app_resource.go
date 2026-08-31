@@ -6,15 +6,23 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"regexp"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,10 +39,14 @@ import (
 // cpu/mem, never resource_tier, so resource_tier is preserved from prior state).
 
 var (
-	_ resource.Resource                = &containerAppResource{}
-	_ resource.ResourceWithConfigure   = &containerAppResource{}
-	_ resource.ResourceWithImportState = &containerAppResource{}
+	_ resource.Resource                   = &containerAppResource{}
+	_ resource.ResourceWithValidateConfig = &containerAppResource{}
+	_ resource.ResourceWithConfigure      = &containerAppResource{}
+	_ resource.ResourceWithImportState    = &containerAppResource{}
 )
+
+// maxPortEntries matches the CRD's cap.
+const maxPortEntries = 16
 
 const containerAppWaitTimeout = 5 * time.Minute
 
@@ -70,6 +82,58 @@ type containerAppModel struct {
 	Endpoint          types.String `tfsdk:"endpoint"`
 	DesiredReplicas   types.Int64  `tfsdk:"desired_replicas"`
 	AvailableReplicas types.Int64  `tfsdk:"available_replicas"`
+	Slug              types.String `tfsdk:"slug"`
+
+	// A framework type, not a Go slice: `ports` is Optional+Computed, so it is
+	// unknown in the plan whenever the config leaves it out, and only these types
+	// can carry an unknown value.
+	Ports types.List `tfsdk:"ports"`
+}
+
+// containerAppPortModel is one published port.
+type containerAppPortModel struct {
+	Name     types.String `tfsdk:"name"`
+	Port     types.Int64  `tfsdk:"port"`
+	Protocol types.String `tfsdk:"protocol"`
+	Primary  types.Bool   `tfsdk:"primary"`
+}
+
+func containerAppPortType() attr.Type {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"name":     types.StringType,
+		"port":     types.Int64Type,
+		"protocol": types.StringType,
+		"primary":  types.BoolType,
+	}}
+}
+
+// portProtocols are the platform's port kinds, as the console offers them: one
+// choice that carries both the L4 protocol and, for HTTP, the L7 one the
+// ingress needs. Only HTTP is publishable — raw TCP/UDP is reachable in-cluster
+// through the app's Service.
+var portProtocols = []string{"HTTP", "TCP", "UDP"}
+
+// wireProtocols maps a port kind onto the (L4, L7) pair the API takes.
+var wireProtocols = map[string]struct {
+	protocol    console.PortProtocol
+	appProtocol *console.AppProtocol
+}{
+	"HTTP": {protocol: console.TCP, appProtocol: ptr(console.Http)},
+	"TCP":  {protocol: console.TCP},
+	"UDP":  {protocol: console.UDP},
+}
+
+func ptr[T any](v T) *T { return &v }
+
+// portProtocolOf collapses the API's pair back into the single kind.
+func portProtocolOf(protocol console.PortProtocol, appProtocol *console.AppProtocol) string {
+	if appProtocol != nil && *appProtocol == console.Http {
+		return "HTTP"
+	}
+	if protocol == console.UDP {
+		return "UDP"
+	}
+	return "TCP"
 }
 
 func (r *containerAppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -101,8 +165,12 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"image_tag":        schema.StringAttribute{Required: true, MarkdownDescription: "Container image tag."},
 			"port": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Container port.",
-				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				MarkdownDescription: "The app's single container port. **Deprecated — use `ports`**, which " +
+					"this conflicts with.\n\n" +
+					"~> The platform ignores writes to this attribute once the app's spec carries a " +
+					"non-empty `ports`, so on such an app a change here applies cleanly in Terraform and " +
+					"does nothing. Move the app to `ports` rather than editing this.",
+				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
@@ -138,6 +206,63 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"endpoint":           computedString("Public endpoint, once provisioned."),
 			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired replicas reported by the platform."},
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
+			"slug":               computedString("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot."),
+			"ports": schema.ListNestedAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "The ports the container listens on, replacing the deprecated single " +
+					"`port`. Only the port marked `primary` gets a public route; the rest are reachable " +
+					"in-cluster through the app's Service. Leave it out and the platform derives a single " +
+					"entry from `port`.\n\n" +
+					"Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the " +
+					"`port` and `protocol` of each entry.",
+				Validators: []validator.List{
+					listvalidator.ConflictsWith(path.MatchRoot("port")),
+					listvalidator.SizeAtMost(maxPortEntries),
+				},
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Required: true,
+							MarkdownDescription: "Port name, unique within the app, e.g. `http` or `metrics`. " +
+								"Lowercase letters, digits and hyphens, with at least one letter and no leading, " +
+								"trailing or consecutive hyphens; 15 characters at most.",
+							Validators: []validator.String{
+								stringvalidator.LengthBetween(1, 15),
+								// Kubernetes validates this as an IANA_SVC_NAME, stricter than a
+								// DNS-1123 label. Split in two because RE2 has no lookahead.
+								stringvalidator.RegexMatches(
+									regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`),
+									"must be lowercase letters, digits and hyphens, with no leading, trailing or consecutive hyphens",
+								),
+								stringvalidator.RegexMatches(
+									regexp.MustCompile(`[a-z]`),
+									"must contain at least one letter",
+								),
+							},
+						},
+						"port": schema.Int64Attribute{
+							Required:            true,
+							MarkdownDescription: "Port the container listens on.",
+							Validators:          []validator.Int64{int64validator.Between(1, 65535)},
+						},
+						"protocol": schema.StringAttribute{
+							Optional: true, Computed: true,
+							Default: stringdefault.StaticString("HTTP"),
+							MarkdownDescription: "One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an " +
+								"`HTTP` port can be published: the platform ingress terminates HTTP(S) and has no " +
+								"listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster " +
+								"through the app's Service only.",
+							Validators: []validator.String{stringvalidator.OneOf(portProtocols...)},
+						},
+						"primary": schema.BoolAttribute{
+							Optional: true, Computed: true,
+							MarkdownDescription: "Marks the port that public routes and the default health probe " +
+								"target. Only an `HTTP` port can be primary, and at most one port may be. A single " +
+								"`HTTP` port becomes primary on its own.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -154,9 +279,66 @@ func (r *containerAppResource) Configure(_ context.Context, req resource.Configu
 	r.p = pd
 }
 
+// ValidateConfig applies the platform's port rules at plan time. The API checks
+// most of them too, but the exposure rule it does not: it accepts
+// expose_to_internet on an app with no HTTP port and simply wires no routes, so
+// the app ends up unreachable with nothing to say why.
+func (r *containerAppResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var cfg containerAppModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() || cfg.Ports.IsNull() || cfg.Ports.IsUnknown() {
+		return
+	}
+	var ports []containerAppPortModel
+	resp.Diagnostics.Append(cfg.Ports.ElementsAs(ctx, &ports, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	httpPorts, primaries := 0, 0
+	for i, p := range ports {
+		isHTTP := p.Protocol.ValueString() == "HTTP" || p.Protocol.IsNull()
+		if isHTTP {
+			httpPorts++
+		}
+		if p.Primary.ValueBool() {
+			primaries++
+			if !isHTTP {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("ports").AtListIndex(i).AtName("primary"),
+					"Only an HTTP port can be primary",
+					"Raw TCP and UDP cannot be published: the platform ingress terminates HTTP(S) and has no "+
+						"listener for anything else. Set protocol to HTTP, or drop primary.",
+				)
+			}
+		}
+	}
+
+	if primaries > 1 {
+		resp.Diagnostics.AddAttributeError(path.Root("ports"), "At most one port may be primary",
+			fmt.Sprintf("%d ports are marked primary. Exactly one carries the public routes and the default health probe.", primaries))
+	}
+	if len(ports) > 1 && httpPorts > 0 && primaries == 0 {
+		resp.Diagnostics.AddAttributeError(path.Root("ports"), "One port must be primary",
+			"An app declaring several ports must mark exactly one HTTP port primary, so the platform knows which one its routes and health probe target.")
+	}
+	if cfg.ExposeToInternet.ValueBool() && httpPorts == 0 {
+		resp.Diagnostics.AddAttributeError(path.Root("expose_to_internet"), "Nothing to expose",
+			"The app publishes no HTTP port, so there is nothing the platform ingress can route to and the app would stay unreachable. "+
+				"Give a port protocol HTTP, or leave expose_to_internet off — raw TCP and UDP ports are reachable in-cluster through the app's Service.")
+	}
+}
+
 func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan containerAppModel
+	var plan, cfg containerAppModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ports, d := portInputs(ctx, cfg.Ports)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -177,6 +359,11 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
 		body.ResourceTier = &tier
 	}
+	// `ports` replaces `port`, so only one of the two is ever sent.
+	if ports != nil {
+		body.Ports = &ports
+		body.Port = nil
+	}
 
 	if err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body); err != nil {
 		resp.Diagnostics.AddError("Failed to create container app", err.Error())
@@ -194,7 +381,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	state, err := r.readInto(ctx, env, appID, plan.ResourceTier)
+	state, err := r.readInto(ctx, appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after create", err.Error())
 		return
@@ -209,7 +396,7 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString(), prior.ResourceTier)
+	state, err := r.readInto(ctx, prior.ID.ValueString(), prior.ResourceTier)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -222,9 +409,20 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 }
 
 func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state containerAppModel
+	var plan, state, cfg containerAppModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// The config, not the plan: `ports` is Optional+Computed, so the plan carries
+	// the prior value when the config omits it, and PATCH distinguishes the two —
+	// an omitted `ports` leaves the existing entries alone, an empty one clears
+	// them, a non-empty one replaces the list.
+	ports, d := portInputs(ctx, cfg.Ports)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -245,6 +443,10 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
 		body.ResourceTier = &tier
 	}
+	if ports != nil {
+		body.Ports = &ports
+		body.Port = nil
+	}
 
 	if err := r.p.API.PatchContainerApp(ctx, r.p.OrgID, appID, body); err != nil {
 		resp.Diagnostics.AddError("Failed to update container app", err.Error())
@@ -255,7 +457,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	newState, err := r.readInto(ctx, plan.Env.ValueString(), appID, plan.ResourceTier)
+	newState, err := r.readInto(ctx, appID, plan.ResourceTier)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after update", err.Error())
 		return
@@ -312,9 +514,66 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 	return err
 }
 
+func containerAppPorts(ctx context.Context, ports []console.ContainerAppPortResponse) (types.List, diag.Diagnostics) {
+	out := make([]containerAppPortModel, 0, len(ports))
+	for _, p := range ports {
+		out = append(out, containerAppPortModel{
+			Name:     optString(p.Name),
+			Port:     types.Int64Value(int64(p.ContainerPort)),
+			Protocol: types.StringValue(portProtocolOf(p.Protocol, p.AppProtocol)),
+			Primary:  types.BoolValue(p.Primary),
+		})
+	}
+	return types.ListValueFrom(ctx, containerAppPortType(), out)
+}
+
+// portInputs converts a configured `ports` into the API input. Returns nil when
+// the config leaves it out, which the caller sends as an absent field.
+func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPortInput, diag.Diagnostics) {
+	if list.IsNull() || list.IsUnknown() {
+		return nil, nil
+	}
+	var models []containerAppPortModel
+	d := list.ElementsAs(ctx, &models, false)
+	if d.HasError() {
+		return nil, d
+	}
+	out := make([]console.ContainerAppPortInput, 0, len(models))
+	for _, m := range models {
+		in := console.ContainerAppPortInput{
+			Name:          m.Name.ValueString(),
+			ContainerPort: int32(m.Port.ValueInt64()),
+		}
+		if wire, ok := wireProtocols[m.Protocol.ValueString()]; ok {
+			in.Protocol = &wire.protocol
+			in.AppProtocol = wire.appProtocol
+		}
+		if !m.Primary.IsNull() && !m.Primary.IsUnknown() {
+			in.Primary = m.Primary.ValueBoolPointer()
+		}
+		out = append(out, in)
+	}
+	return out, d
+}
+
+// primaryPort reads the single port this schema exposes. The API's `port` is
+// deprecated in favour of `ports`, and is null for an app whose ports were set
+// through the newer field, so fall back to the entry flagged primary.
+func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
+	if spec.Port != nil {
+		return types.Int64Value(int64(*spec.Port))
+	}
+	for _, p := range spec.Ports {
+		if p.Primary {
+			return types.Int64Value(int64(p.ContainerPort))
+		}
+	}
+	return types.Int64Null()
+}
+
 // readInto builds the model from both views. priorTier is carried through
 // because the /crd spec response does not echo resource_tier (M2).
-func (r *containerAppResource) readInto(ctx context.Context, env, appID string, priorTier types.String) (containerAppModel, error) {
+func (r *containerAppResource) readInto(ctx context.Context, appID string, priorTier types.String) (containerAppModel, error) {
 	spec, err := r.p.API.GetContainerAppSpec(ctx, r.p.OrgID, appID)
 	if err != nil {
 		return containerAppModel{}, err
@@ -323,14 +582,18 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 	if err != nil {
 		return containerAppModel{}, err
 	}
+	ports, d := containerAppPorts(ctx, spec.Ports)
+	if d.HasError() {
+		return containerAppModel{}, errors.New("failed to convert container app ports")
+	}
 
 	m := containerAppModel{
 		ID:                types.StringValue(appID),
-		Env:               types.StringValue(env),
+		Env:               types.StringValue(status.HarborId.String()),
 		Name:              types.StringValue(status.Name),
 		ImageRepository:   types.StringValue(spec.ImageRepository),
 		ImageTag:          types.StringValue(spec.ImageTag),
-		Port:              types.Int64Value(int64(spec.Port)),
+		Port:              primaryPort(spec),
 		Replicas:          types.Int64Value(int64(spec.Replicas)),
 		Enabled:           types.BoolValue(spec.Enabled),
 		ExposeToInternet:  types.BoolValue(spec.ExposeToInternet),
@@ -346,6 +609,8 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 		Endpoint:          optString(status.Endpoint),
 		DesiredReplicas:   types.Int64Value(int64(status.DesiredReplicas)),
 		AvailableReplicas: types.Int64Value(int64(status.AvailableReplicas)),
+		Slug:              types.StringValue(status.Slug),
+		Ports:             ports,
 	}
 	return m, nil
 }

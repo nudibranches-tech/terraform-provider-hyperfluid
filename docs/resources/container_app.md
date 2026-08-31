@@ -18,13 +18,15 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_container_app" "web" {
-  env           = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_env.default.id
   name             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
-  port             = 8080
-  replicas         = 1
-  resource_tier    = "nano"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
+  replicas      = 1
+  resource_tier = "nano"
 
   # Defaults to false (reachable only in-cluster). Set true to create
   # internet-facing routes.
@@ -52,7 +54,12 @@ output "endpoint" {
 - `expose_to_internet` (Boolean) Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.
 - `health_check_path` (String) HTTP health check path.
 - `health_check_port` (Number) HTTP health check port.
-- `port` (Number) Container port.
+- `port` (Number) The app's single container port. **Deprecated — use `ports`**, which this conflicts with.
+
+~> The platform ignores writes to this attribute once the app's spec carries a non-empty `ports`, so on such an app a change here applies cleanly in Terraform and does nothing. Move the app to `ports` rather than editing this.
+- `ports` (Attributes List) The ports the container listens on, replacing the deprecated single `port`. Only the port marked `primary` gets a public route; the rest are reachable in-cluster through the app's Service. Leave it out and the platform derives a single entry from `port`.
+
+Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Desired replica count.
 - `resource_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge. Maps to cpu/memory server-side.
 
@@ -68,6 +75,20 @@ output "endpoint" {
 - `memory_request` (String) Memory request derived from resource_tier.
 - `phase` (String) Current lifecycle phase.
 - `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
+- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot.
+
+<a id="nestedatt--ports"></a>
+### Nested Schema for `ports`
+
+Required:
+
+- `name` (String) Port name, unique within the app, e.g. `http` or `metrics`. Lowercase letters, digits and hyphens, with at least one letter and no leading, trailing or consecutive hyphens; 15 characters at most.
+- `port` (Number) Port the container listens on.
+
+Optional:
+
+- `primary` (Boolean) Marks the port that public routes and the default health probe target. Only an `HTTP` port can be primary, and at most one port may be. A single `HTTP` port becomes primary on its own.
+- `protocol` (String) One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an `HTTP` port can be published: the platform ingress terminates HTTP(S) and has no listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster through the app's Service only.
 
 ## Import
 

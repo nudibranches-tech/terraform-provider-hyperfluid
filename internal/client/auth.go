@@ -88,7 +88,7 @@ func NewFromServiceAccount(endpoint, credsPath string) (*Client, string, error) 
 	// the bearer token automatically.
 	api, err := console.NewClientWithResponses(
 		strings.TrimRight(base, "/"),
-		console.WithHTTPClient(cfg.Client(context.Background())),
+		console.WithHTTPClient(withErrorBodyShim(cfg.Client(context.Background()))),
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("build console client: %w", err)

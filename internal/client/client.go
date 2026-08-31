@@ -6,9 +6,11 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -20,6 +22,12 @@ import (
 // detection (Read → remove from state) and delete confirmation (poll GET until
 // ErrNotFound).
 var ErrNotFound = errors.New("hyperfluid: resource not found")
+
+// ErrForbidden is returned when the API responds 403. A delete-confirmation poll
+// treats it as success: the console resolves a resource's authz scope by looking
+// the resource up, so once it is gone the scope no longer resolves and the read
+// is denied rather than answered with a 404.
+var ErrForbidden = errors.New("hyperfluid: forbidden")
 
 // Client is a thin, stable wrapper over the generated Console API client
 // (internal/console). Resources depend on this surface, not on the generated
@@ -36,11 +44,63 @@ func parseUUID(field, s string) (openapi_types.UUID, error) {
 	return u, nil
 }
 
+// forbiddenMessage renders a 403 the way hfctl does: a denial is phrased
+// "Missing permission '<key>' [on '<scope>']", and the caller usually cannot
+// grant it themselves, so the permission and the person to ask are what matter.
+// Any other 403 keeps the server's own message — a quota refusal already spells
+// out the numbers, and the spec does not declare the fields it carries them in.
+func forbiddenMessage(body []byte) string {
+	var parsed struct {
+		Message            string `json:"message"`
+		RequiredPermission string `json:"required_permission"`
+	}
+	if err := json.Unmarshal(body, &parsed); err != nil || parsed.Message == "" {
+		return string(bytes.TrimSpace(body))
+	}
+	permission := parsed.RequiredPermission
+	// Only mine the message when it is actually a denial: any other 403 — a quota
+	// refusal, say — may hold an apostrophe that would read as a quoted key.
+	if permission == "" && strings.HasPrefix(parsed.Message, "Missing permission") {
+		if key, _ := quoted(parsed.Message); key != "" {
+			permission = key
+		}
+	}
+	if permission == "" {
+		return parsed.Message
+	}
+	// The scope is the second quoted segment, absent for an org-wide denial.
+	scope := ""
+	if _, rest := quoted(parsed.Message); rest != "" {
+		scope, _ = quoted(rest)
+	}
+	if scope != "" {
+		return fmt.Sprintf("missing permission %q in %q; ask an organization administrator to grant it", permission, scope)
+	}
+	return fmt.Sprintf("missing permission %q; ask an organization administrator to grant it", permission)
+}
+
+// quoted returns the first single-quoted segment of s and the remainder after
+// its closing quote.
+func quoted(s string) (string, string) {
+	start := strings.Index(s, "'")
+	if start < 0 {
+		return "", ""
+	}
+	rest := s[start+1:]
+	end := strings.Index(rest, "'")
+	if end < 0 {
+		return "", ""
+	}
+	return rest[:end], rest[end+1:]
+}
+
 // statusErr maps a response status to ErrNotFound / a body-carrying error / nil.
 func statusErr(op string, status int, body []byte) error {
 	switch {
 	case status == http.StatusNotFound:
 		return ErrNotFound
+	case status == http.StatusForbidden:
+		return fmt.Errorf("%w: %s: %s", ErrForbidden, op, forbiddenMessage(body))
 	case status >= 400:
 		return fmt.Errorf("hyperfluid: %s -> %d: %s", op, status, bytes.TrimSpace(body))
 	default:

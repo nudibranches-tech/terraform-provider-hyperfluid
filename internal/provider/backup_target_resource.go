@@ -160,7 +160,7 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		resp.Diagnostics.AddError("Backup target did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	state, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after create", err.Error())
 		return
@@ -174,7 +174,7 @@ func (r *backupTargetResource) Read(ctx context.Context, req resource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.Env.ValueString(), prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.ID.ValueString())
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -216,7 +216,7 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 		resp.Diagnostics.AddError("Failed to update backup target", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, plan.Env.ValueString(), id)
+	newState, err := r.readInto(ctx, id)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after update", err.Error())
 		return
@@ -286,7 +286,7 @@ func (r *backupTargetResource) waitReady(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *backupTargetResource) readInto(ctx context.Context, env, id string) (backupTargetModel, error) {
+func (r *backupTargetResource) readInto(ctx context.Context, id string) (backupTargetModel, error) {
 	bt, err := r.p.API.GetBackupTarget(ctx, r.p.OrgID, id)
 	if err != nil {
 		return backupTargetModel{}, err
@@ -297,7 +297,7 @@ func (r *backupTargetResource) readInto(ctx context.Context, env, id string) (ba
 	}
 	return backupTargetModel{
 		ID:                        types.StringValue(id),
-		Env:                       types.StringValue(env),
+		Env:                       types.StringValue(bt.HarborId.String()),
 		Name:                      types.StringValue(bt.Name),
 		EndpointURL:               types.StringValue(bt.EndpointUrl),
 		DestinationPath:           types.StringValue(bt.DestinationPath),
