@@ -61,15 +61,26 @@ type containerAppModel struct {
 	HealthCheckPort  types.Int64  `tfsdk:"health_check_port"`
 
 	// computed
-	ResourceVersion   types.String `tfsdk:"resource_version"`
-	CPURequest        types.String `tfsdk:"cpu_request"`
-	CPULimit          types.String `tfsdk:"cpu_limit"`
-	MemoryRequest     types.String `tfsdk:"memory_request"`
-	MemoryLimit       types.String `tfsdk:"memory_limit"`
-	Phase             types.String `tfsdk:"phase"`
-	Endpoint          types.String `tfsdk:"endpoint"`
-	DesiredReplicas   types.Int64  `tfsdk:"desired_replicas"`
-	AvailableReplicas types.Int64  `tfsdk:"available_replicas"`
+	ResourceVersion   types.String            `tfsdk:"resource_version"`
+	CPURequest        types.String            `tfsdk:"cpu_request"`
+	CPULimit          types.String            `tfsdk:"cpu_limit"`
+	MemoryRequest     types.String            `tfsdk:"memory_request"`
+	MemoryLimit       types.String            `tfsdk:"memory_limit"`
+	Phase             types.String            `tfsdk:"phase"`
+	Endpoint          types.String            `tfsdk:"endpoint"`
+	DesiredReplicas   types.Int64             `tfsdk:"desired_replicas"`
+	AvailableReplicas types.Int64             `tfsdk:"available_replicas"`
+	Slug              types.String            `tfsdk:"slug"`
+	Ports             []containerAppPortModel `tfsdk:"ports"`
+}
+
+// containerAppPortModel is one published port. Read-only: the write path still
+// sends the single `port`.
+type containerAppPortModel struct {
+	Name     types.String `tfsdk:"name"`
+	Port     types.Int64  `tfsdk:"port"`
+	Protocol types.String `tfsdk:"protocol"`
+	Primary  types.Bool   `tfsdk:"primary"`
 }
 
 func (r *containerAppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -138,6 +149,20 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"endpoint":           computedString("Public endpoint, once provisioned."),
 			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired replicas reported by the platform."},
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
+			"slug":               computedString("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot."),
+			"ports": schema.ListNestedAttribute{
+				Computed: true,
+				MarkdownDescription: "Every port the app publishes. Assignable straight to a " +
+					"`hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name":     schema.StringAttribute{Computed: true, MarkdownDescription: "Port name, or null for an app still on the single-`port` form."},
+						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},
+						"protocol": schema.StringAttribute{Computed: true, MarkdownDescription: "L4 protocol: `TCP`, `UDP` or `SCTP`."},
+						"primary":  schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
+					},
+				},
+			},
 		},
 	}
 }
@@ -312,6 +337,19 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 	return err
 }
 
+func containerAppPorts(ports []console.ContainerAppPortResponse) []containerAppPortModel {
+	out := make([]containerAppPortModel, 0, len(ports))
+	for _, p := range ports {
+		out = append(out, containerAppPortModel{
+			Name:     optString(p.Name),
+			Port:     types.Int64Value(int64(p.ContainerPort)),
+			Protocol: types.StringValue(string(p.Protocol)),
+			Primary:  types.BoolValue(p.Primary),
+		})
+	}
+	return out
+}
+
 // primaryPort reads the single port this schema exposes. The API's `port` is
 // deprecated in favour of `ports`, and is null for an app whose ports were set
 // through the newer field, so fall back to the entry flagged primary.
@@ -361,6 +399,8 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 		Endpoint:          optString(status.Endpoint),
 		DesiredReplicas:   types.Int64Value(int64(status.DesiredReplicas)),
 		AvailableReplicas: types.Int64Value(int64(status.AvailableReplicas)),
+		Slug:              types.StringValue(status.Slug),
+		Ports:             containerAppPorts(spec.Ports),
 	}
 	return m, nil
 }

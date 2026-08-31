@@ -68,6 +68,7 @@ type managedPostgresqlModel struct {
 	WriteEndpoint    types.String `tfsdk:"write_endpoint"`
 	ReadEndpoint     types.String `tfsdk:"read_endpoint"`
 	ExternalEndpoint types.String `tfsdk:"external_endpoint"`
+	Slug             types.String `tfsdk:"slug"`
 }
 
 func (r *managedPostgresqlResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -158,6 +159,7 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			"write_endpoint":    computedStr("Primary (read-write) endpoint."),
 			"read_endpoint":     computedStr("Read-only endpoint."),
 			"external_endpoint": computedStr("External endpoint, if exposed."),
+			"slug":              computedStr("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
 		},
 	}
 }
@@ -398,6 +400,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, env, id string
 		WriteEndpoint:    optString(c.WriteEndpoint),
 		ReadEndpoint:     optString(c.ReadEndpoint),
 		ExternalEndpoint: optString(c.ExternalEndpoint),
+		Slug:             types.StringValue(c.Slug),
 	}
 	// backup_target_id and backup_policy=="" handling: the status view reports
 	// backup_policy but not the target id; keep target id null (it's ForceNew,

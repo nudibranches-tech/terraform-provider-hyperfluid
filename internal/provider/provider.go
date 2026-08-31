@@ -145,6 +145,7 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewKeyValueCacheResource,
 		NewBackupTargetResource,
 		NewSecretResource,
+		NewServiceLinkResource,
 		NewModelServingResource,
 		NewAiApiKeyResource,
 		// app_instance deferred (Marketplace).
@@ -164,6 +165,7 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewKeyValueCacheDataSource,
 		NewBackupTargetDataSource,
 		NewStorageZoneDataSource,
+		NewServiceLinkDataSource,
 		NewModelServingDataSource,
 		NewSharedModelDataSource,
 		NewAiApiKeyDataSource,

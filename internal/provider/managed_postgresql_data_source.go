@@ -64,6 +64,7 @@ func (d *managedPostgresqlDataSource) Schema(_ context.Context, _ datasource.Sch
 			"write_endpoint":     cs("Primary (read-write) endpoint."),
 			"read_endpoint":      cs("Read endpoint."),
 			"external_endpoint":  cs("External endpoint, if exposed."),
+			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
 		},
 	}
 }

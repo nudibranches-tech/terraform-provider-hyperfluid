@@ -67,7 +67,19 @@ output "endpoint" {
 - `memory_limit` (String) Memory limit derived from resource_tier.
 - `memory_request` (String) Memory request derived from resource_tier.
 - `phase` (String) Current lifecycle phase.
+- `ports` (Attributes List) Every port the app publishes. Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry. (see [below for nested schema](#nestedatt--ports))
 - `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
+- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot.
+
+<a id="nestedatt--ports"></a>
+### Nested Schema for `ports`
+
+Read-Only:
+
+- `name` (String) Port name, or null for an app still on the single-`port` form.
+- `port` (Number) Port number.
+- `primary` (Boolean) Whether public routes and the default health probe target this port.
+- `protocol` (String) L4 protocol: `TCP`, `UDP` or `SCTP`.
 
 ## Import
 

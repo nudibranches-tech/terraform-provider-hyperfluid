@@ -66,6 +66,19 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
+			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
+			"ports": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Every port the app publishes.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name":     cs("Port name, or null for an app still on the single-`port` form."),
+						"port":     ci("Port number."),
+						"protocol": cs("L4 protocol: `TCP`, `UDP` or `SCTP`."),
+						"primary":  schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
+					},
+				},
+			},
 		},
 	}
 }

@@ -61,6 +61,37 @@ func (c *Client) FindContainerAppID(ctx context.Context, orgID, harborID, name s
 	return app.Id.String(), nil
 }
 
+// FindContainerAppIDBySlug resolves an app's id by its slug, where
+// FindContainerAppID matches the display name. Callers that hand a name straight
+// to an API which resolves it as a slug need this one.
+func (c *Client) FindContainerAppIDBySlug(ctx context.Context, orgID, harborID, slug string) (string, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return "", err
+	}
+	harbor, err := parseUUID("harbor", harborID)
+	if err != nil {
+		return "", err
+	}
+	resp, err := c.api.ListContainerAppsWithResponse(ctx, org, harbor)
+	if err != nil {
+		return "", err
+	}
+	if err := statusErr("list container apps", resp.StatusCode(), resp.Body); err != nil {
+		return "", err
+	}
+	if resp.JSON200 == nil {
+		return "", ErrNotFound
+	}
+	app, err := findByName(*resp.JSON200, slug, func(a *console.ContainerAppResponse) string {
+		return a.Slug
+	})
+	if err != nil {
+		return "", err
+	}
+	return app.Id.String(), nil
+}
+
 // GetContainerAppStatus returns the runtime view (phase, replica counts,
 // endpoint) — used for wait-for-ready and computed status attributes.
 func (c *Client) GetContainerAppStatus(ctx context.Context, orgID, appID string) (*console.ContainerAppResponse, error) {
