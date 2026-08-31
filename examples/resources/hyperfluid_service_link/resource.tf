@@ -8,7 +8,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
   resource_tier = "nano"
 }
@@ -45,14 +45,15 @@ resource "hyperfluid_container_app" "api" {
 
   ports = [
     {
-      name         = "http"
-      port         = 8080
-      app_protocol = "http"
-      primary      = true
+      name     = "http"
+      port     = 8080
+      protocol = "HTTP"
+      primary  = true
     },
     {
-      name = "metrics"
-      port = 9090
+      name     = "metrics"
+      port     = 9090
+      protocol = "TCP"
     },
   ]
 }

@@ -23,7 +23,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
   replicas      = 1
   resource_tier = "nano"
@@ -82,14 +82,13 @@ Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads
 
 Required:
 
-- `name` (String) Port name, unique within the app, e.g. `http` or `metrics`. A DNS-1123 label of at most 15 characters.
+- `name` (String) Port name, unique within the app, e.g. `http` or `metrics`. Lowercase letters, digits and hyphens, with at least one letter and no leading, trailing or consecutive hyphens; 15 characters at most.
 - `port` (Number) Port the container listens on.
 
 Optional:
 
-- `app_protocol` (String) L7 protocol, for a port the platform ingress should route. `http` is the only value the ingress has a listener for today.
-- `primary` (Boolean) Marks the port public routes and the default health probe target. Optional when the app declares a single port with an `app_protocol`.
-- `protocol` (String) L4 protocol: `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.
+- `primary` (Boolean) Marks the port that public routes and the default health probe target. Only an `HTTP` port can be primary, and at most one port may be. A single `HTTP` port becomes primary on its own.
+- `protocol` (String) One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an `HTTP` port can be published: the platform ingress terminates HTTP(S) and has no listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster through the app's Service only.
 
 ## Import
 

@@ -65,8 +65,7 @@ output "app_endpoint" {
 
 Read-Only:
 
-- `app_protocol` (String) L7 protocol the platform ingress routes, or null.
 - `name` (String) Port name, or null for an app still on the single-`port` form.
 - `port` (Number) Port the container listens on.
 - `primary` (Boolean) Whether public routes and the default health probe target this port.
-- `protocol` (String) L4 protocol: `TCP`, `UDP` or `SCTP`.
+- `protocol` (String) One of `HTTP`, `TCP` or `UDP`.

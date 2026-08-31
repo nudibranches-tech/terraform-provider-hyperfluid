@@ -6,8 +6,12 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"regexp"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -18,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -34,10 +39,14 @@ import (
 // cpu/mem, never resource_tier, so resource_tier is preserved from prior state).
 
 var (
-	_ resource.Resource                = &containerAppResource{}
-	_ resource.ResourceWithConfigure   = &containerAppResource{}
-	_ resource.ResourceWithImportState = &containerAppResource{}
+	_ resource.Resource                   = &containerAppResource{}
+	_ resource.ResourceWithValidateConfig = &containerAppResource{}
+	_ resource.ResourceWithConfigure      = &containerAppResource{}
+	_ resource.ResourceWithImportState    = &containerAppResource{}
 )
+
+// maxPortEntries matches the CRD's cap.
+const maxPortEntries = 16
 
 const containerAppWaitTimeout = 5 * time.Minute
 
@@ -83,21 +92,48 @@ type containerAppModel struct {
 
 // containerAppPortModel is one published port.
 type containerAppPortModel struct {
-	Name        types.String `tfsdk:"name"`
-	Port        types.Int64  `tfsdk:"port"`
-	Protocol    types.String `tfsdk:"protocol"`
-	Primary     types.Bool   `tfsdk:"primary"`
-	AppProtocol types.String `tfsdk:"app_protocol"`
+	Name     types.String `tfsdk:"name"`
+	Port     types.Int64  `tfsdk:"port"`
+	Protocol types.String `tfsdk:"protocol"`
+	Primary  types.Bool   `tfsdk:"primary"`
 }
 
 func containerAppPortType() attr.Type {
 	return types.ObjectType{AttrTypes: map[string]attr.Type{
-		"name":         types.StringType,
-		"port":         types.Int64Type,
-		"protocol":     types.StringType,
-		"primary":      types.BoolType,
-		"app_protocol": types.StringType,
+		"name":     types.StringType,
+		"port":     types.Int64Type,
+		"protocol": types.StringType,
+		"primary":  types.BoolType,
 	}}
+}
+
+// portProtocols are the platform's port kinds, as the console offers them: one
+// choice that carries both the L4 protocol and, for HTTP, the L7 one the
+// ingress needs. Only HTTP is publishable — raw TCP/UDP is reachable in-cluster
+// through the app's Service.
+var portProtocols = []string{"HTTP", "TCP", "UDP"}
+
+// wireProtocols maps a port kind onto the (L4, L7) pair the API takes.
+var wireProtocols = map[string]struct {
+	protocol    console.PortProtocol
+	appProtocol *console.AppProtocol
+}{
+	"HTTP": {protocol: console.TCP, appProtocol: ptr(console.Http)},
+	"TCP":  {protocol: console.TCP},
+	"UDP":  {protocol: console.UDP},
+}
+
+func ptr[T any](v T) *T { return &v }
+
+// portProtocolOf collapses the API's pair back into the single kind.
+func portProtocolOf(protocol console.PortProtocol, appProtocol *console.AppProtocol) string {
+	if appProtocol != nil && *appProtocol == console.Http {
+		return "HTTP"
+	}
+	if protocol == console.UDP {
+		return "UDP"
+	}
+	return "TCP"
 }
 
 func (r *containerAppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -179,30 +215,50 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 					"entry from `port`.\n\n" +
 					"Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the " +
 					"`port` and `protocol` of each entry.",
-				Validators: []validator.List{listvalidator.ConflictsWith(path.MatchRoot("port"))},
+				Validators: []validator.List{
+					listvalidator.ConflictsWith(path.MatchRoot("port")),
+					listvalidator.SizeAtMost(maxPortEntries),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							Required: true,
 							MarkdownDescription: "Port name, unique within the app, e.g. `http` or `metrics`. " +
-								"A DNS-1123 label of at most 15 characters.",
+								"Lowercase letters, digits and hyphens, with at least one letter and no leading, " +
+								"trailing or consecutive hyphens; 15 characters at most.",
+							Validators: []validator.String{
+								stringvalidator.LengthBetween(1, 15),
+								// Kubernetes validates this as an IANA_SVC_NAME, stricter than a
+								// DNS-1123 label. Split in two because RE2 has no lookahead.
+								stringvalidator.RegexMatches(
+									regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`),
+									"must be lowercase letters, digits and hyphens, with no leading, trailing or consecutive hyphens",
+								),
+								stringvalidator.RegexMatches(
+									regexp.MustCompile(`[a-z]`),
+									"must contain at least one letter",
+								),
+							},
 						},
-						"port": schema.Int64Attribute{Required: true, MarkdownDescription: "Port the container listens on."},
+						"port": schema.Int64Attribute{
+							Required:            true,
+							MarkdownDescription: "Port the container listens on.",
+							Validators:          []validator.Int64{int64validator.Between(1, 65535)},
+						},
 						"protocol": schema.StringAttribute{
 							Optional: true, Computed: true,
-							MarkdownDescription: "L4 protocol: `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.",
-							Validators:          []validator.String{stringvalidator.OneOf("TCP", "UDP", "SCTP")},
+							Default: stringdefault.StaticString("HTTP"),
+							MarkdownDescription: "One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an " +
+								"`HTTP` port can be published: the platform ingress terminates HTTP(S) and has no " +
+								"listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster " +
+								"through the app's Service only.",
+							Validators: []validator.String{stringvalidator.OneOf(portProtocols...)},
 						},
 						"primary": schema.BoolAttribute{
 							Optional: true, Computed: true,
-							MarkdownDescription: "Marks the port public routes and the default health probe " +
-								"target. Optional when the app declares a single port with an `app_protocol`.",
-						},
-						"app_protocol": schema.StringAttribute{
-							Optional: true, Computed: true,
-							MarkdownDescription: "L7 protocol, for a port the platform ingress should route. " +
-								"`http` is the only value the ingress has a listener for today.",
-							Validators: []validator.String{stringvalidator.OneOf(string(console.Http))},
+							MarkdownDescription: "Marks the port that public routes and the default health probe " +
+								"target. Only an `HTTP` port can be primary, and at most one port may be. A single " +
+								"`HTTP` port becomes primary on its own.",
 						},
 					},
 				},
@@ -221,6 +277,56 @@ func (r *containerAppResource) Configure(_ context.Context, req resource.Configu
 		return
 	}
 	r.p = pd
+}
+
+// ValidateConfig applies the platform's port rules at plan time. The API checks
+// most of them too, but the exposure rule it does not: it accepts
+// expose_to_internet on an app with no HTTP port and simply wires no routes, so
+// the app ends up unreachable with nothing to say why.
+func (r *containerAppResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var cfg containerAppModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() || cfg.Ports.IsNull() || cfg.Ports.IsUnknown() {
+		return
+	}
+	var ports []containerAppPortModel
+	resp.Diagnostics.Append(cfg.Ports.ElementsAs(ctx, &ports, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	httpPorts, primaries := 0, 0
+	for i, p := range ports {
+		isHTTP := p.Protocol.ValueString() == "HTTP" || p.Protocol.IsNull()
+		if isHTTP {
+			httpPorts++
+		}
+		if p.Primary.ValueBool() {
+			primaries++
+			if !isHTTP {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("ports").AtListIndex(i).AtName("primary"),
+					"Only an HTTP port can be primary",
+					"Raw TCP and UDP cannot be published: the platform ingress terminates HTTP(S) and has no "+
+						"listener for anything else. Set protocol to HTTP, or drop primary.",
+				)
+			}
+		}
+	}
+
+	if primaries > 1 {
+		resp.Diagnostics.AddAttributeError(path.Root("ports"), "At most one port may be primary",
+			fmt.Sprintf("%d ports are marked primary. Exactly one carries the public routes and the default health probe.", primaries))
+	}
+	if len(ports) > 1 && httpPorts > 0 && primaries == 0 {
+		resp.Diagnostics.AddAttributeError(path.Root("ports"), "One port must be primary",
+			"An app declaring several ports must mark exactly one HTTP port primary, so the platform knows which one its routes and health probe target.")
+	}
+	if cfg.ExposeToInternet.ValueBool() && httpPorts == 0 {
+		resp.Diagnostics.AddAttributeError(path.Root("expose_to_internet"), "Nothing to expose",
+			"The app publishes no HTTP port, so there is nothing the platform ingress can route to and the app would stay unreachable. "+
+				"Give a port protocol HTTP, or leave expose_to_internet off — raw TCP and UDP ports are reachable in-cluster through the app's Service.")
+	}
 }
 
 func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -411,16 +517,11 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 func containerAppPorts(ctx context.Context, ports []console.ContainerAppPortResponse) (types.List, diag.Diagnostics) {
 	out := make([]containerAppPortModel, 0, len(ports))
 	for _, p := range ports {
-		appProtocol := types.StringNull()
-		if p.AppProtocol != nil {
-			appProtocol = types.StringValue(string(*p.AppProtocol))
-		}
 		out = append(out, containerAppPortModel{
-			Name:        optString(p.Name),
-			Port:        types.Int64Value(int64(p.ContainerPort)),
-			Protocol:    types.StringValue(string(p.Protocol)),
-			Primary:     types.BoolValue(p.Primary),
-			AppProtocol: appProtocol,
+			Name:     optString(p.Name),
+			Port:     types.Int64Value(int64(p.ContainerPort)),
+			Protocol: types.StringValue(portProtocolOf(p.Protocol, p.AppProtocol)),
+			Primary:  types.BoolValue(p.Primary),
 		})
 	}
 	return types.ListValueFrom(ctx, containerAppPortType(), out)
@@ -443,16 +544,12 @@ func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPor
 			Name:          m.Name.ValueString(),
 			ContainerPort: int32(m.Port.ValueInt64()),
 		}
-		if !m.Protocol.IsNull() && !m.Protocol.IsUnknown() {
-			proto := console.PortProtocol(m.Protocol.ValueString())
-			in.Protocol = &proto
+		if wire, ok := wireProtocols[m.Protocol.ValueString()]; ok {
+			in.Protocol = &wire.protocol
+			in.AppProtocol = wire.appProtocol
 		}
 		if !m.Primary.IsNull() && !m.Primary.IsUnknown() {
 			in.Primary = m.Primary.ValueBoolPointer()
-		}
-		if !m.AppProtocol.IsNull() && !m.AppProtocol.IsUnknown() {
-			ap := console.AppProtocol(m.AppProtocol.ValueString())
-			in.AppProtocol = &ap
 		}
 		out = append(out, in)
 	}

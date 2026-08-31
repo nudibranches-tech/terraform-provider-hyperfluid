@@ -44,6 +44,19 @@ func TestFirstUndeclaredPort(t *testing.T) {
 	}
 }
 
+func TestL4Protocol(t *testing.T) {
+	// HTTP is carried over TCP, so an app's HTTP port can be assigned straight to
+	// target_ports and still match what the platform opens.
+	if got := l4Protocol("HTTP"); got != "TCP" {
+		t.Errorf("l4Protocol(HTTP) = %q, want TCP", got)
+	}
+	for _, p := range []string{"TCP", "UDP", "SCTP"} {
+		if got := l4Protocol(p); got != p {
+			t.Errorf("l4Protocol(%s) = %q, want unchanged", p, got)
+		}
+	}
+}
+
 func TestFormatPorts(t *testing.T) {
 	if got := formatPorts(nil); got != "no ports" {
 		t.Errorf("formatPorts(nil) = %q", got)
@@ -81,7 +94,9 @@ func TestAccServiceLinkResource(t *testing.T) {
 					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.0.name", "http"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.0.primary", "true"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.1.name", "metrics"),
+					// The wire pair (TCP + no appProtocol) collapses back to the single kind.
 					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.1.protocol", "TCP"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.api", "ports.0.protocol", "HTTP"),
 
 					// The app's own ports attribute assigned straight through.
 					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api_all", "ports.0.port", "8080"),
@@ -125,7 +140,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
   resource_tier    = "nano"
 }
@@ -138,8 +153,8 @@ resource "hyperfluid_container_app" "api" {
   resource_tier    = "nano"
 
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
-    { name = "metrics", port = 9090 },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+    { name = "metrics", port = 9090, protocol = "TCP" },
   ]
 }
 

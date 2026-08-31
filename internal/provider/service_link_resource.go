@@ -166,9 +166,11 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"port": schema.Int64Attribute{Required: true, MarkdownDescription: "Port number."},
 						"protocol": schema.StringAttribute{
 							Optional: true, Computed: true,
-							Default:             stringdefault.StaticString("TCP"),
-							MarkdownDescription: "L4 protocol: `TCP`, `UDP` or `SCTP`.",
-							Validators:          []validator.String{stringvalidator.OneOf("TCP", "UDP", "SCTP")},
+							Default: stringdefault.StaticString("TCP"),
+							MarkdownDescription: "The port's protocol, spelled as the target app declares it: " +
+								"`HTTP`, `TCP`, `UDP` or `SCTP`. An `HTTP` port is opened over TCP, which is why " +
+								"a container app's `ports` can be assigned to this attribute unchanged.",
+							Validators: []validator.String{stringvalidator.OneOf("HTTP", "TCP", "UDP", "SCTP")},
 						},
 					},
 				},
@@ -176,7 +178,8 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"ports": schema.ListNestedAttribute{
 				Computed: true,
 				MarkdownDescription: "The ports actually opened for this link, including the ones the platform " +
-					"picked when `target_ports` was omitted. Empty until the link has been reconciled.",
+					"picked when `target_ports` was omitted. Reported as the L4 protocol the platform opened, " +
+					"so an app's `HTTP` port reads back as `TCP` here. Empty until the link has been reconciled.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},
@@ -447,6 +450,17 @@ func serviceRefFromObject(ctx context.Context, obj types.Object) (*serviceRefMod
 	return &ref, d
 }
 
+// l4Protocol maps a port's declared protocol onto the L4 one a link opens.
+// HTTP is carried over TCP, so the two collapse — and a container app cannot
+// declare the same number as both, since the platform requires distinct
+// (port, L4 protocol) pairs.
+func l4Protocol(protocol string) string {
+	if protocol == "HTTP" {
+		return "TCP"
+	}
+	return protocol
+}
+
 func toAPIPorts(ctx context.Context, set types.Set) ([]console.ServiceLinkPort, diag.Diagnostics) {
 	if set.IsNull() || set.IsUnknown() {
 		return nil, nil
@@ -460,7 +474,7 @@ func toAPIPorts(ctx context.Context, set types.Set) ([]console.ServiceLinkPort, 
 	for _, p := range models {
 		out = append(out, console.ServiceLinkPort{
 			Port:     int32(p.Port.ValueInt64()),
-			Protocol: p.Protocol.ValueString(),
+			Protocol: l4Protocol(p.Protocol.ValueString()),
 		})
 	}
 	return out, d

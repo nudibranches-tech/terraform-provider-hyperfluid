@@ -29,7 +29,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
   resource_tier = "nano"
 }
@@ -66,14 +66,15 @@ resource "hyperfluid_container_app" "api" {
 
   ports = [
     {
-      name         = "http"
-      port         = 8080
-      app_protocol = "http"
-      primary      = true
+      name     = "http"
+      port     = 8080
+      protocol = "HTTP"
+      primary  = true
     },
     {
-      name = "metrics"
-      port = 9090
+      name     = "metrics"
+      port     = 9090
+      protocol = "TCP"
     },
   ]
 }
@@ -138,7 +139,7 @@ output "open_ports" {
 
 - `id` (String) Composite identifier `env/name`.
 - `name` (String) The link's name, derived by the platform from the linked pair (`<consumer>-<target>`, truncated to 63 characters). Also its identifier within the environment.
-- `ports` (Attributes List) The ports actually opened for this link, including the ones the platform picked when `target_ports` was omitted. Empty until the link has been reconciled. (see [below for nested schema](#nestedatt--ports))
+- `ports` (Attributes List) The ports actually opened for this link, including the ones the platform picked when `target_ports` was omitted. Reported as the L4 protocol the platform opened, so an app's `HTTP` port reads back as `TCP` here. Empty until the link has been reconciled. (see [below for nested schema](#nestedatt--ports))
 - `ready` (Boolean) Whether the platform has opened the ports for this link.
 
 <a id="nestedatt--consumer"></a>
@@ -168,7 +169,7 @@ Required:
 
 Optional:
 
-- `protocol` (String) L4 protocol: `TCP`, `UDP` or `SCTP`.
+- `protocol` (String) The port's protocol, spelled as the target app declares it: `HTTP`, `TCP`, `UDP` or `SCTP`. An `HTTP` port is opened over TCP, which is why a container app's `ports` can be assigned to this attribute unchanged.
 
 
 <a id="nestedatt--ports"></a>

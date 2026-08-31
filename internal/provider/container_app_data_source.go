@@ -72,11 +72,10 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 				MarkdownDescription: "Every port the app publishes.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"name":         cs("Port name, or null for an app still on the single-`port` form."),
-						"port":         ci("Port the container listens on."),
-						"protocol":     cs("L4 protocol: `TCP`, `UDP` or `SCTP`."),
-						"primary":      schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
-						"app_protocol": cs("L7 protocol the platform ingress routes, or null."),
+						"name":     cs("Port name, or null for an app still on the single-`port` form."),
+						"port":     ci("Port the container listens on."),
+						"protocol": cs("One of `HTTP`, `TCP` or `UDP`."),
+						"primary":  schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether public routes and the default health probe target this port."},
 					},
 				},
 			},

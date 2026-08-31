@@ -35,6 +35,7 @@ func TestAccContainerAppResource(t *testing.T) {
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.name", "http"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.port", "8080"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.primary", "true"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "ports.0.protocol", "HTTP"),
 					// `port` is deprecated but still computed: the platform reports
 					// the primary port there.
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "port", "8080"),
@@ -70,7 +71,7 @@ resource "hyperfluid_container_app" "test" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "http", primary = true },
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
   replicas         = ` + strconv.Itoa(replicas) + `
   resource_tier    = "nano"
