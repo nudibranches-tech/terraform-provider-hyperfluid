@@ -312,6 +312,21 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 	return err
 }
 
+// primaryPort reads the single port this schema exposes. The API's `port` is
+// deprecated in favour of `ports`, and is null for an app whose ports were set
+// through the newer field, so fall back to the entry flagged primary.
+func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
+	if spec.Port != nil {
+		return types.Int64Value(int64(*spec.Port))
+	}
+	for _, p := range spec.Ports {
+		if p.Primary {
+			return types.Int64Value(int64(p.ContainerPort))
+		}
+	}
+	return types.Int64Null()
+}
+
 // readInto builds the model from both views. priorTier is carried through
 // because the /crd spec response does not echo resource_tier (M2).
 func (r *containerAppResource) readInto(ctx context.Context, env, appID string, priorTier types.String) (containerAppModel, error) {
@@ -330,7 +345,7 @@ func (r *containerAppResource) readInto(ctx context.Context, env, appID string, 
 		Name:              types.StringValue(status.Name),
 		ImageRepository:   types.StringValue(spec.ImageRepository),
 		ImageTag:          types.StringValue(spec.ImageTag),
-		Port:              types.Int64Value(int64(spec.Port)),
+		Port:              primaryPort(spec),
 		Replicas:          types.Int64Value(int64(spec.Replicas)),
 		Enabled:           types.BoolValue(spec.Enabled),
 		ExposeToInternet:  types.BoolValue(spec.ExposeToInternet),
