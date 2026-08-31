@@ -65,11 +65,11 @@ func TestAccServiceLinkResource(t *testing.T) {
 				Config: testAccServiceLinkConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// The name is derived by the platform from the linked pair.
-					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_db", "name", "tf-acc-sl-web-tf-acc-sl-db"),
-					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_db", "ready", "true"),
-					resource.TestCheckResourceAttrSet("hyperfluid_service_link.web_to_db", "ports.0.port"),
+					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_cache", "name", "tf-acc-sl-web-tf-acc-sl-cache"),
+					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_cache", "ready", "true"),
+					resource.TestCheckResourceAttrSet("hyperfluid_service_link.web_to_cache", "ports.0.port"),
 					// A fixed-port kind gets its port opened without asking.
-					resource.TestCheckNoResourceAttr("hyperfluid_service_link.web_to_db", "target_ports.0.port"),
+					resource.TestCheckNoResourceAttr("hyperfluid_service_link.web_to_cache", "target_ports.0.port"),
 
 					// A non-primary port, which the deprecated single `port` cannot express.
 					resource.TestCheckResourceAttr("hyperfluid_service_link.web_to_api", "target_ports.0.port", "9090"),
@@ -88,7 +88,7 @@ func TestAccServiceLinkResource(t *testing.T) {
 				),
 			},
 			{
-				ResourceName: "hyperfluid_service_link.web_to_db",
+				ResourceName: "hyperfluid_service_link.web_to_cache",
 				ImportState:  true,
 				// target_ports is a choice the API never echoes back, so an
 				// imported link cannot round-trip it.
@@ -125,7 +125,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "http", port = 8080, app_protocol = "http", primary = true },
   ]
   resource_tier    = "nano"
 }
@@ -138,21 +138,20 @@ resource "hyperfluid_container_app" "api" {
   resource_tier    = "nano"
 
   ports = [
-    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "http", port = 8080, app_protocol = "http", primary = true },
     { name = "metrics", port = 9090 },
   ]
 }
 
-resource "hyperfluid_managed_postgresql" "db" {
-  env           = data.hyperfluid_env.default.id
-  name          = "tf-acc-sl-db"
-  database_name = "app"
+resource "hyperfluid_key_value_cache" "cache" {
+  env  = data.hyperfluid_env.default.id
+  name = "tf-acc-sl-cache"
 }
 
-resource "hyperfluid_service_link" "web_to_db" {
+resource "hyperfluid_service_link" "web_to_cache" {
   env      = data.hyperfluid_env.default.id
   consumer = { kind = "ContainerApp", name = hyperfluid_container_app.web.slug }
-  target   = { kind = "ManagedPostgreSQL", name = hyperfluid_managed_postgresql.db.slug }
+  target   = { kind = "HfKeyValueCache", name = hyperfluid_key_value_cache.cache.slug }
 }
 
 resource "hyperfluid_service_link" "web_to_api" {
@@ -178,7 +177,7 @@ data "hyperfluid_env" "default" {
 resource "hyperfluid_service_link" "bad" {
   env          = data.hyperfluid_env.default.id
   consumer     = { kind = "ContainerApp", name = "tf-acc-sl-web" }
-  target       = { kind = "ManagedPostgreSQL", name = "tf-acc-sl-db" }
-  target_ports = [{ port = 5432 }]
+  target       = { kind = "HfKeyValueCache", name = "tf-acc-sl-cache" }
+  target_ports = [{ port = 6379 }]
 }
 `

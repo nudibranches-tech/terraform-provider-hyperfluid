@@ -21,6 +21,12 @@ import (
 // ErrNotFound).
 var ErrNotFound = errors.New("hyperfluid: resource not found")
 
+// ErrForbidden is returned when the API responds 403. A delete-confirmation poll
+// treats it as success: the console resolves a resource's authz scope by looking
+// the resource up, so once it is gone the scope no longer resolves and the read
+// is denied rather than answered with a 404.
+var ErrForbidden = errors.New("hyperfluid: forbidden")
+
 // Client is a thin, stable wrapper over the generated Console API client
 // (internal/console). Resources depend on this surface, not on the generated
 // code directly, so regenerating the client never churns the resource layer.
@@ -41,6 +47,8 @@ func statusErr(op string, status int, body []byte) error {
 	switch {
 	case status == http.StatusNotFound:
 		return ErrNotFound
+	case status == http.StatusForbidden:
+		return fmt.Errorf("%w: %s -> 403: %s", ErrForbidden, op, bytes.TrimSpace(body))
 	case status >= 400:
 		return fmt.Errorf("hyperfluid: %s -> %d: %s", op, status, bytes.TrimSpace(body))
 	default:

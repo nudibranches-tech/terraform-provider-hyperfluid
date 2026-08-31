@@ -208,7 +208,10 @@ func pollGoneOn404(ctx context.Context, timeout time.Duration, get func() error)
 
 	for {
 		err := get()
-		if errors.Is(err, client.ErrNotFound) {
+		// ErrForbidden counts as gone: the console resolves a resource's authz
+		// scope by looking the resource up, so a deleted resource is denied rather
+		// than reported missing. The DELETE itself already succeeded here.
+		if errors.Is(err, client.ErrNotFound) || errors.Is(err, client.ErrForbidden) {
 			return nil
 		}
 		if err != nil {

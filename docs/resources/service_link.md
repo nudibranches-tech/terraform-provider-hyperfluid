@@ -29,7 +29,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "http", port = 8080, app_protocol = "http", primary = true },
   ]
   resource_tier = "nano"
 }
@@ -68,7 +68,7 @@ resource "hyperfluid_container_app" "api" {
     {
       name         = "http"
       port         = 8080
-      app_protocol = "HTTP"
+      app_protocol = "http"
       primary      = true
     },
     {

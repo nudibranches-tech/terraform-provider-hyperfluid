@@ -201,8 +201,8 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 						"app_protocol": schema.StringAttribute{
 							Optional: true, Computed: true,
 							MarkdownDescription: "L7 protocol, for a port the platform ingress should route. " +
-								"`HTTP` is the only value the ingress has a listener for today.",
-							Validators: []validator.String{stringvalidator.OneOf("HTTP")},
+								"`http` is the only value the ingress has a listener for today.",
+							Validators: []validator.String{stringvalidator.OneOf(string(console.Http))},
 						},
 					},
 				},

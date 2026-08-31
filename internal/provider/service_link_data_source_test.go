@@ -20,7 +20,7 @@ func TestAccServiceLinkDataSource(t *testing.T) {
 				Config: testAccServiceLinkDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.hyperfluid_service_link.found", "consumer.kind", "ContainerApp"),
-					resource.TestCheckResourceAttr("data.hyperfluid_service_link.found", "target.kind", "ManagedPostgreSQL"),
+					resource.TestCheckResourceAttr("data.hyperfluid_service_link.found", "target.kind", "HfKeyValueCache"),
 					resource.TestCheckResourceAttr("data.hyperfluid_service_link.found", "ready", "true"),
 					resource.TestCheckResourceAttrSet("data.hyperfluid_service_link.found", "ports.0.port"),
 				),
@@ -40,25 +40,24 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "http", port = 8080, app_protocol = "http", primary = true },
   ]
   resource_tier    = "nano"
 }
 
-resource "hyperfluid_managed_postgresql" "db" {
-  env           = data.hyperfluid_env.default.id
-  name          = "tf-acc-sl-ds-db"
-  database_name = "app"
+resource "hyperfluid_key_value_cache" "cache" {
+  env  = data.hyperfluid_env.default.id
+  name = "tf-acc-sl-ds-cache"
 }
 
-resource "hyperfluid_service_link" "web_to_db" {
+resource "hyperfluid_service_link" "web_to_cache" {
   env      = data.hyperfluid_env.default.id
   consumer = { kind = "ContainerApp", name = hyperfluid_container_app.web.slug }
-  target   = { kind = "ManagedPostgreSQL", name = hyperfluid_managed_postgresql.db.slug }
+  target   = { kind = "HfKeyValueCache", name = hyperfluid_key_value_cache.cache.slug }
 }
 
 data "hyperfluid_service_link" "found" {
   env  = data.hyperfluid_env.default.id
-  name = hyperfluid_service_link.web_to_db.name
+  name = hyperfluid_service_link.web_to_cache.name
 }
 `

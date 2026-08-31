@@ -370,6 +370,11 @@ func (r *serviceLinkResource) ImportState(ctx context.Context, req resource.Impo
 func (r *serviceLinkResource) waitReady(ctx context.Context, env, name string) (*console.ServiceLinkResponse, error) {
 	return waitForReady(ctx, serviceLinkWaitTimeout, func() (*console.ServiceLinkResponse, bool, error) {
 		link, err := r.p.API.FindServiceLink(ctx, r.p.OrgID, env, name)
+		// The listing is served from a read model the operator projects, which
+		// trails the create by a moment — absent means "not yet", not "gone".
+		if errors.Is(err, client.ErrNotFound) {
+			return nil, false, nil
+		}
 		if err != nil {
 			return nil, false, err
 		}

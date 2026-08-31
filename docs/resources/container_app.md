@@ -23,7 +23,7 @@ resource "hyperfluid_container_app" "web" {
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
-    { name = "http", port = 8080, app_protocol = "HTTP", primary = true },
+    { name = "http", port = 8080, app_protocol = "http", primary = true },
   ]
   replicas      = 1
   resource_tier = "nano"
@@ -87,7 +87,7 @@ Required:
 
 Optional:
 
-- `app_protocol` (String) L7 protocol, for a port the platform ingress should route. `HTTP` is the only value the ingress has a listener for today.
+- `app_protocol` (String) L7 protocol, for a port the platform ingress should route. `http` is the only value the ingress has a listener for today.
 - `primary` (Boolean) Marks the port public routes and the default health probe target. Optional when the app declares a single port with an `app_protocol`.
 - `protocol` (String) L4 protocol: `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.
 
