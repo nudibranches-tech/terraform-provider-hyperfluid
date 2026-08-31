@@ -6,9 +6,11 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -42,13 +44,61 @@ func parseUUID(field, s string) (openapi_types.UUID, error) {
 	return u, nil
 }
 
+// forbiddenMessage renders a 403 the way hfctl does: the console phrases the
+// body as "Missing permission '<key>' [on '<scope>']", and the caller usually
+// cannot grant it themselves, so the permission and the person to ask are what
+// matter. Falls back to the raw body for a 403 that is not that shape — a
+// governance decision, say.
+func forbiddenMessage(body []byte) string {
+	var parsed struct {
+		Message            string `json:"message"`
+		RequiredPermission string `json:"required_permission"`
+	}
+	if err := json.Unmarshal(body, &parsed); err != nil || parsed.Message == "" {
+		return string(bytes.TrimSpace(body))
+	}
+	permission := parsed.RequiredPermission
+	if permission == "" {
+		if key, _ := quoted(parsed.Message); key != "" {
+			permission = key
+		}
+	}
+	if permission == "" {
+		return parsed.Message
+	}
+	// The scope is the second quoted segment, absent for an org-wide denial.
+	scope := ""
+	if _, rest := quoted(parsed.Message); rest != "" {
+		scope, _ = quoted(rest)
+	}
+	if scope != "" {
+		return fmt.Sprintf("missing permission %q in %q; ask an organization administrator to grant it", permission, scope)
+	}
+	return fmt.Sprintf("missing permission %q; ask an organization administrator to grant it", permission)
+}
+
+// quoted returns the first single-quoted segment of s and the remainder after
+// its closing quote.
+func quoted(s string) (string, string) {
+	start := strings.Index(s, "'")
+	if start < 0 {
+		return "", ""
+	}
+	rest := s[start+1:]
+	end := strings.Index(rest, "'")
+	if end < 0 {
+		return "", ""
+	}
+	return rest[:end], rest[end+1:]
+}
+
 // statusErr maps a response status to ErrNotFound / a body-carrying error / nil.
 func statusErr(op string, status int, body []byte) error {
 	switch {
 	case status == http.StatusNotFound:
 		return ErrNotFound
 	case status == http.StatusForbidden:
-		return fmt.Errorf("%w: %s -> 403: %s", ErrForbidden, op, bytes.TrimSpace(body))
+		return fmt.Errorf("%w: %s: %s", ErrForbidden, op, forbiddenMessage(body))
 	case status >= 400:
 		return fmt.Errorf("hyperfluid: %s -> %d: %s", op, status, bytes.TrimSpace(body))
 	default:
