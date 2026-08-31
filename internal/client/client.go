@@ -44,11 +44,11 @@ func parseUUID(field, s string) (openapi_types.UUID, error) {
 	return u, nil
 }
 
-// forbiddenMessage renders a 403 the way hfctl does: the console phrases the
-// body as "Missing permission '<key>' [on '<scope>']", and the caller usually
-// cannot grant it themselves, so the permission and the person to ask are what
-// matter. Falls back to the raw body for a 403 that is not that shape — a
-// governance decision, say.
+// forbiddenMessage renders a 403 the way hfctl does: a denial is phrased
+// "Missing permission '<key>' [on '<scope>']", and the caller usually cannot
+// grant it themselves, so the permission and the person to ask are what matter.
+// Any other 403 keeps the server's own message — a quota refusal already spells
+// out the numbers, and the spec does not declare the fields it carries them in.
 func forbiddenMessage(body []byte) string {
 	var parsed struct {
 		Message            string `json:"message"`
@@ -58,7 +58,9 @@ func forbiddenMessage(body []byte) string {
 		return string(bytes.TrimSpace(body))
 	}
 	permission := parsed.RequiredPermission
-	if permission == "" {
+	// Only mine the message when it is actually a denial: any other 403 — a quota
+	// refusal, say — may hold an apostrophe that would read as a quoted key.
+	if permission == "" && strings.HasPrefix(parsed.Message, "Missing permission") {
 		if key, _ := quoted(parsed.Message); key != "" {
 			permission = key
 		}

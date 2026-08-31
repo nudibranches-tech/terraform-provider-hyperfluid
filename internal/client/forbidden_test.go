@@ -27,10 +27,18 @@ func TestForbiddenMessage(t *testing.T) {
 			want: `missing permission "secret:read"; ask an organization administrator to grant it`,
 		},
 		{
-			// A governance decision rather than a missing grant: keep it verbatim.
-			name: "not the permission shape",
-			body: `{"message":"blocked by data policy"}`,
-			want: `blocked by data policy`,
+			// A quota refusal is also a 403. Its message already carries the numbers,
+			// and the spec declares none of the fields they also arrive in, so it has
+			// to survive verbatim.
+			name: "quota refusal keeps its numbers",
+			body: `{"message":"Quota exceeded for container_apps: using 3/3. Please upgrade your plan.","code":"QUOTA_EXCEEDED","resource_type":"container_apps","current":3,"limit":3}`,
+			want: `Quota exceeded for container_apps: using 3/3. Please upgrade your plan.`,
+		},
+		{
+			// An apostrophe must not be mistaken for a quoted permission key.
+			name: "message with an apostrophe",
+			body: `{"message":"the organization's plan does not include this feature"}`,
+			want: `the organization's plan does not include this feature`,
 		},
 		{
 			name: "not JSON at all",
