@@ -1,6 +1,6 @@
 module github.com/nudibranches-tech/terraform-provider-hyperfluid
 
-go 1.25.8
+go 1.26.0
 
 require (
 	github.com/google/uuid v1.6.0
@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	github.com/oapi-codegen/runtime v1.4.1
-	golang.org/x/oauth2 v0.36.0
+	golang.org/x/oauth2 v0.37.0
 )
 
 require (
