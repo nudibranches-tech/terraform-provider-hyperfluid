@@ -196,3 +196,40 @@ resource "hyperfluid_service_link" "bad" {
   target_ports = [{ port = 6379 }]
 }
 `
+
+// Airflow and Pipeline are consumer-only: the API accepts either as a link's
+// consumer and refuses both as its target. The provider mirrors that so naming
+// one as a target is a plan-time error rather than an apply-time 400 — and the
+// two lists must not drift back into one, which is the whole point of asserting
+// the asymmetry rather than just the contents.
+func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
+	has := func(kinds []string, kind string) bool {
+		for _, k := range kinds {
+			if k == kind {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, kind := range []string{"Airflow", "Pipeline"} {
+		if !has(serviceLinkConsumerKinds, kind) {
+			t.Errorf("%s must be accepted as a link consumer", kind)
+		}
+		if has(serviceLinkTargetKinds, kind) {
+			t.Errorf("%s must be refused as a link target — nothing connects to it", kind)
+		}
+	}
+
+	// Every target kind is also a legal consumer; the consumer set is a strict
+	// superset, not a different list.
+	for _, kind := range serviceLinkTargetKinds {
+		if !has(serviceLinkConsumerKinds, kind) {
+			t.Errorf("target kind %s is not accepted as a consumer", kind)
+		}
+	}
+	if len(serviceLinkConsumerKinds) != len(serviceLinkTargetKinds)+2 {
+		t.Errorf("consumer kinds (%d) should be the target kinds (%d) plus Airflow and Pipeline",
+			len(serviceLinkConsumerKinds), len(serviceLinkTargetKinds))
+	}
+}

@@ -148,6 +148,8 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewServiceLinkResource,
 		NewModelServingResource,
 		NewAiApiKeyResource,
+		NewAirflowResource,
+		NewAirflowConnectionResource,
 		// app_instance deferred (Marketplace).
 	}
 }
@@ -169,6 +171,8 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewModelServingDataSource,
 		NewSharedModelDataSource,
 		NewAiApiKeyDataSource,
+		NewAirflowDataSource,
+		NewAirflowConnectionDataSource,
 	}
 }
 

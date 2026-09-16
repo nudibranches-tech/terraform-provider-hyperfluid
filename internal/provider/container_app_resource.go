@@ -118,19 +118,19 @@ var wireProtocols = map[string]struct {
 	protocol    console.PortProtocol
 	appProtocol *console.AppProtocol
 }{
-	"HTTP": {protocol: console.TCP, appProtocol: ptr(console.Http)},
-	"TCP":  {protocol: console.TCP},
-	"UDP":  {protocol: console.UDP},
+	"HTTP": {protocol: console.PortProtocolTCP, appProtocol: ptr(console.AppProtocolHttp)},
+	"TCP":  {protocol: console.PortProtocolTCP},
+	"UDP":  {protocol: console.PortProtocolUDP},
 }
 
 func ptr[T any](v T) *T { return &v }
 
 // portProtocolOf collapses the API's pair back into the single kind.
 func portProtocolOf(protocol console.PortProtocol, appProtocol *console.AppProtocol) string {
-	if appProtocol != nil && *appProtocol == console.Http {
+	if appProtocol != nil && *appProtocol == console.AppProtocolHttp {
 		return "HTTP"
 	}
-	if protocol == console.UDP {
+	if protocol == console.PortProtocolUDP {
 		return "UDP"
 	}
 	return "TCP"

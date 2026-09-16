@@ -134,9 +134,9 @@ output "open_ports" {
 
 ### Required
 
-- `consumer` (Attributes) The service that gets permission to reach `target`. Changing this forces a new link. (see [below for nested schema](#nestedatt--consumer))
+- `consumer` (Attributes) The service that gets permission to reach `target`. `Airflow` and `Pipeline` are valid here and nowhere else: both reach their targets and are never reached themselves. Note an Airflow environment can also declare its own egress inline, with `hyperfluid_airflow`'s `egress.in_cluster` block. Changing this forces a new link. (see [below for nested schema](#nestedatt--consumer))
 - `env` (String) Environment id both services live in. Changing this forces a new link.
-- `target` (Attributes) The service that becomes reachable. Changing this forces a new link. (see [below for nested schema](#nestedatt--target))
+- `target` (Attributes) The service that becomes reachable. `Airflow` and `Pipeline` are refused here — nothing connects to either. Changing this forces a new link. (see [below for nested schema](#nestedatt--target))
 
 ### Optional
 
@@ -154,7 +154,7 @@ output "open_ports" {
 
 Required:
 
-- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
+- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`, `Airflow`, `Pipeline`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
 - `name` (String) The service's slug — the `slug` attribute of the resource, not its display name. Both endpoints must live in `env`. Changing this forces a new link.
 
 

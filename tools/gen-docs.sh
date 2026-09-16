@@ -7,12 +7,33 @@
 # schema ourselves through a `dev_overrides` CLI config (resolves the freshly built
 # binary locally, no `init`, no network) and feed it via `--providers-schema`.
 #
-# Requires: a `terraform`/`tofu` binary in PATH (set TF_BIN to override). Invoked by
-# `go generate` (see tools.go) and runnable directly.
+# Requires a Terraform CLI in PATH: either `terraform` or `tofu` works, and whichever
+# is installed is used (terraform first). Set TF_BIN to pin a specific binary.
+# Invoked by `go generate` (see tools.go) and runnable directly.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TF_BIN="${TF_BIN:-terraform}"
+
+# Either CLI can dump a provider schema, so use whichever one this machine has
+# (terraform first, tofu second) instead of insisting on a single name. TF_BIN
+# still wins when it is set, so CI can pin an exact binary.
+if [[ -z "${TF_BIN:-}" ]]; then
+  for candidate in terraform tofu; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      TF_BIN="$candidate"
+      break
+    fi
+  done
+fi
+if [[ -z "${TF_BIN:-}" ]]; then
+  echo "gen-docs: no terraform or tofu binary in PATH; install one or set TF_BIN" >&2
+  exit 1
+fi
+if ! command -v "$TF_BIN" >/dev/null 2>&1; then
+  echo "gen-docs: TF_BIN=$TF_BIN is not executable" >&2
+  exit 1
+fi
+echo "gen-docs: extracting the provider schema with $TF_BIN"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -44,9 +65,23 @@ EOF
 
 TF_CLI_CONFIG_FILE="$TMP/dev.tfrc" "$TF_BIN" -chdir="$TMP/cfg" providers schema -json > "$TMP/schema.json"
 
+# Not every CLI reports every schema flag, and what it drops silently disappears
+# from the rendered page. OpenTofu 1.10 has no write-only attributes, so its
+# `providers schema -json` omits `write_only` and tfplugindocs cannot annotate
+# those arguments — CI renders with Terraform, so the result would come back as
+# unexplained drift. Detect the loss instead of assuming it: the provider source
+# is the source of truth for what should have been reported.
+if grep -rqE '\bWriteOnly:[[:space:]]*true' "$ROOT/internal/provider" \
+  && ! grep -q '"write_only"' "$TMP/schema.json"; then
+  echo "gen-docs: WARNING: $TF_BIN does not report write-only attributes, so the" >&2
+  echo "gen-docs:          rendered docs drop their write-only annotation. CI renders" >&2
+  echo "gen-docs:          with Terraform (>= 1.11) — do not commit that difference;" >&2
+  echo "gen-docs:          re-render with terraform, or set TF_BIN to point at it." >&2
+fi
+
 # tfplugindocs only looks up the provider under the bare short name or
-# `registry.terraform.io/hashicorp/<name>`, but OpenTofu keys the schema by its own
-# host + our namespace (`registry.opentofu.org/nudibranches-tech/hyperfluid`). Remap
+# `registry.terraform.io/hashicorp/<name>`, but both CLIs key the schema by their own
+# host + our namespace (e.g. `registry.opentofu.org/nudibranches-tech/hyperfluid`). Remap
 # the single provider entry to the address tfplugindocs expects — this only affects
 # the lookup key, not the rendered docs (those use --provider-name).
 python3 - "$TMP/schema.json" <<'PY'
