@@ -9,8 +9,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	fwdatasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/defaults"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -870,4 +874,55 @@ resource "hyperfluid_airflow" "etl" {
   node_tier = "` + tier + `"
 ` + extra + `}
 `
+}
+
+// The documented defaults must be framework Defaults, not merely prose. With
+// Optional+Computed and no Default, Terraform fills a null config value from
+// prior state, so deleting `sleep_mode = true` from a configuration plans no
+// change and the environment never wakes up again.
+func TestAirflowBoolDefaultsAreDeclared(t *testing.T) {
+	resp := resourceSchema(t, NewAirflowResource())
+	ctx := t.Context()
+
+	for name, want := range map[string]bool{"sleep_mode": false, "triggerer_enabled": true} {
+		attr, ok := resp.Schema.Attributes[name].(rschema.BoolAttribute)
+		if !ok {
+			t.Fatalf("%s is not a BoolAttribute", name)
+		}
+		if attr.Default == nil {
+			t.Errorf("%s is Optional+Computed with no Default: removing it from a config "+
+				"would plan no change and strand the attribute at its prior value", name)
+			continue
+		}
+		var out defaults.BoolResponse
+		attr.Default.DefaultBool(ctx, defaults.BoolRequest{}, &out)
+		if out.PlanValue.ValueBool() != want {
+			t.Errorf("%s default = %v, want %v (the documented platform default)",
+				name, out.PlanValue.ValueBool(), want)
+		}
+	}
+}
+
+// `description = ""` must be refused at plan time: the console column is NOT
+// NULL so it stores "" verbatim, while the read maps "" back to null — which
+// fails every apply with "inconsistent result after apply".
+func TestAirflowDescriptionRejectsTheEmptyString(t *testing.T) {
+	resp := resourceSchema(t, NewAirflowResource())
+	ctx := t.Context()
+
+	attr, ok := resp.Schema.Attributes["description"].(rschema.StringAttribute)
+	if !ok {
+		t.Fatal("description is not a StringAttribute")
+	}
+	for _, v := range attr.Validators {
+		var out validator.StringResponse
+		v.ValidateString(ctx, validator.StringRequest{
+			ConfigValue: types.StringValue(""),
+			Path:        path.Root("description"),
+		}, &out)
+		if out.Diagnostics.HasError() {
+			return // refused, as it must be
+		}
+	}
+	t.Error("description accepted the empty string; it round-trips to null and breaks the apply")
 }

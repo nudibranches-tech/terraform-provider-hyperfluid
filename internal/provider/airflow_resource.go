@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -267,6 +268,15 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"triggerer_enabled": schema.BoolAttribute{
 				Optional: true, Computed: true,
+				// A framework Default is what makes removing the line mean
+				// "back to true". Without one, Terraform fills a null config
+				// value for an Optional+Computed attribute from prior state, so
+				// the plan equals the state, nothing is sent, and the attribute
+				// is stuck at whatever it was last set to — the same trap the
+				// runtime_image comment below describes, which is why that one
+				// is not Computed at all. Here the documented default is a real
+				// platform default, so declaring it is the honest fix.
+				Default: booldefault.StaticBool(true),
 				MarkdownDescription: "Whether the triggerer runs (defaults to `true`). The triggerer is what " +
 					"makes deferrable operators and sensors give their worker slot back while they wait; " +
 					"without it a deferring task stays deferred forever. Turn it off only for an " +
@@ -274,6 +284,10 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"sleep_mode": schema.BoolAttribute{
 				Optional: true, Computed: true,
+				// See triggerer_enabled: without a Default, deleting
+				// `sleep_mode = true` from a configuration plans no change and
+				// the environment never wakes up again.
+				Default: booldefault.StaticBool(false),
 				MarkdownDescription: "Scale every component to zero (defaults to `false`). A sleeping " +
 					"environment fires no schedules and serves no UI, but keeps its metadata database, its " +
 					"DAG bucket and its connections, so waking it up resumes where it left off. Reported " +
@@ -301,9 +315,16 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Validators: []validator.Int64{int64validator.Between(1, airflowMaxTaskQuotaPods)},
 			},
 			"description": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "Free-form description. Stored by the console, not in the environment itself.",
-				Validators:          []validator.String{stringvalidator.LengthAtMost(500)},
+				Optional: true,
+				MarkdownDescription: "Free-form description. Stored by the console, not in the environment " +
+					"itself. Omit it for no description — the empty string is not a value here.",
+				// LengthBetween, not LengthAtMost: the console's column is NOT
+				// NULL, so it stores "" verbatim and the read maps "" back to
+				// null. An explicit `description = ""` would therefore fail
+				// every apply with "inconsistent result after apply". Omission
+				// is the only way to say "none", so the empty string is refused
+				// at plan time instead.
+				Validators: []validator.String{stringvalidator.LengthBetween(1, 500)},
 			},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,

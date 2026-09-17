@@ -350,7 +350,19 @@ func (r *airflowConnectionResource) Create(ctx context.Context, req resource.Cre
 		// refresh it and `destroy` cannot remove it, and the only ways out are
 		// an import or deleting it by hand. With the id stored, the next
 		// `apply` reconciles it and `destroy` cleans it up.
-		if partial, d := airflowConnectionToModel(ctx, airflowID, created); !d.HasError() {
+		partial, d := airflowConnectionToModel(ctx, airflowID, created)
+		if d.HasError() {
+			// Mapping failed, so there is no model to store — but the object
+			// still exists and holds a live credential on tenant data. Fall
+			// back to the identifier alone rather than silently storing
+			// nothing, which is the orphan this whole branch exists to avoid,
+			// and surface why the full state could not be written.
+			resp.Diagnostics.Append(d...)
+			resp.Diagnostics.Append(resp.State.SetAttribute(
+				ctx, path.Root("id"), airflowID+"/"+created.Name)...)
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("airflow"), airflowID)...)
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("conn_id"), connID)...)
+		} else {
 			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
 		}
 		resp.Diagnostics.AddError(
