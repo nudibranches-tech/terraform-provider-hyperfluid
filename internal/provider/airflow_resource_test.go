@@ -5,10 +5,13 @@ package provider
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	fwdatasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
@@ -925,4 +928,286 @@ func TestAirflowDescriptionRejectsTheEmptyString(t *testing.T) {
 		}
 	}
 	t.Error("description accepted the empty string; it round-trips to null and breaks the apply")
+}
+
+// ── the settle gate ───────────────────────────────────────────────────────
+
+// TestAirflowSettled is the regression for a wait that returned on a status the
+// operator had not looked at yet. After a PATCH the CR keeps the phase it
+// reached under the PREVIOUS declaration, so `Running` is what the first poll
+// reads back — and settling on it makes the whole wait a no-op: the apply
+// reports success while the new components crash-loop, and nothing else catches
+// it because every non-computed attribute reads back from `spec`.
+func TestAirflowSettled(t *testing.T) {
+	cases := []struct {
+		name        string
+		phase       string
+		observed    bool
+		wantSettled bool
+		wantErr     bool
+	}{
+		{"running and observed", airflowPhaseRunning, true, true, false},
+		// The finding itself: `Running` left over from before the patch.
+		{"running but unobserved", airflowPhaseRunning, false, false, false},
+		{"sleeping and observed", airflowPhaseSleeping, true, true, false},
+		{"sleeping but unobserved", airflowPhaseSleeping, false, false, false},
+		{"error and observed", airflowPhaseError, true, false, true},
+		// A stale `Error` must not abort either: the patch may be the very fix
+		// for it, and the new declaration may never reach that state.
+		{"error but unobserved", airflowPhaseError, false, false, false},
+		{"provisioning and observed", "Provisioning", true, false, false},
+		{"unknown and observed", "Unknown", true, false, false},
+		// What a create's first polls see: an object with no status at all.
+		{"pending on create", "Pending", false, false, false},
+		{"no status at all on create", "", false, false, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			settled, err := airflowSettled(&console.AirflowCrdSpecResponse{
+				Status: console.AirflowCrdStatusResponse{
+					Phase:        tc.phase,
+					SpecObserved: tc.observed,
+				},
+			})
+			if settled != tc.wantSettled {
+				t.Errorf("settled = %v, want %v", settled, tc.wantSettled)
+			}
+			if (err != nil) != tc.wantErr {
+				t.Errorf("err = %v, want error = %v", err, tc.wantErr)
+			}
+		})
+	}
+
+	// An observed Error aborts carrying the CR's own message — the only place
+	// the reason for a stuck provision is written down.
+	message := "metadata database migration failed: relation already exists"
+	_, err := airflowSettled(&console.AirflowCrdSpecResponse{
+		Status: console.AirflowCrdStatusResponse{
+			Phase: airflowPhaseError, SpecObserved: true, Message: &message,
+		},
+	})
+	if err == nil {
+		t.Fatal("an observed Error must abort the wait")
+	}
+	if !strings.Contains(err.Error(), message) {
+		t.Errorf("error = %q, want it to carry the status message", err)
+	}
+
+	// An Error with no message still says something usable.
+	_, err = airflowSettled(&console.AirflowCrdSpecResponse{
+		Status: console.AirflowCrdStatusResponse{Phase: airflowPhaseError, SpecObserved: true},
+	})
+	if err == nil || !strings.Contains(err.Error(), "no status message") {
+		t.Errorf("error = %v, want it to say no message was reported", err)
+	}
+
+	// Defensive: a nil projection polls rather than panicking.
+	if settled, err := airflowSettled(nil); settled || err != nil {
+		t.Errorf("airflowSettled(nil) = (%v, %v), want (false, nil)", settled, err)
+	}
+}
+
+// ── the settled CRD is reused, not re-fetched ─────────────────────────────
+
+func airflowInstanceFixture() *console.AirflowResponse {
+	return &console.AirflowResponse{
+		Id:       uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+		HarborId: uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		Name:     "etl",
+		Slug:     "etl",
+		Tags:     []string{},
+	}
+}
+
+// TestAirflowReadModelUsesTheSettledCrd pins the round-trip away: waitReady
+// already holds the projection it settled on, so reading the same object again
+// is both an extra call on every create and update and a window in which the
+// two reads disagree — the state written would then be one the wait never
+// approved. The stand-in read below returns a DIFFERENT phase on purpose, so a
+// re-fetch cannot pass this test by accident.
+func TestAirflowReadModelUsesTheSettledCrd(t *testing.T) {
+	ctx := t.Context()
+	id := "11111111-1111-1111-1111-111111111111"
+
+	settled := &console.AirflowCrdSpecResponse{
+		TriggererEnabled: true,
+		Status: console.AirflowCrdStatusResponse{
+			Phase:                airflowPhaseRunning,
+			SpecObserved:         true,
+			UnresolvedAllowlists: []string{},
+		},
+	}
+	refetched := &console.AirflowCrdSpecResponse{
+		Status: console.AirflowCrdStatusResponse{
+			Phase:                airflowPhaseError,
+			SpecObserved:         true,
+			UnresolvedAllowlists: []string{},
+		},
+	}
+
+	instanceCalls, crdCalls := 0, 0
+	getInstance := func() (*console.AirflowResponse, error) {
+		instanceCalls++
+		return airflowInstanceFixture(), nil
+	}
+	getCrd := func() (*console.AirflowCrdSpecResponse, error) {
+		crdCalls++
+		return refetched, nil
+	}
+
+	model, err := airflowReadModel(ctx, id, types.StringNull(), settled, getInstance, getCrd)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	if crdCalls != 0 {
+		t.Errorf("CRD reads = %d, want 0: the settled projection was handed in", crdCalls)
+	}
+	if instanceCalls != 1 {
+		t.Errorf("instance reads = %d, want 1", instanceCalls)
+	}
+	if got := model.Phase.ValueString(); got != airflowPhaseRunning {
+		t.Errorf("phase = %q, want the settled projection's %q", got, airflowPhaseRunning)
+	}
+
+	// Without one — a refresh, or a wait that failed and wants the freshest
+	// view — the CRD is read exactly once.
+	instanceCalls, crdCalls = 0, 0
+	model, err = airflowReadModel(ctx, id, types.StringNull(), nil, getInstance, getCrd)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	if crdCalls != 1 || instanceCalls != 1 {
+		t.Errorf("reads = %d instance / %d CRD, want 1 each", instanceCalls, crdCalls)
+	}
+	if got := model.Phase.ValueString(); got != airflowPhaseError {
+		t.Errorf("phase = %q, want the freshly read %q", got, airflowPhaseError)
+	}
+}
+
+// ── the empty egress block, at both moments it can be judged ──────────────
+
+func TestAirflowEgressVerdictOf(t *testing.T) {
+	ctx := t.Context()
+
+	empty, d := types.ObjectValue(airflowEgressAttrTypes(), map[string]attr.Value{
+		"fqdns":      types.SetNull(types.StringType),
+		"in_cluster": types.SetNull(airflowInClusterLinkType()),
+		"allowlists": types.SetNull(types.StringType),
+	})
+	if d.HasError() {
+		t.Fatalf("building the empty block: %v", d.Errors())
+	}
+	// An unknown collection FIRST and a real grant after it: scanning has to
+	// look at all three, or the block reads as undecidable when it plainly
+	// grants something.
+	unknownThenGrant, d := types.ObjectValue(airflowEgressAttrTypes(), map[string]attr.Value{
+		"fqdns":      types.SetUnknown(types.StringType),
+		"in_cluster": types.SetNull(airflowInClusterLinkType()),
+		"allowlists": func() types.Set {
+			v, d := types.SetValueFrom(ctx, types.StringType, []string{"shared-apis"})
+			if d.HasError() {
+				t.Fatalf("building allowlists: %v", d.Errors())
+			}
+			return v
+		}(),
+	})
+	if d.HasError() {
+		t.Fatalf("building the mixed block: %v", d.Errors())
+	}
+	unknownOnly, d := types.ObjectValue(airflowEgressAttrTypes(), map[string]attr.Value{
+		"fqdns":      types.SetNull(types.StringType),
+		"in_cluster": types.SetNull(airflowInClusterLinkType()),
+		"allowlists": types.SetUnknown(types.StringType),
+	})
+	if d.HasError() {
+		t.Fatalf("building the unknown block: %v", d.Errors())
+	}
+	// An explicitly empty collection is not a grant either.
+	explicitlyEmpty, d := types.ObjectValue(airflowEgressAttrTypes(), map[string]attr.Value{
+		"fqdns":      types.SetValueMust(types.StringType, nil),
+		"in_cluster": types.SetNull(airflowInClusterLinkType()),
+		"allowlists": types.SetNull(types.StringType),
+	})
+	if d.HasError() {
+		t.Fatalf("building the explicitly empty block: %v", d.Errors())
+	}
+
+	cases := []struct {
+		name   string
+		egress types.Object
+		want   airflowEgressVerdict
+	}{
+		{"no block", types.ObjectNull(airflowEgressAttrTypes()), airflowEgressAbsent},
+		{"whole block unknown", types.ObjectUnknown(airflowEgressAttrTypes()), airflowEgressUndecidable},
+		{"a real grant", airflowEgressObject(t, []string{"api.example.com"}, nil, nil), airflowEgressGranting},
+		{"unknown first, grant after", unknownThenGrant, airflowEgressGranting},
+		{"nothing known to grant", unknownOnly, airflowEgressUndecidable},
+		{"every collection absent", empty, airflowEgressEmpty},
+		{"an empty collection is not a grant", explicitlyEmpty, airflowEgressEmpty},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, d := airflowEgressVerdictOf(ctx, tc.egress)
+			if d.HasError() {
+				t.Fatalf("verdict: %v", d.Errors())
+			}
+			if got != tc.want {
+				t.Errorf("verdict = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+// TestAirflowEmptyEgressIsCaughtAtApply covers what ValidateConfig cannot: an
+// `egress` whose grants come from another resource's computed attribute is
+// unknown at plan time and only resolves — to an empty set — during the apply.
+// Left alone it reaches the API, which stores nothing, and Terraform ends the
+// apply on "Provider produced inconsistent result after apply: .egress ... but
+// now null", naming no cause and (on a create) after the environment already
+// exists.
+func TestAirflowEmptyEgressIsCaughtAtApply(t *testing.T) {
+	ctx := t.Context()
+	r := &airflowResource{}
+
+	resolvedEmpty, d := types.ObjectValue(airflowEgressAttrTypes(), map[string]attr.Value{
+		"fqdns":      types.SetNull(types.StringType),
+		"in_cluster": types.SetNull(airflowInClusterLinkType()),
+		"allowlists": types.SetValueMust(types.StringType, nil), // the computed set, now known and empty
+	})
+	if d.HasError() {
+		t.Fatalf("building the resolved block: %v", d.Errors())
+	}
+
+	var diags diag.Diagnostics
+	if r.checkEgressGrants(ctx, resolvedEmpty, &diags) {
+		t.Fatal("an egress block that resolved to no grant at all must stop the apply")
+	}
+	if !diags.HasError() {
+		t.Fatal("stopping the apply without a diagnostic explains nothing")
+	}
+	detail := diags.Errors()[0].Detail()
+	for _, want := range []string{"egress", "plan time", "fqdns"} {
+		if !strings.Contains(detail, want) {
+			t.Errorf("detail = %q, want it to mention %q", detail, want)
+		}
+	}
+	if got := diags.Errors()[0].Summary(); got != "Empty egress block" {
+		t.Errorf("summary = %q, want the same summary ValidateConfig uses", got)
+	}
+
+	// Everything else goes through untouched, diagnostics clean.
+	for name, egress := range map[string]types.Object{
+		"no block":     types.ObjectNull(airflowEgressAttrTypes()),
+		"a real grant": airflowEgressObject(t, []string{"api.example.com"}, nil, nil),
+	} {
+		t.Run(name, func(t *testing.T) {
+			var diags diag.Diagnostics
+			if !r.checkEgressGrants(ctx, egress, &diags) {
+				t.Errorf("the apply was stopped: %v", diags)
+			}
+			if diags.HasError() {
+				t.Errorf("diagnostics = %v, want none", diags)
+			}
+		})
+	}
 }

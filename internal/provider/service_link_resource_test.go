@@ -202,17 +202,22 @@ resource "hyperfluid_service_link" "bad" {
 // one as a target is a plan-time error rather than an apply-time 400 — and the
 // two lists must not drift back into one, which is the whole point of asserting
 // the asymmetry rather than just the contents.
+//
+// Both sides are also checked against the generated enum, so a kind that is no
+// longer on the wire fails here rather than silently rejecting a value the API
+// would have taken (a renamed or dropped kind breaks the build instead, since
+// the lists are spelled with the generated constants).
 func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
-	has := func(kinds []string, kind string) bool {
+	has := func(kinds []string, kind console.ServiceLinkKind) bool {
 		for _, k := range kinds {
-			if k == kind {
+			if k == string(kind) {
 				return true
 			}
 		}
 		return false
 	}
 
-	for _, kind := range []string{"Airflow", "Pipeline"} {
+	for _, kind := range []console.ServiceLinkKind{console.ServiceLinkKindAirflow, console.ServiceLinkKindPipeline} {
 		if !has(serviceLinkConsumerKinds, kind) {
 			t.Errorf("%s must be accepted as a link consumer", kind)
 		}
@@ -224,12 +229,21 @@ func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
 	// Every target kind is also a legal consumer; the consumer set is a strict
 	// superset, not a different list.
 	for _, kind := range serviceLinkTargetKinds {
-		if !has(serviceLinkConsumerKinds, kind) {
+		if !has(serviceLinkConsumerKinds, console.ServiceLinkKind(kind)) {
 			t.Errorf("target kind %s is not accepted as a consumer", kind)
 		}
 	}
 	if len(serviceLinkConsumerKinds) != len(serviceLinkTargetKinds)+2 {
 		t.Errorf("consumer kinds (%d) should be the target kinds (%d) plus Airflow and Pipeline",
 			len(serviceLinkConsumerKinds), len(serviceLinkTargetKinds))
+	}
+
+	// Every kind either side validates against is a value the API accepts.
+	for _, kinds := range [][]string{serviceLinkTargetKinds, serviceLinkConsumerKinds} {
+		for _, kind := range kinds {
+			if !console.ServiceLinkKind(kind).Valid() {
+				t.Errorf("link kind %q is not a value the API accepts", kind)
+			}
+		}
 	}
 }

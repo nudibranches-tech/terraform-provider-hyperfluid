@@ -112,7 +112,7 @@ output "dag_bucket" {
 
 ~> **The map is replaced wholesale, not merged**, and removing it restores every default. Settings the platform owns — the executor, the auth manager, the execution API, the metadata database, remote logging and the secrets backend — are refused with a 400 naming them, because overriding one would either leak a platform secret or detach the environment from the platform that runs it.
 - `dag_bucket_ref` (String) Name of an existing `hyperfluid_bucket` in the same harbor to deliver DAGs through. Omit it and the platform provisions `<name>-airflow`; either way the bucket actually in use is reported as `dag_bucket`. Create-only: changing it forces a new environment.
-- `description` (String) Free-form description. Stored by the console, not in the environment itself.
+- `description` (String) Free-form description. Stored by the console, not in the environment itself. Omit it for no description — the empty string is not a value here.
 - `egress` (Attributes) Network egress the environment's task pods are granted **on top of** the platform baseline (execution API, object storage, Bifrost, DNS). The baseline is not editable and is never reported here.
 
 ~> **The block is replaced wholesale, not merged.** Whatever it contains is the complete set of extra grants; removing the block revokes all of them and leaves the environment on the baseline alone. (see [below for nested schema](#nestedatt--egress))

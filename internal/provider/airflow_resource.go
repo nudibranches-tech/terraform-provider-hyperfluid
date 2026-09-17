@@ -455,6 +455,14 @@ func (r *airflowResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	// ValidateConfig makes the same judgement at plan time, but it cannot make
+	// it about a grant that was still unknown then; this is where that value is
+	// finally a value. Before the create, so an environment is never built from
+	// a declaration that cannot round-trip.
+	if !r.checkEgressGrants(ctx, plan.Egress, &resp.Diagnostics) {
+		return
+	}
+
 	body, d := airflowCreateBody(ctx, plan)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
@@ -468,7 +476,8 @@ func (r *airflowResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 	id := created.Id.String()
 
-	if err := r.waitReady(ctx, id); err != nil {
+	settled, err := r.waitReady(ctx, id)
+	if err != nil {
 		// The environment EXISTS from here on: only the wait failed. Store what
 		// we can read before returning the error, so state knows about it — a
 		// bare `return` leaves an environment (with its metadata PostgreSQL and
@@ -476,7 +485,9 @@ func (r *airflowResource) Create(ctx context.Context, req resource.CreateRequest
 		// refresh. Provisioning is the slow part here, so a wait that times out
 		// on a healthy environment is the likely case, and it must not cost the
 		// user a hand-cleanup.
-		if partial, readErr := r.readInto(ctx, id, plan.NodeTier); readErr == nil {
+		// nil, not the wait's last projection: the wait did NOT approve it, so
+		// the freshest read available is the honest thing to store here.
+		if partial, readErr := r.readInto(ctx, id, plan.NodeTier, nil); readErr == nil {
 			resp.Diagnostics.Append(resp.State.Set(ctx, partial)...)
 		} else {
 			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
@@ -487,7 +498,7 @@ func (r *airflowResource) Create(ctx context.Context, req resource.CreateRequest
 				"orphaned: re-apply once it settles, or run `terraform destroy` to remove it.")
 		return
 	}
-	state, err := r.readInto(ctx, id, plan.NodeTier)
+	state, err := r.readInto(ctx, id, plan.NodeTier, settled)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read Airflow environment after create", err.Error())
 		return
@@ -495,43 +506,118 @@ func (r *airflowResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-// ValidateConfig rejects an `egress` block that grants nothing, at plan time.
-// It is not a stylistic objection: the API treats an empty grant set as no
-// grant set at all and stores nothing, so the block would come back absent and
-// the apply would fail as an inconsistent result — with no hint that the empty
-// block was the cause.
+// ValidateConfig rejects an `egress` block that grants nothing, as early as the
+// block can be judged. It is not a stylistic objection: the API treats an empty
+// grant set as no grant set at all and stores nothing, so the block reads back
+// absent and the apply fails as an inconsistent result — with no hint that the
+// empty block was the cause.
+//
+// Plan time is as early as that is possible only when the grants are literals.
+// `allowlists = <a computed set of another resource>` is unknown here, and an
+// unknown collection is not an absent one — judging it now would reject a
+// configuration that is going to be perfectly good. Create and Update therefore
+// repeat the check on the resolved plan, which is the first moment such a value
+// is a value; see checkEgressGrants.
 func (r *airflowResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var cfg airflowModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if cfg.Egress.IsNull() || cfg.Egress.IsUnknown() {
+	verdict, d := airflowEgressVerdictOf(ctx, cfg.Egress)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() || verdict != airflowEgressEmpty {
 		return
+	}
+	summary, detail := airflowEmptyEgressDiagnostic(false)
+	resp.Diagnostics.AddAttributeError(path.Root("egress"), summary, detail)
+}
+
+// checkEgressGrants is the apply-time half of the empty-block rule: it reports
+// false, having added the diagnostic, when the resolved plan's `egress` block
+// grants nothing. Terraform resolves every dependency before calling Create or
+// Update, so a collection that was unknown at plan time is known here — and an
+// `egress` whose only grant resolved to an empty set is exactly the case
+// ValidateConfig had to let through.
+//
+// Catching it here is what turns Terraform's own "Provider produced inconsistent
+// result after apply: .egress: was cty.ObjectVal(...), but now null" — emitted
+// after the environment has already been created, and naming no cause — into a
+// diagnostic that names the block and stops before writing anything.
+func (r *airflowResource) checkEgressGrants(ctx context.Context, egress types.Object, diags *diag.Diagnostics) bool {
+	verdict, d := airflowEgressVerdictOf(ctx, egress)
+	diags.Append(d...)
+	if diags.HasError() {
+		return false
+	}
+	if verdict != airflowEgressEmpty {
+		return true
+	}
+	summary, detail := airflowEmptyEgressDiagnostic(true)
+	diags.AddAttributeError(path.Root("egress"), summary, detail)
+	return false
+}
+
+// airflowEgressVerdict is what one `egress` object says about its grants.
+type airflowEgressVerdict int
+
+const (
+	// airflowEgressAbsent: no block at all — the platform baseline, always fine.
+	airflowEgressAbsent airflowEgressVerdict = iota
+	// airflowEgressGranting: at least one collection is known and non-empty.
+	airflowEgressGranting
+	// airflowEgressEmpty: every collection is known, and every one is empty.
+	airflowEgressEmpty
+	// airflowEgressUndecidable: nothing grants yet, but a collection is still
+	// unknown and may well grant once it resolves.
+	airflowEgressUndecidable
+)
+
+// airflowEgressVerdictOf classifies an `egress` object. It looks at all three
+// collections before deciding: stopping at the first unknown one would let a
+// block that is unknown in one place and empty in the other two read the same
+// as a block that genuinely grants something.
+func airflowEgressVerdictOf(ctx context.Context, obj types.Object) (airflowEgressVerdict, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	if obj.IsNull() {
+		return airflowEgressAbsent, diags
+	}
+	if obj.IsUnknown() {
+		return airflowEgressUndecidable, diags
 	}
 	var egress airflowEgressModel
-	resp.Diagnostics.Append(cfg.Egress.As(ctx, &egress, basetypes.ObjectAsOptions{})...)
-	if resp.Diagnostics.HasError() {
-		return
+	diags.Append(obj.As(ctx, &egress, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return airflowEgressUndecidable, diags
 	}
-	// A collection assigned from another resource's attribute is unknown until
-	// that resource exists, and an unknown grant is not an absent one — judging
-	// it now would reject a perfectly good configuration.
+	undecidable := false
 	for _, set := range []types.Set{egress.Fqdns, egress.InCluster, egress.Allowlists} {
-		if set.IsUnknown() {
-			return
-		}
-		if !set.IsNull() && len(set.Elements()) > 0 {
-			return
+		switch {
+		case set.IsUnknown():
+			undecidable = true
+		case !set.IsNull() && len(set.Elements()) > 0:
+			return airflowEgressGranting, diags
 		}
 	}
-	resp.Diagnostics.AddAttributeError(
-		path.Root("egress"),
-		"Empty egress block",
-		"The egress block names no grant. An empty grant set and no grant set mean the same thing "+
-			"to the platform — baseline egress only — so remove the whole block instead of leaving "+
-			"it empty, or give it at least one of fqdns, in_cluster or allowlists.",
-	)
+	if undecidable {
+		return airflowEgressUndecidable, diags
+	}
+	return airflowEgressEmpty, diags
+}
+
+// airflowEmptyEgressDiagnostic explains a block that grants nothing. atApply
+// adds why the objection arrives this late, which is the difference between a
+// message that reads as a provider bug and one the user can act on.
+func airflowEmptyEgressDiagnostic(atApply bool) (summary, detail string) {
+	detail = "The egress block names no grant. An empty grant set and no grant set mean the same thing " +
+		"to the platform — baseline egress only — so remove the whole block instead of leaving " +
+		"it empty, or give it at least one of fqdns, in_cluster or allowlists."
+	if atApply {
+		detail += "\n\nThis could not be reported at plan time: the grants come from a value that was " +
+			"still unknown then — a computed attribute of another resource — and only resolved to an " +
+			"empty set during this apply. Nothing was sent to the platform."
+	}
+	return "Empty egress block", detail
 }
 
 func (r *airflowResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -540,7 +626,7 @@ func (r *airflowResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.ID.ValueString(), prior.NodeTier)
+	state, err := r.readInto(ctx, prior.ID.ValueString(), prior.NodeTier, nil)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -560,6 +646,13 @@ func (r *airflowResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Same reason as in Create, and the same failure it prevents: a grant that
+	// resolved to an empty set would clear the block, read back absent, and end
+	// the apply on an inconsistent result — after the patch had already landed.
+	if !r.checkEgressGrants(ctx, plan.Egress, &resp.Diagnostics) {
+		return
+	}
+
 	body, d := airflowPatchBody(ctx, plan, state)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
@@ -571,11 +664,12 @@ func (r *airflowResource) Update(ctx context.Context, req resource.UpdateRequest
 		resp.Diagnostics.AddError("Failed to update Airflow environment", err.Error())
 		return
 	}
-	if err := r.waitReady(ctx, id); err != nil {
+	settled, err := r.waitReady(ctx, id)
+	if err != nil {
 		resp.Diagnostics.AddError("Airflow environment did not become ready after update", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, id, plan.NodeTier)
+	newState, err := r.readInto(ctx, id, plan.NodeTier, settled)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read Airflow environment after update", err.Error())
 		return
@@ -606,40 +700,92 @@ func (r *airflowResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-// waitReady blocks until the environment reports a settled phase. `Sleeping`
-// counts: an environment created with sleep_mode never reaches `Running`, and
-// waiting for it would be a guaranteed timeout. An `Error` phase aborts
-// immediately rather than burning the whole ceiling, and either way the CR's
-// own status message is carried into the diagnostic — it is the only place the
-// reason for a stuck provision is written down.
-func (r *airflowResource) waitReady(ctx context.Context, id string) error {
-	var lastPhase, lastMessage string
-	_, err := waitForReady(ctx, airflowWaitTimeout, func() (*console.AirflowCrdSpecResponse, bool, error) {
+// waitReady blocks until the environment settles, and hands the settled CRD
+// back so the caller does not have to read the same object again. What "settled"
+// means, and why it is gated on `spec_observed`, is airflowSettled below.
+func (r *airflowResource) waitReady(ctx context.Context, id string) (*console.AirflowCrdSpecResponse, error) {
+	var last *console.AirflowCrdSpecResponse
+	settled, err := waitForReady(ctx, airflowWaitTimeout, func() (*console.AirflowCrdSpecResponse, bool, error) {
 		crd, err := r.p.API.GetAirflowCrd(ctx, r.p.OrgID, id)
 		if err != nil {
 			return nil, false, err
 		}
-		lastPhase = crd.Status.Phase
-		lastMessage = ""
-		if crd.Status.Message != nil {
-			lastMessage = *crd.Status.Message
+		last = crd
+		done, err := airflowSettled(crd)
+		if err != nil {
+			return nil, false, err
 		}
-		switch crd.Status.Phase {
-		case airflowPhaseRunning, airflowPhaseSleeping:
-			return crd, true, nil
-		case airflowPhaseError:
-			return nil, false, fmt.Errorf("the environment reported phase Error: %s", airflowOrNoMessage(lastMessage))
-		default:
-			return crd, false, nil
-		}
+		return crd, done, nil
 	})
 	if err == nil {
-		return nil
+		return settled, nil
 	}
-	if lastPhase != "" {
-		return fmt.Errorf("%w (last reported phase %q: %s)", err, lastPhase, airflowOrNoMessage(lastMessage))
+	if last != nil {
+		// A wait that ran out while the platform had still not looked at the
+		// current declaration is a different story from one that ran out on a
+		// phase published for it, and the phase alone cannot tell them apart.
+		stale := ""
+		if !last.Status.SpecObserved {
+			stale = "; the platform had not yet observed the current declaration"
+		}
+		return nil, fmt.Errorf("%w (last reported phase %q: %s%s)",
+			err, last.Status.Phase, airflowOrNoMessage(airflowStatusMessage(last)), stale)
 	}
-	return err
+	return nil, err
+}
+
+// airflowSettled reads one CRD projection for the wait: (true, nil) to stop and
+// keep it, (false, nil) to poll again, (false, err) to give up.
+//
+// `spec_observed` gates every verdict, and it is what makes the wait after an
+// Update a wait at all. A PATCH bumps the object's generation, and until the
+// operator has looked at that generation the status still describes the
+// PREVIOUS declaration: `phase` reads `Running` for the components that were
+// running before the patch. Settling on that would make the wait a no-op — the
+// apply would report success while the new components crash-loop, and because
+// every non-computed attribute reads back from `spec` and not from `status`,
+// nothing else in the apply would catch it either. The environment would then
+// simply be found in `Error` on some later refresh.
+//
+// A stale `Error` is gated for the same reason in the other direction: aborting
+// on the phase the previous declaration ended in would fail the apply on a
+// state the new declaration may never reach — the patch may be precisely the
+// fix. The first projection worth believing is the first one published for the
+// current generation.
+//
+// `spec_observed` is `status.observedGeneration == metadata.generation`, and the
+// operator stamps the generation it read onto every status it writes, so a
+// phase for the current generation always arrives with it — the gate cannot
+// deadlock on a platform that is making progress. A create has no previous
+// generation to go stale: a fresh object has no status at all, so
+// `spec_observed` is false and the wait polls, which is what it did anyway
+// while the phase read `Pending`.
+//
+// `Sleeping` settles: an environment created (or patched) with sleep_mode never
+// reaches `Running`, and waiting for it would be a guaranteed timeout. An
+// observed `Error` aborts at once rather than burning the whole 15-minute
+// ceiling, carrying the CR's own status message — the only place the reason for
+// a stuck provision is written down.
+func airflowSettled(crd *console.AirflowCrdSpecResponse) (bool, error) {
+	if crd == nil || !crd.Status.SpecObserved {
+		return false, nil
+	}
+	switch crd.Status.Phase {
+	case airflowPhaseRunning, airflowPhaseSleeping:
+		return true, nil
+	case airflowPhaseError:
+		return false, fmt.Errorf("the environment reported phase Error: %s", airflowOrNoMessage(airflowStatusMessage(crd)))
+	default:
+		return false, nil
+	}
+}
+
+// airflowStatusMessage is the CR's status message, or "" when it carries none.
+func airflowStatusMessage(crd *console.AirflowCrdSpecResponse) string {
+	if crd == nil || crd.Status.Message == nil {
+		return ""
+	}
+	return *crd.Status.Message
 }
 
 func airflowOrNoMessage(message string) string {
@@ -652,18 +798,43 @@ func airflowOrNoMessage(message string) string {
 // readInto builds the model from both views of the environment. fallbackTier is
 // used when the resolved cpu/memory do not match a known tier, so an unknown
 // catalogue row keeps whatever the configuration or prior state says instead of
-// blanking the attribute.
-func (r *airflowResource) readInto(ctx context.Context, id string, fallbackTier types.String) (airflowModel, error) {
-	instance, err := r.p.API.GetAirflow(ctx, r.p.OrgID, id)
+// blanking the attribute. settled is the CRD the caller already holds — the one
+// waitReady stopped on — or nil to read it here.
+func (r *airflowResource) readInto(ctx context.Context, id string, fallbackTier types.String, settled *console.AirflowCrdSpecResponse) (airflowModel, error) {
+	return airflowReadModel(ctx, id, fallbackTier, settled,
+		func() (*console.AirflowResponse, error) { return r.p.API.GetAirflow(ctx, r.p.OrgID, id) },
+		func() (*console.AirflowCrdSpecResponse, error) { return r.p.API.GetAirflowCrd(ctx, r.p.OrgID, id) },
+	)
+}
+
+// airflowReadModel is readInto's logic over injected reads. settled is the CRD
+// the caller already has: waitReady polls until the object settles and returns
+// the very projection it settled on, so re-fetching it here would be a second
+// round-trip on every create and update, and a window in which the two reads
+// can disagree — the write path would then store a status the wait never
+// approved. nil means there is nothing to reuse (a refresh, or a wait that
+// failed and wants the freshest view it can get).
+func airflowReadModel(
+	ctx context.Context,
+	id string,
+	fallbackTier types.String,
+	settled *console.AirflowCrdSpecResponse,
+	getInstance func() (*console.AirflowResponse, error),
+	getCrd func() (*console.AirflowCrdSpecResponse, error),
+) (airflowModel, error) {
+	instance, err := getInstance()
 	if err != nil {
 		return airflowModel{}, err
 	}
 	// sleep_mode, egress, config, the task quota and every status field exist
 	// only here. Skipping this read is what makes each plan after the first
 	// report drift on all of them.
-	crd, err := r.p.API.GetAirflowCrd(ctx, r.p.OrgID, id)
-	if err != nil {
-		return airflowModel{}, err
+	crd := settled
+	if crd == nil {
+		crd, err = getCrd()
+		if err != nil {
+			return airflowModel{}, err
+		}
 	}
 
 	var diags diag.Diagnostics

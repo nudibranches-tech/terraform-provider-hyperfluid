@@ -44482,6 +44482,7 @@
         "description": "Operator-owned runtime state read straight off the `Airflow` CR status —\nthe fields the console DB does not cache (task namespace, network mode,\npublic host) travel through here.",
         "required": [
           "phase",
+          "spec_observed",
           "unresolved_allowlists"
         ],
         "properties": {
@@ -44510,6 +44511,10 @@
           "service_account": {
             "type": "string",
             "nullable": true
+          },
+          "spec_observed": {
+            "type": "boolean",
+            "description": "`status.observedGeneration == metadata.generation`. Without it a spec\nthe operator has not looked at yet and one it has looked at and cannot\nsatisfy render identically, and a `waitReady`-style poller cannot tell\na pre-patch read of `phase`/`message` from a converged one — mirrors\n`AirflowConnectionResponse::spec_observed` for the same reason."
           },
           "task_namespace": {
             "type": "string",

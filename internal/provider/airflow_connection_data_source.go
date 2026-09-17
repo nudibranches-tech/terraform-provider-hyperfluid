@@ -53,7 +53,8 @@ func (d *airflowConnectionDataSource) Schema(_ context.Context, _ datasource.Sch
 			"airflow": schema.StringAttribute{Required: true, MarkdownDescription: "Id of the `hyperfluid_airflow` environment the connection belongs to."},
 			"conn_id": schema.StringAttribute{Required: true, MarkdownDescription: "The connection id a DAG asks Airflow for."},
 
-			"id":                     cs("Composite identifier `<airflow_id>/<name>`."),
+			"id": cs("Composite identifier `<airflow_id>/<conn_id>`, the same string the " +
+				"`hyperfluid_airflow_connection` resource exports as `id` and `terraform import` takes."),
 			"name":                   cs("The connection object's own name, which is how the API addresses it. Not the same string as `conn_id`."),
 			"managed_postgresql_ref": cs("Name of the PostgreSQL cluster the connection targets, for a database connection."),
 			"bucket_ref":             cs("Name of the bucket the connection targets, for a bucket connection."),

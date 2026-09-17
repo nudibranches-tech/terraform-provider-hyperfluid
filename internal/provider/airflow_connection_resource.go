@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -62,6 +63,33 @@ var airflowPermissionLevels = []string{
 	string(console.PermissionLevelViewer),
 	string(console.PermissionLevelEditor),
 }
+
+// The conn_id rules the platform enforces, mirrored so they land at plan time.
+// Discovering them as a 400 halfway through an apply is the wrong place: by
+// then the environment, database or bucket this connection depends on already
+// exist, and because `conn_id` forces replacement the mistake cannot be
+// corrected in place. The same three rules are written twice on the platform
+// side — `valid_conn_id` plus `is_reserved_connection_id` at the API, and a CEL
+// validation on the CRD — so a declaration that gets past these is accepted by
+// the API server too.
+var (
+	// airflowConnIDPattern is the accepted charset: ASCII letters and digits,
+	// underscore, dot and hyphen, and nothing else. A space is the usual way to
+	// trip it.
+	airflowConnIDPattern = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
+
+	// airflowConnectionReservedIDs are the ids the platform keeps for the rows
+	// it writes itself: the DAG bucket connection and the default one. The API
+	// refuses a declaration that claims one, and so does the operator when a CR
+	// is written directly, so refusing it here only moves the same answer
+	// earlier.
+	airflowConnectionReservedIDs = []string{"dag_bucket_s3", "hyperfluid_default"}
+)
+
+// airflowConnIDMaxBytes is the API's own bound, counted the same way it counts
+// it: bytes. Only ASCII gets past the charset above, so bytes and characters
+// agree for every id that can be valid in the first place.
+const airflowConnIDMaxBytes = 200
 
 func NewAirflowConnectionResource() resource.Resource {
 	return &airflowConnectionResource{}
@@ -145,12 +173,16 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			"credential would already be expiring, and it would be useless anywhere but inside the " +
 			"cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and " +
 			"no data source, that hands it out.\n\n" +
-			"Import id is `\"<airflow_id>/<conn_id>\"`.",
+			"Import id is `\"<airflow_id>/<conn_id>\"` — the same composite the resource exports as " +
+			"`id`, so an id copied out of state is a usable import id.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "Composite identifier `<airflow_id>/<name>`.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Computed: true,
+				MarkdownDescription: "Composite identifier `<airflow_id>/<conn_id>`, which is exactly the " +
+					"string `terraform import` takes — an id copied out of state imports the connection it " +
+					"came from. The connection object's own name, which is how the API addresses it, is " +
+					"exported separately as `name`.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"airflow": schema.StringAttribute{
 				Required: true,
@@ -173,8 +205,18 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 					"A `conn_id` held by a **foreign** row — one written by hand in the Airflow UI — is " +
 					"never overwritten: the connection reports phase `Collision` and is not applied, and " +
 					"taking the id over is an explicit action from the console or `hfctl`.\n\n" +
+					"The platform accepts ASCII letters, digits, `_`, `.` and `-`, up to 200 bytes of " +
+					"them, and refuses the ids it keeps for its own rows (`dag_bucket_s3`, " +
+					"`hyperfluid_default`). All three rules are checked at plan time, because a `conn_id` " +
+					"the API rejects would otherwise fail the apply after everything this connection " +
+					"depends on had already been created.\n\n" +
 					"Changing this forces a new connection.",
-				Validators:    []validator.String{stringvalidator.LengthBetween(1, 200)},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, airflowConnIDMaxBytes),
+					stringvalidator.RegexMatches(airflowConnIDPattern,
+						"must contain only ASCII letters, digits, underscore, dot or hyphen"),
+					stringvalidator.NoneOf(airflowConnectionReservedIDs...),
+				},
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"managed_postgresql_ref": schema.StringAttribute{
@@ -335,7 +377,7 @@ func (r *airflowConnectionResource) Create(ctx context.Context, req resource.Cre
 	// and re-create it into the same collision, for good. Hand the credential
 	// back and stop instead.
 	if created.ConnId != connID {
-		removalErr := r.p.API.DeleteAirflowConnection(ctx, r.p.OrgID, airflowID, created.Name)
+		removalErr := r.removeConnection(ctx, airflowID, created.Name)
 		summary, detail := airflowConnectionRenamedDiagnostic(connID, created.ConnId, created.Name, removalErr)
 		resp.Diagnostics.AddError(summary, detail)
 		return
@@ -359,7 +401,7 @@ func (r *airflowConnectionResource) Create(ctx context.Context, req resource.Cre
 			// and surface why the full state could not be written.
 			resp.Diagnostics.Append(d...)
 			resp.Diagnostics.Append(resp.State.SetAttribute(
-				ctx, path.Root("id"), airflowID+"/"+created.Name)...)
+				ctx, path.Root("id"), airflowID+"/"+connID)...)
 			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("airflow"), airflowID)...)
 			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("conn_id"), connID)...)
 		} else {
@@ -468,16 +510,39 @@ func (r *airflowConnectionResource) Delete(ctx context.Context, req resource.Del
 		resp.Diagnostics.AddError("Failed to resolve the Airflow connection", err.Error())
 		return
 	}
-	if err := r.p.API.DeleteAirflowConnection(ctx, r.p.OrgID, airflowID, name); err != nil {
+	if err := r.removeConnection(ctx, airflowID, name); err != nil {
 		resp.Diagnostics.AddError("Failed to delete Airflow connection", err.Error())
-		return
 	}
-	if err := pollGoneOn404(ctx, airflowConnectionWaitTimeout, func() error {
-		_, err := r.p.API.GetAirflowConnection(ctx, r.p.OrgID, airflowID, name)
+}
+
+// removeConnection deletes a connection and waits for it to be gone. Both
+// callers need that confirmation, and for the same reason: the credential a
+// connection minted — a scoped database role, or an object-store identity — is
+// released by the object's finalizer, so a 204 is an acceptance and not a
+// release. A finalizer that cannot finish leaves the credential live on tenant
+// data, which is precisely what the caller has to be able to tell the user
+// about. A 404 needs nothing further: it is the state the poll waits for.
+func (r *airflowConnectionResource) removeConnection(ctx context.Context, airflowID, name string) error {
+	return airflowConnectionRemove(ctx, airflowConnectionWaitTimeout,
+		func() error { return r.p.API.DeleteAirflowConnection(ctx, r.p.OrgID, airflowID, name) },
+		func() error {
+			_, err := r.p.API.GetAirflowConnection(ctx, r.p.OrgID, airflowID, name)
+			return err
+		})
+}
+
+// airflowConnectionRemove is removeConnection's logic over injected calls: ask
+// for the delete, then poll until the object is actually gone. An unconfirmed
+// removal is reported as such rather than as a success, because the caller's
+// diagnostic turns on whether the user still has something to clean up.
+func airflowConnectionRemove(ctx context.Context, timeout time.Duration, del, get func() error) error {
+	if err := del(); err != nil {
 		return err
-	}); err != nil {
-		resp.Diagnostics.AddError("Airflow connection still present after delete", err.Error())
 	}
+	if err := pollGoneOn404(ctx, timeout, get); err != nil {
+		return fmt.Errorf("the delete was accepted but the connection is still present: %w", err)
+	}
+	return nil
 }
 
 // connectionName returns the object name the API addresses this connection by.
@@ -511,11 +576,9 @@ func (r *airflowConnectionResource) ImportState(ctx context.Context, req resourc
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("conn_id"), connID)...)
 }
 
-// waitApplied blocks until the connection settles. `Parked` counts as settled:
-// a connection on a sleeping environment is deliberately not applied, and
-// waiting for it would be a guaranteed timeout. `Collision` and `Failed` abort
-// at once — both are states a retry cannot leave, and both carry the reason the
-// user needs.
+// waitApplied blocks until the connection settles on a projection the platform
+// has actually observed; airflowConnectionSettled below is what each poll
+// means by "settled", and why.
 func (r *airflowConnectionResource) waitApplied(ctx context.Context, airflowID, name string) (*console.AirflowConnectionResponse, error) {
 	var last *console.AirflowConnectionResponse
 	settled, err := waitForReady(ctx, airflowConnectionWaitTimeout, func() (*console.AirflowConnectionResponse, bool, error) {
@@ -524,20 +587,11 @@ func (r *airflowConnectionResource) waitApplied(ctx context.Context, airflowID, 
 			return nil, false, err
 		}
 		last = conn
-		switch conn.Phase {
-		case airflowConnectionPhaseReady, airflowConnectionPhaseParked:
-			return conn, true, nil
-		case airflowConnectionPhaseCollision:
-			return nil, false, fmt.Errorf(
-				"the conn_id %q is already owned by an Airflow connection row the platform does not "+
-					"manage%s, so this one was not applied; resolve the collision from the console or "+
-					"with hfctl, which can authorize an explicit takeover",
-				conn.ConnId, airflowConnectionCollisionSuffix(conn))
-		case airflowConnectionPhaseFailed:
-			return nil, false, fmt.Errorf("the connection reported phase Failed: %s", airflowConnectionDetail(conn))
-		default:
-			return conn, false, nil
+		done, err := airflowConnectionSettled(conn)
+		if err != nil {
+			return nil, false, err
 		}
+		return conn, done, nil
 	})
 	if err == nil {
 		return settled, nil
@@ -546,6 +600,51 @@ func (r *airflowConnectionResource) waitApplied(ctx context.Context, airflowID, 
 		return nil, fmt.Errorf("%w (last reported phase %q: %s)", err, last.Phase, airflowConnectionDetail(last))
 	}
 	return nil, err
+}
+
+// airflowConnectionSettled reads one projection for the wait: (true, nil) to
+// stop and keep it, (false, nil) to poll again, (false, err) to give up.
+//
+// `spec_observed` gates every verdict, and it is the whole reason the wait after
+// an Update is a wait at all. A PATCH bumps the object's generation, and until
+// the platform has looked at that generation the projection still describes the
+// PREVIOUS declaration: `phase` can read `Ready` and `source_applied` `true`
+// for a credential minted against yesterday's target or yesterday's permission
+// level. Settling on that would make the wait a no-op — the apply would
+// succeed, state would claim `Ready`, and a `Collision` or `Failed` the new
+// declaration runs into would never be reported at all. For the same reason a
+// stale `Collision` or `Failed` must not abort the wait: the first projection
+// worth believing is the first one published for the current generation.
+// `spec_observed` is exactly `status.observedGeneration == metadata.generation`,
+// and the reconciler stamps the generation it read onto every status it writes,
+// so a phase for the current generation always arrives with it — the gate
+// cannot deadlock on a platform that is making progress.
+//
+// A create has no previous generation to go stale: the object starts with no
+// status at all, so `spec_observed` is false and `phase` reads `Pending`, which
+// the old predicate would have polled through anyway. `Parked` still counts as
+// settled — a connection on a sleeping environment is deliberately not applied,
+// and waiting for it would be a guaranteed timeout — and `Collision` and
+// `Failed`, once observed, still abort at once, both being states a retry
+// cannot leave and both carrying the reason the user needs.
+func airflowConnectionSettled(conn *console.AirflowConnectionResponse) (bool, error) {
+	if !conn.SpecObserved {
+		return false, nil
+	}
+	switch conn.Phase {
+	case airflowConnectionPhaseReady, airflowConnectionPhaseParked:
+		return true, nil
+	case airflowConnectionPhaseCollision:
+		return false, fmt.Errorf(
+			"the conn_id %q is already owned by an Airflow connection row the platform does not "+
+				"manage%s, so this one was not applied; resolve the collision from the console or "+
+				"with hfctl, which can authorize an explicit takeover",
+			conn.ConnId, airflowConnectionCollisionSuffix(conn))
+	case airflowConnectionPhaseFailed:
+		return false, fmt.Errorf("the connection reported phase Failed: %s", airflowConnectionDetail(conn))
+	default:
+		return false, nil
+	}
 }
 
 // airflowConnectionExistsDiagnostic explains a conn_id that is already held by
@@ -579,13 +678,17 @@ func airflowConnectionExistsDiagnostic(connID, airflowID string, existing *conso
 // this message must not get wrong.
 func airflowConnectionRenamedDiagnostic(requested, allocated, name string, removalErr error) (summary, detail string) {
 	outcome := fmt.Sprintf("%q is not the connection that was planned, so it has not been kept: the object %q it "+
-		"was created as has been deleted, and the credential minted for it is revoked as that object "+
-		"finalizes. Nothing was written to state.", allocated, name)
+		"was created as has been deleted and confirmed gone — which is what makes the credential minted "+
+		"for it revoked, since the object's finalizer is what releases it. Nothing was written to state.",
+		allocated, name)
 	if removalErr != nil {
-		outcome = fmt.Sprintf("%q is not the connection that was planned, but removing it again failed (%s), so it "+
-			"is still live as the object %q and still holds a credential on its target. Delete it from the "+
-			"console, or with `hfctl airflow connections delete %s`. Nothing was written to state, so "+
-			"Terraform will not clean it up for you.", allocated, removalErr, name, allocated)
+		outcome = fmt.Sprintf("%q is not the connection that was planned, but handing it back did not complete "+
+			"(%s), so it may still be live as the object %q and may still hold a credential on its "+
+			"target — the credential is released by that object's finalizer, so it is revoked only once "+
+			"the object is gone. Check whether it is still there, in the console or with `hfctl airflow "+
+			"connections list <environment>`, and remove it with `hfctl airflow connections delete "+
+			"<environment> %s`. Nothing was written to state, so Terraform will not clean it up for you.",
+			allocated, removalErr, name, allocated)
 	}
 	return "The platform allocated a different conn_id",
 		fmt.Sprintf("This connection asked for conn_id %q, but the platform answered with %q: the id was "+
@@ -651,7 +754,11 @@ func airflowConnectionToModel(ctx context.Context, airflowID string, conn *conso
 	diags.Append(d...)
 
 	return airflowConnectionModel{
-		ID:                              types.StringValue(airflowID + "/" + conn.Name),
+		// The conn_id and not the object name: this string is what `terraform
+		// import` takes, and a user reaching for an import id reaches for the
+		// `id` Terraform printed. The object name stays available as `name`,
+		// which is the field the API addresses a connection by.
+		ID:                              types.StringValue(airflowID + "/" + conn.ConnId),
 		Airflow:                         types.StringValue(airflowID),
 		ConnID:                          types.StringValue(conn.ConnId),
 		ManagedPostgresqlRef:            optString(conn.ManagedPostgresqlRef),

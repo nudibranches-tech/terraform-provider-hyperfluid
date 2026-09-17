@@ -5244,6 +5244,13 @@ type AirflowCrdStatusResponse struct {
 	PublicHost     *string `json:"public_host,omitempty"`
 	ServiceAccount *string `json:"service_account,omitempty"`
 
+	// SpecObserved `status.observedGeneration == metadata.generation`. Without it a spec
+	// the operator has not looked at yet and one it has looked at and cannot
+	// satisfy render identically, and a `waitReady`-style poller cannot tell
+	// a pre-patch read of `phase`/`message` from a converged one — mirrors
+	// `AirflowConnectionResponse::spec_observed` for the same reason.
+	SpecObserved bool `json:"spec_observed"`
+
 	// TaskNamespace Dedicated namespace the environment's task pods run in.
 	TaskNamespace *string `json:"task_namespace,omitempty"`
 

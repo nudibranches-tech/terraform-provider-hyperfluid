@@ -6,7 +6,7 @@ description: |-
   A managed Airflow connection: the platform resolves the target, mints a credential scoped to it and writes the Airflow connection row itself. A DAG then asks for the conn_id and never holds a secret — nothing here puts a password in Terraform state, because no password ever reaches Terraform.
   A connection names exactly one target — managed_postgresql_ref or bucket_ref — and which one it is decides the connection's type. Both or neither is a configuration error, reported at plan time.
   ~> Object-store credentials are not exposed here. A bucket connection's credential is minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so it has no sane representation in Terraform state: by the time state were written the credential would already be expiring, and it would be useless anywhere but inside the cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and no data source, that hands it out.
-  Import id is "<airflow_id>/<conn_id>".
+  Import id is "<airflow_id>/<conn_id>" — the same composite the resource exports as id, so an id copied out of state is a usable import id.
 ---
 
 # hyperfluid_airflow_connection (Resource)
@@ -17,7 +17,7 @@ A connection names exactly one target — `managed_postgresql_ref` **or** `bucke
 
 ~> **Object-store credentials are not exposed here.** A bucket connection's credential is minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so it has no sane representation in Terraform state: by the time state were written the credential would already be expiring, and it would be useless anywhere but inside the cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and no data source, that hands it out.
 
-Import id is `"<airflow_id>/<conn_id>"`.
+Import id is `"<airflow_id>/<conn_id>"` — the same composite the resource exports as `id`, so an id copied out of state is a usable import id.
 
 ## Example Usage
 
@@ -103,6 +103,8 @@ A `conn_id` another **managed** connection in the same environment already holds
 
 A `conn_id` held by a **foreign** row — one written by hand in the Airflow UI — is never overwritten: the connection reports phase `Collision` and is not applied, and taking the id over is an explicit action from the console or `hfctl`.
 
+The platform accepts ASCII letters, digits, `_`, `.` and `-`, up to 200 bytes of them, and refuses the ids it keeps for its own rows (`dag_bucket_s3`, `hyperfluid_default`). All three rules are checked at plan time, because a `conn_id` the API rejects would otherwise fail the apply after everything this connection depends on had already been created.
+
 Changing this forces a new connection.
 
 ### Optional
@@ -119,7 +121,7 @@ Changing this forces a new connection.
 - `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
 - `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`, and where the reason for a connection that will not apply is written. (see [below for nested schema](#nestedatt--conditions))
 - `connection_type` (String) Type of connection, derived from which target was named: a PostgreSQL connection or a bucket one.
-- `id` (String) Composite identifier `<airflow_id>/<name>`.
+- `id` (String) Composite identifier `<airflow_id>/<conn_id>`, which is exactly the string `terraform import` takes — an id copied out of state imports the connection it came from. The connection object's own name, which is how the API addresses it, is exported separately as `name`.
 - `name` (String) The connection object's own name, which is how the API addresses it. Derived by the platform and not the same string as `conn_id`.
 - `phase` (String) Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` is not a failure — it is what a connection reports while its environment is asleep.
 - `resolved_permission_level` (String) The level actually in force: the value pinned in `permission_level`, or the platform's own default when nothing is pinned.

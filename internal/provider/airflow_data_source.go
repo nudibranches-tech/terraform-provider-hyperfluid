@@ -148,8 +148,9 @@ func (d *airflowDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	// Reuse the resource's mapper (it only needs the API client) so the model
 	// mapping lives in one place. There is no prior tier to fall back on here,
-	// so the tier is whatever the resolved cpu/memory identify.
-	state, err := (&airflowResource{p: d.p}).readInto(ctx, id, types.StringNull())
+	// so the tier is whatever the resolved cpu/memory identify, and no settled
+	// CRD to reuse either — a data source reads, it never waits for one.
+	state, err := (&airflowResource{p: d.p}).readInto(ctx, id, types.StringNull(), nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read Airflow environment", err.Error())
 		return

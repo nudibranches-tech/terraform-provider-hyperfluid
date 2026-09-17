@@ -50,7 +50,17 @@ const serviceLinkWaitTimeout = 2 * time.Minute
 // link's TARGET. Object storage and the platform control plane are deliberately
 // absent: both are always reachable from a workload's baseline policy, so
 // neither is ever linked.
-var serviceLinkTargetKinds = []string{"ContainerApp", "HfKeyValueCache", "ManagedPostgreSQL", "Trino", "Kafka"}
+//
+// Spelled with the generated enum constants rather than literals, so a kind the
+// spec renames or drops breaks the build instead of leaving the provider
+// validating against a value the API no longer knows.
+var serviceLinkTargetKinds = []string{
+	string(console.ServiceLinkKindContainerApp),
+	string(console.ServiceLinkKindHfKeyValueCache),
+	string(console.ServiceLinkKindManagedPostgreSQL),
+	string(console.ServiceLinkKindTrino),
+	string(console.ServiceLinkKindKafka),
+}
 
 // serviceLinkConsumerKinds additionally covers the two CONSUMER-ONLY kinds.
 // An Airflow environment and a pipeline both reach their targets and are never
@@ -59,7 +69,8 @@ var serviceLinkTargetKinds = []string{"ContainerApp", "HfKeyValueCache", "Manage
 // into a plan-time error instead of an apply-time 400.
 var serviceLinkConsumerKinds = append(
 	append([]string{}, serviceLinkTargetKinds...),
-	"Airflow", "Pipeline",
+	string(console.ServiceLinkKindAirflow),
+	string(console.ServiceLinkKindPipeline),
 )
 
 func NewServiceLinkResource() resource.Resource {
@@ -256,15 +267,15 @@ func (r *serviceLinkResource) ValidateConfig(ctx context.Context, req resource.V
 		return
 	}
 	kind := target.Kind
-	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == "ContainerApp" {
+	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == string(console.ServiceLinkKindContainerApp) {
 		return
 	}
 	resp.Diagnostics.AddAttributeError(
 		path.Root("target_ports"),
 		"Target ports not supported for this kind",
-		fmt.Sprintf("target_ports may only be set when target.kind is ContainerApp, got %s. "+
+		fmt.Sprintf("target_ports may only be set when target.kind is %s, got %s. "+
 			"Every other kind publishes a single known port, which the platform opens for you — "+
-			"drop target_ports.", kind.ValueString()),
+			"drop target_ports.", console.ServiceLinkKindContainerApp, kind.ValueString()),
 	)
 }
 

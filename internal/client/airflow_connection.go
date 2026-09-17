@@ -116,6 +116,12 @@ func (c *Client) PatchAirflowConnection(ctx context.Context, orgID, airflowID, c
 	return statusErr("patch airflow connection", resp.StatusCode(), resp.Body)
 }
 
+// DeleteAirflowConnection asks for the delete and reports what the API said: a
+// 204, or a 404 for a connection that is already gone. It is deliberately not a
+// confirmation that the object is gone — the credential a connection minted is
+// released by the object's finalizer, so a caller that has to state whether
+// anything is left behind polls a GET until it 404s (the resource's
+// removeConnection does exactly that, for both its delete paths).
 func (c *Client) DeleteAirflowConnection(ctx context.Context, orgID, airflowID, connectionName string) error {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {

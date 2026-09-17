@@ -67,7 +67,7 @@ output "warehouse_conditions" {
 - `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
 - `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`. (see [below for nested schema](#nestedatt--conditions))
 - `connection_type` (String) Type of connection, derived from which target it names.
-- `id` (String) Composite identifier `<airflow_id>/<name>`.
+- `id` (String) Composite identifier `<airflow_id>/<conn_id>`, the same string the `hyperfluid_airflow_connection` resource exports as `id` and `terraform import` takes.
 - `managed_postgresql_ref` (String) Name of the PostgreSQL cluster the connection targets, for a database connection.
 - `name` (String) The connection object's own name, which is how the API addresses it. Not the same string as `conn_id`.
 - `permission_level` (String) The level pinned on the connection, or null when it follows the platform default.

@@ -8,14 +8,18 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	fwschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
+	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
@@ -186,8 +190,8 @@ func TestAirflowConnectionToModel(t *testing.T) {
 		t.Fatalf("unexpected diagnostics: %v", d.Errors())
 	}
 
-	if got := model.ID.ValueString(); got != airflowID+"/etl-warehouse-3f2a" {
-		t.Errorf("id = %q, want the <airflow>/<name> composite", got)
+	if got := model.ID.ValueString(); got != airflowID+"/warehouse" {
+		t.Errorf("id = %q, want the <airflow>/<conn_id> composite, which is the import id", got)
 	}
 	if model.Name.ValueString() == model.ConnID.ValueString() {
 		t.Error("name and conn_id collapsed into one value; they are different identifiers")
@@ -342,10 +346,23 @@ func TestAirflowConnectionRenamedDiagnostic(t *testing.T) {
 	if strings.Contains(stuck, "has been deleted") {
 		t.Errorf("detail = %q, claims a delete that failed", stuck)
 	}
-	for _, want := range []string{"403 forbidden", "still live", "hfctl airflow connections delete"} {
+	for _, want := range []string{"403 forbidden", "may still be live", "hfctl airflow connections delete"} {
 		if !strings.Contains(stuck, want) {
 			t.Errorf("detail = %q, want it to mention %q", stuck, want)
 		}
+	}
+
+	// A delete the API accepted but that never converged reaches this message
+	// through the same argument, and must read the same way: the object hangs
+	// on the finalizer that releases its credential, so "revoked" would be a
+	// claim nobody checked.
+	_, unconfirmed := airflowConnectionRenamedDiagnostic("warehouse", "warehouse-1", "afconn-77bd",
+		errors.New("the delete was accepted but the connection is still present: timed out"))
+	if strings.Contains(unconfirmed, "has been deleted") || strings.Contains(unconfirmed, "is revoked as that object") {
+		t.Errorf("detail = %q, claims a revocation that was never confirmed", unconfirmed)
+	}
+	if !strings.Contains(unconfirmed, "may still be live") {
+		t.Errorf("detail = %q, want it to say the connection may still be live", unconfirmed)
 	}
 }
 
@@ -413,14 +430,13 @@ func TestAccAirflowConnectionResource(t *testing.T) {
 				),
 			},
 			{
+				// No ImportStateIdFunc: the default is the resource's own `id`,
+				// which is the habitual source of an import id and now the
+				// composite ImportState parses. Rebuilding the id here would
+				// paper over exactly the mismatch this step has to catch.
 				ResourceName:      "hyperfluid_airflow_connection.warehouse",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					env := s.RootModule().Resources["hyperfluid_airflow.etl"]
-					conn := s.RootModule().Resources["hyperfluid_airflow_connection.warehouse"]
-					return env.Primary.ID + "/" + conn.Primary.Attributes["conn_id"], nil
-				},
 			},
 		},
 	})
@@ -494,4 +510,253 @@ data "hyperfluid_airflow_connection" "by_conn_id" {
   depends_on = [hyperfluid_airflow_connection.warehouse]
 }
 `
+}
+
+// ── the wait's settle predicate ───────────────────────────────────────────
+
+// TestAirflowConnectionSettled is the regression for a wait that was a no-op
+// after an Update. A PATCH bumps the object's generation, and the projection
+// read straight afterwards still describes the previous one: its `phase` can
+// say `Ready` about a credential that has not been re-minted. Nothing may
+// settle — and nothing may abort — on a projection the platform has not
+// observed.
+func TestAirflowConnectionSettled(t *testing.T) {
+	cases := []struct {
+		name        string
+		phase       string
+		observed    bool
+		wantSettled bool
+		wantErr     bool
+	}{
+		{"ready and observed", airflowConnectionPhaseReady, true, true, false},
+		// The finding itself: `Ready` for the generation before the PATCH.
+		{"ready but unobserved", airflowConnectionPhaseReady, false, false, false},
+		{"parked and observed", airflowConnectionPhaseParked, true, true, false},
+		{"parked but unobserved", airflowConnectionPhaseParked, false, false, false},
+		{"collision and observed", airflowConnectionPhaseCollision, true, false, true},
+		// A collision reported about the old declaration is not this
+		// declaration's answer either: aborting on it would report a state the
+		// new spec may not even reach.
+		{"collision but unobserved", airflowConnectionPhaseCollision, false, false, false},
+		{"failed and observed", airflowConnectionPhaseFailed, true, false, true},
+		{"failed but unobserved", airflowConnectionPhaseFailed, false, false, false},
+		{"applying and observed", "Applying", true, false, false},
+		// What a create's first poll sees: an object with no status at all.
+		{"pending on create", "Pending", false, false, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			applied := true
+			settled, err := airflowConnectionSettled(&console.AirflowConnectionResponse{
+				ConnId:       "warehouse",
+				Phase:        tc.phase,
+				SpecObserved: tc.observed,
+				// Deliberately true in every case: a stale projection's
+				// source_applied is true of the credential minted for the
+				// PREVIOUS spec, so it cannot be what settles a wait.
+				SourceApplied: &applied,
+			})
+			if settled != tc.wantSettled {
+				t.Errorf("settled = %v, want %v", settled, tc.wantSettled)
+			}
+			if (err != nil) != tc.wantErr {
+				t.Errorf("err = %v, want error = %v", err, tc.wantErr)
+			}
+		})
+	}
+
+	// An observed collision aborts, and the abort has to carry what the user
+	// needs: the id, what holds it, and that the takeover is an explicit action
+	// taken elsewhere.
+	existing := "postgres"
+	_, err := airflowConnectionSettled(&console.AirflowConnectionResponse{
+		ConnId:                          "warehouse",
+		Phase:                           airflowConnectionPhaseCollision,
+		SpecObserved:                    true,
+		CollisionExistingConnectionType: &existing,
+	})
+	if err == nil {
+		t.Fatal("an observed Collision must abort the wait")
+	}
+	for _, want := range []string{"warehouse", "postgres", "takeover"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error = %q, want it to mention %q", err, want)
+		}
+	}
+}
+
+// ── conn_id, validated at plan time ───────────────────────────────────────
+
+// TestAirflowConnectionConnIDValidators mirrors the API's own rules
+// (`valid_conn_id` and `is_reserved_connection_id`): a conn_id it refuses has
+// to fail the plan, not the apply — by which point the environment, database
+// and bucket the connection depends on already exist, and `conn_id` forces
+// replacement, so the mistake cannot be corrected in place.
+func TestAirflowConnectionConnIDValidators(t *testing.T) {
+	ctx := t.Context()
+	s := resourceSchema(t, NewAirflowConnectionResource()).Schema
+	attr, ok := s.Attributes["conn_id"].(fwschema.StringAttribute)
+	if !ok {
+		t.Fatalf("conn_id is %T, want a schema.StringAttribute whose validators can be read", s.Attributes["conn_id"])
+	}
+	if len(attr.Validators) == 0 {
+		t.Fatal("conn_id declares no validators; every rule would be discovered as a 400 mid-apply")
+	}
+
+	cases := []struct {
+		name    string
+		value   string
+		wantErr bool
+	}{
+		{"plain", "warehouse", false},
+		{"dots and underscores", "dbaas.reporting_2", false},
+		{"hyphen and mixed case", "a-b.c_D9", false},
+		{"at the length limit", strings.Repeat("a", 200), false},
+
+		{"a space", "my warehouse", true},
+		{"a slash", "warehouse/1", true},
+		{"non-ascii", "wärehouse", true},
+		{"empty", "", true},
+		{"one byte over the limit", strings.Repeat("a", 201), true},
+
+		// The two ids the platform keeps for the rows it writes itself.
+		{"reserved dag bucket", "dag_bucket_s3", true},
+		{"reserved default", "hyperfluid_default", true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := validator.StringRequest{
+				Path:           path.Root("conn_id"),
+				PathExpression: path.MatchRoot("conn_id"),
+				ConfigValue:    types.StringValue(tc.value),
+			}
+			resp := &validator.StringResponse{}
+			for _, v := range attr.Validators {
+				v.ValidateString(ctx, req, resp)
+			}
+			if got := resp.Diagnostics.HasError(); got != tc.wantErr {
+				t.Errorf("error = %v, want %v (diagnostics: %v)", got, tc.wantErr, resp.Diagnostics)
+			}
+		})
+	}
+
+	// The reserved list is a copy of a platform constant, so keep the copy
+	// honest about what it is copying.
+	for _, want := range []string{"dag_bucket_s3", "hyperfluid_default"} {
+		found := false
+		for _, id := range airflowConnectionReservedIDs {
+			if id == want {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("%q is reserved by the platform but missing from airflowConnectionReservedIDs", want)
+		}
+	}
+}
+
+// ── the compensating delete is confirmed ──────────────────────────────────
+
+// TestAirflowConnectionRemoveConfirmsGone: a 204 from the delete route is an
+// acceptance, not a release — the credential is revoked by the object's
+// finalizer. Handing back a connection the platform allocated under an id
+// nobody declared therefore has to poll until the object is gone, or the
+// diagnostic tells the user a credential is revoked while a scoped database
+// role or object-store identity is still live with nothing tracking it.
+func TestAirflowConnectionRemoveConfirmsGone(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("gone", func(t *testing.T) {
+		deletes, gets := 0, 0
+		err := airflowConnectionRemove(ctx, time.Minute,
+			func() error { deletes++; return nil },
+			func() error { gets++; return client.ErrNotFound })
+		if err != nil {
+			t.Errorf("err = %v, want nil once the object is gone", err)
+		}
+		if deletes != 1 || gets != 1 {
+			t.Errorf("deletes = %d, gets = %d, want one of each", deletes, gets)
+		}
+	})
+
+	t.Run("delete refused", func(t *testing.T) {
+		gets := 0
+		err := airflowConnectionRemove(ctx, time.Minute,
+			func() error { return errors.New("403 forbidden") },
+			func() error { gets++; return nil })
+		if err == nil {
+			t.Fatal("err = nil, want the refusal")
+		}
+		if !strings.Contains(err.Error(), "403 forbidden") {
+			t.Errorf("err = %v, want the API's own refusal", err)
+		}
+		if gets != 0 {
+			t.Errorf("gets = %d, want none: there is nothing to confirm", gets)
+		}
+	})
+
+	t.Run("still present", func(t *testing.T) {
+		// The finalizer hang: the delete is accepted and the object stays.
+		// The timeout is a nanosecond so the poll gives up on its first pass.
+		err := airflowConnectionRemove(ctx, time.Nanosecond,
+			func() error { return nil },
+			func() error { return nil })
+		if err == nil {
+			t.Fatal("err = nil for a connection that is still there; the caller would report the credential as revoked")
+		}
+		if !strings.Contains(err.Error(), "still present") {
+			t.Errorf("err = %v, want it to say the connection is still present", err)
+		}
+	})
+}
+
+// ── id is a usable import id ───────────────────────────────────────────────
+
+// TestAirflowConnectionIDIsAUsableImportID closes the loop the schema used to
+// advertise wrong: `id` is where a user reaches for an import id, so the string
+// the mapper writes has to be the string ImportState parses.
+func TestAirflowConnectionIDIsAUsableImportID(t *testing.T) {
+	ctx := t.Context()
+	airflowID := "11111111-1111-1111-1111-111111111111"
+	model, d := airflowConnectionToModel(ctx, airflowID, &console.AirflowConnectionResponse{
+		Name:                    "afconn-3f2a",
+		ConnId:                  "warehouse",
+		ConnectionType:          "postgres",
+		ManagedPostgresqlRef:    ptr("warehouse"),
+		ResolvedPermissionLevel: "viewer",
+		Phase:                   airflowConnectionPhaseReady,
+		SpecObserved:            true,
+	})
+	if d.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", d.Errors())
+	}
+
+	res := NewAirflowConnectionResource()
+	importer, ok := res.(fwresource.ResourceWithImportState)
+	if !ok {
+		t.Fatal("the connection resource cannot be imported at all")
+	}
+	s := resourceSchema(t, res).Schema
+	resp := &fwresource.ImportStateResponse{
+		State: tfsdk.State{Schema: s, Raw: tftypes.NewValue(s.Type().TerraformType(ctx), nil)},
+	}
+	importer.ImportState(ctx, fwresource.ImportStateRequest{ID: model.ID.ValueString()}, resp)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("importing the id the resource itself exported failed: %v", resp.Diagnostics.Errors())
+	}
+
+	var imported types.String
+	if d := resp.State.GetAttribute(ctx, path.Root("conn_id"), &imported); d.HasError() {
+		t.Fatalf("reading conn_id back: %v", d.Errors())
+	}
+	if got := imported.ValueString(); got != "warehouse" {
+		t.Errorf("imported conn_id = %q, want the conn_id the id carries", got)
+	}
+	var env types.String
+	if d := resp.State.GetAttribute(ctx, path.Root("airflow"), &env); d.HasError() {
+		t.Fatalf("reading airflow back: %v", d.Errors())
+	}
+	if got := env.ValueString(); got != airflowID {
+		t.Errorf("imported airflow = %q, want %q", got, airflowID)
+	}
 }

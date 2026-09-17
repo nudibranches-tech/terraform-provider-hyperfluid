@@ -9,6 +9,9 @@
 #
 # Requires a Terraform CLI in PATH: either `terraform` or `tofu` works, and whichever
 # is installed is used (terraform first). Set TF_BIN to pin a specific binary.
+# Terraform is preferred because only it reports write-only attributes; a CLI that
+# does not renders incomplete docs and the script refuses to write them (see the
+# write-only check below, and GEN_DOCS_ALLOW_MISSING_WRITE_ONLY to override).
 # Invoked by `go generate` (see tools.go) and runnable directly.
 set -euo pipefail
 
@@ -71,12 +74,34 @@ TF_CLI_CONFIG_FILE="$TMP/dev.tfrc" "$TF_BIN" -chdir="$TMP/cfg" providers schema 
 # those arguments — CI renders with Terraform, so the result would come back as
 # unexplained drift. Detect the loss instead of assuming it: the provider source
 # is the source of truth for what should have been reported.
+#
+# Having detected it, stop: a warning in the middle of tfplugindocs output is
+# missed, and the docs it would then write are wrong in a way only CI notices.
+# GEN_DOCS_ALLOW_MISSING_WRITE_ONLY=1 renders anyway for someone who wants the
+# degraded output on purpose.
 if grep -rqE '\bWriteOnly:[[:space:]]*true' "$ROOT/internal/provider" \
   && ! grep -q '"write_only"' "$TMP/schema.json"; then
-  echo "gen-docs: WARNING: $TF_BIN does not report write-only attributes, so the" >&2
-  echo "gen-docs:          rendered docs drop their write-only annotation. CI renders" >&2
-  echo "gen-docs:          with Terraform (>= 1.11) — do not commit that difference;" >&2
-  echo "gen-docs:          re-render with terraform, or set TF_BIN to point at it." >&2
+  if [[ -n "${GEN_DOCS_ALLOW_MISSING_WRITE_ONLY:-}" ]]; then
+    echo "gen-docs: WARNING: $TF_BIN does not report write-only attributes; rendering" >&2
+    echo "gen-docs:          anyway because GEN_DOCS_ALLOW_MISSING_WRITE_ONLY is set." >&2
+    echo "gen-docs:          The write-only annotations are missing from the result —" >&2
+    echo "gen-docs:          do not commit it." >&2
+  else
+    cat >&2 <<MSG
+gen-docs: ERROR: $TF_BIN does not report write-only attributes, so the rendered
+gen-docs:        docs would silently drop the write-only annotation from every
+gen-docs:        argument that has one (today: hyperfluid_secret's \`value\`). CI
+gen-docs:        re-renders with Terraform >= 1.11 and reports the difference as
+gen-docs:        unexplained drift, so nothing was written. Either:
+gen-docs:          - install Terraform >= 1.11 and re-run — it is picked ahead of
+gen-docs:            tofu automatically, or
+gen-docs:          - point TF_BIN at a Terraform binary you already have:
+gen-docs:            TF_BIN=/path/to/terraform go generate ./...
+gen-docs:        To render with the annotations missing anyway (do not commit the
+gen-docs:        result): GEN_DOCS_ALLOW_MISSING_WRITE_ONLY=1 go generate ./...
+MSG
+    exit 1
+  fi
 fi
 
 # tfplugindocs only looks up the provider under the bare short name or
