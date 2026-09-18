@@ -43,4 +43,7 @@ resource "hyperfluid_backup_target" "offsite" {
   destination_path              = "s3://my-backups/hyperfluid/"
   access_key_secret_name        = hyperfluid_secret.backup_access_key.name
   secret_access_key_secret_name = hyperfluid_secret.backup_secret_key.name
+  # How long base backups and WAL archives are kept, 1-35 days. Left out, the
+  # platform keeps 7.
+  retention_days = 14
 }

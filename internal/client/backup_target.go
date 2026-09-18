@@ -21,6 +21,7 @@ type ExternalBackupTargetInput struct {
 	AccessKeySecretName       string
 	SecretAccessKeySecretName string
 	Insecure                  *bool
+	RetentionDays             *int32
 	Description               *string
 	Tags                      []string
 }
@@ -47,10 +48,11 @@ func (c *Client) CreateExternalBackupTarget(ctx context.Context, orgID, harborID
 	}
 
 	body := console.CreateBackupTargetCrdRequestBody{
-		Name:        in.Name,
-		Source:      source,
-		Insecure:    in.Insecure,
-		Description: in.Description,
+		Name:          in.Name,
+		Source:        source,
+		Insecure:      in.Insecure,
+		RetentionDays: in.RetentionDays,
+		Description:   in.Description,
 	}
 	if in.Tags != nil {
 		body.Tags = &in.Tags

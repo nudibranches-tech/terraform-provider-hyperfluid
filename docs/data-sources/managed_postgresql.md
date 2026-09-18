@@ -38,16 +38,20 @@ output "write_endpoint" {
 
 ### Read-Only
 
+- `archive_interval_seconds` (Number) Seconds between forced WAL segment switches on the running cluster. `0` means no forced switch, so nothing bounds the lag on an idle database; null means the database archives nowhere, or the platform has not reported on it yet.
 - `backup_policy` (String) Backup policy.
-- `backup_target_id` (String) Backup target id, if any.
+- `backup_target_id` (String) Backup target id. Always null: no API view reports which target a database ships to.
 - `configuration` (String) Cluster configuration (e.g. standalone).
 - `database_name` (String) Application database name.
 - `description` (String) Free-form description.
 - `engine` (String) Database engine.
 - `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service.
 - `external_endpoint` (String) External endpoint, if exposed.
+- `first_recoverability_point` (String) Earliest point a restore can target, as the backup catalog reports it. Null on a database that archives nowhere, and on one that ships WAL but has never completed a base backup.
 - `id` (String) Cluster id.
 - `instances` (Number) Configured instance count.
+- `last_failed_backup_time` (String) When the last backup failed.
+- `last_successful_backup_time` (String) When the last base backup completed. A continuous-archive restore needs one, because recovery replays forward from a base backup.
 - `node_tier` (String) Node tier.
 - `phase` (String) Current lifecycle phase.
 - `read_endpoint` (String) Read endpoint.
