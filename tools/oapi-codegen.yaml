@@ -11,3 +11,9 @@ output-options:
   # distinct suffix the generated per-operation response wrappers collide with
   # them. We reference methods + fields, never these wrapper type names.
   response-type-suffix: HTTPResp
+compatibility:
+  # The spec has enum members whose Go identifier is also a schema name
+  # (`PermissionReply`, `SecurityDecision`). oapi-codegen only de-conflicts
+  # enum values against other enum values, so constants must always carry
+  # their type's name.
+  always-prefix-enum-values: true

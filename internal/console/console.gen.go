@@ -24,6 +24,33 @@ const (
 	Shared_secretScopes sharedSecretContextKey = "shared_secret.Scopes"
 )
 
+// Defines values for AgentRequestKind.
+const (
+	AgentRequestKindInlineEditInstruction  AgentRequestKind = "inline_edit_instruction"
+	AgentRequestKindPermissionPolicyChange AgentRequestKind = "permission_policy_change"
+	AgentRequestKindPermissionReply        AgentRequestKind = "permission_reply"
+	AgentRequestKindPrompt                 AgentRequestKind = "prompt"
+	AgentRequestKindQuestionReply          AgentRequestKind = "question_reply"
+)
+
+// Valid indicates whether the value is a known member of the AgentRequestKind enum.
+func (e AgentRequestKind) Valid() bool {
+	switch e {
+	case AgentRequestKindInlineEditInstruction:
+		return true
+	case AgentRequestKindPermissionPolicyChange:
+		return true
+	case AgentRequestKindPermissionReply:
+		return true
+	case AgentRequestKindPrompt:
+		return true
+	case AgentRequestKindQuestionReply:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AiAgentDesiredStateDto.
 const (
 	AiAgentDesiredStateDtoRunning AiAgentDesiredStateDto = "Running"
@@ -81,15 +108,63 @@ func (e AiAgentMailboxPhaseDto) Valid() bool {
 	}
 }
 
+// Defines values for AirflowLinkKind.
+const (
+	AirflowLinkKindContainerApp      AirflowLinkKind = "ContainerApp"
+	AirflowLinkKindHfKeyValueCache   AirflowLinkKind = "HfKeyValueCache"
+	AirflowLinkKindKafka             AirflowLinkKind = "Kafka"
+	AirflowLinkKindManagedPostgreSQL AirflowLinkKind = "ManagedPostgreSQL"
+)
+
+// Valid indicates whether the value is a known member of the AirflowLinkKind enum.
+func (e AirflowLinkKind) Valid() bool {
+	switch e {
+	case AirflowLinkKindContainerApp:
+		return true
+	case AirflowLinkKindHfKeyValueCache:
+		return true
+	case AirflowLinkKindKafka:
+		return true
+	case AirflowLinkKindManagedPostgreSQL:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AirflowNodeTier.
+const (
+	AirflowNodeTierLarge  AirflowNodeTier = "large"
+	AirflowNodeTierMedium AirflowNodeTier = "medium"
+	AirflowNodeTierMicro  AirflowNodeTier = "micro"
+	AirflowNodeTierSmall  AirflowNodeTier = "small"
+)
+
+// Valid indicates whether the value is a known member of the AirflowNodeTier enum.
+func (e AirflowNodeTier) Valid() bool {
+	switch e {
+	case AirflowNodeTierLarge:
+		return true
+	case AirflowNodeTierMedium:
+		return true
+	case AirflowNodeTierMicro:
+		return true
+	case AirflowNodeTierSmall:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AppProtocol.
 const (
-	Http AppProtocol = "http"
+	AppProtocolHttp AppProtocol = "http"
 )
 
 // Valid indicates whether the value is a known member of the AppProtocol enum.
 func (e AppProtocol) Valid() bool {
 	switch e {
-	case Http:
+	case AppProtocolHttp:
 		return true
 	default:
 		return false
@@ -98,13 +173,13 @@ func (e AppProtocol) Valid() bool {
 
 // Defines values for ArchiveFileType.
 const (
-	Applicationzip ArchiveFileType = "application/zip"
+	ArchiveFileTypeApplicationzip ArchiveFileType = "application/zip"
 )
 
 // Valid indicates whether the value is a known member of the ArchiveFileType enum.
 func (e ArchiveFileType) Valid() bool {
 	switch e {
-	case Applicationzip:
+	case ArchiveFileTypeApplicationzip:
 		return true
 	default:
 		return false
@@ -137,16 +212,322 @@ func (e ArchiveOperationStatus) Valid() bool {
 
 // Defines values for ArchiveOperationType.
 const (
-	Export ArchiveOperationType = "export"
-	Import ArchiveOperationType = "import"
+	ArchiveOperationTypeExport ArchiveOperationType = "export"
+	ArchiveOperationTypeImport ArchiveOperationType = "import"
 )
 
 // Valid indicates whether the value is a known member of the ArchiveOperationType enum.
 func (e ArchiveOperationType) Valid() bool {
 	switch e {
-	case Export:
+	case ArchiveOperationTypeExport:
 		return true
-	case Import:
+	case ArchiveOperationTypeImport:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditActorKind.
+const (
+	AuditActorKindPlatform       AuditActorKind = "platform"
+	AuditActorKindServiceAccount AuditActorKind = "service_account"
+	AuditActorKindUnknown        AuditActorKind = "unknown"
+	AuditActorKindUser           AuditActorKind = "user"
+)
+
+// Valid indicates whether the value is a known member of the AuditActorKind enum.
+func (e AuditActorKind) Valid() bool {
+	switch e {
+	case AuditActorKindPlatform:
+		return true
+	case AuditActorKindServiceAccount:
+		return true
+	case AuditActorKindUnknown:
+		return true
+	case AuditActorKindUser:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditEntryKind.
+const (
+	AuditEntryKindEvent AuditEntryKind = "event"
+	AuditEntryKindQuery AuditEntryKind = "query"
+)
+
+// Valid indicates whether the value is a known member of the AuditEntryKind enum.
+func (e AuditEntryKind) Valid() bool {
+	switch e {
+	case AuditEntryKindEvent:
+		return true
+	case AuditEntryKindQuery:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent0Type.
+const (
+	AuditLogEvent0TypeDataDockOpaEvaluation AuditLogEvent0Type = "data_dock_opa_evaluation"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent0Type enum.
+func (e AuditLogEvent0Type) Valid() bool {
+	switch e {
+	case AuditLogEvent0TypeDataDockOpaEvaluation:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent1Type.
+const (
+	AuditLogEvent1TypeSecurityDecision AuditLogEvent1Type = "security_decision"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent1Type enum.
+func (e AuditLogEvent1Type) Valid() bool {
+	switch e {
+	case AuditLogEvent1TypeSecurityDecision:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent2Type.
+const (
+	AuditLogEvent2TypeConsoleAuthzDecision AuditLogEvent2Type = "console_authz_decision"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent2Type enum.
+func (e AuditLogEvent2Type) Valid() bool {
+	switch e {
+	case AuditLogEvent2TypeConsoleAuthzDecision:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent3Type.
+const (
+	AuditLogEvent3TypeS3GatewayDecision AuditLogEvent3Type = "s3_gateway_decision"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent3Type enum.
+func (e AuditLogEvent3Type) Valid() bool {
+	switch e {
+	case AuditLogEvent3TypeS3GatewayDecision:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent4Type.
+const (
+	AuditLogEvent4TypeS3GatewaySessionIssued AuditLogEvent4Type = "s3_gateway_session_issued"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent4Type enum.
+func (e AuditLogEvent4Type) Valid() bool {
+	switch e {
+	case AuditLogEvent4TypeS3GatewaySessionIssued:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent5Type.
+const (
+	AuditLogEvent5TypeS3GatewayGateDenied AuditLogEvent5Type = "s3_gateway_gate_denied"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent5Type enum.
+func (e AuditLogEvent5Type) Valid() bool {
+	switch e {
+	case AuditLogEvent5TypeS3GatewayGateDenied:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent6Type.
+const (
+	AuditLogEvent6TypeAuthzOrganizationPolicyRevoked AuditLogEvent6Type = "authz_organization_policy_revoked"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent6Type enum.
+func (e AuditLogEvent6Type) Valid() bool {
+	switch e {
+	case AuditLogEvent6TypeAuthzOrganizationPolicyRevoked:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent7Type.
+const (
+	AuditLogEvent7TypeAuthzBreakGlassUsed AuditLogEvent7Type = "authz_break_glass_used"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent7Type enum.
+func (e AuditLogEvent7Type) Valid() bool {
+	switch e {
+	case AuditLogEvent7TypeAuthzBreakGlassUsed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent8Type.
+const (
+	AuditLogEvent8TypePlatformAdminAction AuditLogEvent8Type = "platform_admin_action"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent8Type enum.
+func (e AuditLogEvent8Type) Valid() bool {
+	switch e {
+	case AuditLogEvent8TypePlatformAdminAction:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent9Type.
+const (
+	AuditLogEvent9TypeRuntimeSecurityAlert AuditLogEvent9Type = "runtime_security_alert"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent9Type enum.
+func (e AuditLogEvent9Type) Valid() bool {
+	switch e {
+	case AuditLogEvent9TypeRuntimeSecurityAlert:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent10Type.
+const (
+	AuditLogEvent10TypeTrinoQueryCompleted AuditLogEvent10Type = "trino_query_completed"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent10Type enum.
+func (e AuditLogEvent10Type) Valid() bool {
+	switch e {
+	case AuditLogEvent10TypeTrinoQueryCompleted:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent11Type.
+const (
+	AuditLogEvent11TypeWorkstationAgentRequest AuditLogEvent11Type = "workstation_agent_request"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent11Type enum.
+func (e AuditLogEvent11Type) Valid() bool {
+	switch e {
+	case AuditLogEvent11TypeWorkstationAgentRequest:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent12Type.
+const (
+	AuditLogEvent12TypeWorkstationTerminalCommand AuditLogEvent12Type = "workstation_terminal_command"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent12Type enum.
+func (e AuditLogEvent12Type) Valid() bool {
+	switch e {
+	case AuditLogEvent12TypeWorkstationTerminalCommand:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent13Type.
+const (
+	AuditLogEvent13TypeWorkstationPreviewSession AuditLogEvent13Type = "workstation_preview_session"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent13Type enum.
+func (e AuditLogEvent13Type) Valid() bool {
+	switch e {
+	case AuditLogEvent13TypeWorkstationPreviewSession:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEventType.
+const (
+	AuditLogEventTypeAuthzBreakGlassUsed            AuditLogEventType = "authz_break_glass_used"
+	AuditLogEventTypeAuthzOrganizationPolicyRevoked AuditLogEventType = "authz_organization_policy_revoked"
+	AuditLogEventTypeConsoleAuthzDecision           AuditLogEventType = "console_authz_decision"
+	AuditLogEventTypeDataDockOpaEvaluation          AuditLogEventType = "data_dock_opa_evaluation"
+	AuditLogEventTypePlatformAdminAction            AuditLogEventType = "platform_admin_action"
+	AuditLogEventTypeRuntimeSecurityAlert           AuditLogEventType = "runtime_security_alert"
+	AuditLogEventTypeS3GatewayDecision              AuditLogEventType = "s3_gateway_decision"
+	AuditLogEventTypeS3GatewayGateDenied            AuditLogEventType = "s3_gateway_gate_denied"
+	AuditLogEventTypeS3GatewaySessionIssued         AuditLogEventType = "s3_gateway_session_issued"
+	AuditLogEventTypeSecurityDecision               AuditLogEventType = "security_decision"
+	AuditLogEventTypeTrinoQueryCompleted            AuditLogEventType = "trino_query_completed"
+	AuditLogEventTypeWorkstationAgentRequest        AuditLogEventType = "workstation_agent_request"
+	AuditLogEventTypeWorkstationPreviewSession      AuditLogEventType = "workstation_preview_session"
+	AuditLogEventTypeWorkstationTerminalCommand     AuditLogEventType = "workstation_terminal_command"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEventType enum.
+func (e AuditLogEventType) Valid() bool {
+	switch e {
+	case AuditLogEventTypeAuthzBreakGlassUsed:
+		return true
+	case AuditLogEventTypeAuthzOrganizationPolicyRevoked:
+		return true
+	case AuditLogEventTypeConsoleAuthzDecision:
+		return true
+	case AuditLogEventTypeDataDockOpaEvaluation:
+		return true
+	case AuditLogEventTypePlatformAdminAction:
+		return true
+	case AuditLogEventTypeRuntimeSecurityAlert:
+		return true
+	case AuditLogEventTypeS3GatewayDecision:
+		return true
+	case AuditLogEventTypeS3GatewayGateDenied:
+		return true
+	case AuditLogEventTypeS3GatewaySessionIssued:
+		return true
+	case AuditLogEventTypeSecurityDecision:
+		return true
+	case AuditLogEventTypeTrinoQueryCompleted:
+		return true
+	case AuditLogEventTypeWorkstationAgentRequest:
+		return true
+	case AuditLogEventTypeWorkstationPreviewSession:
+		return true
+	case AuditLogEventTypeWorkstationTerminalCommand:
 		return true
 	default:
 		return false
@@ -191,16 +572,16 @@ func (e BackupPolicy) Valid() bool {
 
 // Defines values for BackupTargetInstance.
 const (
-	PreferStandby BackupTargetInstance = "preferStandby"
-	Primary       BackupTargetInstance = "primary"
+	BackupTargetInstancePreferStandby BackupTargetInstance = "preferStandby"
+	BackupTargetInstancePrimary       BackupTargetInstance = "primary"
 )
 
 // Valid indicates whether the value is a known member of the BackupTargetInstance enum.
 func (e BackupTargetInstance) Valid() bool {
 	switch e {
-	case PreferStandby:
+	case BackupTargetInstancePreferStandby:
 		return true
-	case Primary:
+	case BackupTargetInstancePrimary:
 		return true
 	default:
 		return false
@@ -257,28 +638,61 @@ func (e BifrostEventStatus) Valid() bool {
 
 // Defines values for BifrostProtocol.
 const (
-	Fts     BifrostProtocol = "fts"
-	Graphql BifrostProtocol = "graphql"
-	Openapi BifrostProtocol = "openapi"
-	Pgwire  BifrostProtocol = "pgwire"
-	Sql     BifrostProtocol = "sql"
-	Vector  BifrostProtocol = "vector"
+	BifrostProtocolFts     BifrostProtocol = "fts"
+	BifrostProtocolGraphql BifrostProtocol = "graphql"
+	BifrostProtocolOpenapi BifrostProtocol = "openapi"
+	BifrostProtocolPgwire  BifrostProtocol = "pgwire"
+	BifrostProtocolSql     BifrostProtocol = "sql"
+	BifrostProtocolVector  BifrostProtocol = "vector"
 )
 
 // Valid indicates whether the value is a known member of the BifrostProtocol enum.
 func (e BifrostProtocol) Valid() bool {
 	switch e {
-	case Fts:
+	case BifrostProtocolFts:
 		return true
-	case Graphql:
+	case BifrostProtocolGraphql:
 		return true
-	case Openapi:
+	case BifrostProtocolOpenapi:
 		return true
-	case Pgwire:
+	case BifrostProtocolPgwire:
 		return true
-	case Sql:
+	case BifrostProtocolSql:
 		return true
-	case Vector:
+	case BifrostProtocolVector:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BucketField.
+const (
+	BucketFieldAccessKeyId     BucketField = "accessKeyId"
+	BucketFieldBucket          BucketField = "bucket"
+	BucketFieldEndpoint        BucketField = "endpoint"
+	BucketFieldEndpointHost    BucketField = "endpointHost"
+	BucketFieldRegion          BucketField = "region"
+	BucketFieldSecretAccessKey BucketField = "secretAccessKey"
+	BucketFieldUseTls          BucketField = "useTls"
+)
+
+// Valid indicates whether the value is a known member of the BucketField enum.
+func (e BucketField) Valid() bool {
+	switch e {
+	case BucketFieldAccessKeyId:
+		return true
+	case BucketFieldBucket:
+		return true
+	case BucketFieldEndpoint:
+		return true
+	case BucketFieldEndpointHost:
+		return true
+	case BucketFieldRegion:
+		return true
+	case BucketFieldSecretAccessKey:
+		return true
+	case BucketFieldUseTls:
 		return true
 	default:
 		return false
@@ -303,21 +717,42 @@ func (e BudgetAuthor) Valid() bool {
 	}
 }
 
+// Defines values for CatalogFailureKind.
+const (
+	CatalogFailureKindCertificateTrust CatalogFailureKind = "certificate_trust"
+	CatalogFailureKindOther            CatalogFailureKind = "other"
+	CatalogFailureKindTimeout          CatalogFailureKind = "timeout"
+)
+
+// Valid indicates whether the value is a known member of the CatalogFailureKind enum.
+func (e CatalogFailureKind) Valid() bool {
+	switch e {
+	case CatalogFailureKindCertificateTrust:
+		return true
+	case CatalogFailureKindOther:
+		return true
+	case CatalogFailureKindTimeout:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ChannelKind.
 const (
-	DiscordWebhook ChannelKind = "discord_webhook"
-	Email          ChannelKind = "email"
-	SlackWebhook   ChannelKind = "slack_webhook"
+	ChannelKindDiscordWebhook ChannelKind = "discord_webhook"
+	ChannelKindEmail          ChannelKind = "email"
+	ChannelKindSlackWebhook   ChannelKind = "slack_webhook"
 )
 
 // Valid indicates whether the value is a known member of the ChannelKind enum.
 func (e ChannelKind) Valid() bool {
 	switch e {
-	case DiscordWebhook:
+	case ChannelKindDiscordWebhook:
 		return true
-	case Email:
+	case ChannelKindEmail:
 		return true
-	case SlackWebhook:
+	case ChannelKindSlackWebhook:
 		return true
 	default:
 		return false
@@ -365,16 +800,16 @@ func (e ChartType) Valid() bool {
 
 // Defines values for Comparator.
 const (
-	Gt Comparator = "gt"
-	Lt Comparator = "lt"
+	ComparatorGt Comparator = "gt"
+	ComparatorLt Comparator = "lt"
 )
 
 // Valid indicates whether the value is a known member of the Comparator enum.
 func (e Comparator) Valid() bool {
 	switch e {
-	case Gt:
+	case ComparatorGt:
 		return true
-	case Lt:
+	case ComparatorLt:
 		return true
 	default:
 		return false
@@ -383,13 +818,13 @@ func (e Comparator) Valid() bool {
 
 // Defines values for ComputeEngineInput.
 const (
-	Slurm ComputeEngineInput = "slurm"
+	ComputeEngineInputSlurm ComputeEngineInput = "slurm"
 )
 
 // Valid indicates whether the value is a known member of the ComputeEngineInput enum.
 func (e ComputeEngineInput) Valid() bool {
 	switch e {
-	case Slurm:
+	case ComputeEngineInputSlurm:
 		return true
 	default:
 		return false
@@ -398,13 +833,13 @@ func (e ComputeEngineInput) Valid() bool {
 
 // Defines values for Condition0Kind.
 const (
-	PrincipalAttributeEquals Condition0Kind = "principal_attribute_equals"
+	Condition0KindPrincipalAttributeEquals Condition0Kind = "principal_attribute_equals"
 )
 
 // Valid indicates whether the value is a known member of the Condition0Kind enum.
 func (e Condition0Kind) Valid() bool {
 	switch e {
-	case PrincipalAttributeEquals:
+	case Condition0KindPrincipalAttributeEquals:
 		return true
 	default:
 		return false
@@ -413,13 +848,13 @@ func (e Condition0Kind) Valid() bool {
 
 // Defines values for Condition1Kind.
 const (
-	RequestAttributeEquals Condition1Kind = "request_attribute_equals"
+	Condition1KindRequestAttributeEquals Condition1Kind = "request_attribute_equals"
 )
 
 // Valid indicates whether the value is a known member of the Condition1Kind enum.
 func (e Condition1Kind) Valid() bool {
 	switch e {
-	case RequestAttributeEquals:
+	case Condition1KindRequestAttributeEquals:
 		return true
 	default:
 		return false
@@ -428,16 +863,16 @@ func (e Condition1Kind) Valid() bool {
 
 // Defines values for Configuration.
 const (
-	HighAvailability Configuration = "high-availability"
-	Standalone       Configuration = "standalone"
+	ConfigurationHighAvailability Configuration = "high-availability"
+	ConfigurationStandalone       Configuration = "standalone"
 )
 
 // Valid indicates whether the value is a known member of the Configuration enum.
 func (e Configuration) Valid() bool {
 	switch e {
-	case HighAvailability:
+	case ConfigurationHighAvailability:
 		return true
-	case Standalone:
+	case ConfigurationStandalone:
 		return true
 	default:
 		return false
@@ -563,13 +998,13 @@ func (e CopyS3SourceConfig1Type) Valid() bool {
 
 // Defines values for CrdOwner0Kind.
 const (
-	Ui CrdOwner0Kind = "ui"
+	CrdOwner0KindUi CrdOwner0Kind = "ui"
 )
 
 // Valid indicates whether the value is a known member of the CrdOwner0Kind enum.
 func (e CrdOwner0Kind) Valid() bool {
 	switch e {
-	case Ui:
+	case CrdOwner0KindUi:
 		return true
 	default:
 		return false
@@ -593,13 +1028,13 @@ func (e CrdOwner1Kind) Valid() bool {
 
 // Defines values for CrdOwner2Kind.
 const (
-	Gitops CrdOwner2Kind = "gitops"
+	CrdOwner2KindGitops CrdOwner2Kind = "gitops"
 )
 
 // Valid indicates whether the value is a known member of the CrdOwner2Kind enum.
 func (e CrdOwner2Kind) Valid() bool {
 	switch e {
-	case Gitops:
+	case CrdOwner2KindGitops:
 		return true
 	default:
 		return false
@@ -653,13 +1088,13 @@ func (e CreatePipelineRequestV21Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV22Type.
 const (
-	FileRouter CreatePipelineRequestV22Type = "file_router"
+	CreatePipelineRequestV22TypeFileRouter CreatePipelineRequestV22Type = "file_router"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV22Type enum.
 func (e CreatePipelineRequestV22Type) Valid() bool {
 	switch e {
-	case FileRouter:
+	case CreatePipelineRequestV22TypeFileRouter:
 		return true
 	default:
 		return false
@@ -683,13 +1118,13 @@ func (e CreatePipelineRequestV23Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV24Type.
 const (
-	S3Copy CreatePipelineRequestV24Type = "s3_copy"
+	CreatePipelineRequestV24TypeS3Copy CreatePipelineRequestV24Type = "s3_copy"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV24Type enum.
 func (e CreatePipelineRequestV24Type) Valid() bool {
 	switch e {
-	case S3Copy:
+	case CreatePipelineRequestV24TypeS3Copy:
 		return true
 	default:
 		return false
@@ -698,13 +1133,13 @@ func (e CreatePipelineRequestV24Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV25Type.
 const (
-	PageSplitter CreatePipelineRequestV25Type = "page_splitter"
+	CreatePipelineRequestV25TypePageSplitter CreatePipelineRequestV25Type = "page_splitter"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV25Type enum.
 func (e CreatePipelineRequestV25Type) Valid() bool {
 	switch e {
-	case PageSplitter:
+	case CreatePipelineRequestV25TypePageSplitter:
 		return true
 	default:
 		return false
@@ -713,13 +1148,13 @@ func (e CreatePipelineRequestV25Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV26Type.
 const (
-	ContextEnricher CreatePipelineRequestV26Type = "context_enricher"
+	CreatePipelineRequestV26TypeContextEnricher CreatePipelineRequestV26Type = "context_enricher"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV26Type enum.
 func (e CreatePipelineRequestV26Type) Valid() bool {
 	switch e {
-	case ContextEnricher:
+	case CreatePipelineRequestV26TypeContextEnricher:
 		return true
 	default:
 		return false
@@ -728,13 +1163,13 @@ func (e CreatePipelineRequestV26Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV27Type.
 const (
-	GDrive CreatePipelineRequestV27Type = "g_drive"
+	CreatePipelineRequestV27TypeGDrive CreatePipelineRequestV27Type = "g_drive"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV27Type enum.
 func (e CreatePipelineRequestV27Type) Valid() bool {
 	switch e {
-	case GDrive:
+	case CreatePipelineRequestV27TypeGDrive:
 		return true
 	default:
 		return false
@@ -743,13 +1178,13 @@ func (e CreatePipelineRequestV27Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV28Type.
 const (
-	InboundEmail CreatePipelineRequestV28Type = "inbound_email"
+	CreatePipelineRequestV28TypeInboundEmail CreatePipelineRequestV28Type = "inbound_email"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV28Type enum.
 func (e CreatePipelineRequestV28Type) Valid() bool {
 	switch e {
-	case InboundEmail:
+	case CreatePipelineRequestV28TypeInboundEmail:
 		return true
 	default:
 		return false
@@ -758,13 +1193,49 @@ func (e CreatePipelineRequestV28Type) Valid() bool {
 
 // Defines values for CreatePipelineRequestV29Type.
 const (
-	OpenData CreatePipelineRequestV29Type = "open_data"
+	CreatePipelineRequestV29TypeOpenData CreatePipelineRequestV29Type = "open_data"
 )
 
 // Valid indicates whether the value is a known member of the CreatePipelineRequestV29Type enum.
 func (e CreatePipelineRequestV29Type) Valid() bool {
 	switch e {
-	case OpenData:
+	case CreatePipelineRequestV29TypeOpenData:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CreatePipelineRequestV210Type.
+const (
+	CreatePipelineRequestV210TypeSharePoint CreatePipelineRequestV210Type = "share_point"
+)
+
+// Valid indicates whether the value is a known member of the CreatePipelineRequestV210Type enum.
+func (e CreatePipelineRequestV210Type) Valid() bool {
+	switch e {
+	case CreatePipelineRequestV210TypeSharePoint:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CredentialLocation.
+const (
+	CredentialLocationEnv     CredentialLocation = "env"
+	CredentialLocationLiteral CredentialLocation = "literal"
+	CredentialLocationSecret  CredentialLocation = "secret"
+)
+
+// Valid indicates whether the value is a known member of the CredentialLocation enum.
+func (e CredentialLocation) Valid() bool {
+	switch e {
+	case CredentialLocationEnv:
+		return true
+	case CredentialLocationLiteral:
+		return true
+	case CredentialLocationSecret:
 		return true
 	default:
 		return false
@@ -773,16 +1244,16 @@ func (e CreatePipelineRequestV29Type) Valid() bool {
 
 // Defines values for CustomDomainTlsModeInput.
 const (
-	Acme   CustomDomainTlsModeInput = "acme"
-	Secret CustomDomainTlsModeInput = "secret"
+	CustomDomainTlsModeInputAcme   CustomDomainTlsModeInput = "acme"
+	CustomDomainTlsModeInputSecret CustomDomainTlsModeInput = "secret"
 )
 
 // Valid indicates whether the value is a known member of the CustomDomainTlsModeInput enum.
 func (e CustomDomainTlsModeInput) Valid() bool {
 	switch e {
-	case Acme:
+	case CustomDomainTlsModeInputAcme:
 		return true
-	case Secret:
+	case CustomDomainTlsModeInputSecret:
 		return true
 	default:
 		return false
@@ -791,16 +1262,16 @@ func (e CustomDomainTlsModeInput) Valid() bool {
 
 // Defines values for DashboardStatus.
 const (
-	Draft     DashboardStatus = "draft"
-	Published DashboardStatus = "published"
+	DashboardStatusDraft     DashboardStatus = "draft"
+	DashboardStatusPublished DashboardStatus = "published"
 )
 
 // Valid indicates whether the value is a known member of the DashboardStatus enum.
 func (e DashboardStatus) Valid() bool {
 	switch e {
-	case Draft:
+	case DashboardStatusDraft:
 		return true
-	case Published:
+	case DashboardStatusPublished:
 		return true
 	default:
 		return false
@@ -918,6 +1389,27 @@ func (e DataDockStatus) Valid() bool {
 	}
 }
 
+// Defines values for DataDockType.
+const (
+	DataDockTypeObjectStorage DataDockType = "object_storage"
+	DataDockTypeS3Gateway     DataDockType = "s3_gateway"
+	DataDockTypeTrino         DataDockType = "trino"
+)
+
+// Valid indicates whether the value is a known member of the DataDockType enum.
+func (e DataDockType) Valid() bool {
+	switch e {
+	case DataDockTypeObjectStorage:
+		return true
+	case DataDockTypeS3Gateway:
+		return true
+	case DataDockTypeTrino:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DomainVerificationStateDto.
 const (
 	DomainVerificationStateDtoPending  DomainVerificationStateDto = "pending"
@@ -956,19 +1448,19 @@ func (e Effect) Valid() bool {
 
 // Defines values for EgressDestinationKindDto.
 const (
-	Fqdn     EgressDestinationKindDto = "fqdn"
-	Identity EgressDestinationKindDto = "identity"
-	Pod      EgressDestinationKindDto = "pod"
+	EgressDestinationKindDtoFqdn     EgressDestinationKindDto = "fqdn"
+	EgressDestinationKindDtoIdentity EgressDestinationKindDto = "identity"
+	EgressDestinationKindDtoPod      EgressDestinationKindDto = "pod"
 )
 
 // Valid indicates whether the value is a known member of the EgressDestinationKindDto enum.
 func (e EgressDestinationKindDto) Valid() bool {
 	switch e {
-	case Fqdn:
+	case EgressDestinationKindDtoFqdn:
 		return true
-	case Identity:
+	case EgressDestinationKindDtoIdentity:
 		return true
-	case Pod:
+	case EgressDestinationKindDtoPod:
 		return true
 	default:
 		return false
@@ -977,16 +1469,16 @@ func (e EgressDestinationKindDto) Valid() bool {
 
 // Defines values for EgressVerdictDto.
 const (
-	Dropped   EgressVerdictDto = "dropped"
-	Forwarded EgressVerdictDto = "forwarded"
+	EgressVerdictDtoDropped   EgressVerdictDto = "dropped"
+	EgressVerdictDtoForwarded EgressVerdictDto = "forwarded"
 )
 
 // Valid indicates whether the value is a known member of the EgressVerdictDto enum.
 func (e EgressVerdictDto) Valid() bool {
 	switch e {
-	case Dropped:
+	case EgressVerdictDtoDropped:
 		return true
-	case Forwarded:
+	case EgressVerdictDtoForwarded:
 		return true
 	default:
 		return false
@@ -995,19 +1487,19 @@ func (e EgressVerdictDto) Valid() bool {
 
 // Defines values for EmailAuthPolicy.
 const (
-	Permissive          EmailAuthPolicy = "permissive"
-	RejectOnAnyAuthFail EmailAuthPolicy = "reject_on_any_auth_fail"
-	RejectOnDmarcFail   EmailAuthPolicy = "reject_on_dmarc_fail"
+	EmailAuthPolicyPermissive          EmailAuthPolicy = "permissive"
+	EmailAuthPolicyRejectOnAnyAuthFail EmailAuthPolicy = "reject_on_any_auth_fail"
+	EmailAuthPolicyRejectOnDmarcFail   EmailAuthPolicy = "reject_on_dmarc_fail"
 )
 
 // Valid indicates whether the value is a known member of the EmailAuthPolicy enum.
 func (e EmailAuthPolicy) Valid() bool {
 	switch e {
-	case Permissive:
+	case EmailAuthPolicyPermissive:
 		return true
-	case RejectOnAnyAuthFail:
+	case EmailAuthPolicyRejectOnAnyAuthFail:
 		return true
-	case RejectOnDmarcFail:
+	case EmailAuthPolicyRejectOnDmarcFail:
 		return true
 	default:
 		return false
@@ -1145,16 +1637,16 @@ func (e FileSorterSourceConfig1Type) Valid() bool {
 
 // Defines values for GDriveExtractionType.
 const (
-	Omnifeed GDriveExtractionType = "omnifeed"
-	Pdfeed   GDriveExtractionType = "pdfeed"
+	GDriveExtractionTypeOmnifeed GDriveExtractionType = "omnifeed"
+	GDriveExtractionTypePdfeed   GDriveExtractionType = "pdfeed"
 )
 
 // Valid indicates whether the value is a known member of the GDriveExtractionType enum.
 func (e GDriveExtractionType) Valid() bool {
 	switch e {
-	case Omnifeed:
+	case GDriveExtractionTypeOmnifeed:
 		return true
-	case Pdfeed:
+	case GDriveExtractionTypePdfeed:
 		return true
 	default:
 		return false
@@ -1163,13 +1655,13 @@ func (e GDriveExtractionType) Valid() bool {
 
 // Defines values for GithubConnectionCredentialDto0Kind.
 const (
-	Pat GithubConnectionCredentialDto0Kind = "pat"
+	GithubConnectionCredentialDto0KindPat GithubConnectionCredentialDto0Kind = "pat"
 )
 
 // Valid indicates whether the value is a known member of the GithubConnectionCredentialDto0Kind enum.
 func (e GithubConnectionCredentialDto0Kind) Valid() bool {
 	switch e {
-	case Pat:
+	case GithubConnectionCredentialDto0KindPat:
 		return true
 	default:
 		return false
@@ -1178,13 +1670,13 @@ func (e GithubConnectionCredentialDto0Kind) Valid() bool {
 
 // Defines values for GithubConnectionCredentialDto1Kind.
 const (
-	GithubApp GithubConnectionCredentialDto1Kind = "github_app"
+	GithubConnectionCredentialDto1KindGithubApp GithubConnectionCredentialDto1Kind = "github_app"
 )
 
 // Valid indicates whether the value is a known member of the GithubConnectionCredentialDto1Kind enum.
 func (e GithubConnectionCredentialDto1Kind) Valid() bool {
 	switch e {
-	case GithubApp:
+	case GithubConnectionCredentialDto1KindGithubApp:
 		return true
 	default:
 		return false
@@ -1209,24 +1701,18 @@ func (e GithubConnectionTargetKind) Valid() bool {
 	}
 }
 
-// Defines values for GithubRunnerFlavorDto.
+// Defines values for GithubRunnerEgressModeDto.
 const (
-	GithubRunnerFlavorDtoL  GithubRunnerFlavorDto = "l"
-	GithubRunnerFlavorDtoM  GithubRunnerFlavorDto = "m"
-	GithubRunnerFlavorDtoS  GithubRunnerFlavorDto = "s"
-	GithubRunnerFlavorDtoXl GithubRunnerFlavorDto = "xl"
+	GithubRunnerEgressModeDtoAllowlist    GithubRunnerEgressModeDto = "allowlist"
+	GithubRunnerEgressModeDtoUnrestricted GithubRunnerEgressModeDto = "unrestricted"
 )
 
-// Valid indicates whether the value is a known member of the GithubRunnerFlavorDto enum.
-func (e GithubRunnerFlavorDto) Valid() bool {
+// Valid indicates whether the value is a known member of the GithubRunnerEgressModeDto enum.
+func (e GithubRunnerEgressModeDto) Valid() bool {
 	switch e {
-	case GithubRunnerFlavorDtoL:
+	case GithubRunnerEgressModeDtoAllowlist:
 		return true
-	case GithubRunnerFlavorDtoM:
-		return true
-	case GithubRunnerFlavorDtoS:
-		return true
-	case GithubRunnerFlavorDtoXl:
+	case GithubRunnerEgressModeDtoUnrestricted:
 		return true
 	default:
 		return false
@@ -1250,13 +1736,13 @@ func (e GithubRunnerScope0Kind) Valid() bool {
 
 // Defines values for GithubRunnerScope1Kind.
 const (
-	Repo GithubRunnerScope1Kind = "repo"
+	GithubRunnerScope1KindRepo GithubRunnerScope1Kind = "repo"
 )
 
 // Valid indicates whether the value is a known member of the GithubRunnerScope1Kind enum.
 func (e GithubRunnerScope1Kind) Valid() bool {
 	switch e {
-	case Repo:
+	case GithubRunnerScope1KindRepo:
 		return true
 	default:
 		return false
@@ -1265,34 +1751,34 @@ func (e GithubRunnerScope1Kind) Valid() bool {
 
 // Defines values for HfDataType.
 const (
-	Boolean     HfDataType = "Boolean"
-	Date        HfDataType = "Date"
-	Double      HfDataType = "Double"
-	Float       HfDataType = "Float"
-	Int         HfDataType = "Int"
-	String      HfDataType = "String"
-	StringArray HfDataType = "StringArray"
-	Timestamp   HfDataType = "Timestamp"
+	HfDataTypeBoolean     HfDataType = "Boolean"
+	HfDataTypeDate        HfDataType = "Date"
+	HfDataTypeDouble      HfDataType = "Double"
+	HfDataTypeFloat       HfDataType = "Float"
+	HfDataTypeInt         HfDataType = "Int"
+	HfDataTypeString      HfDataType = "String"
+	HfDataTypeStringArray HfDataType = "StringArray"
+	HfDataTypeTimestamp   HfDataType = "Timestamp"
 )
 
 // Valid indicates whether the value is a known member of the HfDataType enum.
 func (e HfDataType) Valid() bool {
 	switch e {
-	case Boolean:
+	case HfDataTypeBoolean:
 		return true
-	case Date:
+	case HfDataTypeDate:
 		return true
-	case Double:
+	case HfDataTypeDouble:
 		return true
-	case Float:
+	case HfDataTypeFloat:
 		return true
-	case Int:
+	case HfDataTypeInt:
 		return true
-	case String:
+	case HfDataTypeString:
 		return true
-	case StringArray:
+	case HfDataTypeStringArray:
 		return true
-	case Timestamp:
+	case HfDataTypeTimestamp:
 		return true
 	default:
 		return false
@@ -1301,19 +1787,19 @@ func (e HfDataType) Valid() bool {
 
 // Defines values for IdentityProviderKind.
 const (
-	Github IdentityProviderKind = "github"
-	Google IdentityProviderKind = "google"
-	Oidc   IdentityProviderKind = "oidc"
+	IdentityProviderKindGithub IdentityProviderKind = "github"
+	IdentityProviderKindGoogle IdentityProviderKind = "google"
+	IdentityProviderKindOidc   IdentityProviderKind = "oidc"
 )
 
 // Valid indicates whether the value is a known member of the IdentityProviderKind enum.
 func (e IdentityProviderKind) Valid() bool {
 	switch e {
-	case Github:
+	case IdentityProviderKindGithub:
 		return true
-	case Google:
+	case IdentityProviderKindGoogle:
 		return true
-	case Oidc:
+	case IdentityProviderKindOidc:
 		return true
 	default:
 		return false
@@ -1352,13 +1838,13 @@ func (e InboundEmailDestinationConfig1Type) Valid() bool {
 
 // Defines values for InboundEmailSourceConfig0Transport.
 const (
-	Imap InboundEmailSourceConfig0Transport = "imap"
+	InboundEmailSourceConfig0TransportImap InboundEmailSourceConfig0Transport = "imap"
 )
 
 // Valid indicates whether the value is a known member of the InboundEmailSourceConfig0Transport enum.
 func (e InboundEmailSourceConfig0Transport) Valid() bool {
 	switch e {
-	case Imap:
+	case InboundEmailSourceConfig0TransportImap:
 		return true
 	default:
 		return false
@@ -1367,16 +1853,40 @@ func (e InboundEmailSourceConfig0Transport) Valid() bool {
 
 // Defines values for IntendedUse.
 const (
-	Evaluation IntendedUse = "evaluation"
-	Production IntendedUse = "production"
+	IntendedUseEvaluation IntendedUse = "evaluation"
+	IntendedUseProduction IntendedUse = "production"
 )
 
 // Valid indicates whether the value is a known member of the IntendedUse enum.
 func (e IntendedUse) Valid() bool {
 	switch e {
-	case Evaluation:
+	case IntendedUseEvaluation:
 		return true
-	case Production:
+	case IntendedUseProduction:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for InternetExposureState.
+const (
+	InternetExposureStateExposed    InternetExposureState = "exposed"
+	InternetExposureStatePrivate    InternetExposureState = "private"
+	InternetExposureStatePublishing InternetExposureState = "publishing"
+	InternetExposureStateRemoving   InternetExposureState = "removing"
+)
+
+// Valid indicates whether the value is a known member of the InternetExposureState enum.
+func (e InternetExposureState) Valid() bool {
+	switch e {
+	case InternetExposureStateExposed:
+		return true
+	case InternetExposureStatePrivate:
+		return true
+	case InternetExposureStatePublishing:
+		return true
+	case InternetExposureStateRemoving:
 		return true
 	default:
 		return false
@@ -1469,16 +1979,16 @@ func (e LogLevel) Valid() bool {
 
 // Defines values for LogStream.
 const (
-	Stderr LogStream = "stderr"
-	Stdout LogStream = "stdout"
+	LogStreamStderr LogStream = "stderr"
+	LogStreamStdout LogStream = "stdout"
 )
 
 // Valid indicates whether the value is a known member of the LogStream enum.
 func (e LogStream) Valid() bool {
 	switch e {
-	case Stderr:
+	case LogStreamStderr:
 		return true
-	case Stdout:
+	case LogStreamStdout:
 		return true
 	default:
 		return false
@@ -1487,19 +1997,19 @@ func (e LogStream) Valid() bool {
 
 // Defines values for MedallionTier.
 const (
-	Bronze MedallionTier = "bronze"
-	Gold   MedallionTier = "gold"
-	Silver MedallionTier = "silver"
+	MedallionTierBronze MedallionTier = "bronze"
+	MedallionTierGold   MedallionTier = "gold"
+	MedallionTierSilver MedallionTier = "silver"
 )
 
 // Valid indicates whether the value is a known member of the MedallionTier enum.
 func (e MedallionTier) Valid() bool {
 	switch e {
-	case Bronze:
+	case MedallionTierBronze:
 		return true
-	case Gold:
+	case MedallionTierGold:
 		return true
-	case Silver:
+	case MedallionTierSilver:
 		return true
 	default:
 		return false
@@ -1508,19 +2018,19 @@ func (e MedallionTier) Valid() bool {
 
 // Defines values for MessageAuthorKind.
 const (
-	OrgUser       MessageAuthorKind = "org_user"
-	PlatformAdmin MessageAuthorKind = "platform_admin"
-	System        MessageAuthorKind = "system"
+	MessageAuthorKindOrgUser       MessageAuthorKind = "org_user"
+	MessageAuthorKindPlatformAdmin MessageAuthorKind = "platform_admin"
+	MessageAuthorKindSystem        MessageAuthorKind = "system"
 )
 
 // Valid indicates whether the value is a known member of the MessageAuthorKind enum.
 func (e MessageAuthorKind) Valid() bool {
 	switch e {
-	case OrgUser:
+	case MessageAuthorKindOrgUser:
 		return true
-	case PlatformAdmin:
+	case MessageAuthorKindPlatformAdmin:
 		return true
-	case System:
+	case MessageAuthorKindSystem:
 		return true
 	default:
 		return false
@@ -1544,13 +2054,13 @@ func (e MessagePart0Kind) Valid() bool {
 
 // Defines values for MessagePart1Kind.
 const (
-	Reasoning MessagePart1Kind = "reasoning"
+	MessagePart1KindReasoning MessagePart1Kind = "reasoning"
 )
 
 // Valid indicates whether the value is a known member of the MessagePart1Kind enum.
 func (e MessagePart1Kind) Valid() bool {
 	switch e {
-	case Reasoning:
+	case MessagePart1KindReasoning:
 		return true
 	default:
 		return false
@@ -1559,13 +2069,13 @@ func (e MessagePart1Kind) Valid() bool {
 
 // Defines values for MessagePart2Kind.
 const (
-	Tool MessagePart2Kind = "tool"
+	MessagePart2KindTool MessagePart2Kind = "tool"
 )
 
 // Valid indicates whether the value is a known member of the MessagePart2Kind enum.
 func (e MessagePart2Kind) Valid() bool {
 	switch e {
-	case Tool:
+	case MessagePart2KindTool:
 		return true
 	default:
 		return false
@@ -1574,13 +2084,13 @@ func (e MessagePart2Kind) Valid() bool {
 
 // Defines values for MessagePart3Kind.
 const (
-	Patch MessagePart3Kind = "patch"
+	MessagePart3KindPatch MessagePart3Kind = "patch"
 )
 
 // Valid indicates whether the value is a known member of the MessagePart3Kind enum.
 func (e MessagePart3Kind) Valid() bool {
 	switch e {
-	case Patch:
+	case MessagePart3KindPatch:
 		return true
 	default:
 		return false
@@ -1589,13 +2099,13 @@ func (e MessagePart3Kind) Valid() bool {
 
 // Defines values for MessagePart4Kind.
 const (
-	File MessagePart4Kind = "file"
+	MessagePart4KindFile MessagePart4Kind = "file"
 )
 
 // Valid indicates whether the value is a known member of the MessagePart4Kind enum.
 func (e MessagePart4Kind) Valid() bool {
 	switch e {
-	case File:
+	case MessagePart4KindFile:
 		return true
 	default:
 		return false
@@ -1622,34 +2132,55 @@ func (e MessageRole) Valid() bool {
 
 // Defines values for MetricsRange.
 const (
-	N15m MetricsRange = "15m"
-	N1h  MetricsRange = "1h"
-	N24h MetricsRange = "24h"
-	N30d MetricsRange = "30d"
-	N30m MetricsRange = "30m"
-	N5m  MetricsRange = "5m"
-	N6h  MetricsRange = "6h"
-	N7d  MetricsRange = "7d"
+	MetricsRangeN15m MetricsRange = "15m"
+	MetricsRangeN1h  MetricsRange = "1h"
+	MetricsRangeN24h MetricsRange = "24h"
+	MetricsRangeN30d MetricsRange = "30d"
+	MetricsRangeN30m MetricsRange = "30m"
+	MetricsRangeN5m  MetricsRange = "5m"
+	MetricsRangeN6h  MetricsRange = "6h"
+	MetricsRangeN7d  MetricsRange = "7d"
 )
 
 // Valid indicates whether the value is a known member of the MetricsRange enum.
 func (e MetricsRange) Valid() bool {
 	switch e {
-	case N15m:
+	case MetricsRangeN15m:
 		return true
-	case N1h:
+	case MetricsRangeN1h:
 		return true
-	case N24h:
+	case MetricsRangeN24h:
 		return true
-	case N30d:
+	case MetricsRangeN30d:
 		return true
-	case N30m:
+	case MetricsRangeN30m:
 		return true
-	case N5m:
+	case MetricsRangeN5m:
 		return true
-	case N6h:
+	case MetricsRangeN6h:
 		return true
-	case N7d:
+	case MetricsRangeN7d:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ModelProtocol.
+const (
+	ModelProtocolKserveV2 ModelProtocol = "kserve-v2"
+	ModelProtocolOpenai   ModelProtocol = "openai"
+	ModelProtocolUnknown  ModelProtocol = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the ModelProtocol enum.
+func (e ModelProtocol) Valid() bool {
+	switch e {
+	case ModelProtocolKserveV2:
+		return true
+	case ModelProtocolOpenai:
+		return true
+	case ModelProtocolUnknown:
 		return true
 	default:
 		return false
@@ -1658,19 +2189,19 @@ func (e MetricsRange) Valid() bool {
 
 // Defines values for ModelRuntime.
 const (
-	External ModelRuntime = "external"
-	Tgi      ModelRuntime = "tgi"
-	Vllm     ModelRuntime = "vllm"
+	ModelRuntimeExternal ModelRuntime = "external"
+	ModelRuntimeTgi      ModelRuntime = "tgi"
+	ModelRuntimeVllm     ModelRuntime = "vllm"
 )
 
 // Valid indicates whether the value is a known member of the ModelRuntime enum.
 func (e ModelRuntime) Valid() bool {
 	switch e {
-	case External:
+	case ModelRuntimeExternal:
 		return true
-	case Tgi:
+	case ModelRuntimeTgi:
 		return true
-	case Vllm:
+	case ModelRuntimeVllm:
 		return true
 	default:
 		return false
@@ -1709,19 +2240,19 @@ func (e ModelServingPhase) Valid() bool {
 
 // Defines values for ModelType.
 const (
-	Embedding  ModelType = "embedding"
-	Generation ModelType = "generation"
-	Ocr        ModelType = "ocr"
+	ModelTypeEmbedding  ModelType = "embedding"
+	ModelTypeGeneration ModelType = "generation"
+	ModelTypeOcr        ModelType = "ocr"
 )
 
 // Valid indicates whether the value is a known member of the ModelType enum.
 func (e ModelType) Valid() bool {
 	switch e {
-	case Embedding:
+	case ModelTypeEmbedding:
 		return true
-	case Generation:
+	case ModelTypeGeneration:
 		return true
-	case Ocr:
+	case ModelTypeOcr:
 		return true
 	default:
 		return false
@@ -1730,16 +2261,16 @@ func (e ModelType) Valid() bool {
 
 // Defines values for NetworkIsolationView.
 const (
-	Lenient NetworkIsolationView = "lenient"
-	Strict  NetworkIsolationView = "strict"
+	NetworkIsolationViewLenient NetworkIsolationView = "lenient"
+	NetworkIsolationViewStrict  NetworkIsolationView = "strict"
 )
 
 // Valid indicates whether the value is a known member of the NetworkIsolationView enum.
 func (e NetworkIsolationView) Valid() bool {
 	switch e {
-	case Lenient:
+	case NetworkIsolationViewLenient:
 		return true
-	case Strict:
+	case NetworkIsolationViewStrict:
 		return true
 	default:
 		return false
@@ -1775,13 +2306,13 @@ func (e NodeTier) Valid() bool {
 
 // Defines values for OcrProviderConfig0Type.
 const (
-	Mistral OcrProviderConfig0Type = "mistral"
+	OcrProviderConfig0TypeMistral OcrProviderConfig0Type = "mistral"
 )
 
 // Valid indicates whether the value is a known member of the OcrProviderConfig0Type enum.
 func (e OcrProviderConfig0Type) Valid() bool {
 	switch e {
-	case Mistral:
+	case OcrProviderConfig0TypeMistral:
 		return true
 	default:
 		return false
@@ -1790,13 +2321,13 @@ func (e OcrProviderConfig0Type) Valid() bool {
 
 // Defines values for OcrProviderConfig1Type.
 const (
-	Local OcrProviderConfig1Type = "local"
+	OcrProviderConfig1TypeLocal OcrProviderConfig1Type = "local"
 )
 
 // Valid indicates whether the value is a known member of the OcrProviderConfig1Type enum.
 func (e OcrProviderConfig1Type) Valid() bool {
 	switch e {
-	case Local:
+	case OcrProviderConfig1TypeLocal:
 		return true
 	default:
 		return false
@@ -1853,16 +2384,16 @@ func (e OrgFeature) Valid() bool {
 
 // Defines values for PanelKind.
 const (
-	Stat       PanelKind = "stat"
-	Timeseries PanelKind = "timeseries"
+	PanelKindStat       PanelKind = "stat"
+	PanelKindTimeseries PanelKind = "timeseries"
 )
 
 // Valid indicates whether the value is a known member of the PanelKind enum.
 func (e PanelKind) Valid() bool {
 	switch e {
-	case Stat:
+	case PanelKindStat:
 		return true
-	case Timeseries:
+	case PanelKindTimeseries:
 		return true
 	default:
 		return false
@@ -1947,6 +2478,7 @@ const (
 	PermissionKeyDataDockDelete                PermissionKey = "data_dock:delete"
 	PermissionKeyDataDockRead                  PermissionKey = "data_dock:read"
 	PermissionKeyDataDockUpdate                PermissionKey = "data_dock:update"
+	PermissionKeyDevWorkstationAuditRead       PermissionKey = "dev_workstation:audit_read"
 	PermissionKeyDevWorkstationCreate          PermissionKey = "dev_workstation:create"
 	PermissionKeyDevWorkstationDelete          PermissionKey = "dev_workstation:delete"
 	PermissionKeyDevWorkstationRead            PermissionKey = "dev_workstation:read"
@@ -2170,6 +2702,8 @@ func (e PermissionKey) Valid() bool {
 	case PermissionKeyDataDockRead:
 		return true
 	case PermissionKeyDataDockUpdate:
+		return true
+	case PermissionKeyDevWorkstationAuditRead:
 		return true
 	case PermissionKeyDevWorkstationCreate:
 		return true
@@ -2414,19 +2948,19 @@ func (e PermissionLevel) Valid() bool {
 
 // Defines values for PermissionReply.
 const (
-	Always PermissionReply = "always"
-	Once   PermissionReply = "once"
-	Reject PermissionReply = "reject"
+	PermissionReplyAlways PermissionReply = "always"
+	PermissionReplyOnce   PermissionReply = "once"
+	PermissionReplyReject PermissionReply = "reject"
 )
 
 // Valid indicates whether the value is a known member of the PermissionReply enum.
 func (e PermissionReply) Valid() bool {
 	switch e {
-	case Always:
+	case PermissionReplyAlways:
 		return true
-	case Once:
+	case PermissionReplyOnce:
 		return true
-	case Reject:
+	case PermissionReplyReject:
 		return true
 	default:
 		return false
@@ -2435,13 +2969,13 @@ func (e PermissionReply) Valid() bool {
 
 // Defines values for PipelineFieldReference0Kind.
 const (
-	Bucket PipelineFieldReference0Kind = "bucket"
+	PipelineFieldReference0KindBucket PipelineFieldReference0Kind = "bucket"
 )
 
 // Valid indicates whether the value is a known member of the PipelineFieldReference0Kind enum.
 func (e PipelineFieldReference0Kind) Valid() bool {
 	switch e {
-	case Bucket:
+	case PipelineFieldReference0KindBucket:
 		return true
 	default:
 		return false
@@ -2450,13 +2984,13 @@ func (e PipelineFieldReference0Kind) Valid() bool {
 
 // Defines values for PipelineFieldReference1Kind.
 const (
-	SharedModel PipelineFieldReference1Kind = "shared_model"
+	PipelineFieldReference1KindSharedModel PipelineFieldReference1Kind = "shared_model"
 )
 
 // Valid indicates whether the value is a known member of the PipelineFieldReference1Kind enum.
 func (e PipelineFieldReference1Kind) Valid() bool {
 	switch e {
-	case SharedModel:
+	case PipelineFieldReference1KindSharedModel:
 		return true
 	default:
 		return false
@@ -2472,6 +3006,21 @@ const (
 func (e PipelineFieldReference2Kind) Valid() bool {
 	switch e {
 	case PipelineFieldReference2KindTable:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PipelineFieldReference3Kind.
+const (
+	PipelineFieldReference3KindCredential PipelineFieldReference3Kind = "credential"
+)
+
+// Valid indicates whether the value is a known member of the PipelineFieldReference3Kind enum.
+func (e PipelineFieldReference3Kind) Valid() bool {
+	switch e {
+	case PipelineFieldReference3KindCredential:
 		return true
 	default:
 		return false
@@ -2495,13 +3044,13 @@ func (e PipelineOutputParameters0Type) Valid() bool {
 
 // Defines values for PipelineOutputParameters1Type.
 const (
-	S3 PipelineOutputParameters1Type = "s3"
+	PipelineOutputParameters1TypeS3 PipelineOutputParameters1Type = "s3"
 )
 
 // Valid indicates whether the value is a known member of the PipelineOutputParameters1Type enum.
 func (e PipelineOutputParameters1Type) Valid() bool {
 	switch e {
-	case S3:
+	case PipelineOutputParameters1TypeS3:
 		return true
 	default:
 		return false
@@ -2510,13 +3059,13 @@ func (e PipelineOutputParameters1Type) Valid() bool {
 
 // Defines values for PipelineOutputParameters2Type.
 const (
-	Filesorter PipelineOutputParameters2Type = "filesorter"
+	PipelineOutputParameters2TypeFilesorter PipelineOutputParameters2Type = "filesorter"
 )
 
 // Valid indicates whether the value is a known member of the PipelineOutputParameters2Type enum.
 func (e PipelineOutputParameters2Type) Valid() bool {
 	switch e {
-	case Filesorter:
+	case PipelineOutputParameters2TypeFilesorter:
 		return true
 	default:
 		return false
@@ -2585,18 +3134,19 @@ func (e PipelineStatusFilter) Valid() bool {
 
 // Defines values for PipelineType.
 const (
-	PipelineTypeContextEnricher  PipelineType = "ContextEnricher"
-	PipelineTypeCopy             PipelineType = "Copy"
-	PipelineTypeFileRouter       PipelineType = "FileRouter"
-	PipelineTypeFileSorter       PipelineType = "FileSorter"
-	PipelineTypeGDriveConnector  PipelineType = "GDriveConnector"
-	PipelineTypeHephaistosPdfeed PipelineType = "HephaistosPdfeed"
-	PipelineTypeInboundEmail     PipelineType = "InboundEmail"
-	PipelineTypeLabelizer        PipelineType = "Labelizer"
-	PipelineTypeMarkitdown       PipelineType = "Markitdown"
-	PipelineTypeOmnifeed         PipelineType = "Omnifeed"
-	PipelineTypeOpenData         PipelineType = "OpenData"
-	PipelineTypePageSplitter     PipelineType = "PageSplitter"
+	PipelineTypeContextEnricher     PipelineType = "ContextEnricher"
+	PipelineTypeCopy                PipelineType = "Copy"
+	PipelineTypeFileRouter          PipelineType = "FileRouter"
+	PipelineTypeFileSorter          PipelineType = "FileSorter"
+	PipelineTypeGDriveConnector     PipelineType = "GDriveConnector"
+	PipelineTypeHephaistosPdfeed    PipelineType = "HephaistosPdfeed"
+	PipelineTypeInboundEmail        PipelineType = "InboundEmail"
+	PipelineTypeLabelizer           PipelineType = "Labelizer"
+	PipelineTypeMarkitdown          PipelineType = "Markitdown"
+	PipelineTypeOmnifeed            PipelineType = "Omnifeed"
+	PipelineTypeOpenData            PipelineType = "OpenData"
+	PipelineTypePageSplitter        PipelineType = "PageSplitter"
+	PipelineTypeSharePointConnector PipelineType = "SharePointConnector"
 )
 
 // Valid indicates whether the value is a known member of the PipelineType enum.
@@ -2626,6 +3176,8 @@ func (e PipelineType) Valid() bool {
 		return true
 	case PipelineTypePageSplitter:
 		return true
+	case PipelineTypeSharePointConnector:
+		return true
 	default:
 		return false
 	}
@@ -2633,22 +3185,22 @@ func (e PipelineType) Valid() bool {
 
 // Defines values for PolicyPreset.
 const (
-	AllowAll PolicyPreset = "allow_all"
-	Custom   PolicyPreset = "custom"
-	Default  PolicyPreset = "default"
-	ReadOnly PolicyPreset = "read_only"
+	PolicyPresetAllowAll PolicyPreset = "allow_all"
+	PolicyPresetCustom   PolicyPreset = "custom"
+	PolicyPresetDefault  PolicyPreset = "default"
+	PolicyPresetReadOnly PolicyPreset = "read_only"
 )
 
 // Valid indicates whether the value is a known member of the PolicyPreset enum.
 func (e PolicyPreset) Valid() bool {
 	switch e {
-	case AllowAll:
+	case PolicyPresetAllowAll:
 		return true
-	case Custom:
+	case PolicyPresetCustom:
 		return true
-	case Default:
+	case PolicyPresetDefault:
 		return true
-	case ReadOnly:
+	case PolicyPresetReadOnly:
 		return true
 	default:
 		return false
@@ -2657,19 +3209,19 @@ func (e PolicyPreset) Valid() bool {
 
 // Defines values for PortProtocol.
 const (
-	SCTP PortProtocol = "SCTP"
-	TCP  PortProtocol = "TCP"
-	UDP  PortProtocol = "UDP"
+	PortProtocolSCTP PortProtocol = "SCTP"
+	PortProtocolTCP  PortProtocol = "TCP"
+	PortProtocolUDP  PortProtocol = "UDP"
 )
 
 // Valid indicates whether the value is a known member of the PortProtocol enum.
 func (e PortProtocol) Valid() bool {
 	switch e {
-	case SCTP:
+	case PortProtocolSCTP:
 		return true
-	case TCP:
+	case PortProtocolTCP:
 		return true
-	case UDP:
+	case PortProtocolUDP:
 		return true
 	default:
 		return false
@@ -2702,13 +3254,13 @@ func (e PrChecks) Valid() bool {
 
 // Defines values for PrepareArchiveImportResponse0UploadType.
 const (
-	Simple PrepareArchiveImportResponse0UploadType = "simple"
+	PrepareArchiveImportResponse0UploadTypeSimple PrepareArchiveImportResponse0UploadType = "simple"
 )
 
 // Valid indicates whether the value is a known member of the PrepareArchiveImportResponse0UploadType enum.
 func (e PrepareArchiveImportResponse0UploadType) Valid() bool {
 	switch e {
-	case Simple:
+	case PrepareArchiveImportResponse0UploadTypeSimple:
 		return true
 	default:
 		return false
@@ -2717,13 +3269,34 @@ func (e PrepareArchiveImportResponse0UploadType) Valid() bool {
 
 // Defines values for PrepareArchiveImportResponse1UploadType.
 const (
-	Multipart PrepareArchiveImportResponse1UploadType = "multipart"
+	PrepareArchiveImportResponse1UploadTypeMultipart PrepareArchiveImportResponse1UploadType = "multipart"
 )
 
 // Valid indicates whether the value is a known member of the PrepareArchiveImportResponse1UploadType enum.
 func (e PrepareArchiveImportResponse1UploadType) Valid() bool {
 	switch e {
-	case Multipart:
+	case PrepareArchiveImportResponse1UploadTypeMultipart:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PreviewPosture.
+const (
+	PreviewPostureAllow  PreviewPosture = "allow"
+	PreviewPostureBlock  PreviewPosture = "block"
+	PreviewPostureRecord PreviewPosture = "record"
+)
+
+// Valid indicates whether the value is a known member of the PreviewPosture enum.
+func (e PreviewPosture) Valid() bool {
+	switch e {
+	case PreviewPostureAllow:
+		return true
+	case PreviewPostureBlock:
+		return true
+	case PreviewPostureRecord:
 		return true
 	default:
 		return false
@@ -2732,22 +3305,22 @@ func (e PrepareArchiveImportResponse1UploadType) Valid() bool {
 
 // Defines values for QuotaCapacityDimension.
 const (
-	Gpu     QuotaCapacityDimension = "gpu"
-	Ram     QuotaCapacityDimension = "ram"
-	Storage QuotaCapacityDimension = "storage"
-	Vcpu    QuotaCapacityDimension = "vcpu"
+	QuotaCapacityDimensionGpu     QuotaCapacityDimension = "gpu"
+	QuotaCapacityDimensionRam     QuotaCapacityDimension = "ram"
+	QuotaCapacityDimensionStorage QuotaCapacityDimension = "storage"
+	QuotaCapacityDimensionVcpu    QuotaCapacityDimension = "vcpu"
 )
 
 // Valid indicates whether the value is a known member of the QuotaCapacityDimension enum.
 func (e QuotaCapacityDimension) Valid() bool {
 	switch e {
-	case Gpu:
+	case QuotaCapacityDimensionGpu:
 		return true
-	case Ram:
+	case QuotaCapacityDimensionRam:
 		return true
-	case Storage:
+	case QuotaCapacityDimensionStorage:
 		return true
-	case Vcpu:
+	case QuotaCapacityDimensionVcpu:
 		return true
 	default:
 		return false
@@ -2876,19 +3449,19 @@ func (e RequestedSize) Valid() bool {
 
 // Defines values for RequesterKind.
 const (
-	Company           RequesterKind = "company"
-	Personal          RequesterKind = "personal"
-	PublicInstitution RequesterKind = "public_institution"
+	RequesterKindCompany           RequesterKind = "company"
+	RequesterKindPersonal          RequesterKind = "personal"
+	RequesterKindPublicInstitution RequesterKind = "public_institution"
 )
 
 // Valid indicates whether the value is a known member of the RequesterKind enum.
 func (e RequesterKind) Valid() bool {
 	switch e {
-	case Company:
+	case RequesterKindCompany:
 		return true
-	case Personal:
+	case RequesterKindPersonal:
 		return true
-	case PublicInstitution:
+	case RequesterKindPublicInstitution:
 		return true
 	default:
 		return false
@@ -2954,16 +3527,16 @@ func (e ResourceMode) Valid() bool {
 
 // Defines values for ResourceSource.
 const (
-	Adhoc ResourceSource = "adhoc"
-	Crd   ResourceSource = "crd"
+	ResourceSourceAdhoc ResourceSource = "adhoc"
+	ResourceSourceCrd   ResourceSource = "crd"
 )
 
 // Valid indicates whether the value is a known member of the ResourceSource enum.
 func (e ResourceSource) Valid() bool {
 	switch e {
-	case Adhoc:
+	case ResourceSourceAdhoc:
 		return true
-	case Crd:
+	case ResourceSourceCrd:
 		return true
 	default:
 		return false
@@ -2972,12 +3545,14 @@ func (e ResourceSource) Valid() bool {
 
 // Defines values for ResourceTier.
 const (
-	ResourceTierLarge  ResourceTier = "large"
-	ResourceTierMedium ResourceTier = "medium"
-	ResourceTierMicro  ResourceTier = "micro"
-	ResourceTierNano   ResourceTier = "nano"
-	ResourceTierSmall  ResourceTier = "small"
-	ResourceTierXlarge ResourceTier = "xlarge"
+	ResourceTierLarge    ResourceTier = "large"
+	ResourceTierMedium   ResourceTier = "medium"
+	ResourceTierMicro    ResourceTier = "micro"
+	ResourceTierN2xlarge ResourceTier = "2xlarge"
+	ResourceTierN4xlarge ResourceTier = "4xlarge"
+	ResourceTierNano     ResourceTier = "nano"
+	ResourceTierSmall    ResourceTier = "small"
+	ResourceTierXlarge   ResourceTier = "xlarge"
 )
 
 // Valid indicates whether the value is a known member of the ResourceTier enum.
@@ -2988,6 +3563,10 @@ func (e ResourceTier) Valid() bool {
 	case ResourceTierMedium:
 		return true
 	case ResourceTierMicro:
+		return true
+	case ResourceTierN2xlarge:
+		return true
+	case ResourceTierN4xlarge:
 		return true
 	case ResourceTierNano:
 		return true
@@ -3002,16 +3581,223 @@ func (e ResourceTier) Valid() bool {
 
 // Defines values for RightsizingDirection.
 const (
-	OverSized  RightsizingDirection = "overSized"
-	UnderSized RightsizingDirection = "underSized"
+	RightsizingDirectionOverSized  RightsizingDirection = "overSized"
+	RightsizingDirectionUnderSized RightsizingDirection = "underSized"
 )
 
 // Valid indicates whether the value is a known member of the RightsizingDirection enum.
 func (e RightsizingDirection) Valid() bool {
 	switch e {
-	case OverSized:
+	case RightsizingDirectionOverSized:
 		return true
-	case UnderSized:
+	case RightsizingDirectionUnderSized:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto0Kind.
+const (
+	RunnerFlavorDto0KindS RunnerFlavorDto0Kind = "s"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto0Kind enum.
+func (e RunnerFlavorDto0Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto0KindS:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto1Kind.
+const (
+	RunnerFlavorDto1KindM RunnerFlavorDto1Kind = "m"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto1Kind enum.
+func (e RunnerFlavorDto1Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto1KindM:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto2Kind.
+const (
+	RunnerFlavorDto2KindL RunnerFlavorDto2Kind = "l"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto2Kind enum.
+func (e RunnerFlavorDto2Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto2KindL:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto3Kind.
+const (
+	RunnerFlavorDto3KindXl RunnerFlavorDto3Kind = "xl"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto3Kind enum.
+func (e RunnerFlavorDto3Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto3KindXl:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto4Kind.
+const (
+	RunnerFlavorDto4KindC2 RunnerFlavorDto4Kind = "c2"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto4Kind enum.
+func (e RunnerFlavorDto4Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto4KindC2:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto5Kind.
+const (
+	RunnerFlavorDto5KindC3 RunnerFlavorDto5Kind = "c3"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto5Kind enum.
+func (e RunnerFlavorDto5Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto5KindC3:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto6Kind.
+const (
+	RunnerFlavorDto6KindC4 RunnerFlavorDto6Kind = "c4"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto6Kind enum.
+func (e RunnerFlavorDto6Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto6KindC4:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto7Kind.
+const (
+	RunnerFlavorDto7KindC8 RunnerFlavorDto7Kind = "c8"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto7Kind enum.
+func (e RunnerFlavorDto7Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto7KindC8:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorDto8Kind.
+const (
+	RunnerFlavorDto8KindCustom RunnerFlavorDto8Kind = "custom"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorDto8Kind enum.
+func (e RunnerFlavorDto8Kind) Valid() bool {
+	switch e {
+	case RunnerFlavorDto8KindCustom:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RunnerFlavorName.
+const (
+	RunnerFlavorNameC2 RunnerFlavorName = "c2"
+	RunnerFlavorNameC3 RunnerFlavorName = "c3"
+	RunnerFlavorNameC4 RunnerFlavorName = "c4"
+	RunnerFlavorNameC8 RunnerFlavorName = "c8"
+	RunnerFlavorNameL  RunnerFlavorName = "l"
+	RunnerFlavorNameM  RunnerFlavorName = "m"
+	RunnerFlavorNameS  RunnerFlavorName = "s"
+	RunnerFlavorNameXl RunnerFlavorName = "xl"
+)
+
+// Valid indicates whether the value is a known member of the RunnerFlavorName enum.
+func (e RunnerFlavorName) Valid() bool {
+	switch e {
+	case RunnerFlavorNameC2:
+		return true
+	case RunnerFlavorNameC3:
+		return true
+	case RunnerFlavorNameC4:
+		return true
+	case RunnerFlavorNameC8:
+		return true
+	case RunnerFlavorNameL:
+		return true
+	case RunnerFlavorNameM:
+		return true
+	case RunnerFlavorNameS:
+		return true
+	case RunnerFlavorNameXl:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeAlertPriority.
+const (
+	RuntimeAlertPriorityAlert         RuntimeAlertPriority = "alert"
+	RuntimeAlertPriorityCritical      RuntimeAlertPriority = "critical"
+	RuntimeAlertPriorityDebug         RuntimeAlertPriority = "debug"
+	RuntimeAlertPriorityEmergency     RuntimeAlertPriority = "emergency"
+	RuntimeAlertPriorityError         RuntimeAlertPriority = "error"
+	RuntimeAlertPriorityInformational RuntimeAlertPriority = "informational"
+	RuntimeAlertPriorityNotice        RuntimeAlertPriority = "notice"
+	RuntimeAlertPriorityWarning       RuntimeAlertPriority = "warning"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeAlertPriority enum.
+func (e RuntimeAlertPriority) Valid() bool {
+	switch e {
+	case RuntimeAlertPriorityAlert:
+		return true
+	case RuntimeAlertPriorityCritical:
+		return true
+	case RuntimeAlertPriorityDebug:
+		return true
+	case RuntimeAlertPriorityEmergency:
+		return true
+	case RuntimeAlertPriorityError:
+		return true
+	case RuntimeAlertPriorityInformational:
+		return true
+	case RuntimeAlertPriorityNotice:
+		return true
+	case RuntimeAlertPriorityWarning:
 		return true
 	default:
 		return false
@@ -3083,16 +3869,16 @@ func (e ScheduledRunStatus) Valid() bool {
 
 // Defines values for SearchMode.
 const (
-	Regex SearchMode = "regex"
-	Text  SearchMode = "text"
+	SearchModeRegex SearchMode = "regex"
+	SearchModeText  SearchMode = "text"
 )
 
 // Valid indicates whether the value is a known member of the SearchMode enum.
 func (e SearchMode) Valid() bool {
 	switch e {
-	case Regex:
+	case SearchModeRegex:
 		return true
-	case Text:
+	case SearchModeText:
 		return true
 	default:
 		return false
@@ -3158,13 +3944,13 @@ func (e SecretValue0Type) Valid() bool {
 
 // Defines values for SecretValue1Type.
 const (
-	Json SecretValue1Type = "json"
+	SecretValue1TypeJson SecretValue1Type = "json"
 )
 
 // Valid indicates whether the value is a known member of the SecretValue1Type enum.
 func (e SecretValue1Type) Valid() bool {
 	switch e {
-	case Json:
+	case SecretValue1TypeJson:
 		return true
 	default:
 		return false
@@ -3173,13 +3959,55 @@ func (e SecretValue1Type) Valid() bool {
 
 // Defines values for SecretValue2Type.
 const (
-	OciRegistryConfig SecretValue2Type = "oci_registry_config"
+	SecretValue2TypeOciRegistryConfig SecretValue2Type = "oci_registry_config"
 )
 
 // Valid indicates whether the value is a known member of the SecretValue2Type enum.
 func (e SecretValue2Type) Valid() bool {
 	switch e {
-	case OciRegistryConfig:
+	case SecretValue2TypeOciRegistryConfig:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SecurityDecision.
+const (
+	SecurityDecisionAllow SecurityDecision = "allow"
+	SecurityDecisionDeny  SecurityDecision = "deny"
+)
+
+// Valid indicates whether the value is a known member of the SecurityDecision enum.
+func (e SecurityDecision) Valid() bool {
+	switch e {
+	case SecurityDecisionAllow:
+		return true
+	case SecurityDecisionDeny:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SecurityResourceType.
+const (
+	SecurityResourceTypeCatalog SecurityResourceType = "catalog"
+	SecurityResourceTypeColumn  SecurityResourceType = "column"
+	SecurityResourceTypeSchema  SecurityResourceType = "schema"
+	SecurityResourceTypeTable   SecurityResourceType = "table"
+)
+
+// Valid indicates whether the value is a known member of the SecurityResourceType enum.
+func (e SecurityResourceType) Valid() bool {
+	switch e {
+	case SecurityResourceTypeCatalog:
+		return true
+	case SecurityResourceTypeColumn:
+		return true
+	case SecurityResourceTypeSchema:
+		return true
+	case SecurityResourceTypeTable:
 		return true
 	default:
 		return false
@@ -3212,16 +4040,20 @@ func (e SensitivityLevel) Valid() bool {
 
 // Defines values for ServiceLinkKind.
 const (
+	ServiceLinkKindAirflow           ServiceLinkKind = "Airflow"
 	ServiceLinkKindContainerApp      ServiceLinkKind = "ContainerApp"
 	ServiceLinkKindHfKeyValueCache   ServiceLinkKind = "HfKeyValueCache"
 	ServiceLinkKindKafka             ServiceLinkKind = "Kafka"
 	ServiceLinkKindManagedPostgreSQL ServiceLinkKind = "ManagedPostgreSQL"
+	ServiceLinkKindPipeline          ServiceLinkKind = "Pipeline"
 	ServiceLinkKindTrino             ServiceLinkKind = "Trino"
 )
 
 // Valid indicates whether the value is a known member of the ServiceLinkKind enum.
 func (e ServiceLinkKind) Valid() bool {
 	switch e {
+	case ServiceLinkKindAirflow:
+		return true
 	case ServiceLinkKindContainerApp:
 		return true
 	case ServiceLinkKindHfKeyValueCache:
@@ -3229,6 +4061,8 @@ func (e ServiceLinkKind) Valid() bool {
 	case ServiceLinkKindKafka:
 		return true
 	case ServiceLinkKindManagedPostgreSQL:
+		return true
+	case ServiceLinkKindPipeline:
 		return true
 	case ServiceLinkKindTrino:
 		return true
@@ -3281,22 +4115,22 @@ func (e SkillRegistryScopeDto) Valid() bool {
 
 // Defines values for SpendWindow.
 const (
-	Daily     SpendWindow = "daily"
-	Monthly   SpendWindow = "monthly"
-	Rolling4h SpendWindow = "rolling4h"
-	Weekly    SpendWindow = "weekly"
+	SpendWindowDaily     SpendWindow = "daily"
+	SpendWindowMonthly   SpendWindow = "monthly"
+	SpendWindowRolling4h SpendWindow = "rolling4h"
+	SpendWindowWeekly    SpendWindow = "weekly"
 )
 
 // Valid indicates whether the value is a known member of the SpendWindow enum.
 func (e SpendWindow) Valid() bool {
 	switch e {
-	case Daily:
+	case SpendWindowDaily:
 		return true
-	case Monthly:
+	case SpendWindowMonthly:
 		return true
-	case Rolling4h:
+	case SpendWindowRolling4h:
 		return true
-	case Weekly:
+	case SpendWindowWeekly:
 		return true
 	default:
 		return false
@@ -3305,19 +4139,19 @@ func (e SpendWindow) Valid() bool {
 
 // Defines values for TableHealthFindingKind.
 const (
-	DeleteDebt   TableHealthFindingKind = "delete_debt"
-	HistoryBloat TableHealthFindingKind = "history_bloat"
-	SmallFiles   TableHealthFindingKind = "small_files"
+	TableHealthFindingKindDeleteDebt   TableHealthFindingKind = "delete_debt"
+	TableHealthFindingKindHistoryBloat TableHealthFindingKind = "history_bloat"
+	TableHealthFindingKindSmallFiles   TableHealthFindingKind = "small_files"
 )
 
 // Valid indicates whether the value is a known member of the TableHealthFindingKind enum.
 func (e TableHealthFindingKind) Valid() bool {
 	switch e {
-	case DeleteDebt:
+	case TableHealthFindingKindDeleteDebt:
 		return true
-	case HistoryBloat:
+	case TableHealthFindingKindHistoryBloat:
 		return true
-	case SmallFiles:
+	case TableHealthFindingKindSmallFiles:
 		return true
 	default:
 		return false
@@ -3398,16 +4232,16 @@ func (e TestOciLoginFailureReason) Valid() bool {
 
 // Defines values for TestOciLoginVerdict.
 const (
-	ANONYMOUSACCEPTED TestOciLoginVerdict = "ANONYMOUS_ACCEPTED"
-	AUTHENTICATED     TestOciLoginVerdict = "AUTHENTICATED"
+	TestOciLoginVerdictANONYMOUSACCEPTED TestOciLoginVerdict = "ANONYMOUS_ACCEPTED"
+	TestOciLoginVerdictAUTHENTICATED     TestOciLoginVerdict = "AUTHENTICATED"
 )
 
 // Valid indicates whether the value is a known member of the TestOciLoginVerdict enum.
 func (e TestOciLoginVerdict) Valid() bool {
 	switch e {
-	case ANONYMOUSACCEPTED:
+	case TestOciLoginVerdictANONYMOUSACCEPTED:
 		return true
-	case AUTHENTICATED:
+	case TestOciLoginVerdictAUTHENTICATED:
 		return true
 	default:
 		return false
@@ -3416,28 +4250,28 @@ func (e TestOciLoginVerdict) Valid() bool {
 
 // Defines values for TicketCategory.
 const (
-	Billing        TicketCategory = "billing"
-	Bug            TicketCategory = "bug"
-	FeatureRequest TicketCategory = "feature_request"
-	Other          TicketCategory = "other"
-	Quota          TicketCategory = "quota"
-	Technical      TicketCategory = "technical"
+	TicketCategoryBilling        TicketCategory = "billing"
+	TicketCategoryBug            TicketCategory = "bug"
+	TicketCategoryFeatureRequest TicketCategory = "feature_request"
+	TicketCategoryOther          TicketCategory = "other"
+	TicketCategoryQuota          TicketCategory = "quota"
+	TicketCategoryTechnical      TicketCategory = "technical"
 )
 
 // Valid indicates whether the value is a known member of the TicketCategory enum.
 func (e TicketCategory) Valid() bool {
 	switch e {
-	case Billing:
+	case TicketCategoryBilling:
 		return true
-	case Bug:
+	case TicketCategoryBug:
 		return true
-	case FeatureRequest:
+	case TicketCategoryFeatureRequest:
 		return true
-	case Other:
+	case TicketCategoryOther:
 		return true
-	case Quota:
+	case TicketCategoryQuota:
 		return true
-	case Technical:
+	case TicketCategoryTechnical:
 		return true
 	default:
 		return false
@@ -3446,22 +4280,22 @@ func (e TicketCategory) Valid() bool {
 
 // Defines values for TicketPriority.
 const (
-	High   TicketPriority = "high"
-	Low    TicketPriority = "low"
-	Normal TicketPriority = "normal"
-	Urgent TicketPriority = "urgent"
+	TicketPriorityHigh   TicketPriority = "high"
+	TicketPriorityLow    TicketPriority = "low"
+	TicketPriorityNormal TicketPriority = "normal"
+	TicketPriorityUrgent TicketPriority = "urgent"
 )
 
 // Valid indicates whether the value is a known member of the TicketPriority enum.
 func (e TicketPriority) Valid() bool {
 	switch e {
-	case High:
+	case TicketPriorityHigh:
 		return true
-	case Low:
+	case TicketPriorityLow:
 		return true
-	case Normal:
+	case TicketPriorityNormal:
 		return true
-	case Urgent:
+	case TicketPriorityUrgent:
 		return true
 	default:
 		return false
@@ -3470,25 +4304,25 @@ func (e TicketPriority) Valid() bool {
 
 // Defines values for TicketStatus.
 const (
-	Closed          TicketStatus = "closed"
-	Open            TicketStatus = "open"
-	PendingCustomer TicketStatus = "pending_customer"
-	PendingSupport  TicketStatus = "pending_support"
-	Resolved        TicketStatus = "resolved"
+	TicketStatusClosed          TicketStatus = "closed"
+	TicketStatusOpen            TicketStatus = "open"
+	TicketStatusPendingCustomer TicketStatus = "pending_customer"
+	TicketStatusPendingSupport  TicketStatus = "pending_support"
+	TicketStatusResolved        TicketStatus = "resolved"
 )
 
 // Valid indicates whether the value is a known member of the TicketStatus enum.
 func (e TicketStatus) Valid() bool {
 	switch e {
-	case Closed:
+	case TicketStatusClosed:
 		return true
-	case Open:
+	case TicketStatusOpen:
 		return true
-	case PendingCustomer:
+	case TicketStatusPendingCustomer:
 		return true
-	case PendingSupport:
+	case TicketStatusPendingSupport:
 		return true
-	case Resolved:
+	case TicketStatusResolved:
 		return true
 	default:
 		return false
@@ -3596,16 +4430,16 @@ func (e UpdateDataDockRequestKind0Type) Valid() bool {
 
 // Defines values for UsageSource.
 const (
-	History  UsageSource = "history"
-	Realtime UsageSource = "realtime"
+	UsageSourceHistory  UsageSource = "history"
+	UsageSourceRealtime UsageSource = "realtime"
 )
 
 // Valid indicates whether the value is a known member of the UsageSource enum.
 func (e UsageSource) Valid() bool {
 	switch e {
-	case History:
+	case UsageSourceHistory:
 		return true
-	case Realtime:
+	case UsageSourceRealtime:
 		return true
 	default:
 		return false
@@ -3614,22 +4448,22 @@ func (e UsageSource) Valid() bool {
 
 // Defines values for ValueFormat.
 const (
-	Currency ValueFormat = "currency"
-	Duration ValueFormat = "duration"
-	Number   ValueFormat = "number"
-	Percent  ValueFormat = "percent"
+	ValueFormatCurrency ValueFormat = "currency"
+	ValueFormatDuration ValueFormat = "duration"
+	ValueFormatNumber   ValueFormat = "number"
+	ValueFormatPercent  ValueFormat = "percent"
 )
 
 // Valid indicates whether the value is a known member of the ValueFormat enum.
 func (e ValueFormat) Valid() bool {
 	switch e {
-	case Currency:
+	case ValueFormatCurrency:
 		return true
-	case Duration:
+	case ValueFormatDuration:
 		return true
-	case Number:
+	case ValueFormatNumber:
 		return true
-	case Percent:
+	case ValueFormatPercent:
 		return true
 	default:
 		return false
@@ -3856,6 +4690,9 @@ type AgentMode struct {
 	// Name opencode agent name (e.g. "build", "plan").
 	Name string `json:"name"`
 }
+
+// AgentRequestKind Which workstation surface a recorded agent request came through.
+type AgentRequestKind string
 
 // AiAgentBudgetsDto What the agent may spend answering one question. Both unset means the
 // runtime derives them from the serving's advertised context window.
@@ -4258,22 +5095,258 @@ type AiEditResponse struct {
 	Model string `json:"model"`
 }
 
+// AirflowConnectionConditionResponse defines model for AirflowConnectionConditionResponse.
+type AirflowConnectionConditionResponse struct {
+	Message *string `json:"message,omitempty"`
+	Reason  *string `json:"reason,omitempty"`
+	Status  string  `json:"status"`
+	Type    string  `json:"type_"`
+}
+
+// AirflowConnectionResponse defines model for AirflowConnectionResponse.
+type AirflowConnectionResponse struct {
+	AirflowName string `json:"airflow_name"`
+
+	// BucketRef Name of the `HFBucket` a `Bucket` connection targets, and nothing else
+	// about it.
+	//
+	// The endpoint, the access key id and the region of the scoped identity
+	// behind it are deliberately absent: they are `PlatformS3Identity`
+	// internals, and the frozen contract §7 keeps host- and login-shaped
+	// fields out of the projection precisely so that a read of the console API
+	// can never assemble half a credential.
+	BucketRef                       *string                              `json:"bucket_ref,omitempty"`
+	Collision                       bool                                 `json:"collision"`
+	CollisionExistingConnectionType *string                              `json:"collision_existing_connection_type,omitempty"`
+	Conditions                      []AirflowConnectionConditionResponse `json:"conditions"`
+	ConnId                          string                               `json:"conn_id"`
+	ConnectionType                  string                               `json:"connection_type"`
+
+	// ConnectivityTestable Whether Airflow's own `POST /connections/test` can say anything true
+	// about this connection's type (D8).
+	//
+	// `false` for a bucket connection, permanently and on every environment:
+	// the AWS provider tests `sts:GetCallerIdentity` and discards the endpoint
+	// override while doing it, so it would report `Failed` for a bucket a DAG
+	// reads and writes perfectly well. The reconciler does not ask, which is
+	// why `last_connection_test` above stays empty — and a console that read
+	// that emptiness as "never tried" would offer an action that can only
+	// disappoint. Sourced from `AirflowConnectionType`'s own predicate so the
+	// rule has one home.
+	ConnectivityTestable bool    `json:"connectivity_testable"`
+	CreatedAt            *string `json:"created_at,omitempty"`
+
+	// Id Kubernetes UID of this CR only. It is not the environment UID.
+	Id                   *string `json:"id,omitempty"`
+	LastConnectionTest   *string `json:"last_connection_test,omitempty"`
+	LastConnectionTestAt *string `json:"last_connection_test_at,omitempty"`
+	LastDriftCheckAt     *string `json:"last_drift_check_at,omitempty"`
+	ManagedPostgresqlRef *string `json:"managed_postgresql_ref,omitempty"`
+	Name                 string  `json:"name"`
+
+	// PermissionLevel The level the user PINNED, absent when they said nothing.
+	//
+	// Absent is not "viewer": the two are distinguishable on purpose (the
+	// platform default is resolved on every reconcile and never written into
+	// the spec), so the console can say "the platform's default" rather than
+	// claiming a choice the user never made. What that default currently
+	// resolves to is `resolved_permission_level` below.
+	PermissionLevel *string `json:"permission_level,omitempty"`
+	Phase           string  `json:"phase"`
+
+	// ResolvedPermissionLevel The level actually in force: the pin above, or the platform's default
+	// when there is none.
+	//
+	// Resolved through `PermissionLevel`'s own `Default`, which is the same
+	// `unwrap_or_default()` both sources apply at reconcile time — a second
+	// literal here would let the console display one level while the platform
+	// granted another.
+	ResolvedPermissionLevel string `json:"resolved_permission_level"`
+	SourceApplied           *bool  `json:"source_applied,omitempty"`
+
+	// SpecObserved `status.observedGeneration == metadata.generation`. Without it a spec
+	// the operator has not looked at yet and one it has looked at and cannot
+	// satisfy render identically, and the console cannot tell the user which
+	// of the two it is looking at.
+	SpecObserved bool `json:"spec_observed"`
+
+	// TakeoverChallenge Present only while this exact collision can be explicitly authorized.
+	TakeoverChallenge *openapi_types.UUID `json:"takeover_challenge,omitempty"`
+	UpdatedAt         *string             `json:"updated_at,omitempty"`
+}
+
+// AirflowConnectionS3Session A short-lived object-store credential for one bucket connection.
+//
+// `endpoint` is the IN-CLUSTER gateway address: a session authenticates at the
+// gateway that minted it and nowhere else, and the only caller of this route
+// runs inside the cluster.
+type AirflowConnectionS3Session struct {
+	AccessKeyId string     `json:"access_key_id"`
+	Endpoint    string     `json:"endpoint"`
+	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
+
+	// Region SigV4 signs over the region: ours is the RGW zonegroup `api_name`
+	// (`default`), not `us-east-1`.
+	Region          string `json:"region"`
+	SecretAccessKey string `json:"secret_access_key"`
+	SessionToken    string `json:"session_token"`
+}
+
 // AirflowCrdSpecResponse The live `Airflow` CRD spec (source of truth in K8s), including fields the
-// DB does not cache (`sleep_mode`, the raw `dag_source` reference).
+// DB does not cache (`sleep_mode`, the raw `dag_source` reference, egress,
+// config overrides, task quota) plus the operator-owned `status`.
 type AirflowCrdSpecResponse struct {
-	CpuLimit   *string `json:"cpu_limit,omitempty"`
-	CpuRequest *string `json:"cpu_request,omitempty"`
+	// Config `airflow.cfg` overrides (`section.key` → value); `None` = none set.
+	Config     *map[string]string `json:"config,omitempty"`
+	CpuLimit   *string            `json:"cpu_limit,omitempty"`
+	CpuRequest *string            `json:"cpu_request,omitempty"`
 
 	// DagBucketRef User-supplied bucket reference from `dag_source`, if any. `None` means
 	// either "not yet resolved" or "controller-provisioned" — the resolved
 	// name is available on the instance's `dag_bucket` (DB-cached status).
-	DagBucketRef     *string `json:"dag_bucket_ref,omitempty"`
-	MemoryLimit      *string `json:"memory_limit,omitempty"`
-	MemoryRequest    *string `json:"memory_request,omitempty"`
-	PostgresRef      *string `json:"postgres_ref,omitempty"`
-	RuntimeImage     *string `json:"runtime_image,omitempty"`
-	SleepMode        bool    `json:"sleep_mode"`
-	TriggererEnabled bool    `json:"triggerer_enabled"`
+	DagBucketRef *string `json:"dag_bucket_ref,omitempty"`
+
+	// Egress Egress an environment's task pods are granted **on top of** the fixed
+	// platform baseline (Execution API, object store, Bifrost, DNS). The baseline
+	// is not editable and never appears here.
+	Egress        *AirflowEgressRequest `json:"egress,omitempty"`
+	MemoryLimit   *string               `json:"memory_limit,omitempty"`
+	MemoryRequest *string               `json:"memory_request,omitempty"`
+	PostgresRef   *string               `json:"postgres_ref,omitempty"`
+	RuntimeImage  *string               `json:"runtime_image,omitempty"`
+	SleepMode     bool                  `json:"sleep_mode"`
+
+	// Status Operator-owned runtime state read straight off the `Airflow` CR status —
+	// the fields the console DB does not cache (task namespace, network mode,
+	// public host) travel through here.
+	Status AirflowCrdStatusResponse `json:"status"`
+
+	// TaskQuotaMaxPods `count/pods` ceiling of the task namespace; `None` = platform default.
+	TaskQuotaMaxPods *int32 `json:"task_quota_max_pods,omitempty"`
+	TriggererEnabled bool   `json:"triggerer_enabled"`
+}
+
+// AirflowCrdStatusResponse Operator-owned runtime state read straight off the `Airflow` CR status —
+// the fields the console DB does not cache (task namespace, network mode,
+// public host) travel through here.
+type AirflowCrdStatusResponse struct {
+	DagBucket *string `json:"dag_bucket,omitempty"`
+	Message   *string `json:"message,omitempty"`
+
+	// NetworkMode `ingress` or `httproute`.
+	NetworkMode *string `json:"network_mode,omitempty"`
+
+	// Phase `Pending` | `Provisioning` | `Running` | `Sleeping` | `Error` | `Unknown`.
+	Phase string `json:"phase"`
+
+	// PublicHost Composed public hostname (`<label>.af.<base>`), identical in both
+	// network modes.
+	PublicHost     *string `json:"public_host,omitempty"`
+	ServiceAccount *string `json:"service_account,omitempty"`
+
+	// TaskNamespace Dedicated namespace the environment's task pods run in.
+	TaskNamespace *string `json:"task_namespace,omitempty"`
+
+	// UnresolvedAllowlists Names from `egress.allowlists` the operator's last reconcile could not
+	// resolve to an `EgressAllowlist` of this Harbor. Empty is the healthy
+	// case; a name here reaches the task policy as nothing at all.
+	UnresolvedAllowlists []string `json:"unresolved_allowlists"`
+
+	// WebUrl Public https URL of the UI; absent until the route is actually serving.
+	WebUrl *string `json:"web_url,omitempty"`
+}
+
+// AirflowEgressRequest Egress an environment's task pods are granted **on top of** the fixed
+// platform baseline (Execution API, object store, Bifrost, DNS). The baseline
+// is not editable and never appears here.
+type AirflowEgressRequest struct {
+	// Allowlists Names of the harbor's egress allow-lists to attach — the same named
+	// lists dev workstations and CI runners attach, managed on the harbor's
+	// allow-lists screen. At most `MAX_ALLOWLISTS_PER_WORKLOAD`.
+	Allowlists *[]string `json:"allowlists,omitempty"`
+
+	// Fqdns Public FQDNs task pods may reach on 443 (`example.com`,
+	// `*.example.org`). No IP literals, no bare wildcards; at most
+	// `MAX_ALLOWLIST_FQDNS` entries.
+	Fqdns *[]string `json:"fqdns,omitempty"`
+
+	// InCluster Same-Harbor services task pods may reach (by kind + name).
+	InCluster *[]AirflowInClusterLinkRequest `json:"in_cluster,omitempty"`
+}
+
+// AirflowInClusterLinkRequest One in-cluster egress grant: a service of `kind` named `name` in the
+// environment's Harbor.
+type AirflowInClusterLinkRequest struct {
+	// Kind The service kinds an environment may be granted egress to — exactly the
+	// kinds the ServiceLink controller's `pod_selector_labels` can resolve into a
+	// pod selector + port (Trino and Pipeline are deliberately absent: a task
+	// pod reaches Trino through Bifrost, which is baseline, and nothing connects
+	// *to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the
+	// operator maps 1:1.
+	Kind AirflowLinkKind `json:"kind"`
+
+	// Name The target's name (its console slug) in the same Harbor.
+	Name string `json:"name"`
+}
+
+// AirflowLinkKind The service kinds an environment may be granted egress to — exactly the
+// kinds the ServiceLink controller's `pod_selector_labels` can resolve into a
+// pod selector + port (Trino and Pipeline are deliberately absent: a task
+// pod reaches Trino through Bifrost, which is baseline, and nothing connects
+// *to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the
+// operator maps 1:1.
+type AirflowLinkKind string
+
+// AirflowNodeTier Predefined resource tiers for the Airflow api-server/scheduler/dag-processor/
+// triggerer pods. Memory request and limit are always equal. Near-clone of the
+// Dagster webserver/daemon `NodeTier` (`handlers::dagsters::create_crd`)
+// — kept as its own type rather than shared because it is independently
+// user-facing API surface for a different resource family (same precedent as
+// `handlers::managed_postgresqls::tier::NodeTier` coexisting with Dagster's).
+//
+// The catalogue starts at `Micro`, one tier above Dagster's: there is no
+// `Nano`. 512Mi cannot hold an Airflow 3 triggerer, which pairs an asyncio
+// loop with its own uvicorn log server and settles at ~620Mi *idle, with zero
+// DAGs loaded* (measured against a 1Gi limit; under a 512Mi one it was simply
+// OOMKilled on the way there, at ~490Mi). Every environment created at Nano
+// with `triggerer_enabled` (the default) therefore crash-looped from birth —
+// the tier could never schedule, so it was removed rather than documented as
+// a trap. Keep the smallest tier clear of the triggerer's idle floor when
+// revising these numbers.
+//
+// Published as `AirflowNodeTier`, not `NodeTier`: Dagster
+// (`handlers::dagsters::create_crd`) and ManagedPostgreSQL
+// (`handlers::managed_postgresqls::tier`) each declare an enum of that same
+// name, and utoipa keys `components.schemas` by the type's short name — so
+// the three silently collapsed into one schema and Dagster's won. That was
+// invisible while all three listed the same variants; dropping `Nano` here
+// makes it load-bearing, because the shared schema would otherwise keep
+// advertising a tier this endpoint now rejects with a 422.
+type AirflowNodeTier string
+
+// AirflowPodResponse One pod of an Airflow environment — a platform component in the Harbor
+// namespace, or a KubernetesExecutor task pod in the environment's task
+// namespace.
+type AirflowPodResponse struct {
+	// Component `api-server` | `scheduler` | `dag-processor` | `triggerer` |
+	// `db-migrate` | `task`.
+	Component string `json:"component"`
+	Name      string `json:"name"`
+
+	// Namespace Namespace the pod runs in (components: the Harbor workload namespace;
+	// tasks: the environment's task namespace).
+	Namespace string `json:"namespace"`
+
+	// Phase Pod phase, or `Terminating` while a deletion is pending.
+	Phase     string  `json:"phase"`
+	Ready     bool    `json:"ready"`
+	Restarts  int32   `json:"restarts"`
+	StartedAt *string `json:"started_at,omitempty"`
+
+	// StatusDetail Why a non-ready pod is unhealthy — `"<reason>: <message>"` (e.g.
+	// `CrashLoopBackOff: back-off 5m0s restarting failed container…`). `None`
+	// when ready.
+	StatusDetail *string `json:"status_detail,omitempty"`
 }
 
 // AirflowResponse defines model for AirflowResponse.
@@ -4669,6 +5742,382 @@ type AssistantRequest struct {
 	Question string  `json:"question"`
 }
 
+// AuditActorKind Which kind of principal an audited `oauth_id` resolved to. `Platform` is a
+// client the operator provisioned for the platform's own components in the
+// org's realm (Bifrost, the dock's Trino OAuth client, object-storage STS —
+// see `platform_identities`). `Unknown` covers both a human with no
+// `user_identities` row yet and a subject nobody owns.
+type AuditActorKind string
+
+// AuditEntry One row in the unified audit log; a query and an event share the same columns.
+type AuditEntry struct {
+	// Action The OPA operation for an event (`GetObject`, …); `None` for a query row.
+	Action *string `json:"action,omitempty"`
+
+	// ActorKind Which kind of principal an audited `oauth_id` resolved to. `Platform` is a
+	// client the operator provisioned for the platform's own components in the
+	// org's realm (Bifrost, the dock's Trino OAuth client, object-storage STS —
+	// see `platform_identities`). `Unknown` covers both a human with no
+	// `user_identities` row yet and a subject nobody owns.
+	ActorKind AuditActorKind `json:"actor_kind"`
+
+	// Allow Overall verdict; `None` when no boolean decision contributed one (filter-only).
+	Allow *bool `json:"allow,omitempty"`
+
+	// ClientSource `context.source` — the client that submitted the query (`trino-cli`, `bifrost`, …).
+	ClientSource *string `json:"client_source,omitempty"`
+
+	// ClientTraceTag The submitting Hyperfluid client's own id for the statement (tinyQuery
+	// history id, Bifrost access-event `query_id`); `None` for other clients.
+	ClientTraceTag *string `json:"client_trace_tag,omitempty"`
+
+	// ColumnsAccessed `catalog.schema.table.column`, from `metadata.tables[].columns[]`.
+	ColumnsAccessed []string   `json:"columns_accessed"`
+	CompletedAt     *time.Time `json:"completed_at,omitempty"`
+	CpuTimeMs       *int64     `json:"cpu_time_ms,omitempty"`
+	DataDockId      *string    `json:"data_dock_id,omitempty"`
+
+	// DecisionCount Number of OPA decisions compacted into a query row; `None` for events.
+	DecisionCount *int64         `json:"decision_count,omitempty"`
+	ErrorCode     *string        `json:"error_code,omitempty"`
+	Event         *AuditLogEvent `json:"event,omitempty"`
+
+	// EventType The bronze `event_type` (`data_dock_opa_evaluation`, `console_authz_decision`, …).
+	EventType      string  `json:"event_type"`
+	FailureMessage *string `json:"failure_message,omitempty"`
+
+	// Id `query_id` for a query, `record_id` for an event — the drill-down key.
+	Id string `json:"id"`
+
+	// IngestedAt When the platform received the (last) decision behind this row — the arrival-time twin of
+	// `timestamp`, so a reader can tell a late-arriving row from a late-happening one.
+	IngestedAt *time.Time `json:"ingested_at,omitempty"`
+	InputBytes *int64     `json:"input_bytes,omitempty"`
+	InputRows  *int64     `json:"input_rows,omitempty"`
+
+	// Kind A compacted SQL query (`query_traces`) or a single audited event (`access_events`).
+	Kind            AuditEntryKind `json:"kind"`
+	OauthId         string         `json:"oauth_id"`
+	OutputBytes     *int64         `json:"output_bytes,omitempty"`
+	OutputRows      *int64         `json:"output_rows,omitempty"`
+	PeakMemoryBytes *int64         `json:"peak_memory_bytes,omitempty"`
+
+	// PlatformClientId Set only when `actor_kind` is `platform` — the provisioned client's
+	// Keycloak `client_id` (`<dock>-bifrost-sa`, `<org>-storage-sa`, …).
+	PlatformClientId *string `json:"platform_client_id,omitempty"`
+
+	// QueryState `FINISHED` / `FAILED` (Trino's own `QueryState`, passed through verbatim).
+	QueryState   *string `json:"query_state,omitempty"`
+	QueuedTimeMs *int64  `json:"queued_time_ms,omitempty"`
+
+	// Resources Tables touched (query) or the single resource id (event), best-effort.
+	Resources []string `json:"resources"`
+
+	// Restricted The query ran but a row filter or column mask shaped the result. Query rows only.
+	Restricted *bool `json:"restricted,omitempty"`
+
+	// ServiceAccountId Set only when `actor_kind` is `service_account` — the console
+	// `service_accounts.id`, so the UI can link to the account.
+	ServiceAccountId   *openapi_types.UUID `json:"service_account_id,omitempty"`
+	ServiceAccountName *string             `json:"service_account_name,omitempty"`
+
+	// Source `trino` / `s3-gateway` / `console` — origin of the action.
+	Source *string `json:"source,omitempty"`
+
+	// Sql The rest of this block is populated only once the Trino query-completion
+	// listener's event has landed for this query (ADR-0040 roadmap item 4) —
+	// `None`/empty on a query row until then, and always `None`/empty on an
+	// event row (the `access_events` branch of the union projects NULLs).
+	Sql          *string `json:"sql,omitempty"`
+	SqlTruncated *bool   `json:"sql_truncated,omitempty"`
+
+	// Timestamp When the action happened (a query's start, an event's original timestamp).
+	Timestamp  time.Time `json:"timestamp"`
+	UpdateType *string   `json:"update_type,omitempty"`
+	UserEmail  *string   `json:"user_email,omitempty"`
+	UserName   *string   `json:"user_name,omitempty"`
+	WallTimeMs *int64    `json:"wall_time_ms,omitempty"`
+}
+
+// AuditEntryKind A compacted SQL query (`query_traces`) or a single audited event (`access_events`).
+type AuditEntryKind string
+
+// AuditLogEvent defines model for AuditLogEvent.
+type AuditLogEvent struct {
+	union json.RawMessage
+}
+
+// AuditLogEvent0 defines model for .
+type AuditLogEvent0 struct {
+	Data OPADecisionLog     `json:"data"`
+	Type AuditLogEvent0Type `json:"type"`
+}
+
+// AuditLogEvent0Type defines model for AuditLogEvent.0.Type.
+type AuditLogEvent0Type string
+
+// AuditLogEvent1 defines model for .
+type AuditLogEvent1 struct {
+	// Data A security decision log entry for the audit log system.
+	//
+	// This is the data payload stored in the `event` JSONB column of the `audit_logs` table.
+	Data SecurityDecisionLog `json:"data"`
+	Type AuditLogEvent1Type  `json:"type"`
+}
+
+// AuditLogEvent1Type defines model for AuditLogEvent.1.Type.
+type AuditLogEvent1Type string
+
+// AuditLogEvent2 defines model for .
+type AuditLogEvent2 struct {
+	// Data Structured projection of a **control-plane** (console) authorization decision,
+	// distilled from the raw OPA decision log for `console/authz/decision`. This is
+	// the `event` payload stored for the `console_authz_decision` audit-log type and
+	// rendered by the audit-log UI.
+	//
+	// `organization_id` is the trusted scoping key (set by the PEP from the
+	// authenticated request, never the client). Per-org isolation on read relies on
+	// it: the read path filters `WHERE organization_id = $1` after an `is_viewer`
+	// check, so a correctly-attributed org here is what prevents cross-org leakage.
+	Data ConsoleAuthzDecisionLog `json:"data"`
+	Type AuditLogEvent2Type      `json:"type"`
+}
+
+// AuditLogEvent2Type defines model for AuditLogEvent.2.Type.
+type AuditLogEvent2Type string
+
+// AuditLogEvent3 defines model for .
+type AuditLogEvent3 struct {
+	Data S3GatewayDecisionLog `json:"data"`
+	Type AuditLogEvent3Type   `json:"type"`
+}
+
+// AuditLogEvent3Type defines model for AuditLogEvent.3.Type.
+type AuditLogEvent3Type string
+
+// AuditLogEvent4 defines model for .
+type AuditLogEvent4 struct {
+	// Data Never add `SecretAccessKey` or `SessionToken` here — the same line
+	// `outbound::sts_service::redact::SECRET_ELEMENTS` draws.
+	Data S3GatewaySessionIssuedLog `json:"data"`
+	Type AuditLogEvent4Type        `json:"type"`
+}
+
+// AuditLogEvent4Type defines model for AuditLogEvent.4.Type.
+type AuditLogEvent4Type string
+
+// AuditLogEvent5 A request the S3 gateway refused before any policy ran (unsigned,
+// unknown credential…). Unattributable to a principal by nature; kept
+// because it is the only record of a credential-forgery attempt.
+type AuditLogEvent5 struct {
+	// Data A request the S3 gateway refused at its pre-policy gate. There is no
+	// principal to attribute it to (an unsigned request, a forged or expired
+	// credential); the org is the gateway's own, stamped by the operator, so the
+	// event reads as "an access attempt against this org's gateway".
+	Data S3GatewayGateDeniedLog `json:"data"`
+	Type AuditLogEvent5Type     `json:"type"`
+}
+
+// AuditLogEvent5Type defines model for AuditLogEvent.5.Type.
+type AuditLogEvent5Type string
+
+// AuditLogEvent6 A guardrail (`organization_policy`) was removed by cascade-GC when its
+// resource subtree was deleted. Audited because dropping a deny-unless
+// guardrail *widens* access.
+type AuditLogEvent6 struct {
+	// Data Audit payload for a guardrail removed by cascade-GC on resource delete.
+	// One entry is written per removed guardrail.
+	Data AuthzOrganizationPolicyRevokedLog `json:"data"`
+	Type AuditLogEvent6Type                `json:"type"`
+}
+
+// AuditLogEvent6Type defines model for AuditLogEvent.6.Type.
+type AuditLogEvent6Type string
+
+// AuditLogEvent7 A request was allowed via the platform break-glass bypass. Audited
+// unconditionally: this is the one path that overrides deny and guardrails.
+type AuditLogEvent7 struct {
+	// Data Audit payload for a break-glass bypass. One entry per authorized request that
+	// resolved via the platform recovery subject.
+	Data AuthzBreakGlassUsedLog `json:"data"`
+	Type AuditLogEvent7Type     `json:"type"`
+}
+
+// AuditLogEvent7Type defines model for AuditLogEvent.7.Type.
+type AuditLogEvent7Type string
+
+// AuditLogEvent8 A platform administrator changed org-level commercial state from the
+// cockpit (plan, quota overrides, feature toggles). The actor is the
+// VALIDATED platform-realm JWT subject, recorded at the mutation site.
+type AuditLogEvent8 struct {
+	// Data Audit payload for a cockpit mutation. `actor` is the platform admin's
+	// email (fallback: Keycloak sub); `action` is a stable machine key
+	// (`quota_profile_assigned`, `custom_limits_updated`, `feature_override_set`,
+	// `feature_override_cleared`); `details` carries the action-specific payload
+	// as string key/values (new plan slug, the limits written, the flag…) —
+	// stringly-typed so the event enum keeps its `Eq` derive.
+	Data PlatformAdminActionLog `json:"data"`
+	Type AuditLogEvent8Type     `json:"type"`
+}
+
+// AuditLogEvent8Type defines model for AuditLogEvent.8.Type.
+type AuditLogEvent8Type string
+
+// AuditLogEvent9 A runtime-security detection fired on a node. Emitted by Falco and
+// ingested through the internal runtime-security router.
+//
+// Attribution is best-effort: the enclosing request's `organization_id`
+// is `None` for platform namespaces and for anything the namespace-label
+// resolver could not place. Those are surfaced as "unattributed", never
+// silently dropped — see `runtime_security::attribution`.
+type AuditLogEvent9 struct {
+	// Data One Falco detection, after redaction, dedup and attribution — the shape
+	// actually persisted. Fields Falco's `output_fields` may omit (rule
+	// dependent — see falcosidekick's own docs) are `Option`; forcing them
+	// non-optional would make ingestion brittle to Falco's own rule authoring.
+	Data RuntimeSecurityAlertLog `json:"data"`
+	Type AuditLogEvent9Type      `json:"type"`
+}
+
+// AuditLogEvent9Type defines model for AuditLogEvent.9.Type.
+type AuditLogEvent9Type string
+
+// AuditLogEvent10 A Trino query completed — the SQL + outcome trace root beyond OPA
+// (ADR-0040 roadmap item 4), from the coordinator's built-in HTTP event
+// listener.
+type AuditLogEvent10 struct {
+	// Data A query-completion event, distilled from Trino's `QueryCompletedEvent`.
+	Data TrinoQueryCompletedLog `json:"data"`
+	Type AuditLogEvent10Type    `json:"type"`
+}
+
+// AuditLogEvent10Type defines model for AuditLogEvent.10.Type.
+type AuditLogEvent10Type string
+
+// AuditLogEvent11 A request a user made of the agent inside a dev workstation, recorded
+// because the organization is in workstation audit mode.
+//
+// Content, not a decision. Not part of the tenant audit trail: it is
+// served only by the workstation transcript endpoint, behind
+// `Permission::DevWorkstationAuditRead`, and is filtered out of
+// `GET /api/v1/audit-logs` the way platform-admin actions are.
+type AuditLogEvent11 struct {
+	// Data Audit payload for a request made of the agent inside a dev workstation.
+	//
+	// The prompt is stored verbatim. Unlike terminal input there is no echo to
+	// correlate and no password prompt to protect against: this text was typed
+	// into a chat box and sent to a third-party model, so recording it discloses
+	// nothing to the organization that the model provider was not already given.
+	Data WorkstationAgentRequestLog `json:"data"`
+	Type AuditLogEvent11Type        `json:"type"`
+}
+
+// AuditLogEvent11Type defines model for AuditLogEvent.11.Type.
+type AuditLogEvent11Type string
+
+// AuditLogEvent12 A command line submitted in a dev workstation terminal. Same audience
+// and same exclusion as [`Self::WorkstationAgentRequest`].
+type AuditLogEvent12 struct {
+	// Data Audit payload for one command line submitted in a workstation terminal.
+	//
+	// METADATA ONLY, and that is a deliberate contract rather than a limitation
+	// to be lifted quietly. There is no field for the command text, so no defect
+	// in the capture path can put a password into an audit record. See
+	// `domain::workstation_audit::terminal_capture` for why the previous,
+	// content-carrying design was withdrawn, and ADR-0045 D2 for the shell-hook
+	// mechanism that is the supported route to content.
+	//
+	// What a reviewer gets: who was at a terminal, when, in which session, and at
+	// what volume. What they do not get: what was run. Do not describe this event
+	// as a command history.
+	Data WorkstationTerminalCommandLog `json:"data"`
+	Type AuditLogEvent12Type           `json:"type"`
+}
+
+// AuditLogEvent12Type defines model for AuditLogEvent.12.Type.
+type AuditLogEvent12Type string
+
+// AuditLogEvent13 A preview session was opened into a workstation while the organization
+// was in audit mode with `PreviewPosture::Record`. Records that an
+// unrecorded interactive channel was available, and for how long, which
+// is the fact a reviewer needs even without its contents.
+type AuditLogEvent13 struct {
+	// Data Audit payload for a preview session opened while the organization is in
+	// audit mode with `PreviewPosture::Record`.
+	//
+	// The preview forwards arbitrary HTTP and WebSocket traffic to a port the
+	// user chose, so its contents are outside every tap this feature installs.
+	// What is recordable, and what a reviewer needs, is that the channel was
+	// opened at all.
+	Data WorkstationPreviewSessionLog `json:"data"`
+	Type AuditLogEvent13Type          `json:"type"`
+}
+
+// AuditLogEvent13Type defines model for AuditLogEvent.13.Type.
+type AuditLogEvent13Type string
+
+// AuditLogEventType defines model for AuditLogEventType.
+type AuditLogEventType string
+
+// AuditLogFreshness How far the durable audit log has been rolled up. Platform-wide, not per org: the rollup
+// advances one watermark for every tenant.
+type AuditLogFreshness struct {
+	// CompleteAsOf Every decision ingested up to this instant has been rolled up into the durable log;
+	// `None` until the first rollup has run (or with no audit warehouse configured).
+	CompleteAsOf *time.Time `json:"complete_as_of,omitempty"`
+}
+
+// AuthorizePreviewResponse What the caller must do next to hold a usable preview capability.
+type AuthorizePreviewResponse struct {
+	// HandoffUrl `null` when previews live one label under the console host: the response
+	// already carries the capability cookie, scoped to the console host, and
+	// the browser sends it to the preview subdomain on its own.
+	//
+	// Non-null when the platform pins previews to a parent of their own. The
+	// console origin cannot then set a cookie the preview host would receive,
+	// so the capability is handed over instead: load this URL once (a
+	// `fetch` is enough — nothing needs to be read from the response) and the
+	// preview host answers with a **host-only** cookie. It is
+	// protocol-relative (`//host/path`), because the console cannot see the
+	// browser-facing scheme through the proxy chain; resolve it against the
+	// document.
+	//
+	// Short-lived by design — spend it immediately.
+	HandoffUrl *string `json:"handoff_url,omitempty"`
+}
+
+// AuthzBreakGlassUsedLog Audit payload for a break-glass bypass. One entry per authorized request that
+// resolved via the platform recovery subject.
+type AuthzBreakGlassUsedLog struct {
+	// Action The action that was allowed (`<resource_type>:<action>`).
+	Action string `json:"action"`
+
+	// ResourceHrn Canonical HRN of the targeted resource.
+	ResourceHrn string `json:"resource_hrn"`
+
+	// Subject The break-glass subject that was used.
+	Subject string `json:"subject"`
+}
+
+// AuthzOrganizationPolicyRevokedLog Audit payload for a guardrail removed by cascade-GC on resource delete.
+// One entry is written per removed guardrail.
+type AuthzOrganizationPolicyRevokedLog struct {
+	// Action The removed guardrail's action pattern (e.g. `secret:*` or `*`).
+	Action string `json:"action"`
+
+	// PolicyId Id of the removed guardrail.
+	PolicyId openapi_types.UUID `json:"policy_id"`
+
+	// ResourcePattern The removed guardrail's resource-id pattern (e.g. `team-a/*`).
+	ResourcePattern string `json:"resource_pattern"`
+
+	// TriggeringResourcePath Canonical path of the deleted resource (e.g. `team-a` or `team-a/sales-db`).
+	TriggeringResourcePath string `json:"triggering_resource_path"`
+
+	// TriggeringResourceType Resource family whose deletion triggered the cascade (e.g. `harbor`).
+	TriggeringResourceType string `json:"triggering_resource_type"`
+}
+
 // AutoSuspendInput Idle auto-suspend policy.
 type AutoSuspendInput struct {
 	Enabled     *bool  `json:"enabled,omitempty"`
@@ -4952,6 +6401,9 @@ type BucketCredentials struct {
 	SecretKey string `json:"secret_key"`
 }
 
+// BucketField Which fact about a bucket an environment variable receives.
+type BucketField string
+
 // BucketObject defines model for BucketObject.
 type BucketObject struct {
 	Etag         *string `json:"etag,omitempty"`
@@ -4969,6 +6421,19 @@ type BucketObjectListing struct {
 	IsTruncated       bool           `json:"is_truncated"`
 	Objects           []BucketObject `json:"objects"`
 	Prefix            string         `json:"prefix"`
+}
+
+// BucketRefSpecResponse An env var whose value is one fact about an `HFBucket` of the harbor,
+// resolved by the operator (`valueFrom.bucket`). Listed apart from
+// `secret_refs` so the UI never renders it as a secret-manager entry with an
+// empty name.
+type BucketRefSpecResponse struct {
+	// BucketName `HFBucket` CR name in the harbor's org namespace.
+	BucketName string `json:"bucket_name"`
+	EnvVarName string `json:"env_var_name"`
+
+	// Field Which fact about a bucket an environment variable receives.
+	Field BucketField `json:"field"`
 }
 
 // BudgetAuthor Who set a ceiling, and therefore who may change it.
@@ -5022,6 +6487,33 @@ type CatalogExposureTableEntry struct {
 	Exposed     bool   `json:"exposed"`
 	SchemaName  string `json:"schema_name"`
 	TableName   string `json:"table_name"`
+}
+
+// CatalogFailureKind What class of failure hit a catalog.
+//
+// Carried separately from the message so the console can enrich the ones it
+// has something to say about (a trust failure earns the Data Dock's attached
+// CA bundles) without parsing engine text back out of a string, and so the UI
+// can tell "this connector is misconfigured" from "this connector is slow".
+type CatalogFailureKind string
+
+// CatalogIntrospectionFailure One catalog that did not answer, and the reason it did not.
+type CatalogIntrospectionFailure struct {
+	CatalogName string `json:"catalog_name"`
+
+	// Error Operator-facing explanation. Already enriched by the time it leaves the
+	// console for the kinds that have an actionable remedy — see [`kind`].
+	//
+	// [`kind`]: CatalogIntrospectionFailure::kind
+	Error string `json:"error"`
+
+	// Kind What class of failure hit a catalog.
+	//
+	// Carried separately from the message so the console can enrich the ones it
+	// has something to say about (a trust failure earns the Data Dock's attached
+	// CA bundles) without parsing engine text back out of a string, and so the UI
+	// can tell "this connector is misconfigured" from "this connector is slow".
+	Kind CatalogFailureKind `json:"kind"`
 }
 
 // CatalogItem A pre-baked agent the user can pick from the dropdown. The catalog is the
@@ -5484,6 +6976,44 @@ type ConnectorDescriptorResponse struct {
 	Title  string `json:"title"`
 }
 
+// ConsoleAuthzDecisionLog Structured projection of a **control-plane** (console) authorization decision,
+// distilled from the raw OPA decision log for `console/authz/decision`. This is
+// the `event` payload stored for the `console_authz_decision` audit-log type and
+// rendered by the audit-log UI.
+//
+// `organization_id` is the trusted scoping key (set by the PEP from the
+// authenticated request, never the client). Per-org isolation on read relies on
+// it: the read path filters `WHERE organization_id = $1` after an `is_viewer`
+// check, so a correctly-attributed org here is what prevents cross-org leakage.
+type ConsoleAuthzDecisionLog struct {
+	// Action The requested action key, e.g. `secret:create`.
+	Action string `json:"action"`
+
+	// Allow The decision outcome — `true` = allowed, `false` = denied.
+	Allow          bool               `json:"allow"`
+	ClientId       *string            `json:"client_id,omitempty"`
+	DecisionId     string             `json:"decision_id"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// PrincipalKind "user" | "service_account" | "unknown".
+	PrincipalKind string `json:"principal_kind"`
+
+	// ResourceHrn Canonical resource name the request targeted, `hrn:<org>:<type>:<id>`.
+	ResourceHrn string `json:"resource_hrn"`
+
+	// ResourceId The `<id>` segment of the HRN (empty for collection/type-level requests).
+	ResourceId *string `json:"resource_id,omitempty"`
+
+	// ResourceType The `<resource_type>` half of the action key, e.g. `secret`.
+	ResourceType *string `json:"resource_type,omitempty"`
+	SpanId       *string `json:"span_id,omitempty"`
+
+	// Subject The principal's OPA subject (a user's OIDC `sub`, or a service account's
+	// `client_id`).
+	Subject string  `json:"subject"`
+	TraceId *string `json:"trace_id,omitempty"`
+}
+
 // ConsoleConfigFeatureFlag defines model for ConsoleConfigFeatureFlag.
 type ConsoleConfigFeatureFlag string
 
@@ -5495,11 +7025,12 @@ type ContainerAppCrdSpecResponse struct {
 	// would be undefined for a `resource_tier: null` app. `None` when the spec
 	// renders no explicit CPU limit (nothing to compute a ceiling from) or failed
 	// to parse.
-	BonusCpuMillis *int64                 `json:"bonus_cpu_millis,omitempty"`
-	CpuLimit       *string                `json:"cpu_limit,omitempty"`
-	CpuRequest     *string                `json:"cpu_request,omitempty"`
-	CustomDomains  []CustomDomainResponse `json:"custom_domains"`
-	Enabled        bool                   `json:"enabled"`
+	BonusCpuMillis *int64                  `json:"bonus_cpu_millis,omitempty"`
+	BucketRefs     []BucketRefSpecResponse `json:"bucket_refs"`
+	CpuLimit       *string                 `json:"cpu_limit,omitempty"`
+	CpuRequest     *string                 `json:"cpu_request,omitempty"`
+	CustomDomains  []CustomDomainResponse  `json:"custom_domains"`
+	Enabled        bool                    `json:"enabled"`
 
 	// EntitlementCpuMillis What this app's live CRD spec sells, in millicores — `resources.entitlement.cpu`
 	// via `footprint_from_spec` (ADR-0012 `× replicas`), with the same pre-#3628
@@ -5513,16 +7044,33 @@ type ContainerAppCrdSpecResponse struct {
 
 	// ExposeToInternet Whether internet-facing routes are enabled for this app. Reflects the live CRD
 	// value so the edit dialog can prefill the current state.
-	ExposeToInternet bool                  `json:"expose_to_internet"`
-	FileMounts       []FileMountResponse   `json:"file_mounts"`
-	HealthCheckPath  *string               `json:"health_check_path,omitempty"`
-	HealthCheckPort  *int32                `json:"health_check_port,omitempty"`
-	ImagePullSecrets []string              `json:"image_pull_secrets"`
-	ImageRepository  string                `json:"image_repository"`
-	ImageTag         string                `json:"image_tag"`
-	MemoryLimit      *string               `json:"memory_limit,omitempty"`
-	MemoryRequest    *string               `json:"memory_request,omitempty"`
-	Persistence      []PersistenceResponse `json:"persistence"`
+	ExposeToInternet bool                `json:"expose_to_internet"`
+	FileMounts       []FileMountResponse `json:"file_mounts"`
+	HealthCheckPath  *string             `json:"health_check_path,omitempty"`
+	HealthCheckPort  *int32              `json:"health_check_port,omitempty"`
+	ImagePullSecrets []string            `json:"image_pull_secrets"`
+	ImageRepository  string              `json:"image_repository"`
+	ImageTag         string              `json:"image_tag"`
+	MemoryLimit      *string             `json:"memory_limit,omitempty"`
+
+	// MemoryLimitBytes `memory_limit` as exact bytes — the ceiling a replica is killed at.
+	// Equal to `memory_request_bytes` for every tier (RAM gets no burst
+	// headroom: it is incompressible, so headroom above the reservation
+	// would only make the pod evictable under pressure); reported separately
+	// so a spec where the two do differ is shown as it is. `None` when the
+	// spec declares no memory limit or the quantity failed to parse.
+	MemoryLimitBytes *int64  `json:"memory_limit_bytes,omitempty"`
+	MemoryRequest    *string `json:"memory_request,omitempty"`
+
+	// MemoryRequestBytes `memory_request` as exact bytes — what this replica is guaranteed, and
+	// (under the tier model, where memory `limit == request`) what was sold.
+	// Same rationale as `entitlement_cpu_millis`: the detail screen draws
+	// live working-set bytes against this figure, so it is handed over in
+	// the metric's own unit instead of as a `"256Mi"` string the frontend
+	// would have to parse. `None` when the spec declares no memory request
+	// or the quantity failed to parse.
+	MemoryRequestBytes *int64                `json:"memory_request_bytes,omitempty"`
+	Persistence        []PersistenceResponse `json:"persistence"`
 
 	// Port **Deprecated — read `ports`.** The primary port, or the raw
 	// `network.port` for an app that predates `ports`. `null` once neither
@@ -5580,10 +7128,20 @@ type ContainerAppCrdSpecResponse struct {
 	// reservation would make the pod evictable under pressure).
 	ResourceTier *ResourceTier `json:"resource_tier,omitempty"`
 
-	// ResourceVersion The Kubernetes resourceVersion of this object at read time.
-	// Must be round-tripped verbatim as `resource_version` in PATCH requests
-	// to enable optimistic concurrency control; the server returns 409 Conflict
-	// when the live object has advanced past this version.
+	// ResourceVersion Opaque concurrency token for this object's **spec**, to be round-tripped
+	// verbatim as `resource_version` in PATCH requests; the server returns 409
+	// Conflict when someone else has edited the spec in the meantime.
+	//
+	// It carries `metadata.generation`, not `metadata.resourceVersion`, and
+	// the difference is the whole point: the operator writes `.status` on
+	// every reconcile, which bumps `resourceVersion` without touching the
+	// spec. Keying the check on `resourceVersion` meant a busy app — a
+	// crashlooping one reconciles every few seconds — invalidated the token
+	// between the read and the user pressing Save, so the edit was rejected
+	// as a conflict with a change that had never happened. `generation`
+	// advances only when `.spec` does, which is exactly the thing two editors
+	// can race on. The field name is kept for wire compatibility; treat the
+	// value as opaque.
 	ResourceVersion string `json:"resource_version"`
 
 	// Rightsizing The CPU rightsizing suggestion for one app (#3635 measures it, #3636
@@ -5592,10 +7150,44 @@ type ContainerAppCrdSpecResponse struct {
 	// `resource_mode != Advisory` — see [`classify_rightsizing`].
 	Rightsizing *RightsizingSuggestionResponse `json:"rightsizing,omitempty"`
 	SecretRefs  []SecretRefSpecResponse        `json:"secret_refs"`
+
+	// TagIsFloating Whether `image_tag` is a floating tag (`latest`, or a bare major or
+	// major.minor tag like `15`/`15.0`) that the upstream image can re-push
+	// under the same name. A tag like that never really pins a build: later
+	// patches, security fixes included, can land under it silently.
+	// Computed on the server, so clients never need their own copy of this
+	// check.
+	TagIsFloating bool `json:"tag_is_floating"`
+}
+
+// ContainerAppPlatformUrlResponse Where the platform serves an app of a given name in a given harbor.
+type ContainerAppPlatformUrlResponse struct {
+	// Fqdn The hostname under the platform apps base domain. `None` when the
+	// platform has not published its apps base domain to the console: the app
+	// still gets a platform route, but its name is only known once the
+	// operator reports it in `status.endpoint`.
+	Fqdn *string `json:"fqdn,omitempty"`
+
+	// Host The `spec.network.host` label the app would be created with.
+	Host string `json:"host"`
+
+	// Url `https://<fqdn>` — the URL the app answers on with no custom domain.
+	// `None` iff `fqdn` is.
+	Url *string `json:"url,omitempty"`
 }
 
 // ContainerAppPodInfo defines model for ContainerAppPodInfo.
 type ContainerAppPodInfo struct {
+	// Image The main container's image reference as Kubernetes resolved it. May
+	// still be a tag rather than a digest. Empty until the container has
+	// reported a status.
+	Image string `json:"image"`
+
+	// ImageId The digest this pod is actually running (`sha256:...`), read from the
+	// main container's live status. Absent while the container is still
+	// being created or pulled, or if the reported value carries no digest
+	// at all.
+	ImageId   *string `json:"image_id,omitempty"`
 	Name      string  `json:"name"`
 	Phase     string  `json:"phase"`
 	Ready     bool    `json:"ready"`
@@ -5692,6 +7284,44 @@ type ContainerAppResponse struct {
 	UpdatedReadyReplicas int32              `json:"updated_ready_replicas"`
 	UpdatedReplicas      int32              `json:"updated_replicas"`
 	VcpuMillis           int32              `json:"vcpu_millis"`
+}
+
+// ContainerAppVolumeUsageDto One persistent volume of a container app with its current fill.
+type ContainerAppVolumeUsageDto struct {
+	// CapacityBytes The filesystem's capacity in bytes — a little under `size`, the
+	// filesystem keeps its own overhead. `null` without a recent sample.
+	CapacityBytes *int64 `json:"capacity_bytes,omitempty"`
+
+	// ClaimName The `PersistentVolumeClaim` backing it (`<app>-<name>`).
+	ClaimName string `json:"claim_name"`
+
+	// MountPath Absolute mount path inside the container.
+	MountPath string `json:"mount_path"`
+
+	// Name `spec.persistence[*].name` — the volume's logical name within the app.
+	Name string `json:"name"`
+
+	// Size Requested size, the K8s quantity the app was created with (e.g. `10Gi`).
+	Size string `json:"size"`
+
+	// StorageClass StorageClass the claim was provisioned from; `null` when the cluster
+	// default applies.
+	StorageClass *string `json:"storage_class,omitempty"`
+
+	// UsagePercent `used / capacity` in percent; `null` when either side is unknown.
+	UsagePercent *float64 `json:"usage_percent,omitempty"`
+
+	// UsedBytes Bytes in use on the volume's filesystem. `null` without a recent
+	// sample — the kubelet only reports a volume while a pod has it mounted.
+	UsedBytes *int64 `json:"used_bytes,omitempty"`
+}
+
+// ContainerAppVolumesResponse The persistent volumes of a container app, one entry per
+// `spec.persistence` entry in spec order — an app without persistence gets
+// an empty list, not an error.
+type ContainerAppVolumesResponse struct {
+	ResourceId string                       `json:"resource_id"`
+	Volumes    []ContainerAppVolumeUsageDto `json:"volumes"`
 }
 
 // ContextProviderResponse Response for a context provider.
@@ -6081,8 +7711,29 @@ type CreateAiAgentRequest struct {
 	Tools *[]string `json:"tools,omitempty"`
 }
 
+// CreateAirflowConnectionRequest defines model for CreateAirflowConnectionRequest.
+type CreateAirflowConnectionRequest struct {
+	// BucketRef Name of the `HFBucket` to connect to, for a bucket connection.
+	BucketRef *string `json:"bucket_ref,omitempty"`
+	ConnId    string  `json:"conn_id"`
+
+	// ManagedPostgresqlRef Name of the `ManagedPostgreSQL` to connect to, for a Postgres
+	// connection. Exactly one of this and `bucket_ref` is given, and which one
+	// it is decides the connection's type.
+	ManagedPostgresqlRef *string `json:"managed_postgresql_ref,omitempty"`
+
+	// PermissionLevel Permission level granted to the user on the target database.
+	PermissionLevel *PermissionLevel `json:"permission_level,omitempty"`
+}
+
 // CreateAirflowCrdRequestBody defines model for CreateAirflowCrdRequestBody.
 type CreateAirflowCrdRequestBody struct {
+	// Config `airflow.cfg` overrides as `section.key` → value (rendered as
+	// `AIRFLOW__SECTION__KEY`). Platform-owned keys — executor, auth,
+	// execution API, database, remote logging, secrets backend — are refused
+	// with a 400 listing them.
+	Config *map[string]string `json:"config,omitempty"`
+
 	// DagBucketRef Name of an existing bucket (in the Harbor namespace) to use for DAG
 	// delivery. When omitted, the operator provisions a dedicated HFBucket
 	// `{name}-airflow` (ADR-0021 §1).
@@ -6091,12 +7742,40 @@ type CreateAirflowCrdRequestBody struct {
 	// Description Optional description (DB-only, not stored in the CRD).
 	Description *string `json:"description,omitempty"`
 
+	// Egress Egress an environment's task pods are granted **on top of** the fixed
+	// platform baseline (Execution API, object store, Bifrost, DNS). The baseline
+	// is not editable and never appears here.
+	Egress *AirflowEgressRequest `json:"egress,omitempty"`
+
 	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
 	Name string `json:"name"`
 
-	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
-	// Memory request and limit are always equal.
-	NodeTier *NodeTier `json:"node_tier,omitempty"`
+	// NodeTier Predefined resource tiers for the Airflow api-server/scheduler/dag-processor/
+	// triggerer pods. Memory request and limit are always equal. Near-clone of the
+	// Dagster webserver/daemon `NodeTier` (`handlers::dagsters::create_crd`)
+	// — kept as its own type rather than shared because it is independently
+	// user-facing API surface for a different resource family (same precedent as
+	// `handlers::managed_postgresqls::tier::NodeTier` coexisting with Dagster's).
+	//
+	// The catalogue starts at `Micro`, one tier above Dagster's: there is no
+	// `Nano`. 512Mi cannot hold an Airflow 3 triggerer, which pairs an asyncio
+	// loop with its own uvicorn log server and settles at ~620Mi *idle, with zero
+	// DAGs loaded* (measured against a 1Gi limit; under a 512Mi one it was simply
+	// OOMKilled on the way there, at ~490Mi). Every environment created at Nano
+	// with `triggerer_enabled` (the default) therefore crash-looped from birth —
+	// the tier could never schedule, so it was removed rather than documented as
+	// a trap. Keep the smallest tier clear of the triggerer's idle floor when
+	// revising these numbers.
+	//
+	// Published as `AirflowNodeTier`, not `NodeTier`: Dagster
+	// (`handlers::dagsters::create_crd`) and ManagedPostgreSQL
+	// (`handlers::managed_postgresqls::tier`) each declare an enum of that same
+	// name, and utoipa keys `components.schemas` by the type's short name — so
+	// the three silently collapsed into one schema and Dagster's won. That was
+	// invisible while all three listed the same variants; dropping `Nano` here
+	// makes it load-bearing, because the shared schema would otherwise keep
+	// advertising a tier this endpoint now rejects with a 422.
+	NodeTier *AirflowNodeTier `json:"node_tier,omitempty"`
 
 	// PostgresRef Name of an existing `ManagedPostgreSQL` (in the Harbor namespace) to host
 	// Airflow's metadata DB. When omitted, the operator provisions a dedicated
@@ -6112,6 +7791,10 @@ type CreateAirflowCrdRequestBody struct {
 
 	// Tags User-defined tags (DB-only, not stored in the CRD).
 	Tags *[]string `json:"tags,omitempty"`
+
+	// TaskQuotaMaxPods `count/pods` ceiling for the environment's task namespace. Omitted or
+	// `0` leaves the platform default in charge (nothing is persisted).
+	TaskQuotaMaxPods *int32 `json:"task_quota_max_pods,omitempty"`
 
 	// TriggererEnabled Deferrable-operator (triggerer) support. Defaults to enabled
 	// (ADR-0019 §2).
@@ -6274,8 +7957,14 @@ type CreateContainerAppCrdRequestBody struct {
 	// the per-domain status sits in `PendingVerification` until the user completes
 	// ownership verification.
 	CustomDomains *[]CustomDomainInput `json:"custom_domains,omitempty"`
-	Enabled       bool                 `json:"enabled"`
-	Env           *[]EnvVarInput       `json:"env,omitempty"`
+
+	// CustomResources Explicit CPU + memory for a "custom" flavor (#4275) — the alternative to
+	// `resource_tier` for a customer whose workload sits between two catalog
+	// tiers. Mutually exclusive with `resource_tier` on the request body: a
+	// request setting both is rejected by [`resolve_resource_requirements`].
+	CustomResources *CustomResourceInput `json:"custom_resources,omitempty"`
+	Enabled         bool                 `json:"enabled"`
+	Env             *[]EnvVarInput       `json:"env,omitempty"`
 
 	// ExposeToInternet Whether to create internet-facing routes (platform host route and custom-domain
 	// routes) for this app. Defaults to `false` — new apps are private by default.
@@ -6741,9 +8430,20 @@ type CreateFileSorterRequest struct {
 // automatically from `harbor_id` via `resolve_forge`; the caller never
 // supplies them directly.
 type CreateForgejoRunnerRequest struct {
+	// Allowlists Names of this harbor's egress allow-lists (the same lists Dev
+	// Workstations attach) whose FQDNs the runner may also reach.
+	Allowlists *[]string `json:"allowlists,omitempty"`
+
 	// ExtraEgressFqdns Extra FQDNs the runner's `CiliumNetworkPolicy` allows egress to,
 	// beyond the mandatory set (in-cluster forge + console token endpoint).
+	// Hostnames only (HTTPS/443), validated like a workstation's extra FQDNs.
 	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
+
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor *RunnerFlavorDto `json:"flavor,omitempty"`
 
 	// Labels Forgejo runner labels assigned during registration
 	// (e.g. `["ubuntu-latest", "docker"]`).  Determines which `runs-on:`
@@ -6815,12 +8515,21 @@ type CreateGithubRunnerRequest struct {
 	// the connections API — the leaf name, not the full secret path).
 	Connection string `json:"connection"`
 
-	// ExtraEgressFqdns Extra FQDNs the pool's network policy allows egress to on 443/TCP,
-	// beyond the built-in GitHub Actions preset.
+	// EgressMode How the pool's `CiliumNetworkPolicy` treats egress the built-in preset and
+	// the allow-list do not cover.
+	EgressMode *GithubRunnerEgressModeDto `json:"egress_mode,omitempty"`
+
+	// ExtraEgressFqdns Extra destinations the pool's network policy allows egress to, beyond
+	// the built-in GitHub Actions preset. `host` opens 443/TCP; `host:port`
+	// opens that port instead (`deb.debian.org:80`,
+	// `registry.corp.example:5000`).
 	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
 
-	// Flavor Named runner size, resolved by the operator into container requests/limits.
-	Flavor *GithubRunnerFlavorDto `json:"flavor,omitempty"`
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor *RunnerFlavorDto `json:"flavor,omitempty"`
 
 	// MaxRunners Ceiling on concurrent runners. Defaults to 3.
 	MaxRunners *int32 `json:"max_runners,omitempty"`
@@ -7094,8 +8803,26 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
+	// Pitr Opt in to point-in-time recovery, and choose how tight it is.
+	//
+	// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+	// a time, and a segment is archived only when it fills or when a timer forces
+	// a switch. The interval is therefore the worst-case recovery point objective
+	// for an *idle* database — a busy one fills segments and ships faster on its
+	// own.
+	Pitr *PitrRequest `json:"pitr,omitempty"`
+
 	// Restore Optional restore descriptor: bootstrap the new database from an existing
-	// backup instead of initializing it empty.
+	// backup, or from a source database's continuous archive, instead of
+	// initializing it empty.
+	//
+	// Exactly one source must be named, because the two answer different
+	// questions:
+	// - `backup_id` — restore that one backup, as it was taken.
+	// - `source_instance_id` — restore that database's continuous archive. This is
+	//   the route a `target_time` needs: CNPG selects the base backup itself from
+	//   the target, so naming one alongside would be naming a backup CNPG may not
+	//   use.
 	Restore *RestoreFromBackup `json:"restore,omitempty"`
 
 	// StorageCapacity Storage capacity in GB (1-30)
@@ -7113,7 +8840,7 @@ type CreateManagedPostgresqlUserCrdRequestBody struct {
 	// Description Optional description (DB-only).
 	Description *string `json:"description,omitempty"`
 
-	// PermissionLevel Permission level granted to the Postgres role.
+	// PermissionLevel Permission level granted to the user on the target database.
 	PermissionLevel *PermissionLevel `json:"permission_level,omitempty"`
 
 	// Tags User-defined tags (DB-only).
@@ -7543,6 +9270,41 @@ type CreatePipelineRequestV29 struct {
 // CreatePipelineRequestV29Type defines model for CreatePipelineRequestV2.9.Type.
 type CreatePipelineRequestV29Type string
 
+// CreatePipelineRequestV210 defines model for .
+type CreatePipelineRequestV210 struct {
+	// BucketName HFBucket CRD name (must be Ready)
+	BucketName string `json:"bucket_name"`
+
+	// DestinationPrefix Optional prefix path within the destination bucket
+	DestinationPrefix *string `json:"destination_prefix,omitempty"`
+
+	// Extraction Optional extraction step appended after the Copy step in a GDrive pipeline
+	Extraction *GDriveExtractionConfig `json:"extraction,omitempty"`
+
+	// HarborId Harbor UUID that owns the destination bucket
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Pipeline Pipeline metadata configuration (common to all pipeline types)
+	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Source SharePoint source configuration.
+	//
+	// The connector authenticates as an Entra ID (Azure AD) **application**, not as
+	// a user: the client-credentials grant against the tenant's token endpoint,
+	// exchanged for a Microsoft Graph token. That is the only shape that survives
+	// an unattended nightly run, since it involves no refresh token to expire and
+	// no user whose password rotation stops the pipeline.
+	//
+	// The app registration needs the `Sites.Read.All` application permission with
+	// tenant admin consent — or, better scoped, `Sites.Selected` plus a per-site
+	// grant on just the libraries being ingested.
+	Source SharePointSourceConfig        `json:"source"`
+	Type   CreatePipelineRequestV210Type `json:"type"`
+}
+
+// CreatePipelineRequestV210Type defines model for CreatePipelineRequestV2.10.Type.
+type CreatePipelineRequestV210Type string
+
 // CreatePostgresqlDataContainerRequestBody defines model for CreatePostgresqlDataContainerRequestBody.
 type CreatePostgresqlDataContainerRequestBody struct {
 	DataDockId openapi_types.UUID `json:"data_dock_id"`
@@ -7566,6 +9328,14 @@ type CreatePropertyDefinitionRequest struct {
 	IsPrimaryKey *bool   `json:"is_primary_key,omitempty"`
 	IsTitle      *bool   `json:"is_title,omitempty"`
 	SourceColumn *string `json:"source_column,omitempty"`
+}
+
+// CreateRefRequest defines model for CreateRefRequest.
+type CreateRefRequest struct {
+	Key              string             `json:"key"`
+	PipelineChecksum string             `json:"pipeline_checksum"`
+	PipelineId       openapi_types.UUID `json:"pipeline_id"`
+	Status           *RefStatus         `json:"status,omitempty"`
 }
 
 // CreateRegistryProjectRequestBody defines model for CreateRegistryProjectRequestBody.
@@ -7690,6 +9460,45 @@ type CreateSessionResponse struct {
 	// Named `id` so the frontend's `AgentSession` shape lines up with both
 	// this create response and the normalized session list.
 	Id string `json:"id"`
+}
+
+// CreateSharePointPipelineRequest Create a SharePoint connector: copy files from a SharePoint document library
+// into an S3 bucket, optionally extracting their text into an Iceberg table.
+//
+// The extraction block is [`GDriveExtractionConfig`], reused rather than
+// copied. Nothing in it is specific to Google Drive — it is "the extraction
+// step a file connector appends", with the same two variants and the same OCR
+// configuration — and the name lags for the reason [`api_key::ApiKey`]'s does:
+// renaming it would churn the OpenAPI schema, the generated console client and
+// the CLI's progenitor types for no behavioural gain.
+type CreateSharePointPipelineRequest struct {
+	// BucketName HFBucket CRD name (must be Ready)
+	BucketName string `json:"bucket_name"`
+
+	// DestinationPrefix Optional prefix path within the destination bucket
+	DestinationPrefix *string `json:"destination_prefix,omitempty"`
+
+	// Extraction Optional extraction step appended after the Copy step in a GDrive pipeline
+	Extraction *GDriveExtractionConfig `json:"extraction,omitempty"`
+
+	// HarborId Harbor UUID that owns the destination bucket
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Pipeline Pipeline metadata configuration (common to all pipeline types)
+	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Source SharePoint source configuration.
+	//
+	// The connector authenticates as an Entra ID (Azure AD) **application**, not as
+	// a user: the client-credentials grant against the tenant's token endpoint,
+	// exchanged for a Microsoft Graph token. That is the only shape that survives
+	// an unattended nightly run, since it involves no refresh token to expire and
+	// no user whose password rotation stops the pipeline.
+	//
+	// The app registration needs the `Sites.Read.All` application permission with
+	// tenant admin consent — or, better scoped, `Sites.Selected` plus a per-site
+	// grant on just the libraries being ingested.
+	Source SharePointSourceConfig `json:"source"`
 }
 
 // CreateSignupRequestBody defines model for CreateSignupRequestBody.
@@ -7879,6 +9688,10 @@ type CreateWorkstationTemplateRequest struct {
 	Version string `json:"version"`
 }
 
+// CredentialLocation Where a credential a detail row describes actually lives — the three forms
+// `hf_lib_domain_pipeline::models::api_key::ApiKey` can take in the document.
+type CredentialLocation string
+
 // CreditBalance What an organization holds right now.
 type CreditBalance struct {
 	// BalanceMicroCredits May be negative: calls settle after admission, and a settlement refused
@@ -8035,6 +9848,35 @@ type CustomDomainTargetResponse struct {
 // CustomDomainTlsModeInput defines model for CustomDomainTlsModeInput.
 type CustomDomainTlsModeInput string
 
+// CustomFlavorBoundsDto The envelope a `custom` flavor must fit in, as quantity strings.
+type CustomFlavorBoundsDto struct {
+	CpuMax    string `json:"cpu_max"`
+	CpuMin    string `json:"cpu_min"`
+	DiskMax   string `json:"disk_max"`
+	DiskMin   string `json:"disk_min"`
+	MemoryMax string `json:"memory_max"`
+	MemoryMin string `json:"memory_min"`
+}
+
+// CustomResourceInput Explicit CPU + memory for a "custom" flavor (#4275) — the alternative to
+// `resource_tier` for a customer whose workload sits between two catalog
+// tiers. Mutually exclusive with `resource_tier` on the request body: a
+// request setting both is rejected by [`resolve_resource_requirements`].
+type CustomResourceInput struct {
+	// CpuMillis Sold/billed CPU entitlement, in millicores. Bounded by
+	// [`CUSTOM_CPU_MILLIS_MIN`]..=[`CUSTOM_CPU_MILLIS_MAX`] — the same span
+	// the tier catalog itself covers. Request and limit are derived from
+	// this value exactly like a tier's sold number (see
+	// [`custom_resource_requirements`]).
+	CpuMillis int64 `json:"cpu_millis"`
+
+	// MemoryMib Memory, in MiB. Bounded by
+	// [`CUSTOM_MEMORY_MIB_MIN`]..=[`CUSTOM_MEMORY_MIB_MAX`]. Request and
+	// limit are both set to this value — memory never gets a burst ceiling,
+	// the same rule every tier follows.
+	MemoryMib int64 `json:"memory_mib"`
+}
+
 // DagsterCrdSpecResponse The live `Dagster` CRD spec (source of truth in K8s), including fields the DB
 // does not cache (sleep_mode).
 type DagsterCrdSpecResponse struct {
@@ -8188,8 +10030,17 @@ type DataDock struct {
 	InternalHost *string      `json:"internal_host,omitempty"`
 	InternalPort *int32       `json:"internal_port,omitempty"`
 	Kind         DataDockKind `json:"kind"`
-	Name         string       `json:"name"`
-	OpaUri       *string      `json:"opa_uri,omitempty"`
+
+	// MaintenanceIdentitySubject JWT `sub` of the dock's maintenance service account — the identity
+	// Iceberg table maintenance authenticates as, and nothing else does.
+	//
+	// The `sub` rather than the client id because that is what Trino makes the
+	// principal, so it is what OPA matches on `input.context.identity.user`
+	// and what a resource-group selector on `user` can name. `None` until the
+	// operator has reconciled the dock since the identity was introduced.
+	MaintenanceIdentitySubject *string `json:"maintenance_identity_subject,omitempty"`
+	Name                       string  `json:"name"`
+	OpaUri                     *string `json:"opa_uri,omitempty"`
 
 	// Port This is i16 to match the sqlx type for port but this should never be negative (constraints are already in place in the db)
 	Port                 int32          `json:"port"`
@@ -8258,6 +10109,38 @@ type DataDockExternalResponseData struct {
 	Status          DataDockStatus               `json:"status"`
 }
 
+// DataDockInternetExposureResponse defines model for DataDockInternetExposureResponse.
+type DataDockInternetExposureResponse struct {
+	// DesiredExposed What the operator resolves that to — the REQUESTED state. An unset toggle
+	// resolves to `true`, so every Data Dock created before the toggle existed
+	// stays public. Never render a security claim off this alone: it says what
+	// was asked for, not what exists.
+	DesiredExposed bool `json:"desired_exposed"`
+
+	// EnforcedExposed `DataDockStatus.exposed_to_internet`: what the operator's last successful
+	// reconcile actually left in place. `null` on a dock that has not
+	// reconciled since the field was introduced.
+	EnforcedExposed *bool `json:"enforced_exposed,omitempty"`
+
+	// ExposeToInternet The spec value as written: `null` when the toggle was never set.
+	// Distinguishing "never set" from "set to true" is what lets the operator
+	// keep a resolved default out of the spec.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
+
+	// State Where a Data Dock's Trino stands between the exposure its spec asks for and
+	// the one the operator has actually enforced.
+	//
+	// The distinction is the whole point: the Trino strategy provisions a Keycloak
+	// service account, writes to the secret store, calls the console API three
+	// times and applies the OPA/coordinator/worker objects BEFORE it reaches the
+	// ingress-prune step, and the status is only written once the whole pass
+	// succeeds — so a spec that says "private" can sit in front of a live public
+	// Ingress indefinitely if any of that fails. A reader
+	// that only looks at the spec would announce a security posture nobody has
+	// verified.
+	State InternetExposureState `json:"state"`
+}
+
 // DataDockKind defines model for DataDockKind.
 type DataDockKind struct {
 	union json.RawMessage
@@ -8299,6 +10182,21 @@ type DataDockKindRequest0 struct {
 
 // DataDockKindRequest0Type defines model for DataDockKindRequest.0.Type.
 type DataDockKindRequest0Type string
+
+// DataDockResourceGroupsResponse defines model for DataDockResourceGroupsResponse.
+type DataDockResourceGroupsResponse struct {
+	// CatchAllGroup Name of the platform-owned group that catches every query no user
+	// selector matched.
+	//
+	// Surfaced so the console can render it as a fixed, non-removable last
+	// row. A query matching no selector is REFUSED by Trino, not left
+	// ungrouped, so a UI that hides this is a UI in which a user can build a
+	// configuration that rejects traffic without ever seeing why.
+	CatchAllGroup string `json:"catch_all_group"`
+
+	// ResourceGroups Resource groups and the ordered selectors that assign queries to them.
+	ResourceGroups *TrinoResourceGroups `json:"resource_groups,omitempty"`
+}
 
 // DataDockSearchRequest Curated request: the Bifrost hybrid-search knobs (fusion strategy,
 // per-leg candidate limits, precomputed vectors, column weights) stay behind
@@ -8373,6 +10271,9 @@ type DataDockSecuritySettingsResponse struct {
 
 // DataDockStatus defines model for DataDockStatus.
 type DataDockStatus string
+
+// DataDockType defines model for DataDockType.
+type DataDockType string
 
 // DedupingStrategy defines model for DedupingStrategy.
 type DedupingStrategy struct {
@@ -8456,6 +10357,30 @@ type DestinationConfig struct {
 
 	// Prefix Prefix path within the destination bucket (e.g., "invoices/processed/")
 	Prefix string `json:"prefix"`
+}
+
+// DevWorkstationAuditStatus What this workstation's user is told. Carries no transcript content: a
+// notice is not a read of the record.
+type DevWorkstationAuditStatus struct {
+	// AgentRequestsRecorded Requests sent to the agent are recorded.
+	AgentRequestsRecorded bool `json:"agent_requests_recorded"`
+
+	// PreviewPosture What audit mode does to the workstation preview proxy.
+	//
+	// The preview forwards arbitrary HTTP and WebSocket traffic to any
+	// non-reserved port a user listens on, so a `ttyd` on :8080 is a terminal the
+	// console tap never sees. An audit mode that ignores that is theatre, so the
+	// posture is an explicit, recorded decision rather than an oversight.
+	PreviewPosture PreviewPosture `json:"preview_posture"`
+
+	// Recording Is anything at all being recorded on this workstation?
+	Recording bool `json:"recording"`
+
+	// RetentionDays Days a record is kept. `None` when nothing is being recorded.
+	RetentionDays *int32 `json:"retention_days,omitempty"`
+
+	// TerminalCommandsRecorded Command lines submitted in a terminal are recorded.
+	TerminalCommandsRecorded bool `json:"terminal_commands_recorded"`
 }
 
 // DevWorkstationEgressFlowsResponse Aggregated egress flows for a workstation pod. Best-effort: Hubble
@@ -8581,6 +10506,17 @@ type DevWorkstationStatusResponse struct {
 	// TemplateRef `WorkstationTemplate` name the workstation was created from. `None` =
 	// platform default base.
 	TemplateRef *string `json:"template_ref,omitempty"`
+}
+
+// DevWorkstationTranscriptEntry One entry of a transcript. The event is the typed payload, so the console
+// renders an agent request and a terminal command differently without the
+// server flattening them into strings first.
+type DevWorkstationTranscriptEntry struct {
+	// Actor Keycloak subject of the person who did this.
+	Actor      openapi_types.UUID     `json:"actor"`
+	Event      map[string]interface{} `json:"event"`
+	Id         openapi_types.UUID     `json:"id"`
+	RecordedAt time.Time              `json:"recorded_at"`
 }
 
 // DiscardRequest defines model for DiscardRequest.
@@ -8787,6 +10723,19 @@ type EnableSqlEngineRequest struct {
 	// CatalogName Name of the Iceberg catalog to create (only used when
 	// `seed_demo_catalog = true`). Defaults to `"demo_iceberg"`.
 	CatalogName *string `json:"catalog_name,omitempty"`
+
+	// ExposeToInternet Whether the operator publishes an internet-facing Ingress in front of
+	// the new cluster's Trino coordinator.
+	//
+	// Absent (the default) leaves `spec.config.expose_to_internet` out of the
+	// DataDock CR entirely, so the operator resolves the platform default —
+	// exposed — at reconcile time and the resolved value is never frozen into
+	// the spec (CLAUDE.md). `false` creates the cluster private: Trino is
+	// reachable in-cluster only (Bifrost, Petite Requête, pipelines), with no
+	// public route ever published, which is why this belongs on the create
+	// call rather than a follow-up `PUT .../internet-exposure` that would race
+	// the first reconcile. Flippable afterwards from that same endpoint.
+	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
 	// Name Display name for the Trino cluster.
 	Name string `json:"name"`
@@ -9208,6 +11157,23 @@ type ForgejoRepoEntry struct {
 // ForgejoRunnerResponse Response DTO for a `ForgejoRunner` CR, including live status fields for
 // polling in the UI.
 type ForgejoRunnerResponse struct {
+	// Allowlists Names of the egress allow-lists attached to this runner.
+	Allowlists []string `json:"allowlists"`
+
+	// ExtraEgressFqdns Extra egress FQDNs as stored on the CR, including the platform registry
+	// host the console injects at creation.
+	ExtraEgressFqdns []string `json:"extra_egress_fqdns"`
+
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor RunnerFlavorDto `json:"flavor"`
+
+	// Generation `metadata.generation` of the CR; compare with
+	// `status.egress_observed_generation` to detect a pending network change.
+	Generation *int64 `json:"generation,omitempty"`
+
 	// HarborId Owning harbor UUID (from `spec.harbor_id`).
 	HarborId openapi_types.UUID `json:"harbor_id"`
 
@@ -9220,8 +11186,15 @@ type ForgejoRunnerResponse struct {
 	// OrganizationId Owning organization UUID (from `spec.organization_id`).
 	OrganizationId openapi_types.UUID `json:"organization_id"`
 
+	// RegistryHost Platform OCI registry host CI jobs push to (from `spec.registry_host`).
+	RegistryHost *string `json:"registry_host,omitempty"`
+
 	// Replicas Configured replica count (from `spec.replicas`).
 	Replicas int32 `json:"replicas"`
+
+	// Resources What a flavor resolves to on the pod, as the operator renders it —
+	// request = limit on each container, and the data-root PVC size.
+	Resources RunnerResourcesDto `json:"resources"`
 
 	// RunnerImage Runner container image (from `spec.runner_image`).
 	RunnerImage *string `json:"runner_image,omitempty"`
@@ -9232,6 +11205,13 @@ type ForgejoRunnerResponse struct {
 
 // ForgejoRunnerStatusResponse Lifecycle status of the Forgejo runner, derived from `ForgejoRunnerStatus`.
 type ForgejoRunnerStatusResponse struct {
+	// EffectiveEgressFqdns Every FQDN the runner's network policy currently allows: registry
+	// hosts, extra FQDNs and the resolved allow-lists.
+	EffectiveEgressFqdns []string `json:"effective_egress_fqdns"`
+
+	// EgressObservedGeneration CR generation the network policy was last rendered from.
+	EgressObservedGeneration *int64 `json:"egress_observed_generation,omitempty"`
+
 	// Message Human-readable status message (last error or transition reason).
 	Message *string `json:"message,omitempty"`
 
@@ -9246,6 +11226,12 @@ type ForgejoRunnerStatusResponse struct {
 
 	// Registered Whether the runner has successfully registered with its Forgejo instance.
 	Registered bool `json:"registered"`
+
+	// UnresolvedAllowlists Names from `allowlists` that could not be resolved on the most recent
+	// reconcile — a dangling reference (the `EgressAllowlist` was deleted or
+	// never existed in this harbor). Non-empty means the runner's egress
+	// policy is narrower than `allowlists` implies.
+	UnresolvedAllowlists []string `json:"unresolved_allowlists"`
 }
 
 // GDriveExtractionConfig Optional extraction step appended after the Copy step in a GDrive pipeline
@@ -9280,8 +11266,25 @@ type GDriveExtractionType string
 // GDriveSourceConfig GDrive source configuration
 type GDriveSourceConfig struct {
 	// Prefix Optional folder prefix within the bucket
-	Prefix     *string `json:"prefix,omitempty"`
-	PrivateKey string  `json:"private_key"`
+	Prefix *string `json:"prefix,omitempty"`
+
+	// PrivateKey The service account's PEM-encoded private key, as a literal.
+	//
+	// Optional since #4002: a caller may send `private_key_secret` instead, and
+	// exactly one of the two is required. It stays a plain string so every
+	// client written before the secret form keeps working unchanged — and it
+	// remains the only form an already-created pipeline has.
+	PrivateKey *string `json:"private_key,omitempty"`
+
+	// PrivateKeySecret A Passe-Partout secret, addressed the way the secret store addresses one:
+	// `organizations/{organization_id}/{secret_id}`.
+	//
+	// Deliberately not `hf_lib_domain_core::dev_workstations::crd::ScmSecretRef`,
+	// which carries the same two fields for the agent's model key: that one is
+	// named for source-control credentials, lives in the workstation module, and
+	// derives neither `PartialEq` nor `ToSchema`, both of which this needs. Kept
+	// structurally identical so the two can be merged if a neutral home appears.
+	PrivateKeySecret *SecretRef `json:"private_key_secret,omitempty"`
 
 	// ServiceAccountEmail Service account email for GDrive connector authentication
 	ServiceAccountEmail string  `json:"service_account_email"`
@@ -9338,9 +11341,14 @@ type GetConsoleConfigResponse struct {
 	AppVersion string `json:"app_version"`
 
 	// AppsBaseDomain Base domain under which ContainerApp workloads are served
-	// (e.g. `"apps.192.168.121.100.nip.io"` in dev). Used by the frontend
-	// to derive canonical ContainerApp URLs such as the Forgejo public URL.
-	// `None` when the platform has not configured a CaaS apps domain.
+	// (e.g. `"apps.192.168.121.100.nip.io"` in dev). `None` when the platform
+	// has not configured a CaaS apps domain.
+	//
+	// Platform information only: a client cannot derive a ContainerApp URL
+	// from it, because the operator scopes the app's bare `network.host` label
+	// with the org and harbor per a platform-wide host naming mode the client
+	// never sees. The serving URL is `ContainerApp.status.endpoint`, or
+	// `status.customDomains[]` for a bring-your-own domain.
 	AppsBaseDomain     *string `json:"apps_base_domain,omitempty"`
 	BifrostApiUrl      string  `json:"bifrost_api_url"`
 	BifrostSqlEndpoint string  `json:"bifrost_sql_endpoint"`
@@ -9373,7 +11381,15 @@ type GetConsoleConfigResponse struct {
 	ManagedMail           ManagedMailConfigResponse `json:"managed_mail"`
 	OidcBaseUrl           string                    `json:"oidc_base_url"`
 	OidcExpectedAudiences []string                  `json:"oidc_expected_audiences"`
-	SapienceApiUrl        string                    `json:"sapience_api_url"`
+
+	// PreviewHostSuffix Fixed DNS parent workstation previews are served under, e.g.
+	// `"ws-preview.example.com"` — a preview is then
+	// `p-{workstation_id}-{port}.<suffix>`. `null` means previews live one
+	// label under the console host the browser is on, which is what a
+	// single-host console uses; the frontend falls back to
+	// `window.location.host` there.
+	PreviewHostSuffix *string `json:"preview_host_suffix,omitempty"`
+	SapienceApiUrl    string  `json:"sapience_api_url"`
 }
 
 // GetFakerFieldTypesResponse defines model for GetFakerFieldTypesResponse.
@@ -9540,8 +11556,9 @@ type GithubConnectionTarget struct {
 // GithubConnectionTargetKind Whether a discovered target is a GitHub organization or a user account.
 type GithubConnectionTargetKind string
 
-// GithubRunnerFlavorDto Named runner size, resolved by the operator into container requests/limits.
-type GithubRunnerFlavorDto string
+// GithubRunnerEgressModeDto How the pool's `CiliumNetworkPolicy` treats egress the built-in preset and
+// the allow-list do not cover.
+type GithubRunnerEgressModeDto string
 
 // GithubRunnerPoolEgressFlowsResponse Aggregated egress flows for one CI Farm runner pool, forwarded and blocked.
 //
@@ -9572,6 +11589,10 @@ type GithubRunnerResponse struct {
 	// Connection Leaf name of the `GithubConnection` backing this pool.
 	Connection string `json:"connection"`
 
+	// EgressMode How the pool's `CiliumNetworkPolicy` treats egress the built-in preset and
+	// the allow-list do not cover.
+	EgressMode GithubRunnerEgressModeDto `json:"egress_mode"`
+
 	// ExtraEgressFqdns Destinations allowed for this pool ON TOP of the mandatory GitHub
 	// Actions / registry preset every runner gets — the user-editable half of
 	// the pool's egress policy.
@@ -9583,8 +11604,11 @@ type GithubRunnerResponse struct {
 	// `null` when the pool has no extras, which is how it is stored.
 	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
 
-	// Flavor Named runner size (`s`/`m`/`l`/`xl`).
-	Flavor string `json:"flavor"`
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor RunnerFlavorDto `json:"flavor"`
 
 	// GithubConfigUrl GitHub config URL the scale set registers against
 	// (`https://github.com/<org>` or `https://github.com/<owner>/<repo>`).
@@ -9597,8 +11621,12 @@ type GithubRunnerResponse struct {
 	// `status.runner_scale_set_name`, which the operator derives from this.
 	Name           string             `json:"name"`
 	OrganizationId openapi_types.UUID `json:"organization_id"`
-	RunnerGroup    *string            `json:"runner_group,omitempty"`
-	RunnerImage    *string            `json:"runner_image,omitempty"`
+
+	// Resources What a flavor resolves to on the pod, as the operator renders it —
+	// request = limit on each container, and the data-root PVC size.
+	Resources   RunnerResourcesDto `json:"resources"`
+	RunnerGroup *string            `json:"runner_group,omitempty"`
+	RunnerImage *string            `json:"runner_image,omitempty"`
 
 	// RunsOn The `runs-on:` name this pool was explicitly given, or `null` when it
 	// uses the derived one. This is the *configured* value — what a form
@@ -10200,8 +12228,8 @@ type IcebergOptimizeConfig struct {
 	RemoveOrphanFilesRetention *string `json:"remove_orphan_files_retention,omitempty"`
 	Schedule                   string  `json:"schedule"`
 
-	// SkipUnchanged Skip a table whose current snapshot is the one the last successful run
-	// already optimized.
+	// SkipUnchanged Skip a table whose current snapshot is the one a previous run already
+	// left it optimized at.
 	SkipUnchanged   bool      `json:"skip_unchanged"`
 	Suspend         bool      `json:"suspend"`
 	TablesOptimized *int32    `json:"tables_optimized,omitempty"`
@@ -10497,8 +12525,23 @@ type ImapTransportConfig struct {
 	// Host IMAP server host
 	Host string `json:"host"`
 
-	// Password IMAP password
-	Password string `json:"password"`
+	// Password The mailbox password, as a literal.
+	//
+	// Optional since #4237: a caller may send `password_secret` instead, and
+	// exactly one of the two is required. It stays a plain string so every
+	// client written before the secret form keeps working unchanged — and it
+	// remains the only form an already-created connector has.
+	Password *string `json:"password,omitempty"`
+
+	// PasswordSecret A Passe-Partout secret, addressed the way the secret store addresses one:
+	// `organizations/{organization_id}/{secret_id}`.
+	//
+	// Deliberately not `hf_lib_domain_core::dev_workstations::crd::ScmSecretRef`,
+	// which carries the same two fields for the agent's model key: that one is
+	// named for source-control credentials, lives in the workstation module, and
+	// derives neither `PartialEq` nor `ToSchema`, both of which this needs. Kept
+	// structurally identical so the two can be merged if a neutral home appears.
+	PasswordSecret *SecretRef `json:"password_secret,omitempty"`
 
 	// Port IMAP server port (usually 993 for SSL/TLS)
 	Port int32 `json:"port"`
@@ -10618,8 +12661,23 @@ type InboundEmailSourceConfig0 struct {
 	// Host IMAP server host
 	Host string `json:"host"`
 
-	// Password IMAP password
-	Password string `json:"password"`
+	// Password The mailbox password, as a literal.
+	//
+	// Optional since #4237: a caller may send `password_secret` instead, and
+	// exactly one of the two is required. It stays a plain string so every
+	// client written before the secret form keeps working unchanged — and it
+	// remains the only form an already-created connector has.
+	Password *string `json:"password,omitempty"`
+
+	// PasswordSecret A Passe-Partout secret, addressed the way the secret store addresses one:
+	// `organizations/{organization_id}/{secret_id}`.
+	//
+	// Deliberately not `hf_lib_domain_core::dev_workstations::crd::ScmSecretRef`,
+	// which carries the same two fields for the agent's model key: that one is
+	// named for source-control credentials, lives in the workstation module, and
+	// derives neither `PartialEq` nor `ToSchema`, both of which this needs. Kept
+	// structurally identical so the two can be merged if a neutral home appears.
+	PasswordSecret *SecretRef `json:"password_secret,omitempty"`
 
 	// Port IMAP server port (usually 993 for SSL/TLS)
 	Port      int32                              `json:"port"`
@@ -10648,6 +12706,19 @@ type InstancePage struct {
 
 // IntendedUse What the requester intends to use the trial for.
 type IntendedUse string
+
+// InternetExposureState Where a Data Dock's Trino stands between the exposure its spec asks for and
+// the one the operator has actually enforced.
+//
+// The distinction is the whole point: the Trino strategy provisions a Keycloak
+// service account, writes to the secret store, calls the console API three
+// times and applies the OPA/coordinator/worker objects BEFORE it reaches the
+// ingress-prune step, and the status is only written once the whole pass
+// succeeds — so a spec that says "private" can sit in front of a live public
+// Ingress indefinitely if any of that fails. A reader
+// that only looks at the spec would announce a security posture nobody has
+// verified.
+type InternetExposureState string
 
 // InvitationIdentityProvider An identity provider offered on the invitation page, so the invitee can
 // sign in through it instead of setting a password. Only the fields the public
@@ -10888,6 +12959,30 @@ type LinkType struct {
 	UpdatedAt          time.Time          `json:"updated_at"`
 }
 
+// ListAuditLogItem defines model for ListAuditLogItem.
+type ListAuditLogItem struct {
+	// ActorKind Which kind of principal an audited `oauth_id` resolved to. `Platform` is a
+	// client the operator provisioned for the platform's own components in the
+	// org's realm (Bifrost, the dock's Trino OAuth client, object-storage STS —
+	// see `platform_identities`). `Unknown` covers both a human with no
+	// `user_identities` row yet and a subject nobody owns.
+	ActorKind         AuditActorKind     `json:"actor_kind"`
+	CreatedAt         time.Time          `json:"created_at"`
+	Event             AuditLogEvent      `json:"event"`
+	Id                openapi_types.UUID `json:"id"`
+	OauthId           openapi_types.UUID `json:"oauth_id"`
+	OrganizationId    openapi_types.UUID `json:"organization_id"`
+	OriginalTimestamp time.Time          `json:"original_timestamp"`
+
+	// PlatformClientId Set only when `actor_kind` is `platform` — see `AuditEntry::platform_client_id`.
+	PlatformClientId *string `json:"platform_client_id,omitempty"`
+
+	// ServiceAccountId Set only when `actor_kind` is `service_account`.
+	ServiceAccountId   *openapi_types.UUID `json:"service_account_id,omitempty"`
+	ServiceAccountName *string             `json:"service_account_name,omitempty"`
+	User               *User               `json:"user,omitempty"`
+}
+
 // ListChangelogsResponse defines model for ListChangelogsResponse.
 type ListChangelogsResponse struct {
 	// Entries Newest first.
@@ -10951,6 +13046,17 @@ type ListTableClassificationsResponse struct {
 type ListUserAttributesResponse struct {
 	// Attributes List of attributes in `namespace::value` format.
 	Attributes []string `json:"attributes"`
+}
+
+// LiveAuditLog The live tail: raw, per-decision rows not yet compacted into the durable log.
+type LiveAuditLog struct {
+	// CompleteAsOf The durable log's watermark; rows start one rollup overlap before it, so the newest few
+	// minutes of the durable log also appear here. `None` when no rollup has run yet, in which
+	// case the tail is bounded to the last hour instead.
+	CompleteAsOf *time.Time `json:"complete_as_of,omitempty"`
+
+	// Data Newest first, capped by the request `limit`.
+	Data []ListAuditLogItem `json:"data"`
 }
 
 // LogEntryDto defines model for LogEntryDto.
@@ -11077,33 +13183,52 @@ type ManagedPostgresqlCrdSpecResponse struct {
 
 // ManagedPostgresqlResponse defines model for ManagedPostgresqlResponse.
 type ManagedPostgresqlResponse struct {
-	BackupPolicy          string             `json:"backup_policy"`
-	BackupSchedule        *string            `json:"backup_schedule,omitempty"`
-	BackupScheduleSuspend bool               `json:"backup_schedule_suspend"`
-	BackupScheduleTarget  *string            `json:"backup_schedule_target,omitempty"`
-	Conditions            interface{}        `json:"conditions,omitempty"`
-	Configuration         string             `json:"configuration"`
-	CreatedAt             time.Time          `json:"created_at"`
-	CurrentPrimary        *string            `json:"current_primary,omitempty"`
-	DatabaseName          string             `json:"database_name"`
-	Description           *string            `json:"description,omitempty"`
-	Engine                string             `json:"engine"`
-	ExternalEndpoint      *string            `json:"external_endpoint,omitempty"`
-	HarborId              openapi_types.UUID `json:"harbor_id"`
-	Id                    openapi_types.UUID `json:"id"`
-	Instances             int32              `json:"instances"`
-	Name                  string             `json:"name"`
-	NodeTier              string             `json:"node_tier"`
-	OrganizationId        openapi_types.UUID `json:"organization_id"`
-	Phase                 *string            `json:"phase,omitempty"`
-	ReadEndpoint          *string            `json:"read_endpoint,omitempty"`
-	ReadyInstances        int32              `json:"ready_instances"`
-	Slug                  string             `json:"slug"`
-	StorageSize           string             `json:"storage_size"`
-	Tags                  []string           `json:"tags"`
-	UpdatedAt             time.Time          `json:"updated_at"`
-	Version               string             `json:"version"`
-	WriteEndpoint         *string            `json:"write_endpoint,omitempty"`
+	// ArchiveIntervalSeconds How long this database may go without shipping a WAL segment, in
+	// seconds — its worst-case recovery point objective while idle.
+	//
+	// This is the value the running cluster is configured with, not the one
+	// its spec asks for, so it bounds a point-in-time restore picker on a fact
+	// rather than on an assumption. `0` means no forced segment switch, so
+	// nothing bounds the lag on an idle database; `null` means the platform
+	// has nothing to say — the database archives nowhere, or the operator has
+	// not reported on it yet.
+	ArchiveIntervalSeconds *int32      `json:"archive_interval_seconds,omitempty"`
+	BackupPolicy           string      `json:"backup_policy"`
+	BackupSchedule         *string     `json:"backup_schedule,omitempty"`
+	BackupScheduleSuspend  bool        `json:"backup_schedule_suspend"`
+	BackupScheduleTarget   *string     `json:"backup_schedule_target,omitempty"`
+	Conditions             interface{} `json:"conditions,omitempty"`
+	Configuration          string      `json:"configuration"`
+	CreatedAt              time.Time   `json:"created_at"`
+	CurrentPrimary         *string     `json:"current_primary,omitempty"`
+	DatabaseName           string      `json:"database_name"`
+	Description            *string     `json:"description,omitempty"`
+	Engine                 string      `json:"engine"`
+	ExternalEndpoint       *string     `json:"external_endpoint,omitempty"`
+
+	// FirstRecoverabilityPoint What barman says can actually be restored. All three are `null` on a
+	// database that archives nowhere; `first_recoverability_point` and
+	// `last_successful_backup_time` are both `null` on one that archives WAL
+	// and has never had a base backup — which is not restorable, however
+	// healthy its archiver looks.
+	FirstRecoverabilityPoint *time.Time         `json:"first_recoverability_point,omitempty"`
+	HarborId                 openapi_types.UUID `json:"harbor_id"`
+	Id                       openapi_types.UUID `json:"id"`
+	Instances                int32              `json:"instances"`
+	LastFailedBackupTime     *time.Time         `json:"last_failed_backup_time,omitempty"`
+	LastSuccessfulBackupTime *time.Time         `json:"last_successful_backup_time,omitempty"`
+	Name                     string             `json:"name"`
+	NodeTier                 string             `json:"node_tier"`
+	OrganizationId           openapi_types.UUID `json:"organization_id"`
+	Phase                    *string            `json:"phase,omitempty"`
+	ReadEndpoint             *string            `json:"read_endpoint,omitempty"`
+	ReadyInstances           int32              `json:"ready_instances"`
+	Slug                     string             `json:"slug"`
+	StorageSize              string             `json:"storage_size"`
+	Tags                     []string           `json:"tags"`
+	UpdatedAt                time.Time          `json:"updated_at"`
+	Version                  string             `json:"version"`
+	WriteEndpoint            *string            `json:"write_endpoint,omitempty"`
 }
 
 // ManagedPostgresqlUserCrdSpecResponse defines model for ManagedPostgresqlUserCrdSpecResponse.
@@ -11360,6 +13485,23 @@ type ModelOption struct {
 	ToolCall *bool `json:"tool_call,omitempty"`
 }
 
+// ModelProtocol The wire protocol a serving actually speaks.
+//
+// The platform's whole inference surface — the LLM gateway's OpenAI routes,
+// the console playground, agents and workstations — talks OpenAI. A model
+// that only speaks KServe's native v2 predict protocol (Triton, most
+// notably) is a running, GPU-holding serving that none of that can call, and
+// before this type existed nothing in the catalog said so: the model was
+// listed as `Ready`, offered in every picker, and every call to it failed
+// somewhere downstream.
+//
+// [`Default`] is [`ModelProtocol::OpenAi`] on purpose. The vast majority of
+// servings are OpenAI-capable, and the absence of Triton evidence must not
+// black-hole a working model — a wrong `Unknown` would refuse traffic that
+// works today, which is strictly worse than a wrong `OpenAi` that fails the
+// same way it does now.
+type ModelProtocol string
+
 // ModelResources Resource requests for the model serving instance.
 type ModelResources struct {
 	// Cpu CPU request (e.g. "2", "4")
@@ -11531,6 +13673,29 @@ type NotificationChannelDto struct {
 	UrlMasked *string `json:"url_masked,omitempty"`
 }
 
+// OPADecisionLog defines model for OPADecisionLog.
+type OPADecisionLog struct {
+	Bundles        *map[string]interface{} `json:"bundles,omitempty"`
+	DecisionId     string                  `json:"decision_id"`
+	Erased         *[]string               `json:"erased,omitempty"`
+	Gate           *map[string]interface{} `json:"gate,omitempty"`
+	Gateway        *map[string]interface{} `json:"gateway,omitempty"`
+	Input          *map[string]interface{} `json:"input,omitempty"`
+	Labels         map[string]interface{}  `json:"labels"`
+	Masked         *[]string               `json:"masked,omitempty"`
+	Metrics        *map[string]interface{} `json:"metrics,omitempty"`
+	NdBuiltinCache *bool                   `json:"nd_builtin_cache,omitempty"`
+	Path           string                  `json:"path"`
+	Query          *string                 `json:"query,omitempty"`
+	ReqId          *int64                  `json:"req_id,omitempty"`
+	RequestContext *map[string]interface{} `json:"request_context,omitempty"`
+	RequestedBy    string                  `json:"requested_by"`
+	Result         *map[string]interface{} `json:"result,omitempty"`
+	SpanId         *string                 `json:"span_id,omitempty"`
+	Timestamp      string                  `json:"timestamp"`
+	TraceId        *string                 `json:"trace_id,omitempty"`
+}
+
 // ObjectInstance One resolved row of an object type's backing table, keyed by property
 // `api_name` (not physical column) so the shape matches the semantic model.
 type ObjectInstance struct {
@@ -11695,6 +13860,14 @@ type OptimizeRunMetrics struct {
 	SnapshotsAfter  int64 `json:"snapshots_after"`
 	SnapshotsBefore int64 `json:"snapshots_before"`
 
+	// TablesConflicted Tables the run had to leave alone because a concurrent writer kept
+	// winning the commit. Not failures — the next run tries them again.
+	//
+	// `#[serde(default)]` because a runner image that predates the field still
+	// reports, and a missing count has to read as "none", not as a rejected
+	// report that leaves the run stuck on `running`.
+	TablesConflicted *int32 `json:"tables_conflicted,omitempty"`
+
 	// TablesSkipped Tables skipped because nothing changed since the last successful run.
 	TablesSkipped int32 `json:"tables_skipped"`
 }
@@ -11741,7 +13914,8 @@ type OptimizeTableResult struct {
 	SnapshotsAfter  *int64  `json:"snapshots_after,omitempty"`
 	SnapshotsBefore *int64  `json:"snapshots_before,omitempty"`
 
-	// Status `pending`, `ok`, `failed` or `skipped`.
+	// Status `pending` (in scope, not started), `running` (in flight), `ok`, `failed`
+	// or `skipped`.
 	Status string `json:"status"`
 	Table  string `json:"table"`
 }
@@ -11857,7 +14031,7 @@ type OrganizationInvitation struct {
 	ExpiresAt time.Time          `json:"expires_at"`
 	Id        openapi_types.UUID `json:"id"`
 
-	// InvitedBy `None` for owner-bootstrap invitations sent by the platform backoffice,
+	// InvitedBy `None` for owner-bootstrap invitations sent by the platform cockpit,
 	// whose admins are not console users.
 	InvitedBy      *openapi_types.UUID `json:"invited_by,omitempty"`
 	OrganizationId openapi_types.UUID  `json:"organization_id"`
@@ -12004,6 +14178,140 @@ type OrganizationQuotaResponse struct {
 	Usage    []QuotaUsageItemResponse    `json:"usage"`
 }
 
+// PaginatedResponseAuditEntry defines model for PaginatedResponse_AuditEntry.
+type PaginatedResponseAuditEntry struct {
+	Data []struct {
+		// Action The OPA operation for an event (`GetObject`, …); `None` for a query row.
+		Action *string `json:"action,omitempty"`
+
+		// ActorKind Which kind of principal an audited `oauth_id` resolved to. `Platform` is a
+		// client the operator provisioned for the platform's own components in the
+		// org's realm (Bifrost, the dock's Trino OAuth client, object-storage STS —
+		// see `platform_identities`). `Unknown` covers both a human with no
+		// `user_identities` row yet and a subject nobody owns.
+		ActorKind AuditActorKind `json:"actor_kind"`
+
+		// Allow Overall verdict; `None` when no boolean decision contributed one (filter-only).
+		Allow *bool `json:"allow,omitempty"`
+
+		// ClientSource `context.source` — the client that submitted the query (`trino-cli`, `bifrost`, …).
+		ClientSource *string `json:"client_source,omitempty"`
+
+		// ClientTraceTag The submitting Hyperfluid client's own id for the statement (tinyQuery
+		// history id, Bifrost access-event `query_id`); `None` for other clients.
+		ClientTraceTag *string `json:"client_trace_tag,omitempty"`
+
+		// ColumnsAccessed `catalog.schema.table.column`, from `metadata.tables[].columns[]`.
+		ColumnsAccessed []string   `json:"columns_accessed"`
+		CompletedAt     *time.Time `json:"completed_at,omitempty"`
+		CpuTimeMs       *int64     `json:"cpu_time_ms,omitempty"`
+		DataDockId      *string    `json:"data_dock_id,omitempty"`
+
+		// DecisionCount Number of OPA decisions compacted into a query row; `None` for events.
+		DecisionCount *int64         `json:"decision_count,omitempty"`
+		ErrorCode     *string        `json:"error_code,omitempty"`
+		Event         *AuditLogEvent `json:"event,omitempty"`
+
+		// EventType The bronze `event_type` (`data_dock_opa_evaluation`, `console_authz_decision`, …).
+		EventType      string  `json:"event_type"`
+		FailureMessage *string `json:"failure_message,omitempty"`
+
+		// Id `query_id` for a query, `record_id` for an event — the drill-down key.
+		Id string `json:"id"`
+
+		// IngestedAt When the platform received the (last) decision behind this row — the arrival-time twin of
+		// `timestamp`, so a reader can tell a late-arriving row from a late-happening one.
+		IngestedAt *time.Time `json:"ingested_at,omitempty"`
+		InputBytes *int64     `json:"input_bytes,omitempty"`
+		InputRows  *int64     `json:"input_rows,omitempty"`
+
+		// Kind A compacted SQL query (`query_traces`) or a single audited event (`access_events`).
+		Kind            AuditEntryKind `json:"kind"`
+		OauthId         string         `json:"oauth_id"`
+		OutputBytes     *int64         `json:"output_bytes,omitempty"`
+		OutputRows      *int64         `json:"output_rows,omitempty"`
+		PeakMemoryBytes *int64         `json:"peak_memory_bytes,omitempty"`
+
+		// PlatformClientId Set only when `actor_kind` is `platform` — the provisioned client's
+		// Keycloak `client_id` (`<dock>-bifrost-sa`, `<org>-storage-sa`, …).
+		PlatformClientId *string `json:"platform_client_id,omitempty"`
+
+		// QueryState `FINISHED` / `FAILED` (Trino's own `QueryState`, passed through verbatim).
+		QueryState   *string `json:"query_state,omitempty"`
+		QueuedTimeMs *int64  `json:"queued_time_ms,omitempty"`
+
+		// Resources Tables touched (query) or the single resource id (event), best-effort.
+		Resources []string `json:"resources"`
+
+		// Restricted The query ran but a row filter or column mask shaped the result. Query rows only.
+		Restricted *bool `json:"restricted,omitempty"`
+
+		// ServiceAccountId Set only when `actor_kind` is `service_account` — the console
+		// `service_accounts.id`, so the UI can link to the account.
+		ServiceAccountId   *openapi_types.UUID `json:"service_account_id,omitempty"`
+		ServiceAccountName *string             `json:"service_account_name,omitempty"`
+
+		// Source `trino` / `s3-gateway` / `console` — origin of the action.
+		Source *string `json:"source,omitempty"`
+
+		// Sql The rest of this block is populated only once the Trino query-completion
+		// listener's event has landed for this query (ADR-0040 roadmap item 4) —
+		// `None`/empty on a query row until then, and always `None`/empty on an
+		// event row (the `access_events` branch of the union projects NULLs).
+		Sql          *string `json:"sql,omitempty"`
+		SqlTruncated *bool   `json:"sql_truncated,omitempty"`
+
+		// Timestamp When the action happened (a query's start, an event's original timestamp).
+		Timestamp  time.Time `json:"timestamp"`
+		UpdateType *string   `json:"update_type,omitempty"`
+		UserEmail  *string   `json:"user_email,omitempty"`
+		UserName   *string   `json:"user_name,omitempty"`
+		WallTimeMs *int64    `json:"wall_time_ms,omitempty"`
+	} `json:"data"`
+	Meta PaginationMeta `json:"meta"`
+}
+
+// PaginatedResponseListAuditLogItem defines model for PaginatedResponse_ListAuditLogItem.
+type PaginatedResponseListAuditLogItem struct {
+	Data []struct {
+		// ActorKind Which kind of principal an audited `oauth_id` resolved to. `Platform` is a
+		// client the operator provisioned for the platform's own components in the
+		// org's realm (Bifrost, the dock's Trino OAuth client, object-storage STS —
+		// see `platform_identities`). `Unknown` covers both a human with no
+		// `user_identities` row yet and a subject nobody owns.
+		ActorKind         AuditActorKind     `json:"actor_kind"`
+		CreatedAt         time.Time          `json:"created_at"`
+		Event             AuditLogEvent      `json:"event"`
+		Id                openapi_types.UUID `json:"id"`
+		OauthId           openapi_types.UUID `json:"oauth_id"`
+		OrganizationId    openapi_types.UUID `json:"organization_id"`
+		OriginalTimestamp time.Time          `json:"original_timestamp"`
+
+		// PlatformClientId Set only when `actor_kind` is `platform` — see `AuditEntry::platform_client_id`.
+		PlatformClientId *string `json:"platform_client_id,omitempty"`
+
+		// ServiceAccountId Set only when `actor_kind` is `service_account`.
+		ServiceAccountId   *openapi_types.UUID `json:"service_account_id,omitempty"`
+		ServiceAccountName *string             `json:"service_account_name,omitempty"`
+		User               *User               `json:"user,omitempty"`
+	} `json:"data"`
+	Meta PaginationMeta `json:"meta"`
+}
+
+// PaginationMeta defines model for PaginationMeta.
+type PaginationMeta struct {
+	CurrentPage     int32   `json:"current_page"`
+	FirstPage       int32   `json:"first_page"`
+	FirstPageUrl    string  `json:"first_page_url"`
+	LastPage        int32   `json:"last_page"`
+	LastPageUrl     string  `json:"last_page_url"`
+	NextPage        int32   `json:"next_page"`
+	NextPageUrl     *string `json:"next_page_url,omitempty"`
+	PerPage         int32   `json:"per_page"`
+	PreviousPageUrl *string `json:"previous_page_url,omitempty"`
+	Total           int32   `json:"total"`
+}
+
 // PanelKind defines model for PanelKind.
 type PanelKind string
 
@@ -12043,16 +14351,62 @@ type PartitionInput struct {
 	WalltimeMax *string `json:"walltime_max,omitempty"`
 }
 
+// PatchAirflowConnectionRequest defines model for PatchAirflowConnectionRequest.
+type PatchAirflowConnectionRequest struct {
+	BucketRef            *string `json:"bucket_ref,omitempty"`
+	ManagedPostgresqlRef *string `json:"managed_postgresql_ref,omitempty"`
+
+	// PermissionLevel Permission level granted to the user on the target database.
+	PermissionLevel *PermissionLevel `json:"permission_level,omitempty"`
+
+	// TakeoverChallenge A collision challenge copied from the current safe projection. The
+	// controller consumes it once after its own final observation.
+	TakeoverChallenge *openapi_types.UUID `json:"takeover_challenge,omitempty"`
+}
+
 // PatchAirflowCrdRequestBody defines model for PatchAirflowCrdRequestBody.
 type PatchAirflowCrdRequestBody struct {
+	// Config Replace the `airflow.cfg` overrides. Omitted = unchanged; an empty map
+	// clears them. Platform-owned keys are refused with a 400 listing them.
+	Config *map[string]string `json:"config,omitempty"`
+
 	// Description Optional description (DB-only, not stored in the CRD).
 	Description *string `json:"description,omitempty"`
 
-	// NodeTier Predefined resource tiers for the Dagster webserver/daemon pods.
-	// Memory request and limit are always equal.
-	NodeTier *NodeTier `json:"node_tier,omitempty"`
+	// Egress Egress an environment's task pods are granted **on top of** the fixed
+	// platform baseline (Execution API, object store, Bifrost, DNS). The baseline
+	// is not editable and never appears here.
+	Egress *AirflowEgressRequest `json:"egress,omitempty"`
 
-	// RuntimeImage Override the platform Airflow runtime image.
+	// NodeTier Predefined resource tiers for the Airflow api-server/scheduler/dag-processor/
+	// triggerer pods. Memory request and limit are always equal. Near-clone of the
+	// Dagster webserver/daemon `NodeTier` (`handlers::dagsters::create_crd`)
+	// — kept as its own type rather than shared because it is independently
+	// user-facing API surface for a different resource family (same precedent as
+	// `handlers::managed_postgresqls::tier::NodeTier` coexisting with Dagster's).
+	//
+	// The catalogue starts at `Micro`, one tier above Dagster's: there is no
+	// `Nano`. 512Mi cannot hold an Airflow 3 triggerer, which pairs an asyncio
+	// loop with its own uvicorn log server and settles at ~620Mi *idle, with zero
+	// DAGs loaded* (measured against a 1Gi limit; under a 512Mi one it was simply
+	// OOMKilled on the way there, at ~490Mi). Every environment created at Nano
+	// with `triggerer_enabled` (the default) therefore crash-looped from birth —
+	// the tier could never schedule, so it was removed rather than documented as
+	// a trap. Keep the smallest tier clear of the triggerer's idle floor when
+	// revising these numbers.
+	//
+	// Published as `AirflowNodeTier`, not `NodeTier`: Dagster
+	// (`handlers::dagsters::create_crd`) and ManagedPostgreSQL
+	// (`handlers::managed_postgresqls::tier`) each declare an enum of that same
+	// name, and utoipa keys `components.schemas` by the type's short name — so
+	// the three silently collapsed into one schema and Dagster's won. That was
+	// invisible while all three listed the same variants; dropping `Nano` here
+	// makes it load-bearing, because the shared schema would otherwise keep
+	// advertising a tier this endpoint now rejects with a 422.
+	NodeTier *AirflowNodeTier `json:"node_tier,omitempty"`
+
+	// RuntimeImage Override the platform Airflow runtime image. Omitted = unchanged;
+	// `null` (or an empty string) clears the pin back to the platform default.
 	RuntimeImage *string `json:"runtime_image,omitempty"`
 
 	// SleepMode Sleep mode: scale all components to 0.
@@ -12060,6 +14414,10 @@ type PatchAirflowCrdRequestBody struct {
 
 	// Tags User-defined tags (DB-only, not stored in the CRD).
 	Tags *[]string `json:"tags,omitempty"`
+
+	// TaskQuotaMaxPods Replace the task namespace's `count/pods` ceiling. Omitted = unchanged;
+	// `0` clears it back to the platform default.
+	TaskQuotaMaxPods *int32 `json:"task_quota_max_pods,omitempty"`
 
 	// TriggererEnabled Deferrable-operator (triggerer) support.
 	TriggererEnabled *bool `json:"triggerer_enabled,omitempty"`
@@ -12143,8 +14501,20 @@ type PatchContainerAppCrdRequestBody struct {
 	// leaves existing entries alone; an empty array clears them; a non-empty
 	// array replaces the full list.
 	CustomDomains *[]CustomDomainInput `json:"custom_domains,omitempty"`
-	Enabled       *bool                `json:"enabled,omitempty"`
-	Env           *[]EnvVarInput       `json:"env,omitempty"`
+
+	// CustomResources Explicit CPU + memory for a "custom" flavor (#4275) — the alternative to
+	// `resource_tier` for a customer whose workload sits between two catalog
+	// tiers. Mutually exclusive with `resource_tier` on the request body: a
+	// request setting both is rejected by [`resolve_resource_requirements`].
+	CustomResources *CustomResourceInput `json:"custom_resources,omitempty"`
+
+	// Enabled Stop (`false`) or start (`true`) the application. `false` scales the
+	// workload to zero while keeping `replicas` in the spec; `true` runs that
+	// count again. Starting an app whose `replicas` is 0 (scaled down by hand)
+	// restores one replica unless `replicas` is set in the same call. Omit to
+	// leave the current value unchanged.
+	Enabled *bool          `json:"enabled,omitempty"`
+	Env     *[]EnvVarInput `json:"env,omitempty"`
 
 	// ExposeToInternet When set, flips internet exposure on or off. `false` removes the platform
 	// host route and all custom-domain routes while keeping the ClusterIP Service.
@@ -12342,6 +14712,15 @@ type PatchManagedPostgresqlCrdRequestBody struct {
 	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
+	// Pitr Opt in to point-in-time recovery, and choose how tight it is.
+	//
+	// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+	// a time, and a segment is archived only when it fills or when a timer forces
+	// a switch. The interval is therefore the worst-case recovery point objective
+	// for an *idle* database — a busy one fills segments and ships faster on its
+	// own.
+	Pitr *PitrRequest `json:"pitr,omitempty"`
+
 	// StorageCapacity Storage capacity in GB (1-30)
 	StorageCapacity *int32 `json:"storage_capacity,omitempty"`
 
@@ -12354,7 +14733,7 @@ type PatchManagedPostgresqlUserCrdRequestBody struct {
 	// Description Optional description (DB-only).
 	Description *string `json:"description,omitempty"`
 
-	// PermissionLevel Permission level granted to the Postgres role.
+	// PermissionLevel Permission level granted to the user on the target database.
 	PermissionLevel *PermissionLevel `json:"permission_level,omitempty"`
 
 	// Tags User-defined tags (DB-only).
@@ -12458,7 +14837,7 @@ type PermissionCatalogEntry struct {
 // PermissionKey A control-plane permission key, `<resource_type>:<action>`.
 type PermissionKey string
 
-// PermissionLevel Permission level granted to the Postgres role.
+// PermissionLevel Permission level granted to the user on the target database.
 type PermissionLevel string
 
 // PermissionPolicyView The current standing permission policy of a workstation's opencode agent,
@@ -12636,6 +15015,27 @@ type PipelineFieldReference2 struct {
 
 // PipelineFieldReference2Kind defines model for PipelineFieldReference.2.Kind.
 type PipelineFieldReference2Kind string
+
+// PipelineFieldReference3 A credential the row is *about* but must never carry: where it lives,
+// never what it is (#3691, #4002, #4237).
+//
+// The row's `value` is empty for this kind — there is deliberately nothing
+// to show — and the console renders the sentence for [`CredentialLocation`]
+// from its own locale file. #4002 put those sentences in `value` as
+// backend-authored English, which an i18next console rendered verbatim; a
+// discriminator is what the console can actually translate, and it does not
+// grow a fourth hardcoded sentence the next time a credential takes this
+// path.
+type PipelineFieldReference3 struct {
+	Kind PipelineFieldReference3Kind `json:"kind"`
+
+	// Location Where a credential a detail row describes actually lives — the three forms
+	// `hf_lib_domain_pipeline::models::api_key::ApiKey` can take in the document.
+	Location CredentialLocation `json:"location"`
+}
+
+// PipelineFieldReference3Kind defines model for PipelineFieldReference.3.Kind.
+type PipelineFieldReference3Kind string
 
 // PipelineInputParameters defines model for PipelineInputParameters.
 type PipelineInputParameters struct {
@@ -12961,12 +15361,54 @@ type PipelinesStats struct {
 	Total int64 `json:"total"`
 }
 
+// PitrRequest Opt in to point-in-time recovery, and choose how tight it is.
+//
+// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+// a time, and a segment is archived only when it fills or when a timer forces
+// a switch. The interval is therefore the worst-case recovery point objective
+// for an *idle* database — a busy one fills segments and ships faster on its
+// own.
+type PitrRequest struct {
+	// ArchiveIntervalSeconds Seconds between forced WAL segment switches. Absent takes the platform's
+	// recommended interval, resolved when the cluster is reconciled rather
+	// than frozen into the resource now.
+	//
+	// Five minutes is the recommended floor, not the enforced one: a shorter
+	// interval is a legitimate choice for a database whose writes are worth
+	// more than the segments. One minute is the hard floor, because below it
+	// the cost of near-empty segments lands on the shared object store rather
+	// than on the database that chose it.
+	ArchiveIntervalSeconds *int32 `json:"archive_interval_seconds,omitempty"`
+
+	// Enabled Keep a bounded recovery point objective.
+	//
+	// `false` does not stop WAL archiving — nothing can, while a backup target
+	// is attached, because a base backup is not consistent without it. It
+	// drops the forced segment switch, so WAL ships only when a segment fills:
+	// the database stays restorable to its backups and to whatever WAL
+	// happened to fill, but an idle hour may not be recoverable. That trades
+	// a guarantee for the 16 MiB PUT a forced switch costs every interval.
+	Enabled bool `json:"enabled"`
+}
+
 // Platform An OS/architecture pair. Shared with the registry read views
 // ([`TagResponse`](crate::hf_console::inbound::http::handlers::registry_views::TagResponse)`::platforms`)
 // — a single `Platform` DTO rather than a second one per consumer.
 type Platform struct {
 	Arch string `json:"arch"`
 	Os   string `json:"os"`
+}
+
+// PlatformAdminActionLog Audit payload for a cockpit mutation. `actor` is the platform admin's
+// email (fallback: Keycloak sub); `action` is a stable machine key
+// (`quota_profile_assigned`, `custom_limits_updated`, `feature_override_set`,
+// `feature_override_cleared`); `details` carries the action-specific payload
+// as string key/values (new plan slug, the limits written, the flag…) —
+// stringly-typed so the event enum keeps its `Eq` derive.
+type PlatformAdminActionLog struct {
+	Action  string                 `json:"action"`
+	Actor   string                 `json:"actor"`
+	Details map[string]interface{} `json:"details"`
 }
 
 // PolicyPreset A named, one-click permission policy. `Default` mirrors the workstation's
@@ -13132,6 +15574,14 @@ type PreviewPortsResponse struct {
 	Skipped []SkippedPreviewPort `json:"skipped"`
 }
 
+// PreviewPosture What audit mode does to the workstation preview proxy.
+//
+// The preview forwards arbitrary HTTP and WebSocket traffic to any
+// non-reserved port a user listens on, so a `ttyd` on :8080 is a terminal the
+// console tap never sees. An audit mode that ignores that is theatre, so the
+// posture is an explicit, recorded decision rather than an oversight.
+type PreviewPosture string
+
 // PrincipalUsage Token totals grouped by principal. `principal_type` is `"api_key"` |
 // `"service_account"` | `"user"` | `"unknown"`; `principal_id` is the
 // principal's console DB row id (or `"unknown"`). `name` is `None` for the
@@ -13225,6 +15675,19 @@ type ProposedProperty struct {
 	IsPrimaryKey *bool   `json:"is_primary_key,omitempty"`
 	IsTitle      *bool   `json:"is_title,omitempty"`
 	SourceColumn string  `json:"source_column"`
+}
+
+// PublicSignupPageCopy The public read: overrides already shaped as i18next resource bundles,
+// keyed by console namespace (`signup`, `invite`, `system`) and nested exactly
+// like the shipped locale files, so the SPA merges them in without mapping
+// anything itself.
+//
+// Only overridden keys appear. An empty `bundles` is the normal answer on a
+// deployment that never customised the copy.
+type PublicSignupPageCopy struct {
+	// Bundles `{ "signup": { "brand": { "tagline": "…" } } }`
+	Bundles map[string]interface{} `json:"bundles"`
+	Locale  string                 `json:"locale"`
 }
 
 // QueryHistoryEntry defines model for QueryHistoryEntry.
@@ -13466,13 +15929,13 @@ type RegisterOptimizeRunRequest struct {
 }
 
 // RegisterOptimizeRunResponse What the runner needs back to do its job: which run it owns, and the
-// snapshot each table was left at by the last successful run (the
-// `skip_unchanged` comparison basis).
+// snapshot each table was last left optimized at (the `skip_unchanged`
+// comparison basis).
 type RegisterOptimizeRunResponse struct {
 	// PreviousSnapshots Fully qualified table name (`catalog.schema.table`, exactly as the run
-	// reports it in `table_results`) → the snapshot id the last successful run
-	// left it at. Empty when `skip_unchanged` is off or no run has succeeded
-	// yet.
+	// reports it in `table_results`) → the snapshot id the most recent run
+	// that finished that table left it at. Empty when `skip_unchanged` is off,
+	// or when no run has finished a table yet.
 	PreviousSnapshots map[string]string  `json:"previous_snapshots"`
 	RunId             openapi_types.UUID `json:"run_id"`
 }
@@ -13857,12 +16320,50 @@ type ResourceTierCatalogResponse struct {
 }
 
 // RestoreFromBackup Optional restore descriptor: bootstrap the new database from an existing
-// backup instead of initializing it empty.
+// backup, or from a source database's continuous archive, instead of
+// initializing it empty.
+//
+// Exactly one source must be named, because the two answer different
+// questions:
+//   - `backup_id` — restore that one backup, as it was taken.
+//   - `source_instance_id` — restore that database's continuous archive. This is
+//     the route a `target_time` needs: CNPG selects the base backup itself from
+//     the target, so naming one alongside would be naming a backup CNPG may not
+//     use.
 type RestoreFromBackup struct {
-	// BackupId ID of the `ManagedPostgreSQLBackup` to bootstrap (restore) the new
-	// database from. The backup must be `Completed` and live in the same
-	// harbor as the new database.
-	BackupId openapi_types.UUID `json:"backup_id"`
+	// BackupId ID of the `ManagedPostgreSQLBackup` to restore. Must be `Completed` and
+	// live in the same harbor as the new database. Mutually exclusive with
+	// `source_instance_id`.
+	BackupId *openapi_types.UUID `json:"backup_id,omitempty"`
+
+	// Exclusive Stop immediately *before* `target_time` rather than at it. Only
+	// meaningful with `target_time`.
+	Exclusive *bool `json:"exclusive,omitempty"`
+
+	// SourceInstanceId ID of the database whose continuous archive to restore from. Must live
+	// in the same harbor as the new database. Mutually exclusive with
+	// `backup_id`.
+	SourceInstanceId *openapi_types.UUID `json:"source_instance_id,omitempty"`
+
+	// TargetTime Point in time to recover to. Requires `source_instance_id`, and must
+	// fall inside the source's recovery window
+	// (`first_recoverability_point` .. now). When absent, recovery replays to
+	// the latest archived WAL.
+	TargetTime *time.Time `json:"target_time,omitempty"`
+}
+
+// RestrictionEvaluationResult Result of evaluating a single contextual restriction.
+type RestrictionEvaluationResult struct {
+	// Reason Human-readable explanation.
+	Reason          *string            `json:"reason,omitempty"`
+	RestrictionId   openapi_types.UUID `json:"restriction_id"`
+	RestrictionName string             `json:"restriction_name"`
+
+	// Satisfied Whether the user satisfied the requirement.
+	Satisfied bool `json:"satisfied"`
+
+	// Triggered Whether the restriction was triggered (data matched selector).
+	Triggered bool `json:"triggered"`
 }
 
 // ResultsPage defines model for ResultsPage.
@@ -13959,6 +16460,249 @@ type Role struct {
 	Name           string             `json:"name"`
 	OrganizationId openapi_types.UUID `json:"organization_id"`
 	UpdatedAt      time.Time          `json:"updated_at"`
+}
+
+// RunnerFlavorCatalogEntry One rung of the catalog.
+type RunnerFlavorCatalogEntry struct {
+	// Flavor A named rung's identity in the catalog.
+	Flavor RunnerFlavorName `json:"flavor"`
+
+	// Resources What a flavor resolves to on the pod, as the operator renders it —
+	// request = limit on each container, and the data-root PVC size.
+	Resources RunnerResourcesDto `json:"resources"`
+}
+
+// RunnerFlavorCatalogResponse The platform's runner sizing catalog.
+type RunnerFlavorCatalogResponse struct {
+	// CustomBounds The envelope a `custom` flavor must fit in, as quantity strings.
+	CustomBounds CustomFlavorBoundsDto `json:"custom_bounds"`
+
+	// DefaultFlavor A named rung's identity in the catalog.
+	DefaultFlavor RunnerFlavorName           `json:"default_flavor"`
+	Flavors       []RunnerFlavorCatalogEntry `json:"flavors"`
+}
+
+// RunnerFlavorDto A runner's size: one of the named rungs, or `custom` with explicit
+// quantities. The named rungs' cpu/memory/disk are published by
+// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+// must fit in.
+type RunnerFlavorDto struct {
+	union json.RawMessage
+}
+
+// RunnerFlavorDto0 defines model for .
+type RunnerFlavorDto0 struct {
+	Kind RunnerFlavorDto0Kind `json:"kind"`
+}
+
+// RunnerFlavorDto0Kind defines model for RunnerFlavorDto.0.Kind.
+type RunnerFlavorDto0Kind string
+
+// RunnerFlavorDto1 defines model for .
+type RunnerFlavorDto1 struct {
+	Kind RunnerFlavorDto1Kind `json:"kind"`
+}
+
+// RunnerFlavorDto1Kind defines model for RunnerFlavorDto.1.Kind.
+type RunnerFlavorDto1Kind string
+
+// RunnerFlavorDto2 defines model for .
+type RunnerFlavorDto2 struct {
+	Kind RunnerFlavorDto2Kind `json:"kind"`
+}
+
+// RunnerFlavorDto2Kind defines model for RunnerFlavorDto.2.Kind.
+type RunnerFlavorDto2Kind string
+
+// RunnerFlavorDto3 defines model for .
+type RunnerFlavorDto3 struct {
+	Kind RunnerFlavorDto3Kind `json:"kind"`
+}
+
+// RunnerFlavorDto3Kind defines model for RunnerFlavorDto.3.Kind.
+type RunnerFlavorDto3Kind string
+
+// RunnerFlavorDto4 defines model for .
+type RunnerFlavorDto4 struct {
+	Kind RunnerFlavorDto4Kind `json:"kind"`
+}
+
+// RunnerFlavorDto4Kind defines model for RunnerFlavorDto.4.Kind.
+type RunnerFlavorDto4Kind string
+
+// RunnerFlavorDto5 defines model for .
+type RunnerFlavorDto5 struct {
+	Kind RunnerFlavorDto5Kind `json:"kind"`
+}
+
+// RunnerFlavorDto5Kind defines model for RunnerFlavorDto.5.Kind.
+type RunnerFlavorDto5Kind string
+
+// RunnerFlavorDto6 defines model for .
+type RunnerFlavorDto6 struct {
+	Kind RunnerFlavorDto6Kind `json:"kind"`
+}
+
+// RunnerFlavorDto6Kind defines model for RunnerFlavorDto.6.Kind.
+type RunnerFlavorDto6Kind string
+
+// RunnerFlavorDto7 defines model for .
+type RunnerFlavorDto7 struct {
+	Kind RunnerFlavorDto7Kind `json:"kind"`
+}
+
+// RunnerFlavorDto7Kind defines model for RunnerFlavorDto.7.Kind.
+type RunnerFlavorDto7Kind string
+
+// RunnerFlavorDto8 Quantities of your own, inside the platform bounds. Kubernetes quantity
+// strings: CPU as cores (`"2"`) or millicores (`"1500m"`), memory and
+// disk with a binary suffix (`"6Gi"`). Rejected with a 400 naming the
+// bound when outside `custom_bounds`.
+type RunnerFlavorDto8 struct {
+	// Cpu Runner container CPU; the Docker sidecar gets half.
+	Cpu string `json:"cpu"`
+
+	// Disk Docker data root size (image layers, build cache).
+	Disk string               `json:"disk"`
+	Kind RunnerFlavorDto8Kind `json:"kind"`
+
+	// Memory Runner container memory; the Docker sidecar gets the same, so the
+	// pod costs twice this.
+	Memory string `json:"memory"`
+}
+
+// RunnerFlavorDto8Kind defines model for RunnerFlavorDto.8.Kind.
+type RunnerFlavorDto8Kind string
+
+// RunnerFlavorName A named rung's identity in the catalog.
+type RunnerFlavorName string
+
+// RunnerResourcesDto What a flavor resolves to on the pod, as the operator renders it —
+// request = limit on each container, and the data-root PVC size.
+type RunnerResourcesDto struct {
+	DindCpu    string `json:"dind_cpu"`
+	DindMemory string `json:"dind_memory"`
+
+	// Disk Docker data root (the Block-mode OCI store PVC).
+	Disk         string `json:"disk"`
+	RunnerCpu    string `json:"runner_cpu"`
+	RunnerMemory string `json:"runner_memory"`
+}
+
+// RuntimeAlertPriority Falco's `priority` field, ordered most to least severe — the same order
+// syslog/RFC 5424 uses, which is what Falco itself follows.
+type RuntimeAlertPriority string
+
+// RuntimeSecurityAlertLog One Falco detection, after redaction, dedup and attribution — the shape
+// actually persisted. Fields Falco's `output_fields` may omit (rule
+// dependent — see falcosidekick's own docs) are `Option`; forcing them
+// non-optional would make ingestion brittle to Falco's own rule authoring.
+type RuntimeSecurityAlertLog struct {
+	ContainerId    *string             `json:"container_id,omitempty"`
+	ContainerImage *string             `json:"container_image,omitempty"`
+	FalcoUuid      *string             `json:"falco_uuid,omitempty"`
+	FirstSeen      time.Time           `json:"first_seen"`
+	HarborId       *openapi_types.UUID `json:"harbor_id,omitempty"`
+
+	// IsPlatformNamespace `true` when the namespace resolver (D3) placed this alert in a
+	// platform namespace rather than a tenant one — distinct from
+	// unattributed (no organization AND `is_platform_namespace == false`).
+	IsPlatformNamespace bool      `json:"is_platform_namespace"`
+	LastSeen            time.Time `json:"last_seen"`
+	Namespace           *string   `json:"namespace,omitempty"`
+	Node                string    `json:"node"`
+
+	// Occurrences Repeats collapsed by the ingestion dedup window (D4). `1` when unique.
+	Occurrences int32 `json:"occurrences"`
+
+	// Output Falco's rendered message, **after the D4 scrubber** — never verbatim.
+	Output string  `json:"output"`
+	Pod    *string `json:"pod,omitempty"`
+
+	// Priority Falco's `priority` field, ordered most to least severe — the same order
+	// syslog/RFC 5424 uses, which is what Falco itself follows.
+	Priority RuntimeAlertPriority `json:"priority"`
+	Process  *string              `json:"process,omitempty"`
+
+	// ProcessCmdline Scrubbed and length-capped before storage — see
+	// `runtime_security::redact`. Never verbatim.
+	ProcessCmdline *string `json:"process_cmdline,omitempty"`
+	Rule           string  `json:"rule"`
+
+	// Source `"syscall"` today; `"k8s_audit"` once that plugin lands (phase 2).
+	Source string   `json:"source"`
+	Tags   []string `json:"tags"`
+}
+
+// S3GatewayDecisionLog defines model for S3GatewayDecisionLog.
+type S3GatewayDecisionLog struct {
+	Action         string                  `json:"action"`
+	Allow          bool                    `json:"allow"`
+	BackendId      string                  `json:"backend_id"`
+	BackendKind    string                  `json:"backend_kind"`
+	BackendStatus  *int64                  `json:"backend_status,omitempty"`
+	Bucket         string                  `json:"bucket"`
+	CopySource     *map[string]interface{} `json:"copy_source,omitempty"`
+	DecisionId     string                  `json:"decision_id"`
+	DeleteKeys     *[]string               `json:"delete_keys,omitempty"`
+	DeniedKeys     []string                `json:"denied_keys"`
+	Object         *string                 `json:"object,omitempty"`
+	Obligations    map[string]interface{}  `json:"obligations"`
+	OrganizationId openapi_types.UUID      `json:"organization_id"`
+	Outcome        string                  `json:"outcome"`
+	Prefix         *string                 `json:"prefix,omitempty"`
+	Reason         string                  `json:"reason"`
+	SpanId         *string                 `json:"span_id,omitempty"`
+	Subject        string                  `json:"subject"`
+	Tenant         string                  `json:"tenant"`
+	TraceId        *string                 `json:"trace_id,omitempty"`
+}
+
+// S3GatewayGateDeniedLog A request the S3 gateway refused at its pre-policy gate. There is no
+// principal to attribute it to (an unsigned request, a forged or expired
+// credential); the org is the gateway's own, stamped by the operator, so the
+// event reads as "an access attempt against this org's gateway".
+type S3GatewayGateDeniedLog struct {
+	// AccessKeyId The access-key id presented, when one was (never the secret).
+	AccessKeyId *string `json:"access_key_id,omitempty"`
+	DecisionId  string  `json:"decision_id"`
+
+	// Operation The s3s operation the request resolved to, e.g. `ListObjectsV2`.
+	Operation      string             `json:"operation"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+	Reason         string             `json:"reason"`
+	SpanId         *string            `json:"span_id,omitempty"`
+
+	// Stage `anonymous` | `operation_not_enforced` | `identity_rejected` | `tenant_not_routable`.
+	Stage string `json:"stage"`
+
+	// SuppressedSinceLast Gate denials the gateway rate-limited away since the last one it
+	// recorded; non-zero means the stream is sampled.
+	SuppressedSinceLast int64   `json:"suppressed_since_last"`
+	Tenant              *string `json:"tenant,omitempty"`
+	TraceId             *string `json:"trace_id,omitempty"`
+}
+
+// S3GatewaySessionIssuedLog Never add `SecretAccessKey` or `SessionToken` here — the same line
+// `outbound::sts_service::redact::SECRET_ELEMENTS` draws.
+type S3GatewaySessionIssuedLog struct {
+	AccessKeyId string `json:"access_key_id"`
+	Endpoint    string `json:"endpoint"`
+
+	// ExpiresAt RFC 3339 UTC, as reported by the gateway.
+	ExpiresAt *string `json:"expires_at,omitempty"`
+
+	// PrincipalType `user` or `service_account`, spelled exactly as the gateway spells them.
+	PrincipalType string `json:"principal_type"`
+
+	// ResourceId The harbor slug, named `resource_id` so the audit-log API's existing `resource_id`
+	// filter (`event->'data'->>'resource_id'`) reaches this event.
+	ResourceId string `json:"resource_id"`
+
+	// SubjectKey The prefixed bundle subject key (`user:<oidc sub>` / `sa:<keycloak client id>`),
+	// as the gateway's decision records key it.
+	SubjectKey string `json:"subject_key"`
+	Tenant     string `json:"tenant"`
 }
 
 // S3KeyListEntry defines model for S3KeyListEntry.
@@ -14315,6 +17059,56 @@ type SecretValueResponse struct {
 	Value SecretValue `json:"value"`
 }
 
+// SecurityDecision Security decision outcome.
+type SecurityDecision string
+
+// SecurityDecisionLog A security decision log entry for the audit log system.
+//
+// This is the data payload stored in the `event` JSONB column of the `audit_logs` table.
+type SecurityDecisionLog struct {
+	// ClientIp Client IP address.
+	ClientIp *string `json:"client_ip,omitempty"`
+
+	// DataDockId Data dock being accessed.
+	DataDockId *openapi_types.UUID `json:"data_dock_id,omitempty"`
+
+	// Decision Security decision outcome.
+	Decision SecurityDecision `json:"decision"`
+
+	// DecisionReason Human-readable reason for the decision (especially for denials).
+	DecisionReason *string `json:"decision_reason,omitempty"`
+
+	// EvaluatedRestrictions Contextual restrictions that were evaluated.
+	EvaluatedRestrictions *[]RestrictionEvaluationResult `json:"evaluated_restrictions,omitempty"`
+
+	// EvaluatedSwitches Security switches state at decision time.
+	EvaluatedSwitches map[string]interface{} `json:"evaluated_switches"`
+
+	// Operation Operation being performed (e.g., "SelectFromColumns", "InsertIntoTable").
+	Operation string `json:"operation"`
+
+	// QueryHash SHA256 hash of the query for grouping similar queries.
+	QueryHash *string `json:"query_hash,omitempty"`
+
+	// RequestId Correlation ID for distributed tracing.
+	RequestId *openapi_types.UUID `json:"request_id,omitempty"`
+
+	// ResourcePath Full path to the resource (e.g., "catalog.schema.table.column").
+	ResourcePath string `json:"resource_path"`
+
+	// ResourceType Type of resource being accessed.
+	ResourceType SecurityResourceType `json:"resource_type"`
+
+	// UserAgent User agent string.
+	UserAgent *string `json:"user_agent,omitempty"`
+
+	// UserContext Snapshot of user context at decision time (attributes, clearance, etc.).
+	UserContext map[string]interface{} `json:"user_context"`
+
+	// UserId User identifier (email or OAuth ID).
+	UserId string `json:"user_id"`
+}
+
 // SecurityDecisionLogResponse defines model for SecurityDecisionLogResponse.
 type SecurityDecisionLogResponse struct {
 	ClientIp              *string             `json:"client_ip,omitempty"`
@@ -14332,6 +17126,9 @@ type SecurityDecisionLogResponse struct {
 	UserContext           interface{}         `json:"user_context"`
 	UserId                string              `json:"user_id"`
 }
+
+// SecurityResourceType Type of resource being accessed.
+type SecurityResourceType string
 
 // SecuritySummaryResponse defines model for SecuritySummaryResponse.
 type SecuritySummaryResponse struct {
@@ -14366,7 +17163,16 @@ type ServiceAccount struct {
 	IamSaCredentialsPath string `json:"iam_sa_credentials_path"`
 
 	// IamSaId This is the storage ID of the Keycloak client NOT the client_id.
-	IamSaId             openapi_types.UUID  `json:"iam_sa_id"`
+	IamSaId openapi_types.UUID `json:"iam_sa_id"`
+
+	// IamSaSubject Keycloak's id for the client's service-account user — equal to the
+	// `sub` claim on tokens the client mints via `client_credentials`.
+	// `None` for a public client (which has no service-account user) or a
+	// row not yet reconciled by the operator or authenticated since this
+	// column was added. Read-time actor enrichment resolves an audited
+	// `oauth_id` against this column so a service account's name shows up
+	// in the audit trail without querying Keycloak.
+	IamSaSubject        *openapi_types.UUID `json:"iam_sa_subject,omitempty"`
 	Id                  openapi_types.UUID  `json:"id"`
 	ManagedByResourceId *openapi_types.UUID `json:"managed_by_resource_id,omitempty"`
 
@@ -14569,6 +17375,60 @@ type Sha256HashDedupingStrategy struct {
 	Length int `json:"length"`
 }
 
+// SharePointSourceConfig SharePoint source configuration.
+//
+// The connector authenticates as an Entra ID (Azure AD) **application**, not as
+// a user: the client-credentials grant against the tenant's token endpoint,
+// exchanged for a Microsoft Graph token. That is the only shape that survives
+// an unattended nightly run, since it involves no refresh token to expire and
+// no user whose password rotation stops the pipeline.
+//
+// The app registration needs the `Sites.Read.All` application permission with
+// tenant admin consent — or, better scoped, `Sites.Selected` plus a per-site
+// grant on just the libraries being ingested.
+type SharePointSourceConfig struct {
+	// ClientId Application (client) ID of the app registration.
+	ClientId string `json:"client_id"`
+
+	// ClientSecret The application's client secret, as a literal.
+	//
+	// Optional, and mutually exclusive with `client_secret_secret`: exactly one
+	// of the two is required. Present at all only so a caller with no secret
+	// manager entry can still create a connector; the reference form is the one
+	// the console sends, and the only one that keeps the credential out of the
+	// pipeline document.
+	ClientSecret *string `json:"client_secret,omitempty"`
+
+	// ClientSecretSecret A Passe-Partout secret, addressed the way the secret store addresses one:
+	// `organizations/{organization_id}/{secret_id}`.
+	//
+	// Deliberately not `hf_lib_domain_core::dev_workstations::crd::ScmSecretRef`,
+	// which carries the same two fields for the agent's model key: that one is
+	// named for source-control credentials, lives in the workstation module, and
+	// derives neither `PartialEq` nor `ToSchema`, both of which this needs. Kept
+	// structurally identical so the two can be merged if a neutral home appears.
+	ClientSecretSecret *SecretRef `json:"client_secret_secret,omitempty"`
+
+	// DriveName Document library to ingest, by its display name ("Documents", "Dossiers
+	// patients"). Omit it for the site's default library.
+	DriveName *string `json:"drive_name,omitempty"`
+
+	// Prefix Folder path within the library, e.g. `"Imagerie/2026"`. Omit it for the
+	// whole library.
+	Prefix *string `json:"prefix,omitempty"`
+
+	// SiteUrl The site to read, as its browser URL:
+	// `https://contoso.sharepoint.com/sites/Documents`.
+	//
+	// Taken as a URL rather than a Graph site id because the URL is what a user
+	// can copy out of their address bar, and the id is what no one can find.
+	// The connector resolves one to the other at run time.
+	SiteUrl string `json:"site_url"`
+
+	// TenantId Entra ID tenant, as a GUID or a verified domain (`contoso.onmicrosoft.com`).
+	TenantId string `json:"tenant_id"`
+}
+
 // SharedModelResponse defines model for SharedModelResponse.
 type SharedModelResponse struct {
 	// ActiveModel Flavor-only: the highest-weight ready target's shared-model name (the
@@ -14613,6 +17473,23 @@ type SharedModelResponse struct {
 	// (Bound, Degraded, Unbound) when `kind == "flavor"`
 	Phase string `json:"phase"`
 
+	// Protocol The wire protocol a serving actually speaks.
+	//
+	// The platform's whole inference surface — the LLM gateway's OpenAI routes,
+	// the console playground, agents and workstations — talks OpenAI. A model
+	// that only speaks KServe's native v2 predict protocol (Triton, most
+	// notably) is a running, GPU-holding serving that none of that can call, and
+	// before this type existed nothing in the catalog said so: the model was
+	// listed as `Ready`, offered in every picker, and every call to it failed
+	// somewhere downstream.
+	//
+	// [`Default`] is [`ModelProtocol::OpenAi`] on purpose. The vast majority of
+	// servings are OpenAI-capable, and the absence of Triton evidence must not
+	// black-hole a working model — a wrong `Unknown` would refuse traffic that
+	// works today, which is strictly worse than a wrong `OpenAi` that fails the
+	// same way it does now.
+	Protocol *ModelProtocol `json:"protocol,omitempty"`
+
 	// Replicas Pods behind the serving: `1` for the ordinary single-pod serving, `0`
 	// for one scaled to zero, the autoscaler's floor when `max_replicas` is
 	// set. `null` when there is no serving to measure — an externally-hosted
@@ -14624,11 +17501,34 @@ type SharedModelResponse struct {
 	// hosted off-cluster, or `unknown` when the serving's spec names none.
 	Runtime string `json:"runtime"`
 
+	// Servable Whether the platform can actually serve traffic to this model.
+	//
+	// The default is `true`, NOT `serde`'s default for a `bool`. This struct
+	// also parses the gateway's catalog JSON, and during a rollout the
+	// gateway may still be a build that predates the field: defaulting to
+	// `false` there would mark every model unservable at once and empty every
+	// picker in the console. "Assume usable unless told otherwise" is the
+	// only safe direction for a compatibility default.
+	//
+	// This is a read-only response DTO, not a CRD spec — the platform rule
+	// against persisting a default into a `spec` does not apply: nothing here
+	// is ever written back to Kubernetes.
+	Servable *bool `json:"servable,omitempty"`
+
 	// ServedModelName Served model name (the OpenAI `model` id)
 	ServedModelName *string `json:"served_model_name,omitempty"`
 
 	// ToolCalling Flavor-only: whether the active target advertises tool calling.
 	ToolCalling *bool `json:"tool_calling,omitempty"`
+
+	// UnservableDetail Free-text detail for an administrator, when the platform has something
+	// specific to add beyond the code. `null` unless the gateway filled it in.
+	UnservableDetail *string `json:"unservable_detail,omitempty"`
+
+	// UnservableReason Stable machine code for why not (`unsupported_protocol` /
+	// `unknown_protocol`), `null` when `servable`. The console translates the
+	// code; the operator branches on it.
+	UnservableReason *string `json:"unservable_reason,omitempty"`
 }
 
 // SignComputeDockSshKeyRequest defines model for SignComputeDockSshKeyRequest.
@@ -15133,13 +18033,33 @@ type TestImagePullResponse struct {
 
 // TestImapConnectionRequest defines model for TestImapConnectionRequest.
 type TestImapConnectionRequest struct {
-	CaCert   *string `json:"ca_cert,omitempty"`
-	Folder   string  `json:"folder"`
-	Host     string  `json:"host"`
-	Password string  `json:"password"`
-	Port     int32   `json:"port"`
-	UseTls   *bool   `json:"use_tls,omitempty"`
-	Username string  `json:"username"`
+	CaCert *string `json:"ca_cert,omitempty"`
+	Folder string  `json:"folder"`
+	Host   string  `json:"host"`
+
+	// Password The mailbox password, as a literal.
+	//
+	// Optional since #4237: a caller whose password already lives in the
+	// secret manager sends `password_secret_id` instead, and exactly one of the
+	// two is required. Nothing is persisted either way — this endpoint opens a
+	// session and closes it — but the literal form means the password travels
+	// in a request body, and a console that only ever holds a secret id can now
+	// avoid that.
+	Password *string `json:"password,omitempty"`
+
+	// PasswordSecretId A `plaintext` Passe-Partout secret in **this** organization holding the
+	// password.
+	//
+	// Deliberately a bare id and not a `{organization_id, secret_id}` pair: the
+	// organization is the route's, so this endpoint cannot express a read
+	// outside the caller's own tenant. The secret is still put through the
+	// admission gate ([`SecretUsage::PipelineImapProbePassword`]), so one member
+	// cannot dereference another's private secret by probing a mail server
+	// with it.
+	PasswordSecretId *openapi_types.UUID `json:"password_secret_id,omitempty"`
+	Port             int32               `json:"port"`
+	UseTls           *bool               `json:"use_tls,omitempty"`
+	Username         string              `json:"username"`
 }
 
 // TestImapConnectionResponse defines model for TestImapConnectionResponse.
@@ -15315,6 +18235,16 @@ type TrinoInternalConfigResponse struct {
 // TrinoMetadata defines model for TrinoMetadata.
 type TrinoMetadata struct {
 	Catalogs []TrinoCatalog `json:"catalogs"`
+
+	// FailedCatalogs The catalogs that could not be introspected, and why.
+	//
+	// Introspection is one query per catalog and one catalog is one external
+	// system, so a single unreachable connector used to fail the entire call
+	// and leave the schema browser with nothing (#4331). Failures land here
+	// instead: every catalog that answered is still returned, and the ones
+	// that did not are *named* rather than silently absent — a catalog missing
+	// from `catalogs` with nothing in this list genuinely has no content.
+	FailedCatalogs *[]CatalogIntrospectionFailure `json:"failed_catalogs,omitempty"`
 }
 
 // TrinoOutputParameters defines model for TrinoOutputParameters.
@@ -15335,6 +18265,124 @@ type TrinoOutputParameters struct {
 	OcrProvider *OcrProviderConfig `json:"ocr_provider,omitempty"`
 	TrinoSchema string             `json:"trino_schema"`
 	TrinoTable  string             `json:"trino_table"`
+}
+
+// TrinoQueryCompletedLog A query-completion event, distilled from Trino's `QueryCompletedEvent`.
+type TrinoQueryCompletedLog struct {
+	ClientSource *string `json:"client_source,omitempty"`
+
+	// ClientTraceTag The `hf_trace:` tag the submitting Hyperfluid client put in the
+	// statement — tinyQuery's history entry id, or Bifrost's access-event
+	// `query_id` — so the audit trace joins back to that client's own record.
+	// Absent for any other client (`trino-cli`, a JDBC driver, …).
+	ClientTraceTag *string `json:"client_trace_tag,omitempty"`
+
+	// ColumnsAccessed `catalog.schema.table.column`, from `metadata.tables[].columns[]`.
+	ColumnsAccessed []string  `json:"columns_accessed"`
+	CompletedAt     time.Time `json:"completed_at"`
+	CpuTimeMs       *int64    `json:"cpu_time_ms,omitempty"`
+	CreatedAt       time.Time `json:"created_at"`
+
+	// DataDockId The console DB data-dock id — resolved from the URL path by the
+	// handler, NEVER trusted from the body (Trino has no notion of it).
+	DataDockId openapi_types.UUID `json:"data_dock_id"`
+	ErrorCode  *string            `json:"error_code,omitempty"`
+
+	// Event The Trino event, hygiene-stripped (huge plan/operator-summary/GC-stats
+	// fields removed, warnings collapsed to `{code, message}`) but otherwise
+	// verbatim.
+	Event           map[string]interface{} `json:"event"`
+	FailureMessage  *string                `json:"failure_message,omitempty"`
+	InputBytes      *int64                 `json:"input_bytes,omitempty"`
+	InputRows       *int64                 `json:"input_rows,omitempty"`
+	OutputBytes     *int64                 `json:"output_bytes,omitempty"`
+	OutputRows      *int64                 `json:"output_rows,omitempty"`
+	PeakMemoryBytes *int64                 `json:"peak_memory_bytes,omitempty"`
+	QueryId         string                 `json:"query_id"`
+
+	// QueryState `FINISHED` / `FAILED` (Trino's `QueryState` enum, passed through verbatim).
+	QueryState string `json:"query_state"`
+
+	// QueryType Trino's `QueryType` (`SELECT`, `INSERT`, `DATA_DEFINITION`, …) from
+	// `context.queryType`; absent on rows ingested before it was distilled.
+	QueryType    *string `json:"query_type,omitempty"`
+	QueuedTimeMs *int64  `json:"queued_time_ms,omitempty"`
+
+	// Sql Always present: `metadata.query` is mandatory (see
+	// [`build_trino_query_completed_log`]), just possibly capped. The
+	// `/* hf_trace:… */` comment Hyperfluid's own clients attach is peeled
+	// off into [`Self::client_trace_tag`] first, so this is the statement as
+	// the caller wrote it.
+	Sql string `json:"sql"`
+
+	// SqlFingerprint [`hf_lib_query_engine::sql_fingerprint::sql_fingerprint_hash`] of the
+	// tag-stripped statement: literals and whitespace collapsed, then hashed,
+	// so re-runs of one dashboard query share a value to group on.
+	SqlFingerprint string   `json:"sql_fingerprint"`
+	SqlTruncated   bool     `json:"sql_truncated"`
+	TablesTouched  []string `json:"tables_touched"`
+	UpdateType     *string  `json:"update_type,omitempty"`
+	WallTimeMs     *int64   `json:"wall_time_ms,omitempty"`
+}
+
+// TrinoResourceGroup One resource group.
+//
+// `hard_concurrency_limit` and `max_queued` are required by Trino itself, so
+// they are required here rather than defaulted — a default would be a number
+// the platform invented and then froze into the user's configuration.
+type TrinoResourceGroup struct {
+	// HardConcurrencyLimit Queries this group may run at once.
+	HardConcurrencyLimit int32 `json:"hardConcurrencyLimit"`
+
+	// MaxQueued Queries that may wait. Beyond it, Trino rejects with
+	// `QUERY_QUEUE_FULL` rather than queueing further.
+	MaxQueued int32 `json:"maxQueued"`
+
+	// Name Dotted path, e.g. `global` or `global.batch`.
+	Name string `json:"name"`
+
+	// SchedulingPolicy `fair`, `weighted`, `weighted_fair` or `query_priority`. Absent means
+	// Trino's own default.
+	SchedulingPolicy *string `json:"schedulingPolicy,omitempty"`
+
+	// SoftMemoryLimit Share of cluster memory, as a percentage (`"50%"`) or an absolute size
+	// (`"10GB"`). Absent means Trino's own default.
+	SoftMemoryLimit *string `json:"softMemoryLimit,omitempty"`
+}
+
+// TrinoResourceGroupSelector One selector, matching a query against a group.
+//
+// Every criterion is optional and they combine with AND. A selector with no
+// criterion at all matches everything, which is what makes the catch-all
+// work — and why a user-authored one would swallow every selector after it.
+type TrinoResourceGroupSelector struct {
+	// ClientTags Tags the query must carry, all of them.
+	ClientTags *[]string `json:"clientTags,omitempty"`
+
+	// Group Dotted path of the group queries matching this selector are assigned to.
+	Group string `json:"group"`
+
+	// QueryType `SELECT`, `INSERT`, `DELETE`, `DESCRIBE`, `EXPLAIN`, `DATA_DEFINITION`.
+	QueryType *string `json:"queryType,omitempty"`
+
+	// Source Java regex over the client-declared source string.
+	Source *string `json:"source,omitempty"`
+
+	// User Java regex over the submitting principal. The only *authenticated*
+	// criterion here, and therefore the only one that is a fact rather than a
+	// claim: `source` and `client_tags` are set by the caller.
+	User *string `json:"user,omitempty"`
+}
+
+// TrinoResourceGroups Resource groups and the ordered selectors that assign queries to them.
+type TrinoResourceGroups struct {
+	// Groups Groups, addressed by dotted path. A group whose name contains a dot
+	// declares its parent: `global.batch` is a sub-group of `global`.
+	Groups *[]TrinoResourceGroup `json:"groups,omitempty"`
+
+	// Selectors Selectors, in evaluation order. Trino takes the first that matches, so
+	// this order is the configuration and must be preserved verbatim.
+	Selectors *[]TrinoResourceGroupSelector `json:"selectors,omitempty"`
 }
 
 // TrinoSchema defines model for TrinoSchema.
@@ -15475,6 +18523,17 @@ type UpdateDashboardRequest struct {
 	Widgets *[]DashboardWidget `json:"widgets,omitempty"`
 }
 
+// UpdateDataDockInternetExposureRequestBody defines model for UpdateDataDockInternetExposureRequestBody.
+type UpdateDataDockInternetExposureRequestBody struct {
+	// ExposeToInternet `false` prunes the public Trino Ingress: the URL the console and
+	// `hfctl data-docks connect` hand out is cleared on the operator's next
+	// reconcile, and native clients (JDBC, DBeaver, the Trino CLI) can no
+	// longer reach the coordinator from outside the cluster — Bifrost and every
+	// in-cluster consumer are unaffected, they use the Service address. `true`
+	// restores it.
+	ExposeToInternet bool `json:"expose_to_internet"`
+}
+
 // UpdateDataDockRequest defines model for UpdateDataDockRequest.
 type UpdateDataDockRequest struct {
 	Description     *string                    `json:"description,omitempty"`
@@ -15495,6 +18554,12 @@ type UpdateDataDockRequestKind0 struct {
 
 // UpdateDataDockRequestKind0Type defines model for UpdateDataDockRequestKind.0.Type.
 type UpdateDataDockRequestKind0Type string
+
+// UpdateDataDockResourceGroupsRequestBody defines model for UpdateDataDockResourceGroupsRequestBody.
+type UpdateDataDockResourceGroupsRequestBody struct {
+	// ResourceGroups Resource groups and the ordered selectors that assign queries to them.
+	ResourceGroups *TrinoResourceGroups `json:"resource_groups,omitempty"`
+}
 
 // UpdateDataDockSecuritySettingsBody Request to update datadock security settings.
 type UpdateDataDockSecuritySettingsBody struct {
@@ -15552,6 +18617,34 @@ type UpdateFakerTableRequest struct {
 	Fields []FakerTableFields `json:"fields"`
 }
 
+// UpdateForgejoRunnerRequest Partial update of a `ForgejoRunner` CR. Every field is optional; an absent
+// field leaves the current value untouched.
+type UpdateForgejoRunnerRequest struct {
+	// Allowlists Replacement allow-list references. An empty list detaches them all.
+	Allowlists *[]string `json:"allowlists,omitempty"`
+
+	// ExtraEgressFqdns Replacement extra egress FQDNs. The platform registry host the console
+	// injected at creation is always kept, so an empty list leaves only that.
+	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
+
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor *RunnerFlavorDto `json:"flavor,omitempty"`
+
+	// Labels Replacement registration labels. An empty list clears them (the runner
+	// then only accepts jobs without a label constraint).
+	Labels *[]string `json:"labels,omitempty"`
+
+	// Replicas New replica count; must be at least 1.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// RunnerImage Replacement runner image. An empty string returns the runner to the
+	// platform default, which is resolved at reconcile time.
+	RunnerImage *string `json:"runner_image,omitempty"`
+}
+
 // UpdateGithubConnectionRequest Request body for updating a `GithubConnection`.
 //
 // Not `Serialize`, for the same reason as [`CreateGithubConnectionRequest`].
@@ -15600,13 +18693,20 @@ type UpdateGithubRunnerRequest struct {
 	// connection must point at the same GitHub host as the current one.
 	Connection *string `json:"connection,omitempty"`
 
+	// EgressMode How the pool's `CiliumNetworkPolicy` treats egress the built-in preset and
+	// the allow-list do not cover.
+	EgressMode *GithubRunnerEgressModeDto `json:"egress_mode,omitempty"`
+
 	// ExtraEgressFqdns Replacement egress allow-list (it replaces the previous one wholesale,
 	// it is not merged entry by entry). Send `[]` to keep only the built-in
-	// GitHub Actions preset.
+	// GitHub Actions preset. Entries are `host` (443/TCP) or `host:port`.
 	ExtraEgressFqdns *[]string `json:"extra_egress_fqdns,omitempty"`
 
-	// Flavor Named runner size, resolved by the operator into container requests/limits.
-	Flavor *GithubRunnerFlavorDto `json:"flavor,omitempty"`
+	// Flavor A runner's size: one of the named rungs, or `custom` with explicit
+	// quantities. The named rungs' cpu/memory/disk are published by
+	// `GET /api/v1/ci/runner-flavors`, together with the bounds a custom size
+	// must fit in.
+	Flavor *RunnerFlavorDto `json:"flavor,omitempty"`
 
 	// MaxRunners New concurrency ceiling. Live resize, same as `min_runners`.
 	MaxRunners *int32 `json:"max_runners,omitempty"`
@@ -16097,6 +19197,42 @@ type WorkerAutoScalingResponse struct {
 	TargetMemoryUtilization *int32 `json:"target_memory_utilization,omitempty"`
 }
 
+// WorkstationAgentRequestLog Audit payload for a request made of the agent inside a dev workstation.
+//
+// The prompt is stored verbatim. Unlike terminal input there is no echo to
+// correlate and no password prompt to protect against: this text was typed
+// into a chat box and sent to a third-party model, so recording it discloses
+// nothing to the organization that the model provider was not already given.
+type WorkstationAgentRequestLog struct {
+	// Agent opencode agent/mode the turn ran under (`build`, `plan`…).
+	Agent *string `json:"agent,omitempty"`
+
+	// AttachmentCount Images attached to the turn. The count is audit signal; the bytes are
+	// never recorded, since a screenshot store is not what was asked for and
+	// would dwarf everything else in the table.
+	AttachmentCount int32 `json:"attachment_count"`
+
+	// Content What the user asked, truncated to [`MAX_RECORDED_PROMPT_CHARS`].
+	Content          string `json:"content"`
+	ContentTruncated bool   `json:"content_truncated"`
+
+	// Kind Which workstation surface a recorded agent request came through.
+	Kind AgentRequestKind `json:"kind"`
+
+	// Model `providerID/modelID` the turn was sent to.
+	Model *string `json:"model,omitempty"`
+
+	// ResourceId Also `resource_id`, so the audit-log API's existing
+	// `event->'data'->>'resource_id'` filter reaches these rows.
+	ResourceId string `json:"resource_id"`
+
+	// SessionId opencode session the turn belongs to. `None` for a request that is not
+	// session-scoped.
+	SessionId       *string            `json:"session_id,omitempty"`
+	WorkstationId   openapi_types.UUID `json:"workstation_id"`
+	WorkstationName string             `json:"workstation_name"`
+}
+
 // WorkstationFile One repo file surfaced by the read-only file finder. `path` is repo-relative
 // (the shape opencode's `/find/file` returns); `name` is the basename, derived
 // here so the frontend doesn't have to split paths.
@@ -16106,6 +19242,28 @@ type WorkstationFile struct {
 
 	// Path Repo-relative path, e.g. `src/main.rs`.
 	Path string `json:"path"`
+}
+
+// WorkstationPreviewSessionLog Audit payload for a preview session opened while the organization is in
+// audit mode with `PreviewPosture::Record`.
+//
+// The preview forwards arbitrary HTTP and WebSocket traffic to a port the
+// user chose, so its contents are outside every tap this feature installs.
+// What is recordable, and what a reviewer needs, is that the channel was
+// opened at all.
+type WorkstationPreviewSessionLog struct {
+	// Port Port the preview was authorized for.
+	Port int32 `json:"port"`
+
+	// ResourceId See [`WorkstationAgentRequestLog::resource_id`].
+	ResourceId string `json:"resource_id"`
+
+	// TtlSeconds Lifetime of the capability minted, in seconds. The preview cookie is
+	// the capability and the proxy re-runs no live check, so this is how long
+	// the unrecorded channel stayed open at most.
+	TtlSeconds      int64              `json:"ttl_seconds"`
+	WorkstationId   openapi_types.UUID `json:"workstation_id"`
+	WorkstationName string             `json:"workstation_name"`
 }
 
 // WorkstationRepositoryInput A repository to clone into a workstation. Used both at create time (for the
@@ -16176,6 +19334,50 @@ type WorkstationTemplateResponse struct {
 
 // WorkstationTemplateScopeDto Visibility scope of a workstation template.
 type WorkstationTemplateScopeDto string
+
+// WorkstationTerminalCommandLog Audit payload for one command line submitted in a workstation terminal.
+//
+// METADATA ONLY, and that is a deliberate contract rather than a limitation
+// to be lifted quietly. There is no field for the command text, so no defect
+// in the capture path can put a password into an audit record. See
+// `domain::workstation_audit::terminal_capture` for why the previous,
+// content-carrying design was withdrawn, and ADR-0045 D2 for the shell-hook
+// mechanism that is the supported route to content.
+//
+// What a reviewer gets: who was at a terminal, when, in which session, and at
+// what volume. What they do not get: what was run. Do not describe this event
+// as a command history.
+type WorkstationTerminalCommandLog struct {
+	// AgentCli Agent CLI the terminal was launched with (`claude`), when it is an
+	// agent terminal rather than a shell.
+	AgentCli *string `json:"agent_cli,omitempty"`
+
+	// Approximate The counter met something it does not model (history recall, tab
+	// completion, an unmodelled control sequence), so `visible_len` may not
+	// describe what the shell actually ran.
+	Approximate bool `json:"approximate"`
+
+	// ConnectionId The terminal WebSocket this line arrived on. See [`Self::sequence`].
+	ConnectionId openapi_types.UUID `json:"connection_id"`
+
+	// ResourceId See [`WorkstationAgentRequestLog::resource_id`].
+	ResourceId string `json:"resource_id"`
+
+	// Sequence Position of this line within one WebSocket connection, from 1.
+	//
+	// Scoped to `connection_id`, not to the tmux session: a tmux session
+	// outlives its sockets, so a sequence restarting at 1 is a reconnect and
+	// not a gap. Without the pair, a reviewer cannot tell those apart.
+	Sequence int64 `json:"sequence"`
+
+	// TmuxSession tmux session the line was typed into; `None` for a plain login shell.
+	TmuxSession *string `json:"tmux_session,omitempty"`
+
+	// VisibleLen Characters submitted on the line.
+	VisibleLen      int32              `json:"visible_len"`
+	WorkstationId   openapi_types.UUID `json:"workstation_id"`
+	WorkstationName string             `json:"workstation_name"`
+}
 
 // WorkstationToolDto defines model for WorkstationToolDto.
 type WorkstationToolDto struct {
@@ -16306,6 +19508,16 @@ type GitPrsParams struct {
 	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
 }
 
+// GetDevWorkstationTranscriptParams defines parameters for GetDevWorkstationTranscript.
+type GetDevWorkstationTranscriptParams struct {
+	// Actor Restrict to one actor. The common review is "what did this person do".
+	Actor     *openapi_types.UUID `form:"actor,omitempty" json:"actor,omitempty"`
+	StartDate *time.Time          `form:"start_date,omitempty" json:"start_date,omitempty"`
+	EndDate   *time.Time          `form:"end_date,omitempty" json:"end_date,omitempty"`
+	Page      *int64              `form:"page,omitempty" json:"page,omitempty"`
+	Limit     *int64              `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // GetDevWorkstationEgressFlowsParams defines parameters for GetDevWorkstationEgressFlows.
 type GetDevWorkstationEgressFlowsParams struct {
 	// SinceSecs Lookback window in seconds. Default 900 (15 min), clamped to
@@ -16314,6 +19526,42 @@ type GetDevWorkstationEgressFlowsParams struct {
 
 	// Verdict `all` (default) | `forwarded` | `dropped`. Any other value is a 400.
 	Verdict *string `form:"verdict,omitempty" json:"verdict,omitempty"`
+}
+
+// GetAuditLogsHandlerParams defines parameters for GetAuditLogsHandler.
+type GetAuditLogsHandlerParams struct {
+	// OrganizationId Organization ID (required)
+	OrganizationId openapi_types.UUID `form:"organization_id" json:"organization_id"`
+
+	// EventType Filter by event type
+	EventType *AuditLogEventType `form:"event_type,omitempty" json:"event_type,omitempty"`
+
+	// DataDockType Filter by data-dock type
+	DataDockType *DataDockType `form:"data_dock_type,omitempty" json:"data_dock_type,omitempty"`
+
+	// DataDockId Filter by data-dock ID
+	DataDockId *openapi_types.UUID `form:"data_dock_id,omitempty" json:"data_dock_id,omitempty"`
+
+	// UserId Actor, as a console user id (not an OIDC subject)
+	UserId *openapi_types.UUID `form:"user_id,omitempty" json:"user_id,omitempty"`
+
+	// StartDate Start of the time window (ISO 8601)
+	StartDate *string `form:"start_date,omitempty" json:"start_date,omitempty"`
+
+	// EndDate End of the time window (ISO 8601)
+	EndDate *string `form:"end_date,omitempty" json:"end_date,omitempty"`
+
+	// ResourceId Filter to one targeted resource id
+	ResourceId *string `form:"resource_id,omitempty" json:"resource_id,omitempty"`
+
+	// QueryId Drill through to one Trino query's raw decisions; reads bronze, so only within its retention window
+	QueryId *string `form:"query_id,omitempty" json:"query_id,omitempty"`
+
+	// Page Zero-based page index (default 0)
+	Page *int64 `form:"page,omitempty" json:"page,omitempty"`
+
+	// Limit Page size (default 50, clamped to 1..=200)
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // GetOptimizeHistoryParams defines parameters for GetOptimizeHistory.
@@ -16560,6 +19808,24 @@ type ListResourceAccessParams struct {
 	IncludeInherited *bool `form:"include_inherited,omitempty" json:"include_inherited,omitempty"`
 }
 
+// StreamAirflowLogsParams defines parameters for StreamAirflowLogs.
+type StreamAirflowLogsParams struct {
+	// TailLines Number of tail lines per container to start from (default: 50)
+	TailLines *int64 `form:"tail_lines,omitempty" json:"tail_lines,omitempty"`
+}
+
+// StreamAirflowPodLogsParams defines parameters for StreamAirflowPodLogs.
+type StreamAirflowPodLogsParams struct {
+	// TailLines Number of tail lines to start from (default: 100)
+	TailLines *int64 `form:"tail_lines,omitempty" json:"tail_lines,omitempty"`
+
+	// Previous Read logs from the previous (last terminated) container instance so crash-loop output survives a restart (default: false)
+	Previous *bool `form:"previous,omitempty" json:"previous,omitempty"`
+
+	// Container Container to read. Defaults to the component's own container (`airflow-scheduler` and friends, `base` on a task pod); name one explicitly to read a component pod's `dag-sync` sidecar or an init container.
+	Container *string `form:"container,omitempty" json:"container,omitempty"`
+}
+
 // ListAlertEventsParams defines parameters for ListAlertEvents.
 type ListAlertEventsParams struct {
 	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
@@ -16613,6 +19879,12 @@ type ListHarborsParams struct {
 	Slug   *string `form:"slug,omitempty" json:"slug,omitempty"`
 	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
 	Offset *int64  `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// GetContainerAppPlatformUrlParams defines parameters for GetContainerAppPlatformUrl.
+type GetContainerAppPlatformUrlParams struct {
+	// Name The app name (slug) as it would be submitted on create.
+	Name string `form:"name" json:"name"`
 }
 
 // GetImageScanParams defines parameters for GetImageScan.
@@ -17410,6 +20682,54 @@ type ListSupportTicketsParams struct {
 	Status *TicketStatus `form:"status,omitempty" json:"status,omitempty"`
 }
 
+// GetAuditLogHandlerParams defines parameters for GetAuditLogHandler.
+type GetAuditLogHandlerParams struct {
+	// Kind `query` or `event`; anything else is a 400
+	Kind *string `form:"kind,omitempty" json:"kind,omitempty"`
+
+	// Source `trino` | `s3-gateway` | `console` | a data-dock type; unknown matches nothing, empty is a 400
+	Source *string `form:"source,omitempty" json:"source,omitempty"`
+
+	// UserId Actor, as a console user id (not an OIDC subject)
+	UserId *openapi_types.UUID `form:"user_id,omitempty" json:"user_id,omitempty"`
+
+	// ServiceAccountId Actor, as a console service_accounts id; ignored if `user_id` is also set
+	ServiceAccountId *openapi_types.UUID `form:"service_account_id,omitempty" json:"service_account_id,omitempty"`
+
+	// Platform Actor: all of the platform's own provisioned clients in this org; ignored if `user_id` or `service_account_id` is set
+	Platform *bool `form:"platform,omitempty" json:"platform,omitempty"`
+
+	// From Start of the time window (ISO 8601)
+	From *string `form:"from,omitempty" json:"from,omitempty"`
+
+	// To End of the time window (ISO 8601)
+	To *string `form:"to,omitempty" json:"to,omitempty"`
+
+	// Page Zero-based page index (default 0)
+	Page *int64 `form:"page,omitempty" json:"page,omitempty"`
+
+	// Limit Page size (default 50, clamped to 1..=200)
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetLiveAuditLogHandlerParams defines parameters for GetLiveAuditLogHandler.
+type GetLiveAuditLogHandlerParams struct {
+	// Source `trino` | `s3-gateway` | `console` | a data-dock type; unknown matches nothing, empty is a 400
+	Source *string `form:"source,omitempty" json:"source,omitempty"`
+
+	// UserId Actor, as a console user id (not an OIDC subject)
+	UserId *openapi_types.UUID `form:"user_id,omitempty" json:"user_id,omitempty"`
+
+	// ServiceAccountId Actor, as a console service_accounts id; ignored if `user_id` is also set
+	ServiceAccountId *openapi_types.UUID `form:"service_account_id,omitempty" json:"service_account_id,omitempty"`
+
+	// Platform Actor: all of the platform's own provisioned clients in this org; ignored if `user_id` or `service_account_id` is set
+	Platform *bool `form:"platform,omitempty" json:"platform,omitempty"`
+
+	// Limit Newest rows to return (default 100, clamped to 1..=200)
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // QuerySecurityDecisionsHandlerParams defines parameters for QuerySecurityDecisionsHandler.
 type QuerySecurityDecisionsHandlerParams struct {
 	// UserId Filter by user ID
@@ -17503,6 +20823,9 @@ type ListRefsParams struct {
 	Offset   *int64              `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
+// CreateManyRefsJSONBody defines parameters for CreateManyRefs.
+type CreateManyRefsJSONBody = []CreateRefRequest
+
 // CancelQueryHandlerParams defines parameters for CancelQueryHandler.
 type CancelQueryHandlerParams struct {
 	// DataDockId Data Dock ID
@@ -17516,6 +20839,15 @@ type GetResultsHandlerParams struct {
 
 	// Limit Number of rows (default 500)
 	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetSchemaHandlerParams defines parameters for GetSchemaHandler.
+type GetSchemaHandlerParams struct {
+	// Refresh Re-introspect the cluster instead of serving the cached schema.
+	//
+	// This is what the schema browser's refresh button sends. Absent or
+	// `false` is the normal path and answers from cache while it is warm.
+	Refresh *bool `form:"refresh,omitempty" json:"refresh,omitempty"`
 }
 
 // GetUnifiedCatalogParams defines parameters for GetUnifiedCatalog.
@@ -17663,6 +20995,12 @@ type CreateDataDockCatalogJSONRequestBody = CreateDataDockCatalogRequest
 // PutCatalogExposureJSONRequestBody defines body for PutCatalogExposure for application/json ContentType.
 type PutCatalogExposureJSONRequestBody = UpdateCatalogExposureRequestBody
 
+// SetDataDockInternetExposureJSONRequestBody defines body for SetDataDockInternetExposure for application/json ContentType.
+type SetDataDockInternetExposureJSONRequestBody = UpdateDataDockInternetExposureRequestBody
+
+// SetDataDockResourceGroupsJSONRequestBody defines body for SetDataDockResourceGroups for application/json ContentType.
+type SetDataDockResourceGroupsJSONRequestBody = UpdateDataDockResourceGroupsRequestBody
+
 // SearchDataDockJSONRequestBody defines body for SearchDataDock for application/json ContentType.
 type SearchDataDockJSONRequestBody = DataDockSearchRequest
 
@@ -17752,6 +21090,12 @@ type UpdateAiAgentJSONRequestBody = UpdateAiAgentRequest
 
 // AskAiAgentJSONRequestBody defines body for AskAiAgent for application/json ContentType.
 type AskAiAgentJSONRequestBody = AskAiAgentRequest
+
+// CreateAirflowConnectionJSONRequestBody defines body for CreateAirflowConnection for application/json ContentType.
+type CreateAirflowConnectionJSONRequestBody = CreateAirflowConnectionRequest
+
+// PatchAirflowConnectionJSONRequestBody defines body for PatchAirflowConnection for application/json ContentType.
+type PatchAirflowConnectionJSONRequestBody = PatchAirflowConnectionRequest
 
 // PatchAirflowCrdJSONRequestBody defines body for PatchAirflowCrd for application/json ContentType.
 type PatchAirflowCrdJSONRequestBody = PatchAirflowCrdRequestBody
@@ -17854,6 +21198,9 @@ type CreateDagsterCrdJSONRequestBody = CreateDagsterCrdRequestBody
 
 // CreateForgejoRunnerJSONRequestBody defines body for CreateForgejoRunner for application/json ContentType.
 type CreateForgejoRunnerJSONRequestBody = CreateForgejoRunnerRequest
+
+// UpdateForgejoRunnerJSONRequestBody defines body for UpdateForgejoRunner for application/json ContentType.
+type UpdateForgejoRunnerJSONRequestBody = UpdateForgejoRunnerRequest
 
 // CreateGithubRunnerJSONRequestBody defines body for CreateGithubRunner for application/json ContentType.
 type CreateGithubRunnerJSONRequestBody = CreateGithubRunnerRequest
@@ -18020,6 +21367,9 @@ type CreatePipelineJSONRequestBody = CreatePipelineRequest
 // CountRefsJSONRequestBody defines body for CountRefs for application/json ContentType.
 type CountRefsJSONRequestBody = CountRefRequest
 
+// CreateManyRefsJSONRequestBody defines body for CreateManyRefs for application/json ContentType.
+type CreateManyRefsJSONRequestBody = CreateManyRefsJSONBody
+
 // UpdateRefJSONRequestBody defines body for UpdateRef for application/json ContentType.
 type UpdateRefJSONRequestBody = UpdateRefRequest
 
@@ -18052,6 +21402,380 @@ type CreateWorkstationTemplateJSONRequestBody = CreateWorkstationTemplateRequest
 
 // UpdateWorkstationTemplateJSONRequestBody defines body for UpdateWorkstationTemplate for application/json ContentType.
 type UpdateWorkstationTemplateJSONRequestBody = UpdateWorkstationTemplateRequest
+
+// AsAuditLogEvent0 returns the union data inside the AuditLogEvent as a AuditLogEvent0
+func (t AuditLogEvent) AsAuditLogEvent0() (AuditLogEvent0, error) {
+	var body AuditLogEvent0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent0 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent0
+func (t *AuditLogEvent) FromAuditLogEvent0(v AuditLogEvent0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent0 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent0
+func (t *AuditLogEvent) MergeAuditLogEvent0(v AuditLogEvent0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent1 returns the union data inside the AuditLogEvent as a AuditLogEvent1
+func (t AuditLogEvent) AsAuditLogEvent1() (AuditLogEvent1, error) {
+	var body AuditLogEvent1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent1 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent1
+func (t *AuditLogEvent) FromAuditLogEvent1(v AuditLogEvent1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent1 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent1
+func (t *AuditLogEvent) MergeAuditLogEvent1(v AuditLogEvent1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent2 returns the union data inside the AuditLogEvent as a AuditLogEvent2
+func (t AuditLogEvent) AsAuditLogEvent2() (AuditLogEvent2, error) {
+	var body AuditLogEvent2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent2 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent2
+func (t *AuditLogEvent) FromAuditLogEvent2(v AuditLogEvent2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent2 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent2
+func (t *AuditLogEvent) MergeAuditLogEvent2(v AuditLogEvent2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent3 returns the union data inside the AuditLogEvent as a AuditLogEvent3
+func (t AuditLogEvent) AsAuditLogEvent3() (AuditLogEvent3, error) {
+	var body AuditLogEvent3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent3 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent3
+func (t *AuditLogEvent) FromAuditLogEvent3(v AuditLogEvent3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent3 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent3
+func (t *AuditLogEvent) MergeAuditLogEvent3(v AuditLogEvent3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent4 returns the union data inside the AuditLogEvent as a AuditLogEvent4
+func (t AuditLogEvent) AsAuditLogEvent4() (AuditLogEvent4, error) {
+	var body AuditLogEvent4
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent4 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent4
+func (t *AuditLogEvent) FromAuditLogEvent4(v AuditLogEvent4) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent4 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent4
+func (t *AuditLogEvent) MergeAuditLogEvent4(v AuditLogEvent4) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent5 returns the union data inside the AuditLogEvent as a AuditLogEvent5
+func (t AuditLogEvent) AsAuditLogEvent5() (AuditLogEvent5, error) {
+	var body AuditLogEvent5
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent5 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent5
+func (t *AuditLogEvent) FromAuditLogEvent5(v AuditLogEvent5) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent5 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent5
+func (t *AuditLogEvent) MergeAuditLogEvent5(v AuditLogEvent5) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent6 returns the union data inside the AuditLogEvent as a AuditLogEvent6
+func (t AuditLogEvent) AsAuditLogEvent6() (AuditLogEvent6, error) {
+	var body AuditLogEvent6
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent6 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent6
+func (t *AuditLogEvent) FromAuditLogEvent6(v AuditLogEvent6) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent6 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent6
+func (t *AuditLogEvent) MergeAuditLogEvent6(v AuditLogEvent6) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent7 returns the union data inside the AuditLogEvent as a AuditLogEvent7
+func (t AuditLogEvent) AsAuditLogEvent7() (AuditLogEvent7, error) {
+	var body AuditLogEvent7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent7 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent7
+func (t *AuditLogEvent) FromAuditLogEvent7(v AuditLogEvent7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent7 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent7
+func (t *AuditLogEvent) MergeAuditLogEvent7(v AuditLogEvent7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent8 returns the union data inside the AuditLogEvent as a AuditLogEvent8
+func (t AuditLogEvent) AsAuditLogEvent8() (AuditLogEvent8, error) {
+	var body AuditLogEvent8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent8 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent8
+func (t *AuditLogEvent) FromAuditLogEvent8(v AuditLogEvent8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent8 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent8
+func (t *AuditLogEvent) MergeAuditLogEvent8(v AuditLogEvent8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent9 returns the union data inside the AuditLogEvent as a AuditLogEvent9
+func (t AuditLogEvent) AsAuditLogEvent9() (AuditLogEvent9, error) {
+	var body AuditLogEvent9
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent9 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent9
+func (t *AuditLogEvent) FromAuditLogEvent9(v AuditLogEvent9) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent9 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent9
+func (t *AuditLogEvent) MergeAuditLogEvent9(v AuditLogEvent9) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent10 returns the union data inside the AuditLogEvent as a AuditLogEvent10
+func (t AuditLogEvent) AsAuditLogEvent10() (AuditLogEvent10, error) {
+	var body AuditLogEvent10
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent10 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent10
+func (t *AuditLogEvent) FromAuditLogEvent10(v AuditLogEvent10) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent10 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent10
+func (t *AuditLogEvent) MergeAuditLogEvent10(v AuditLogEvent10) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent11 returns the union data inside the AuditLogEvent as a AuditLogEvent11
+func (t AuditLogEvent) AsAuditLogEvent11() (AuditLogEvent11, error) {
+	var body AuditLogEvent11
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent11 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent11
+func (t *AuditLogEvent) FromAuditLogEvent11(v AuditLogEvent11) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent11 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent11
+func (t *AuditLogEvent) MergeAuditLogEvent11(v AuditLogEvent11) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent12 returns the union data inside the AuditLogEvent as a AuditLogEvent12
+func (t AuditLogEvent) AsAuditLogEvent12() (AuditLogEvent12, error) {
+	var body AuditLogEvent12
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent12 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent12
+func (t *AuditLogEvent) FromAuditLogEvent12(v AuditLogEvent12) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent12 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent12
+func (t *AuditLogEvent) MergeAuditLogEvent12(v AuditLogEvent12) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent13 returns the union data inside the AuditLogEvent as a AuditLogEvent13
+func (t AuditLogEvent) AsAuditLogEvent13() (AuditLogEvent13, error) {
+	var body AuditLogEvent13
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent13 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent13
+func (t *AuditLogEvent) FromAuditLogEvent13(v AuditLogEvent13) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent13 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent13
+func (t *AuditLogEvent) MergeAuditLogEvent13(v AuditLogEvent13) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AuditLogEvent) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AuditLogEvent) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsBackupTargetSourceRequest0 returns the union data inside the BackupTargetSourceRequest as a BackupTargetSourceRequest0
 func (t BackupTargetSourceRequest) AsBackupTargetSourceRequest0() (BackupTargetSourceRequest0, error) {
@@ -18665,6 +22389,32 @@ func (t *CreatePipelineRequestV2) FromCreatePipelineRequestV29(v CreatePipelineR
 
 // MergeCreatePipelineRequestV29 performs a merge with any union data inside the CreatePipelineRequestV2, using the provided CreatePipelineRequestV29
 func (t *CreatePipelineRequestV2) MergeCreatePipelineRequestV29(v CreatePipelineRequestV29) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsCreatePipelineRequestV210 returns the union data inside the CreatePipelineRequestV2 as a CreatePipelineRequestV210
+func (t CreatePipelineRequestV2) AsCreatePipelineRequestV210() (CreatePipelineRequestV210, error) {
+	var body CreatePipelineRequestV210
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromCreatePipelineRequestV210 overwrites any union data inside the CreatePipelineRequestV2 as the provided CreatePipelineRequestV210
+func (t *CreatePipelineRequestV2) FromCreatePipelineRequestV210(v CreatePipelineRequestV210) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeCreatePipelineRequestV210 performs a merge with any union data inside the CreatePipelineRequestV2, using the provided CreatePipelineRequestV210
+func (t *CreatePipelineRequestV2) MergeCreatePipelineRequestV210(v CreatePipelineRequestV210) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -19686,6 +23436,32 @@ func (t *PipelineFieldReference) MergePipelineFieldReference2(v PipelineFieldRef
 	return err
 }
 
+// AsPipelineFieldReference3 returns the union data inside the PipelineFieldReference as a PipelineFieldReference3
+func (t PipelineFieldReference) AsPipelineFieldReference3() (PipelineFieldReference3, error) {
+	var body PipelineFieldReference3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPipelineFieldReference3 overwrites any union data inside the PipelineFieldReference as the provided PipelineFieldReference3
+func (t *PipelineFieldReference) FromPipelineFieldReference3(v PipelineFieldReference3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePipelineFieldReference3 performs a merge with any union data inside the PipelineFieldReference, using the provided PipelineFieldReference3
+func (t *PipelineFieldReference) MergePipelineFieldReference3(v PipelineFieldReference3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t PipelineFieldReference) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -19868,6 +23644,250 @@ func (t PrepareArchiveImportResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (t *PrepareArchiveImportResponse) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRunnerFlavorDto0 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto0
+func (t RunnerFlavorDto) AsRunnerFlavorDto0() (RunnerFlavorDto0, error) {
+	var body RunnerFlavorDto0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto0 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto0
+func (t *RunnerFlavorDto) FromRunnerFlavorDto0(v RunnerFlavorDto0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto0 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto0
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto0(v RunnerFlavorDto0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto1 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto1
+func (t RunnerFlavorDto) AsRunnerFlavorDto1() (RunnerFlavorDto1, error) {
+	var body RunnerFlavorDto1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto1 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto1
+func (t *RunnerFlavorDto) FromRunnerFlavorDto1(v RunnerFlavorDto1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto1 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto1
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto1(v RunnerFlavorDto1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto2 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto2
+func (t RunnerFlavorDto) AsRunnerFlavorDto2() (RunnerFlavorDto2, error) {
+	var body RunnerFlavorDto2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto2 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto2
+func (t *RunnerFlavorDto) FromRunnerFlavorDto2(v RunnerFlavorDto2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto2 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto2
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto2(v RunnerFlavorDto2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto3 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto3
+func (t RunnerFlavorDto) AsRunnerFlavorDto3() (RunnerFlavorDto3, error) {
+	var body RunnerFlavorDto3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto3 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto3
+func (t *RunnerFlavorDto) FromRunnerFlavorDto3(v RunnerFlavorDto3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto3 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto3
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto3(v RunnerFlavorDto3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto4 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto4
+func (t RunnerFlavorDto) AsRunnerFlavorDto4() (RunnerFlavorDto4, error) {
+	var body RunnerFlavorDto4
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto4 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto4
+func (t *RunnerFlavorDto) FromRunnerFlavorDto4(v RunnerFlavorDto4) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto4 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto4
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto4(v RunnerFlavorDto4) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto5 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto5
+func (t RunnerFlavorDto) AsRunnerFlavorDto5() (RunnerFlavorDto5, error) {
+	var body RunnerFlavorDto5
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto5 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto5
+func (t *RunnerFlavorDto) FromRunnerFlavorDto5(v RunnerFlavorDto5) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto5 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto5
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto5(v RunnerFlavorDto5) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto6 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto6
+func (t RunnerFlavorDto) AsRunnerFlavorDto6() (RunnerFlavorDto6, error) {
+	var body RunnerFlavorDto6
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto6 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto6
+func (t *RunnerFlavorDto) FromRunnerFlavorDto6(v RunnerFlavorDto6) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto6 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto6
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto6(v RunnerFlavorDto6) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto7 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto7
+func (t RunnerFlavorDto) AsRunnerFlavorDto7() (RunnerFlavorDto7, error) {
+	var body RunnerFlavorDto7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto7 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto7
+func (t *RunnerFlavorDto) FromRunnerFlavorDto7(v RunnerFlavorDto7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto7 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto7
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto7(v RunnerFlavorDto7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRunnerFlavorDto8 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto8
+func (t RunnerFlavorDto) AsRunnerFlavorDto8() (RunnerFlavorDto8, error) {
+	var body RunnerFlavorDto8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRunnerFlavorDto8 overwrites any union data inside the RunnerFlavorDto as the provided RunnerFlavorDto8
+func (t *RunnerFlavorDto) FromRunnerFlavorDto8(v RunnerFlavorDto8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRunnerFlavorDto8 performs a merge with any union data inside the RunnerFlavorDto, using the provided RunnerFlavorDto8
+func (t *RunnerFlavorDto) MergeRunnerFlavorDto8(v RunnerFlavorDto8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RunnerFlavorDto) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RunnerFlavorDto) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -20272,6 +24292,12 @@ type ClientInterface interface {
 
 	AiEdit(ctx context.Context, id openapi_types.UUID, body AiEditJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetDevWorkstationAuditStatus request
+	GetDevWorkstationAuditStatus(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDevWorkstationTranscript request
+	GetDevWorkstationTranscript(ctx context.Context, id openapi_types.UUID, params *GetDevWorkstationTranscriptParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDevWorkstationEgress request
 	GetDevWorkstationEgress(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -20346,6 +24372,9 @@ type ClientInterface interface {
 	// GetAppTemplateCrd request
 	GetAppTemplateCrd(ctx context.Context, name string, version string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAuditLogsHandler request
+	GetAuditLogsHandler(ctx context.Context, params *GetAuditLogsHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetBifrostFeatures request
 	GetBifrostFeatures(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -20357,6 +24386,9 @@ type ClientInterface interface {
 
 	// ListChangelogsHandler request
 	ListChangelogsHandler(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRunnerFlavors request
+	ListRunnerFlavors(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetCliVersion request
 	GetCliVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -20563,6 +24595,22 @@ type ClientInterface interface {
 
 	// ListDataContainers request
 	ListDataContainers(ctx context.Context, dataDockId openapi_types.UUID, params *ListDataContainersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDataDockInternetExposure request
+	GetDataDockInternetExposure(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetDataDockInternetExposureWithBody request with any body
+	SetDataDockInternetExposureWithBody(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetDataDockInternetExposure(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockInternetExposureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDataDockResourceGroups request
+	GetDataDockResourceGroups(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetDataDockResourceGroupsWithBody request with any body
+	SetDataDockResourceGroupsWithBody(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetDataDockResourceGroups(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockResourceGroupsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchDataDockWithBody request with any body
 	SearchDataDockWithBody(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -20906,6 +24954,28 @@ type ClientInterface interface {
 	// GetAirflow request
 	GetAirflow(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAirflowConnections request
+	ListAirflowConnections(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAirflowConnectionWithBody request with any body
+	CreateAirflowConnectionWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body CreateAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAirflowConnection request
+	DeleteAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAirflowConnection request
+	GetAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchAirflowConnectionWithBody request with any body
+	PatchAirflowConnectionWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, body PatchAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAirflowConnectionS3Session request
+	CreateAirflowConnectionS3Session(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteAirflowCrd request
 	DeleteAirflowCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -20916,6 +24986,18 @@ type ClientInterface interface {
 	PatchAirflowCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchAirflowCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchAirflowCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StreamAirflowLogs request
+	StreamAirflowLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamAirflowLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAirflowPods request
+	ListAirflowPods(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StreamAirflowPodLogs request
+	StreamAirflowPodLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, podName string, params *StreamAirflowPodLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestartAirflow request
+	RestartAirflow(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAlertablePanels request
 	ListAlertablePanels(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -21235,6 +25317,9 @@ type ClientInterface interface {
 
 	CreateContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateContainerAppCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetContainerAppPlatformUrl request
+	GetContainerAppPlatformUrl(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetContainerAppPlatformUrlParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// TestImagePullWithBody request with any body
 	TestImagePullWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -21264,6 +25349,11 @@ type ClientInterface interface {
 
 	// GetForgejoRunner request
 	GetForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateForgejoRunnerWithBody request with any body
+	UpdateForgejoRunnerWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, body UpdateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListGithubRunners request
 	ListGithubRunners(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -21526,6 +25616,9 @@ type ClientInterface interface {
 
 	// GetContainerAppMetrics request
 	GetContainerAppMetrics(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *GetContainerAppMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetContainerAppVolumes request
+	GetContainerAppVolumes(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDataDockLogs request
 	GetDataDockLogs(ctx context.Context, organizationId openapi_types.UUID, dataDockId openapi_types.UUID, params *GetDataDockLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -21845,6 +25938,15 @@ type ClientInterface interface {
 
 	CreateUserGrant(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, body CreateUserGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAuditLogHandler request
+	GetAuditLogHandler(ctx context.Context, organizationId openapi_types.UUID, params *GetAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAuditLogFreshnessHandler request
+	GetAuditLogFreshnessHandler(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetLiveAuditLogHandler request
+	GetLiveAuditLogHandler(ctx context.Context, organizationId openapi_types.UUID, params *GetLiveAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// QuerySecurityDecisionsHandler request
 	QuerySecurityDecisionsHandler(ctx context.Context, organizationId openapi_types.UUID, params *QuerySecurityDecisionsHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -22041,6 +26143,11 @@ type ClientInterface interface {
 	// ListRefs request
 	ListRefs(ctx context.Context, params *ListRefsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateManyRefsWithBody request with any body
+	CreateManyRefsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateManyRefs(ctx context.Context, body CreateManyRefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateRefWithBody request with any body
 	UpdateRefWithBody(ctx context.Context, key string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -22068,6 +26175,9 @@ type ClientInterface interface {
 
 	// GetSharedModel request
 	GetSharedModel(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSignupPageCopy request
+	GetSignupPageCopy(ctx context.Context, locale string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateSignupRequestWithBody request with any body
 	CreateSignupRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -22113,7 +26223,7 @@ type ClientInterface interface {
 	GetResultsHandler(ctx context.Context, queryId openapi_types.UUID, params *GetResultsHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetSchemaHandler request
-	GetSchemaHandler(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetSchemaHandler(ctx context.Context, dataDockId openapi_types.UUID, params *GetSchemaHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetUnifiedCatalog request
 	GetUnifiedCatalog(ctx context.Context, params *GetUnifiedCatalogParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -23087,6 +27197,30 @@ func (c *Client) AiEdit(ctx context.Context, id openapi_types.UUID, body AiEditJ
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetDevWorkstationAuditStatus(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDevWorkstationAuditStatusRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDevWorkstationTranscript(ctx context.Context, id openapi_types.UUID, params *GetDevWorkstationTranscriptParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDevWorkstationTranscriptRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetDevWorkstationEgress(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDevWorkstationEgressRequest(c.Server, id)
 	if err != nil {
@@ -23411,6 +27545,18 @@ func (c *Client) GetAppTemplateCrd(ctx context.Context, name string, version str
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAuditLogsHandler(ctx context.Context, params *GetAuditLogsHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAuditLogsHandlerRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetBifrostFeatures(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetBifrostFeaturesRequest(c.Server)
 	if err != nil {
@@ -23449,6 +27595,18 @@ func (c *Client) ListResourceTiers(ctx context.Context, reqEditors ...RequestEdi
 
 func (c *Client) ListChangelogsHandler(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListChangelogsHandlerRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRunnerFlavors(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRunnerFlavorsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -24337,6 +28495,78 @@ func (c *Client) DeleteDataDockCrd(ctx context.Context, dataDockId openapi_types
 
 func (c *Client) ListDataContainers(ctx context.Context, dataDockId openapi_types.UUID, params *ListDataContainersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListDataContainersRequest(c.Server, dataDockId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDataDockInternetExposure(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDataDockInternetExposureRequest(c.Server, dataDockId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetDataDockInternetExposureWithBody(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDataDockInternetExposureRequestWithBody(c.Server, dataDockId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetDataDockInternetExposure(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockInternetExposureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDataDockInternetExposureRequest(c.Server, dataDockId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDataDockResourceGroups(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDataDockResourceGroupsRequest(c.Server, dataDockId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetDataDockResourceGroupsWithBody(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDataDockResourceGroupsRequestWithBody(c.Server, dataDockId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetDataDockResourceGroups(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockResourceGroupsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDataDockResourceGroupsRequest(c.Server, dataDockId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -25835,6 +30065,102 @@ func (c *Client) GetAirflow(ctx context.Context, organizationId openapi_types.UU
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAirflowConnections(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAirflowConnectionsRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAirflowConnectionWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAirflowConnectionRequestWithBody(c.Server, organizationId, instanceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body CreateAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAirflowConnectionRequest(c.Server, organizationId, instanceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAirflowConnectionRequest(c.Server, organizationId, instanceId, connectionName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAirflowConnectionRequest(c.Server, organizationId, instanceId, connectionName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAirflowConnectionWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAirflowConnectionRequestWithBody(c.Server, organizationId, instanceId, connectionName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAirflowConnection(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, body PatchAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAirflowConnectionRequest(c.Server, organizationId, instanceId, connectionName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAirflowConnectionS3Session(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAirflowConnectionS3SessionRequest(c.Server, organizationId, instanceId, connectionName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteAirflowCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteAirflowCrdRequest(c.Server, organizationId, instanceId)
 	if err != nil {
@@ -25873,6 +30199,54 @@ func (c *Client) PatchAirflowCrdWithBody(ctx context.Context, organizationId ope
 
 func (c *Client) PatchAirflowCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchAirflowCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchAirflowCrdRequest(c.Server, organizationId, instanceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StreamAirflowLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamAirflowLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStreamAirflowLogsRequest(c.Server, organizationId, instanceId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAirflowPods(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAirflowPodsRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StreamAirflowPodLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, podName string, params *StreamAirflowPodLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStreamAirflowPodLogsRequest(c.Server, organizationId, instanceId, podName, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestartAirflow(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestartAirflowRequest(c.Server, organizationId, instanceId)
 	if err != nil {
 		return nil, err
 	}
@@ -27275,6 +31649,18 @@ func (c *Client) CreateContainerAppCrd(ctx context.Context, organizationId opena
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetContainerAppPlatformUrl(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetContainerAppPlatformUrlParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetContainerAppPlatformUrlRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) TestImagePullWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTestImagePullRequestWithBody(c.Server, organizationId, harborId, contentType, body)
 	if err != nil {
@@ -27397,6 +31783,30 @@ func (c *Client) DeleteForgejoRunner(ctx context.Context, organizationId openapi
 
 func (c *Client) GetForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetForgejoRunnerRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateForgejoRunnerWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateForgejoRunnerRequestWithBody(c.Server, organizationId, harborId, name, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateForgejoRunner(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, body UpdateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateForgejoRunnerRequest(c.Server, organizationId, harborId, name, body)
 	if err != nil {
 		return nil, err
 	}
@@ -28513,6 +32923,18 @@ func (c *Client) GetContainerAppLogs(ctx context.Context, organizationId openapi
 
 func (c *Client) GetContainerAppMetrics(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *GetContainerAppMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetContainerAppMetricsRequest(c.Server, organizationId, appId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetContainerAppVolumes(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetContainerAppVolumesRequest(c.Server, organizationId, appId)
 	if err != nil {
 		return nil, err
 	}
@@ -29867,6 +34289,42 @@ func (c *Client) CreateUserGrant(ctx context.Context, organizationId openapi_typ
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAuditLogHandler(ctx context.Context, organizationId openapi_types.UUID, params *GetAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAuditLogHandlerRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAuditLogFreshnessHandler(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAuditLogFreshnessHandlerRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetLiveAuditLogHandler(ctx context.Context, organizationId openapi_types.UUID, params *GetLiveAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLiveAuditLogHandlerRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) QuerySecurityDecisionsHandler(ctx context.Context, organizationId openapi_types.UUID, params *QuerySecurityDecisionsHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewQuerySecurityDecisionsHandlerRequest(c.Server, organizationId, params)
 	if err != nil {
@@ -30731,6 +35189,30 @@ func (c *Client) ListRefs(ctx context.Context, params *ListRefsParams, reqEditor
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreateManyRefsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateManyRefsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateManyRefs(ctx context.Context, body CreateManyRefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateManyRefsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) UpdateRefWithBody(ctx context.Context, key string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateRefRequestWithBody(c.Server, key, contentType, body)
 	if err != nil {
@@ -30841,6 +35323,18 @@ func (c *Client) ListSharedModels(ctx context.Context, reqEditors ...RequestEdit
 
 func (c *Client) GetSharedModel(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSharedModelRequest(c.Server, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSignupPageCopy(ctx context.Context, locale string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSignupPageCopyRequest(c.Server, locale)
 	if err != nil {
 		return nil, err
 	}
@@ -31043,8 +35537,8 @@ func (c *Client) GetResultsHandler(ctx context.Context, queryId openapi_types.UU
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetSchemaHandler(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetSchemaHandlerRequest(c.Server, dataDockId)
+func (c *Client) GetSchemaHandler(ctx context.Context, dataDockId openapi_types.UUID, params *GetSchemaHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSchemaHandlerRequest(c.Server, dataDockId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -34021,6 +38515,149 @@ func NewAiEditRequestWithBody(server string, id openapi_types.UUID, contentType 
 	return req, nil
 }
 
+// NewGetDevWorkstationAuditStatusRequest generates requests for GetDevWorkstationAuditStatus
+func NewGetDevWorkstationAuditStatusRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/audit", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDevWorkstationTranscriptRequest generates requests for GetDevWorkstationTranscript
+func NewGetDevWorkstationTranscriptRequest(server string, id openapi_types.UUID, params *GetDevWorkstationTranscriptParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/audit/transcript", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Actor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "actor", *params.Actor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.StartDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "start_date", *params.StartDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.EndDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "end_date", *params.EndDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "page", *params.Page, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetDevWorkstationEgressRequest generates requests for GetDevWorkstationEgress
 func NewGetDevWorkstationEgressRequest(server string, id openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -34873,6 +39510,176 @@ func NewGetAppTemplateCrdRequest(server string, name string, version string) (*h
 	return req, nil
 }
 
+// NewGetAuditLogsHandlerRequest generates requests for GetAuditLogsHandler
+func NewGetAuditLogsHandlerRequest(server string, params *GetAuditLogsHandlerParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/audit-logs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "organization_id", params.OrganizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.EventType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "event_type", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.DataDockType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "data_dock_type", *params.DataDockType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.DataDockId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "data_dock_id", *params.DataDockId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "user_id", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.StartDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "start_date", *params.StartDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.EndDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "end_date", *params.EndDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_id", *params.ResourceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query_id", *params.QueryId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "page", *params.Page, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetBifrostFeaturesRequest generates requests for GetBifrostFeatures
 func NewGetBifrostFeaturesRequest(server string) (*http.Request, error) {
 	var err error
@@ -34964,6 +39771,33 @@ func NewListChangelogsHandlerRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/changelogs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRunnerFlavorsRequest generates requests for ListRunnerFlavors
+func NewListRunnerFlavorsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/ci/runner-flavors")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -37456,6 +42290,168 @@ func NewListDataContainersRequest(server string, dataDockId openapi_types.UUID, 
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetDataDockInternetExposureRequest generates requests for GetDataDockInternetExposure
+func NewGetDataDockInternetExposureRequest(server string, dataDockId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "data_dock_id", dataDockId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/data-docks/%s/internet-exposure", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetDataDockInternetExposureRequest calls the generic SetDataDockInternetExposure builder with application/json body
+func NewSetDataDockInternetExposureRequest(server string, dataDockId openapi_types.UUID, body SetDataDockInternetExposureJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetDataDockInternetExposureRequestWithBody(server, dataDockId, "application/json", bodyReader)
+}
+
+// NewSetDataDockInternetExposureRequestWithBody generates requests for SetDataDockInternetExposure with any type of body
+func NewSetDataDockInternetExposureRequestWithBody(server string, dataDockId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "data_dock_id", dataDockId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/data-docks/%s/internet-exposure", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetDataDockResourceGroupsRequest generates requests for GetDataDockResourceGroups
+func NewGetDataDockResourceGroupsRequest(server string, dataDockId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "data_dock_id", dataDockId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/data-docks/%s/resource-groups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetDataDockResourceGroupsRequest calls the generic SetDataDockResourceGroups builder with application/json body
+func NewSetDataDockResourceGroupsRequest(server string, dataDockId openapi_types.UUID, body SetDataDockResourceGroupsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetDataDockResourceGroupsRequestWithBody(server, dataDockId, "application/json", bodyReader)
+}
+
+// NewSetDataDockResourceGroupsRequestWithBody generates requests for SetDataDockResourceGroups with any type of body
+func NewSetDataDockResourceGroupsRequestWithBody(server string, dataDockId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "data_dock_id", dataDockId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/data-docks/%s/resource-groups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -42211,6 +47207,306 @@ func NewGetAirflowRequest(server string, organizationId openapi_types.UUID, inst
 	return req, nil
 }
 
+// NewListAirflowConnectionsRequest generates requests for ListAirflowConnections
+func NewListAirflowConnectionsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAirflowConnectionRequest calls the generic CreateAirflowConnection builder with application/json body
+func NewCreateAirflowConnectionRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body CreateAirflowConnectionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAirflowConnectionRequestWithBody(server, organizationId, instanceId, "application/json", bodyReader)
+}
+
+// NewCreateAirflowConnectionRequestWithBody generates requests for CreateAirflowConnection with any type of body
+func NewCreateAirflowConnectionRequestWithBody(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteAirflowConnectionRequest generates requests for DeleteAirflowConnection
+func NewDeleteAirflowConnectionRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "connection_name", connectionName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAirflowConnectionRequest generates requests for GetAirflowConnection
+func NewGetAirflowConnectionRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "connection_name", connectionName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchAirflowConnectionRequest calls the generic PatchAirflowConnection builder with application/json body
+func NewPatchAirflowConnectionRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, body PatchAirflowConnectionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAirflowConnectionRequestWithBody(server, organizationId, instanceId, connectionName, "application/json", bodyReader)
+}
+
+// NewPatchAirflowConnectionRequestWithBody generates requests for PatchAirflowConnection with any type of body
+func NewPatchAirflowConnectionRequestWithBody(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "connection_name", connectionName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateAirflowConnectionS3SessionRequest generates requests for CreateAirflowConnectionS3Session
+func NewCreateAirflowConnectionS3SessionRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "connection_name", connectionName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/connections/%s/s3-session", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteAirflowCrdRequest generates requests for DeleteAirflowCrd
 func NewDeleteAirflowCrdRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -42343,6 +47639,255 @@ func NewPatchAirflowCrdRequestWithBody(server string, organizationId openapi_typ
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewStreamAirflowLogsRequest generates requests for StreamAirflowLogs
+func NewStreamAirflowLogsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamAirflowLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/logs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.TailLines != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "tail_lines", *params.TailLines, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListAirflowPodsRequest generates requests for ListAirflowPods
+func NewListAirflowPodsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/pods", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewStreamAirflowPodLogsRequest generates requests for StreamAirflowPodLogs
+func NewStreamAirflowPodLogsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, podName string, params *StreamAirflowPodLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "pod_name", podName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/pods/%s/logs", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.TailLines != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "tail_lines", *params.TailLines, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Previous != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "previous", *params.Previous, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Container != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "container", *params.Container, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRestartAirflowRequest generates requests for RestartAirflow
+func NewRestartAirflowRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/airflows/%s/restart", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -46431,6 +51976,70 @@ func NewCreateContainerAppCrdRequestWithBody(server string, organizationId opena
 	return req, nil
 }
 
+// NewGetContainerAppPlatformUrlRequest generates requests for GetContainerAppPlatformUrl
+func NewGetContainerAppPlatformUrlRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetContainerAppPlatformUrlParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/container-apps/platform-url", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "name", params.Name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewTestImagePullRequest calls the generic TestImagePull builder with application/json body
 func NewTestImagePullRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body TestImagePullJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -46808,6 +52417,67 @@ func NewGetForgejoRunnerRequest(server string, organizationId openapi_types.UUID
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateForgejoRunnerRequest calls the generic UpdateForgejoRunner builder with application/json body
+func NewUpdateForgejoRunnerRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, body UpdateForgejoRunnerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateForgejoRunnerRequestWithBody(server, organizationId, harborId, name, "application/json", bodyReader)
+}
+
+// NewUpdateForgejoRunnerRequestWithBody generates requests for UpdateForgejoRunner with any type of body
+func NewUpdateForgejoRunnerRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/forgejo-runners/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -50869,6 +56539,47 @@ func NewGetContainerAppMetricsRequest(server string, organizationId openapi_type
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
 		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetContainerAppVolumesRequest generates requests for GetContainerAppVolumes
+func NewGetContainerAppVolumesRequest(server string, organizationId openapi_types.UUID, appId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "app_id", appId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/container-apps/%s/volumes", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -57034,6 +62745,306 @@ func NewCreateUserGrantRequestWithBody(server string, organizationId openapi_typ
 	return req, nil
 }
 
+// NewGetAuditLogHandlerRequest generates requests for GetAuditLogHandler
+func NewGetAuditLogHandlerRequest(server string, organizationId openapi_types.UUID, params *GetAuditLogHandlerParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/orgs/%s/audit-log", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Kind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "kind", *params.Kind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Source != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source", *params.Source, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "user_id", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ServiceAccountId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service_account_id", *params.ServiceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Platform != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "platform", *params.Platform, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.From != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "from", *params.From, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.To != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "to", *params.To, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "page", *params.Page, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAuditLogFreshnessHandlerRequest generates requests for GetAuditLogFreshnessHandler
+func NewGetAuditLogFreshnessHandlerRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/orgs/%s/audit-log/freshness", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetLiveAuditLogHandlerRequest generates requests for GetLiveAuditLogHandler
+func NewGetLiveAuditLogHandlerRequest(server string, organizationId openapi_types.UUID, params *GetLiveAuditLogHandlerParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/orgs/%s/audit-log/live", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Source != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source", *params.Source, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "user_id", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ServiceAccountId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service_account_id", *params.ServiceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Platform != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "platform", *params.Platform, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewQuerySecurityDecisionsHandlerRequest generates requests for QuerySecurityDecisionsHandler
 func NewQuerySecurityDecisionsHandlerRequest(server string, organizationId openapi_types.UUID, params *QuerySecurityDecisionsHandlerParams) (*http.Request, error) {
 	var err error
@@ -59658,6 +65669,46 @@ func NewListRefsRequest(server string, params *ListRefsParams) (*http.Request, e
 	return req, nil
 }
 
+// NewCreateManyRefsRequest calls the generic CreateManyRefs builder with application/json body
+func NewCreateManyRefsRequest(server string, body CreateManyRefsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateManyRefsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateManyRefsRequestWithBody generates requests for CreateManyRefs with any type of body
+func NewCreateManyRefsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/refs/many")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewUpdateRefRequest calls the generic UpdateRef builder with application/json body
 func NewUpdateRefRequest(server string, key string, body UpdateRefJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -59939,6 +65990,40 @@ func NewGetSharedModelRequest(server string, name string) (*http.Request, error)
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/shared-models/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetSignupPageCopyRequest generates requests for GetSignupPageCopy
+func NewGetSignupPageCopyRequest(server string, locale string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "locale", locale, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/signup-page-copy/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -60437,7 +66522,7 @@ func NewGetResultsHandlerRequest(server string, queryId openapi_types.UUID, para
 }
 
 // NewGetSchemaHandlerRequest generates requests for GetSchemaHandler
-func NewGetSchemaHandlerRequest(server string, dataDockId openapi_types.UUID) (*http.Request, error) {
+func NewGetSchemaHandlerRequest(server string, dataDockId openapi_types.UUID, params *GetSchemaHandlerParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -60460,6 +66545,33 @@ func NewGetSchemaHandlerRequest(server string, dataDockId openapi_types.UUID) (*
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Refresh != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "refresh", *params.Refresh, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -61605,6 +67717,12 @@ type ClientWithResponsesInterface interface {
 
 	AiEditWithResponse(ctx context.Context, id openapi_types.UUID, body AiEditJSONRequestBody, reqEditors ...RequestEditorFn) (*AiEditHTTPResp, error)
 
+	// GetDevWorkstationAuditStatusWithResponse request
+	GetDevWorkstationAuditStatusWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationAuditStatusHTTPResp, error)
+
+	// GetDevWorkstationTranscriptWithResponse request
+	GetDevWorkstationTranscriptWithResponse(ctx context.Context, id openapi_types.UUID, params *GetDevWorkstationTranscriptParams, reqEditors ...RequestEditorFn) (*GetDevWorkstationTranscriptHTTPResp, error)
+
 	// GetDevWorkstationEgressWithResponse request
 	GetDevWorkstationEgressWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationEgressHTTPResp, error)
 
@@ -61679,6 +67797,9 @@ type ClientWithResponsesInterface interface {
 	// GetAppTemplateCrdWithResponse request
 	GetAppTemplateCrdWithResponse(ctx context.Context, name string, version string, reqEditors ...RequestEditorFn) (*GetAppTemplateCrdHTTPResp, error)
 
+	// GetAuditLogsHandlerWithResponse request
+	GetAuditLogsHandlerWithResponse(ctx context.Context, params *GetAuditLogsHandlerParams, reqEditors ...RequestEditorFn) (*GetAuditLogsHandlerHTTPResp, error)
+
 	// GetBifrostFeaturesWithResponse request
 	GetBifrostFeaturesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetBifrostFeaturesHTTPResp, error)
 
@@ -61690,6 +67811,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListChangelogsHandlerWithResponse request
 	ListChangelogsHandlerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListChangelogsHandlerHTTPResp, error)
+
+	// ListRunnerFlavorsWithResponse request
+	ListRunnerFlavorsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRunnerFlavorsHTTPResp, error)
 
 	// GetCliVersionWithResponse request
 	GetCliVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCliVersionHTTPResp, error)
@@ -61896,6 +68020,22 @@ type ClientWithResponsesInterface interface {
 
 	// ListDataContainersWithResponse request
 	ListDataContainersWithResponse(ctx context.Context, dataDockId openapi_types.UUID, params *ListDataContainersParams, reqEditors ...RequestEditorFn) (*ListDataContainersHTTPResp, error)
+
+	// GetDataDockInternetExposureWithResponse request
+	GetDataDockInternetExposureWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDataDockInternetExposureHTTPResp, error)
+
+	// SetDataDockInternetExposureWithBodyWithResponse request with any body
+	SetDataDockInternetExposureWithBodyWithResponse(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDataDockInternetExposureHTTPResp, error)
+
+	SetDataDockInternetExposureWithResponse(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockInternetExposureJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDataDockInternetExposureHTTPResp, error)
+
+	// GetDataDockResourceGroupsWithResponse request
+	GetDataDockResourceGroupsWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDataDockResourceGroupsHTTPResp, error)
+
+	// SetDataDockResourceGroupsWithBodyWithResponse request with any body
+	SetDataDockResourceGroupsWithBodyWithResponse(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDataDockResourceGroupsHTTPResp, error)
+
+	SetDataDockResourceGroupsWithResponse(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockResourceGroupsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDataDockResourceGroupsHTTPResp, error)
 
 	// SearchDataDockWithBodyWithResponse request with any body
 	SearchDataDockWithBodyWithResponse(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchDataDockHTTPResp, error)
@@ -62239,6 +68379,28 @@ type ClientWithResponsesInterface interface {
 	// GetAirflowWithResponse request
 	GetAirflowWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAirflowHTTPResp, error)
 
+	// ListAirflowConnectionsWithResponse request
+	ListAirflowConnectionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAirflowConnectionsHTTPResp, error)
+
+	// CreateAirflowConnectionWithBodyWithResponse request with any body
+	CreateAirflowConnectionWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionHTTPResp, error)
+
+	CreateAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body CreateAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionHTTPResp, error)
+
+	// DeleteAirflowConnectionWithResponse request
+	DeleteAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*DeleteAirflowConnectionHTTPResp, error)
+
+	// GetAirflowConnectionWithResponse request
+	GetAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*GetAirflowConnectionHTTPResp, error)
+
+	// PatchAirflowConnectionWithBodyWithResponse request with any body
+	PatchAirflowConnectionWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAirflowConnectionHTTPResp, error)
+
+	PatchAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, body PatchAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAirflowConnectionHTTPResp, error)
+
+	// CreateAirflowConnectionS3SessionWithResponse request
+	CreateAirflowConnectionS3SessionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionS3SessionHTTPResp, error)
+
 	// DeleteAirflowCrdWithResponse request
 	DeleteAirflowCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAirflowCrdHTTPResp, error)
 
@@ -62249,6 +68411,18 @@ type ClientWithResponsesInterface interface {
 	PatchAirflowCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAirflowCrdHTTPResp, error)
 
 	PatchAirflowCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchAirflowCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAirflowCrdHTTPResp, error)
+
+	// StreamAirflowLogsWithResponse request
+	StreamAirflowLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamAirflowLogsParams, reqEditors ...RequestEditorFn) (*StreamAirflowLogsHTTPResp, error)
+
+	// ListAirflowPodsWithResponse request
+	ListAirflowPodsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAirflowPodsHTTPResp, error)
+
+	// StreamAirflowPodLogsWithResponse request
+	StreamAirflowPodLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, podName string, params *StreamAirflowPodLogsParams, reqEditors ...RequestEditorFn) (*StreamAirflowPodLogsHTTPResp, error)
+
+	// RestartAirflowWithResponse request
+	RestartAirflowWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RestartAirflowHTTPResp, error)
 
 	// ListAlertablePanelsWithResponse request
 	ListAlertablePanelsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAlertablePanelsHTTPResp, error)
@@ -62568,6 +68742,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateContainerAppCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContainerAppCrdHTTPResp, error)
 
+	// GetContainerAppPlatformUrlWithResponse request
+	GetContainerAppPlatformUrlWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetContainerAppPlatformUrlParams, reqEditors ...RequestEditorFn) (*GetContainerAppPlatformUrlHTTPResp, error)
+
 	// TestImagePullWithBodyWithResponse request with any body
 	TestImagePullWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TestImagePullHTTPResp, error)
 
@@ -62597,6 +68774,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetForgejoRunnerWithResponse request
 	GetForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetForgejoRunnerHTTPResp, error)
+
+	// UpdateForgejoRunnerWithBodyWithResponse request with any body
+	UpdateForgejoRunnerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateForgejoRunnerHTTPResp, error)
+
+	UpdateForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, body UpdateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateForgejoRunnerHTTPResp, error)
 
 	// ListGithubRunnersWithResponse request
 	ListGithubRunnersWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListGithubRunnersHTTPResp, error)
@@ -62859,6 +69041,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetContainerAppMetricsWithResponse request
 	GetContainerAppMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *GetContainerAppMetricsParams, reqEditors ...RequestEditorFn) (*GetContainerAppMetricsHTTPResp, error)
+
+	// GetContainerAppVolumesWithResponse request
+	GetContainerAppVolumesWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetContainerAppVolumesHTTPResp, error)
 
 	// GetDataDockLogsWithResponse request
 	GetDataDockLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, dataDockId openapi_types.UUID, params *GetDataDockLogsParams, reqEditors ...RequestEditorFn) (*GetDataDockLogsHTTPResp, error)
@@ -63178,6 +69363,15 @@ type ClientWithResponsesInterface interface {
 
 	CreateUserGrantWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, body CreateUserGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserGrantHTTPResp, error)
 
+	// GetAuditLogHandlerWithResponse request
+	GetAuditLogHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *GetAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*GetAuditLogHandlerHTTPResp, error)
+
+	// GetAuditLogFreshnessHandlerWithResponse request
+	GetAuditLogFreshnessHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAuditLogFreshnessHandlerHTTPResp, error)
+
+	// GetLiveAuditLogHandlerWithResponse request
+	GetLiveAuditLogHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *GetLiveAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*GetLiveAuditLogHandlerHTTPResp, error)
+
 	// QuerySecurityDecisionsHandlerWithResponse request
 	QuerySecurityDecisionsHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *QuerySecurityDecisionsHandlerParams, reqEditors ...RequestEditorFn) (*QuerySecurityDecisionsHandlerHTTPResp, error)
 
@@ -63374,6 +69568,11 @@ type ClientWithResponsesInterface interface {
 	// ListRefsWithResponse request
 	ListRefsWithResponse(ctx context.Context, params *ListRefsParams, reqEditors ...RequestEditorFn) (*ListRefsHTTPResp, error)
 
+	// CreateManyRefsWithBodyWithResponse request with any body
+	CreateManyRefsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManyRefsHTTPResp, error)
+
+	CreateManyRefsWithResponse(ctx context.Context, body CreateManyRefsJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateManyRefsHTTPResp, error)
+
 	// UpdateRefWithBodyWithResponse request with any body
 	UpdateRefWithBodyWithResponse(ctx context.Context, key string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRefHTTPResp, error)
 
@@ -63401,6 +69600,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetSharedModelWithResponse request
 	GetSharedModelWithResponse(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*GetSharedModelHTTPResp, error)
+
+	// GetSignupPageCopyWithResponse request
+	GetSignupPageCopyWithResponse(ctx context.Context, locale string, reqEditors ...RequestEditorFn) (*GetSignupPageCopyHTTPResp, error)
 
 	// CreateSignupRequestWithBodyWithResponse request with any body
 	CreateSignupRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateSignupRequestHTTPResp, error)
@@ -63446,7 +69648,7 @@ type ClientWithResponsesInterface interface {
 	GetResultsHandlerWithResponse(ctx context.Context, queryId openapi_types.UUID, params *GetResultsHandlerParams, reqEditors ...RequestEditorFn) (*GetResultsHandlerHTTPResp, error)
 
 	// GetSchemaHandlerWithResponse request
-	GetSchemaHandlerWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetSchemaHandlerHTTPResp, error)
+	GetSchemaHandlerWithResponse(ctx context.Context, dataDockId openapi_types.UUID, params *GetSchemaHandlerParams, reqEditors ...RequestEditorFn) (*GetSchemaHandlerHTTPResp, error)
 
 	// GetUnifiedCatalogWithResponse request
 	GetUnifiedCatalogWithResponse(ctx context.Context, params *GetUnifiedCatalogParams, reqEditors ...RequestEditorFn) (*GetUnifiedCatalogHTTPResp, error)
@@ -63701,6 +69903,7 @@ type DeleteEgressAllowlistHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -65326,6 +71529,70 @@ func (r AiEditHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetDevWorkstationAuditStatusHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DevWorkstationAuditStatus
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDevWorkstationAuditStatusHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDevWorkstationAuditStatusHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDevWorkstationAuditStatusHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDevWorkstationTranscriptHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]DevWorkstationTranscriptEntry
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDevWorkstationTranscriptHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDevWorkstationTranscriptHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDevWorkstationTranscriptHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetDevWorkstationEgressHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -65495,6 +71762,7 @@ func (r GetPreviewPortsHTTPResp) ContentType() string {
 type AuthorizePreviewHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *AuthorizePreviewResponse
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
@@ -65980,6 +72248,37 @@ func (r GetAppTemplateCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetAuditLogsHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaginatedResponseListAuditLogItem
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAuditLogsHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAuditLogsHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAuditLogsHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetBifrostFeaturesHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -66098,6 +72397,37 @@ func (r ListChangelogsHandlerHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListChangelogsHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRunnerFlavorsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RunnerFlavorCatalogResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRunnerFlavorsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRunnerFlavorsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRunnerFlavorsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -67978,6 +74308,137 @@ func (r ListDataContainersHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetDataDockInternetExposureHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DataDockInternetExposureResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDataDockInternetExposureHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDataDockInternetExposureHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDataDockInternetExposureHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetDataDockInternetExposureHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetDataDockInternetExposureHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetDataDockInternetExposureHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetDataDockInternetExposureHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDataDockResourceGroupsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DataDockResourceGroupsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDataDockResourceGroupsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDataDockResourceGroupsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDataDockResourceGroupsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetDataDockResourceGroupsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetDataDockResourceGroupsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetDataDockResourceGroupsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetDataDockResourceGroupsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type SearchDataDockHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -68303,6 +74764,7 @@ type ArchiveExportHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *BucketArchiveOperation
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 }
@@ -68335,6 +74797,7 @@ type ArchiveImportHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *BucketArchiveOperation
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 }
@@ -68429,6 +74892,7 @@ type PrepareArchiveImportHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *PrepareArchiveImportResponse
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 }
@@ -71009,6 +77473,199 @@ func (r GetAirflowHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListAirflowConnectionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AirflowConnectionResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAirflowConnectionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAirflowConnectionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAirflowConnectionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAirflowConnectionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *AirflowConnectionResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAirflowConnectionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAirflowConnectionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAirflowConnectionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteAirflowConnectionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAirflowConnectionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAirflowConnectionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteAirflowConnectionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAirflowConnectionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AirflowConnectionResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAirflowConnectionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAirflowConnectionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAirflowConnectionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchAirflowConnectionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAirflowConnectionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAirflowConnectionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchAirflowConnectionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAirflowConnectionS3SessionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AirflowConnectionS3Session
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAirflowConnectionS3SessionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAirflowConnectionS3SessionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAirflowConnectionS3SessionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteAirflowCrdHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -71101,6 +77758,135 @@ func (r PatchAirflowCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchAirflowCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type StreamAirflowLogsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r StreamAirflowLogsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StreamAirflowLogsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r StreamAirflowLogsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListAirflowPodsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AirflowPodResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAirflowPodsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAirflowPodsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAirflowPodsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type StreamAirflowPodLogsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r StreamAirflowPodLogsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StreamAirflowPodLogsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r StreamAirflowPodLogsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RestartAirflowHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RestartAirflowHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestartAirflowHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RestartAirflowHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -73909,6 +80695,40 @@ func (r CreateContainerAppCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetContainerAppPlatformUrlHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ContainerAppPlatformUrlResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetContainerAppPlatformUrlHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetContainerAppPlatformUrlHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetContainerAppPlatformUrlHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type TestImagePullHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -74169,6 +80989,40 @@ func (r GetForgejoRunnerHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetForgejoRunnerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateForgejoRunnerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ForgejoRunnerResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateForgejoRunnerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateForgejoRunnerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateForgejoRunnerHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -76673,6 +83527,39 @@ func (r GetContainerAppMetricsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetContainerAppMetricsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetContainerAppVolumesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ContainerAppVolumesResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetContainerAppVolumesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetContainerAppVolumesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetContainerAppVolumesHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -79720,6 +86607,101 @@ func (r CreateUserGrantHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetAuditLogHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaginatedResponseAuditEntry
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAuditLogHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAuditLogHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAuditLogHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAuditLogFreshnessHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AuditLogFreshness
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAuditLogFreshnessHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAuditLogFreshnessHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAuditLogFreshnessHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetLiveAuditLogHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LiveAuditLog
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLiveAuditLogHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLiveAuditLogHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetLiveAuditLogHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type QuerySecurityDecisionsHandlerHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -81258,6 +88240,7 @@ type CreatePipelineHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
@@ -81374,6 +88357,40 @@ func (r ListRefsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListRefsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateManyRefsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Ref
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateManyRefsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateManyRefsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateManyRefsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -81628,6 +88645,38 @@ func (r GetSharedModelHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetSharedModelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetSignupPageCopyHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PublicSignupPageCopy
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSignupPageCopyHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSignupPageCopyHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetSignupPageCopyHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -82088,6 +89137,7 @@ type CreatePipelineV2HTTPResp struct {
 	JSON201      *PipelineResponseData
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
@@ -83451,6 +90501,24 @@ func (c *ClientWithResponses) AiEditWithResponse(ctx context.Context, id openapi
 	return ParseAiEditHTTPResp(rsp)
 }
 
+// GetDevWorkstationAuditStatusWithResponse request returning *GetDevWorkstationAuditStatusHTTPResp
+func (c *ClientWithResponses) GetDevWorkstationAuditStatusWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationAuditStatusHTTPResp, error) {
+	rsp, err := c.GetDevWorkstationAuditStatus(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDevWorkstationAuditStatusHTTPResp(rsp)
+}
+
+// GetDevWorkstationTranscriptWithResponse request returning *GetDevWorkstationTranscriptHTTPResp
+func (c *ClientWithResponses) GetDevWorkstationTranscriptWithResponse(ctx context.Context, id openapi_types.UUID, params *GetDevWorkstationTranscriptParams, reqEditors ...RequestEditorFn) (*GetDevWorkstationTranscriptHTTPResp, error) {
+	rsp, err := c.GetDevWorkstationTranscript(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDevWorkstationTranscriptHTTPResp(rsp)
+}
+
 // GetDevWorkstationEgressWithResponse request returning *GetDevWorkstationEgressHTTPResp
 func (c *ClientWithResponses) GetDevWorkstationEgressWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationEgressHTTPResp, error) {
 	rsp, err := c.GetDevWorkstationEgress(ctx, id, reqEditors...)
@@ -83687,6 +90755,15 @@ func (c *ClientWithResponses) GetAppTemplateCrdWithResponse(ctx context.Context,
 	return ParseGetAppTemplateCrdHTTPResp(rsp)
 }
 
+// GetAuditLogsHandlerWithResponse request returning *GetAuditLogsHandlerHTTPResp
+func (c *ClientWithResponses) GetAuditLogsHandlerWithResponse(ctx context.Context, params *GetAuditLogsHandlerParams, reqEditors ...RequestEditorFn) (*GetAuditLogsHandlerHTTPResp, error) {
+	rsp, err := c.GetAuditLogsHandler(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAuditLogsHandlerHTTPResp(rsp)
+}
+
 // GetBifrostFeaturesWithResponse request returning *GetBifrostFeaturesHTTPResp
 func (c *ClientWithResponses) GetBifrostFeaturesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetBifrostFeaturesHTTPResp, error) {
 	rsp, err := c.GetBifrostFeatures(ctx, reqEditors...)
@@ -83721,6 +90798,15 @@ func (c *ClientWithResponses) ListChangelogsHandlerWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseListChangelogsHandlerHTTPResp(rsp)
+}
+
+// ListRunnerFlavorsWithResponse request returning *ListRunnerFlavorsHTTPResp
+func (c *ClientWithResponses) ListRunnerFlavorsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRunnerFlavorsHTTPResp, error) {
+	rsp, err := c.ListRunnerFlavors(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRunnerFlavorsHTTPResp(rsp)
 }
 
 // GetCliVersionWithResponse request returning *GetCliVersionHTTPResp
@@ -84371,6 +91457,58 @@ func (c *ClientWithResponses) ListDataContainersWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseListDataContainersHTTPResp(rsp)
+}
+
+// GetDataDockInternetExposureWithResponse request returning *GetDataDockInternetExposureHTTPResp
+func (c *ClientWithResponses) GetDataDockInternetExposureWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDataDockInternetExposureHTTPResp, error) {
+	rsp, err := c.GetDataDockInternetExposure(ctx, dataDockId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDataDockInternetExposureHTTPResp(rsp)
+}
+
+// SetDataDockInternetExposureWithBodyWithResponse request with arbitrary body returning *SetDataDockInternetExposureHTTPResp
+func (c *ClientWithResponses) SetDataDockInternetExposureWithBodyWithResponse(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDataDockInternetExposureHTTPResp, error) {
+	rsp, err := c.SetDataDockInternetExposureWithBody(ctx, dataDockId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDataDockInternetExposureHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetDataDockInternetExposureWithResponse(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockInternetExposureJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDataDockInternetExposureHTTPResp, error) {
+	rsp, err := c.SetDataDockInternetExposure(ctx, dataDockId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDataDockInternetExposureHTTPResp(rsp)
+}
+
+// GetDataDockResourceGroupsWithResponse request returning *GetDataDockResourceGroupsHTTPResp
+func (c *ClientWithResponses) GetDataDockResourceGroupsWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDataDockResourceGroupsHTTPResp, error) {
+	rsp, err := c.GetDataDockResourceGroups(ctx, dataDockId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDataDockResourceGroupsHTTPResp(rsp)
+}
+
+// SetDataDockResourceGroupsWithBodyWithResponse request with arbitrary body returning *SetDataDockResourceGroupsHTTPResp
+func (c *ClientWithResponses) SetDataDockResourceGroupsWithBodyWithResponse(ctx context.Context, dataDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDataDockResourceGroupsHTTPResp, error) {
+	rsp, err := c.SetDataDockResourceGroupsWithBody(ctx, dataDockId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDataDockResourceGroupsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetDataDockResourceGroupsWithResponse(ctx context.Context, dataDockId openapi_types.UUID, body SetDataDockResourceGroupsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDataDockResourceGroupsHTTPResp, error) {
+	rsp, err := c.SetDataDockResourceGroups(ctx, dataDockId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDataDockResourceGroupsHTTPResp(rsp)
 }
 
 // SearchDataDockWithBodyWithResponse request with arbitrary body returning *SearchDataDockHTTPResp
@@ -85459,6 +92597,76 @@ func (c *ClientWithResponses) GetAirflowWithResponse(ctx context.Context, organi
 	return ParseGetAirflowHTTPResp(rsp)
 }
 
+// ListAirflowConnectionsWithResponse request returning *ListAirflowConnectionsHTTPResp
+func (c *ClientWithResponses) ListAirflowConnectionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAirflowConnectionsHTTPResp, error) {
+	rsp, err := c.ListAirflowConnections(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAirflowConnectionsHTTPResp(rsp)
+}
+
+// CreateAirflowConnectionWithBodyWithResponse request with arbitrary body returning *CreateAirflowConnectionHTTPResp
+func (c *ClientWithResponses) CreateAirflowConnectionWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionHTTPResp, error) {
+	rsp, err := c.CreateAirflowConnectionWithBody(ctx, organizationId, instanceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAirflowConnectionHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body CreateAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionHTTPResp, error) {
+	rsp, err := c.CreateAirflowConnection(ctx, organizationId, instanceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAirflowConnectionHTTPResp(rsp)
+}
+
+// DeleteAirflowConnectionWithResponse request returning *DeleteAirflowConnectionHTTPResp
+func (c *ClientWithResponses) DeleteAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*DeleteAirflowConnectionHTTPResp, error) {
+	rsp, err := c.DeleteAirflowConnection(ctx, organizationId, instanceId, connectionName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAirflowConnectionHTTPResp(rsp)
+}
+
+// GetAirflowConnectionWithResponse request returning *GetAirflowConnectionHTTPResp
+func (c *ClientWithResponses) GetAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*GetAirflowConnectionHTTPResp, error) {
+	rsp, err := c.GetAirflowConnection(ctx, organizationId, instanceId, connectionName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAirflowConnectionHTTPResp(rsp)
+}
+
+// PatchAirflowConnectionWithBodyWithResponse request with arbitrary body returning *PatchAirflowConnectionHTTPResp
+func (c *ClientWithResponses) PatchAirflowConnectionWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAirflowConnectionHTTPResp, error) {
+	rsp, err := c.PatchAirflowConnectionWithBody(ctx, organizationId, instanceId, connectionName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAirflowConnectionHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PatchAirflowConnectionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, body PatchAirflowConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAirflowConnectionHTTPResp, error) {
+	rsp, err := c.PatchAirflowConnection(ctx, organizationId, instanceId, connectionName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAirflowConnectionHTTPResp(rsp)
+}
+
+// CreateAirflowConnectionS3SessionWithResponse request returning *CreateAirflowConnectionS3SessionHTTPResp
+func (c *ClientWithResponses) CreateAirflowConnectionS3SessionWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, connectionName string, reqEditors ...RequestEditorFn) (*CreateAirflowConnectionS3SessionHTTPResp, error) {
+	rsp, err := c.CreateAirflowConnectionS3Session(ctx, organizationId, instanceId, connectionName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAirflowConnectionS3SessionHTTPResp(rsp)
+}
+
 // DeleteAirflowCrdWithResponse request returning *DeleteAirflowCrdHTTPResp
 func (c *ClientWithResponses) DeleteAirflowCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAirflowCrdHTTPResp, error) {
 	rsp, err := c.DeleteAirflowCrd(ctx, organizationId, instanceId, reqEditors...)
@@ -85492,6 +92700,42 @@ func (c *ClientWithResponses) PatchAirflowCrdWithResponse(ctx context.Context, o
 		return nil, err
 	}
 	return ParsePatchAirflowCrdHTTPResp(rsp)
+}
+
+// StreamAirflowLogsWithResponse request returning *StreamAirflowLogsHTTPResp
+func (c *ClientWithResponses) StreamAirflowLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamAirflowLogsParams, reqEditors ...RequestEditorFn) (*StreamAirflowLogsHTTPResp, error) {
+	rsp, err := c.StreamAirflowLogs(ctx, organizationId, instanceId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStreamAirflowLogsHTTPResp(rsp)
+}
+
+// ListAirflowPodsWithResponse request returning *ListAirflowPodsHTTPResp
+func (c *ClientWithResponses) ListAirflowPodsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAirflowPodsHTTPResp, error) {
+	rsp, err := c.ListAirflowPods(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAirflowPodsHTTPResp(rsp)
+}
+
+// StreamAirflowPodLogsWithResponse request returning *StreamAirflowPodLogsHTTPResp
+func (c *ClientWithResponses) StreamAirflowPodLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, podName string, params *StreamAirflowPodLogsParams, reqEditors ...RequestEditorFn) (*StreamAirflowPodLogsHTTPResp, error) {
+	rsp, err := c.StreamAirflowPodLogs(ctx, organizationId, instanceId, podName, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStreamAirflowPodLogsHTTPResp(rsp)
+}
+
+// RestartAirflowWithResponse request returning *RestartAirflowHTTPResp
+func (c *ClientWithResponses) RestartAirflowWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RestartAirflowHTTPResp, error) {
+	rsp, err := c.RestartAirflow(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestartAirflowHTTPResp(rsp)
 }
 
 // ListAlertablePanelsWithResponse request returning *ListAlertablePanelsHTTPResp
@@ -86508,6 +93752,15 @@ func (c *ClientWithResponses) CreateContainerAppCrdWithResponse(ctx context.Cont
 	return ParseCreateContainerAppCrdHTTPResp(rsp)
 }
 
+// GetContainerAppPlatformUrlWithResponse request returning *GetContainerAppPlatformUrlHTTPResp
+func (c *ClientWithResponses) GetContainerAppPlatformUrlWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetContainerAppPlatformUrlParams, reqEditors ...RequestEditorFn) (*GetContainerAppPlatformUrlHTTPResp, error) {
+	rsp, err := c.GetContainerAppPlatformUrl(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetContainerAppPlatformUrlHTTPResp(rsp)
+}
+
 // TestImagePullWithBodyWithResponse request with arbitrary body returning *TestImagePullHTTPResp
 func (c *ClientWithResponses) TestImagePullWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TestImagePullHTTPResp, error) {
 	rsp, err := c.TestImagePullWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
@@ -86602,6 +93855,23 @@ func (c *ClientWithResponses) GetForgejoRunnerWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseGetForgejoRunnerHTTPResp(rsp)
+}
+
+// UpdateForgejoRunnerWithBodyWithResponse request with arbitrary body returning *UpdateForgejoRunnerHTTPResp
+func (c *ClientWithResponses) UpdateForgejoRunnerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateForgejoRunnerHTTPResp, error) {
+	rsp, err := c.UpdateForgejoRunnerWithBody(ctx, organizationId, harborId, name, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateForgejoRunnerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateForgejoRunnerWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, body UpdateForgejoRunnerJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateForgejoRunnerHTTPResp, error) {
+	rsp, err := c.UpdateForgejoRunner(ctx, organizationId, harborId, name, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateForgejoRunnerHTTPResp(rsp)
 }
 
 // ListGithubRunnersWithResponse request returning *ListGithubRunnersHTTPResp
@@ -87422,6 +94692,15 @@ func (c *ClientWithResponses) GetContainerAppMetricsWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetContainerAppMetricsHTTPResp(rsp)
+}
+
+// GetContainerAppVolumesWithResponse request returning *GetContainerAppVolumesHTTPResp
+func (c *ClientWithResponses) GetContainerAppVolumesWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetContainerAppVolumesHTTPResp, error) {
+	rsp, err := c.GetContainerAppVolumes(ctx, organizationId, appId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetContainerAppVolumesHTTPResp(rsp)
 }
 
 // GetDataDockLogsWithResponse request returning *GetDataDockLogsHTTPResp
@@ -88414,6 +95693,33 @@ func (c *ClientWithResponses) CreateUserGrantWithResponse(ctx context.Context, o
 	return ParseCreateUserGrantHTTPResp(rsp)
 }
 
+// GetAuditLogHandlerWithResponse request returning *GetAuditLogHandlerHTTPResp
+func (c *ClientWithResponses) GetAuditLogHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *GetAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*GetAuditLogHandlerHTTPResp, error) {
+	rsp, err := c.GetAuditLogHandler(ctx, organizationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAuditLogHandlerHTTPResp(rsp)
+}
+
+// GetAuditLogFreshnessHandlerWithResponse request returning *GetAuditLogFreshnessHandlerHTTPResp
+func (c *ClientWithResponses) GetAuditLogFreshnessHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAuditLogFreshnessHandlerHTTPResp, error) {
+	rsp, err := c.GetAuditLogFreshnessHandler(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAuditLogFreshnessHandlerHTTPResp(rsp)
+}
+
+// GetLiveAuditLogHandlerWithResponse request returning *GetLiveAuditLogHandlerHTTPResp
+func (c *ClientWithResponses) GetLiveAuditLogHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *GetLiveAuditLogHandlerParams, reqEditors ...RequestEditorFn) (*GetLiveAuditLogHandlerHTTPResp, error) {
+	rsp, err := c.GetLiveAuditLogHandler(ctx, organizationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLiveAuditLogHandlerHTTPResp(rsp)
+}
+
 // QuerySecurityDecisionsHandlerWithResponse request returning *QuerySecurityDecisionsHandlerHTTPResp
 func (c *ClientWithResponses) QuerySecurityDecisionsHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *QuerySecurityDecisionsHandlerParams, reqEditors ...RequestEditorFn) (*QuerySecurityDecisionsHandlerHTTPResp, error) {
 	rsp, err := c.QuerySecurityDecisionsHandler(ctx, organizationId, params, reqEditors...)
@@ -89042,6 +96348,23 @@ func (c *ClientWithResponses) ListRefsWithResponse(ctx context.Context, params *
 	return ParseListRefsHTTPResp(rsp)
 }
 
+// CreateManyRefsWithBodyWithResponse request with arbitrary body returning *CreateManyRefsHTTPResp
+func (c *ClientWithResponses) CreateManyRefsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManyRefsHTTPResp, error) {
+	rsp, err := c.CreateManyRefsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateManyRefsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateManyRefsWithResponse(ctx context.Context, body CreateManyRefsJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateManyRefsHTTPResp, error) {
+	rsp, err := c.CreateManyRefs(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateManyRefsHTTPResp(rsp)
+}
+
 // UpdateRefWithBodyWithResponse request with arbitrary body returning *UpdateRefHTTPResp
 func (c *ClientWithResponses) UpdateRefWithBodyWithResponse(ctx context.Context, key string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRefHTTPResp, error) {
 	rsp, err := c.UpdateRefWithBody(ctx, key, contentType, body, reqEditors...)
@@ -89128,6 +96451,15 @@ func (c *ClientWithResponses) GetSharedModelWithResponse(ctx context.Context, na
 		return nil, err
 	}
 	return ParseGetSharedModelHTTPResp(rsp)
+}
+
+// GetSignupPageCopyWithResponse request returning *GetSignupPageCopyHTTPResp
+func (c *ClientWithResponses) GetSignupPageCopyWithResponse(ctx context.Context, locale string, reqEditors ...RequestEditorFn) (*GetSignupPageCopyHTTPResp, error) {
+	rsp, err := c.GetSignupPageCopy(ctx, locale, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSignupPageCopyHTTPResp(rsp)
 }
 
 // CreateSignupRequestWithBodyWithResponse request with arbitrary body returning *CreateSignupRequestHTTPResp
@@ -89270,8 +96602,8 @@ func (c *ClientWithResponses) GetResultsHandlerWithResponse(ctx context.Context,
 }
 
 // GetSchemaHandlerWithResponse request returning *GetSchemaHandlerHTTPResp
-func (c *ClientWithResponses) GetSchemaHandlerWithResponse(ctx context.Context, dataDockId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetSchemaHandlerHTTPResp, error) {
-	rsp, err := c.GetSchemaHandler(ctx, dataDockId, reqEditors...)
+func (c *ClientWithResponses) GetSchemaHandlerWithResponse(ctx context.Context, dataDockId openapi_types.UUID, params *GetSchemaHandlerParams, reqEditors ...RequestEditorFn) (*GetSchemaHandlerHTTPResp, error) {
+	rsp, err := c.GetSchemaHandler(ctx, dataDockId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -89790,6 +97122,13 @@ func ParseDeleteEgressAllowlistHTTPResp(rsp *http.Response) (*DeleteEgressAllowl
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -91973,6 +99312,86 @@ func ParseAiEditHTTPResp(rsp *http.Response) (*AiEditHTTPResp, error) {
 	return response, nil
 }
 
+// ParseGetDevWorkstationAuditStatusHTTPResp parses an HTTP response from a GetDevWorkstationAuditStatusWithResponse call
+func ParseGetDevWorkstationAuditStatusHTTPResp(rsp *http.Response) (*GetDevWorkstationAuditStatusHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDevWorkstationAuditStatusHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DevWorkstationAuditStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDevWorkstationTranscriptHTTPResp parses an HTTP response from a GetDevWorkstationTranscriptWithResponse call
+func ParseGetDevWorkstationTranscriptHTTPResp(rsp *http.Response) (*GetDevWorkstationTranscriptHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDevWorkstationTranscriptHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []DevWorkstationTranscriptEntry
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetDevWorkstationEgressHTTPResp parses an HTTP response from a GetDevWorkstationEgressWithResponse call
 func ParseGetDevWorkstationEgressHTTPResp(rsp *http.Response) (*GetDevWorkstationEgressHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -92229,6 +99648,13 @@ func ParseAuthorizePreviewHTTPResp(rsp *http.Response) (*AuthorizePreviewHTTPRes
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AuthorizePreviewResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -92871,6 +100297,39 @@ func ParseGetAppTemplateCrdHTTPResp(rsp *http.Response) (*GetAppTemplateCrdHTTPR
 	return response, nil
 }
 
+// ParseGetAuditLogsHandlerHTTPResp parses an HTTP response from a GetAuditLogsHandlerWithResponse call
+func ParseGetAuditLogsHandlerHTTPResp(rsp *http.Response) (*GetAuditLogsHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAuditLogsHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaginatedResponseListAuditLogItem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetBifrostFeaturesHTTPResp parses an HTTP response from a GetBifrostFeaturesWithResponse call
 func ParseGetBifrostFeaturesHTTPResp(rsp *http.Response) (*GetBifrostFeaturesHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -92986,6 +100445,39 @@ func ParseListChangelogsHandlerHTTPResp(rsp *http.Response) (*ListChangelogsHand
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ListChangelogsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRunnerFlavorsHTTPResp parses an HTTP response from a ListRunnerFlavorsWithResponse call
+func ParseListRunnerFlavorsHTTPResp(rsp *http.Response) (*ListRunnerFlavorsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRunnerFlavorsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RunnerFlavorCatalogResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -95449,6 +102941,187 @@ func ParseListDataContainersHTTPResp(rsp *http.Response) (*ListDataContainersHTT
 	return response, nil
 }
 
+// ParseGetDataDockInternetExposureHTTPResp parses an HTTP response from a GetDataDockInternetExposureWithResponse call
+func ParseGetDataDockInternetExposureHTTPResp(rsp *http.Response) (*GetDataDockInternetExposureHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDataDockInternetExposureHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DataDockInternetExposureResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetDataDockInternetExposureHTTPResp parses an HTTP response from a SetDataDockInternetExposureWithResponse call
+func ParseSetDataDockInternetExposureHTTPResp(rsp *http.Response) (*SetDataDockInternetExposureHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetDataDockInternetExposureHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDataDockResourceGroupsHTTPResp parses an HTTP response from a GetDataDockResourceGroupsWithResponse call
+func ParseGetDataDockResourceGroupsHTTPResp(rsp *http.Response) (*GetDataDockResourceGroupsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDataDockResourceGroupsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DataDockResourceGroupsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetDataDockResourceGroupsHTTPResp parses an HTTP response from a SetDataDockResourceGroupsWithResponse call
+func ParseSetDataDockResourceGroupsHTTPResp(rsp *http.Response) (*SetDataDockResourceGroupsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetDataDockResourceGroupsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseSearchDataDockHTTPResp parses an HTTP response from a SearchDataDockWithResponse call
 func ParseSearchDataDockHTTPResp(rsp *http.Response) (*SearchDataDockHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -95877,6 +103550,13 @@ func ParseArchiveExportHTTPResp(rsp *http.Response) (*ArchiveExportHTTPResp, err
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -95916,6 +103596,13 @@ func ParseArchiveImportHTTPResp(rsp *http.Response) (*ArchiveImportHTTPResp, err
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -96022,6 +103709,13 @@ func ParsePrepareArchiveImportHTTPResp(rsp *http.Response) (*PrepareArchiveImpor
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -99370,6 +107064,253 @@ func ParseGetAirflowHTTPResp(rsp *http.Response) (*GetAirflowHTTPResp, error) {
 	return response, nil
 }
 
+// ParseListAirflowConnectionsHTTPResp parses an HTTP response from a ListAirflowConnectionsWithResponse call
+func ParseListAirflowConnectionsHTTPResp(rsp *http.Response) (*ListAirflowConnectionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAirflowConnectionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AirflowConnectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAirflowConnectionHTTPResp parses an HTTP response from a CreateAirflowConnectionWithResponse call
+func ParseCreateAirflowConnectionHTTPResp(rsp *http.Response) (*CreateAirflowConnectionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAirflowConnectionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest AirflowConnectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAirflowConnectionHTTPResp parses an HTTP response from a DeleteAirflowConnectionWithResponse call
+func ParseDeleteAirflowConnectionHTTPResp(rsp *http.Response) (*DeleteAirflowConnectionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAirflowConnectionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAirflowConnectionHTTPResp parses an HTTP response from a GetAirflowConnectionWithResponse call
+func ParseGetAirflowConnectionHTTPResp(rsp *http.Response) (*GetAirflowConnectionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAirflowConnectionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AirflowConnectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchAirflowConnectionHTTPResp parses an HTTP response from a PatchAirflowConnectionWithResponse call
+func ParsePatchAirflowConnectionHTTPResp(rsp *http.Response) (*PatchAirflowConnectionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAirflowConnectionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAirflowConnectionS3SessionHTTPResp parses an HTTP response from a CreateAirflowConnectionS3SessionWithResponse call
+func ParseCreateAirflowConnectionS3SessionHTTPResp(rsp *http.Response) (*CreateAirflowConnectionS3SessionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAirflowConnectionS3SessionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AirflowConnectionS3Session
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteAirflowCrdHTTPResp parses an HTTP response from a DeleteAirflowCrdWithResponse call
 func ParseDeleteAirflowCrdHTTPResp(rsp *http.Response) (*DeleteAirflowCrdHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -99478,6 +107419,173 @@ func ParsePatchAirflowCrdHTTPResp(rsp *http.Response) (*PatchAirflowCrdHTTPResp,
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStreamAirflowLogsHTTPResp parses an HTTP response from a StreamAirflowLogsWithResponse call
+func ParseStreamAirflowLogsHTTPResp(rsp *http.Response) (*StreamAirflowLogsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StreamAirflowLogsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAirflowPodsHTTPResp parses an HTTP response from a ListAirflowPodsWithResponse call
+func ParseListAirflowPodsHTTPResp(rsp *http.Response) (*ListAirflowPodsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAirflowPodsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AirflowPodResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStreamAirflowPodLogsHTTPResp parses an HTTP response from a StreamAirflowPodLogsWithResponse call
+func ParseStreamAirflowPodLogsHTTPResp(rsp *http.Response) (*StreamAirflowPodLogsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StreamAirflowPodLogsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestartAirflowHTTPResp parses an HTTP response from a RestartAirflowWithResponse call
+func ParseRestartAirflowHTTPResp(rsp *http.Response) (*RestartAirflowHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestartAirflowHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -103294,6 +111402,60 @@ func ParseCreateContainerAppCrdHTTPResp(rsp *http.Response) (*CreateContainerApp
 	return response, nil
 }
 
+// ParseGetContainerAppPlatformUrlHTTPResp parses an HTTP response from a GetContainerAppPlatformUrlWithResponse call
+func ParseGetContainerAppPlatformUrlHTTPResp(rsp *http.Response) (*GetContainerAppPlatformUrlHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetContainerAppPlatformUrlHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ContainerAppPlatformUrlResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseTestImagePullHTTPResp parses an HTTP response from a TestImagePullWithResponse call
 func ParseTestImagePullHTTPResp(rsp *http.Response) (*TestImagePullHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -103657,6 +111819,60 @@ func ParseGetForgejoRunnerHTTPResp(rsp *http.Response) (*GetForgejoRunnerHTTPRes
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateForgejoRunnerHTTPResp parses an HTTP response from a UpdateForgejoRunnerWithResponse call
+func ParseUpdateForgejoRunnerHTTPResp(rsp *http.Response) (*UpdateForgejoRunnerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateForgejoRunnerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ForgejoRunnerResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -107197,6 +115413,53 @@ func ParseGetContainerAppMetricsHTTPResp(rsp *http.Response) (*GetContainerAppMe
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ResourceMetricsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetContainerAppVolumesHTTPResp parses an HTTP response from a GetContainerAppVolumesWithResponse call
+func ParseGetContainerAppVolumesHTTPResp(rsp *http.Response) (*GetContainerAppVolumesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetContainerAppVolumesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ContainerAppVolumesResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -111219,6 +119482,119 @@ func ParseCreateUserGrantHTTPResp(rsp *http.Response) (*CreateUserGrantHTTPResp,
 	return response, nil
 }
 
+// ParseGetAuditLogHandlerHTTPResp parses an HTTP response from a GetAuditLogHandlerWithResponse call
+func ParseGetAuditLogHandlerHTTPResp(rsp *http.Response) (*GetAuditLogHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAuditLogHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaginatedResponseAuditEntry
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAuditLogFreshnessHandlerHTTPResp parses an HTTP response from a GetAuditLogFreshnessHandlerWithResponse call
+func ParseGetAuditLogFreshnessHandlerHTTPResp(rsp *http.Response) (*GetAuditLogFreshnessHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAuditLogFreshnessHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AuditLogFreshness
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetLiveAuditLogHandlerHTTPResp parses an HTTP response from a GetLiveAuditLogHandlerWithResponse call
+func ParseGetLiveAuditLogHandlerHTTPResp(rsp *http.Response) (*GetLiveAuditLogHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLiveAuditLogHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LiveAuditLog
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseQuerySecurityDecisionsHandlerHTTPResp parses an HTTP response from a QuerySecurityDecisionsHandlerWithResponse call
 func ParseQuerySecurityDecisionsHandlerHTTPResp(rsp *http.Response) (*QuerySecurityDecisionsHandlerHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -113146,6 +121522,13 @@ func ParseCreatePipelineHTTPResp(rsp *http.Response) (*CreatePipelineHTTPResp, e
 		}
 		response.JSON403 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -113258,6 +121641,60 @@ func ParseListRefsHTTPResp(rsp *http.Response) (*ListRefsHTTPResp, error) {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateManyRefsHTTPResp parses an HTTP response from a CreateManyRefsWithResponse call
+func ParseCreateManyRefsHTTPResp(rsp *http.Response) (*CreateManyRefsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateManyRefsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Ref
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -113571,6 +122008,46 @@ func ParseGetSharedModelHTTPResp(rsp *http.Response) (*GetSharedModelHTTPResp, e
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSignupPageCopyHTTPResp parses an HTTP response from a GetSignupPageCopyWithResponse call
+func ParseGetSignupPageCopyHTTPResp(rsp *http.Response) (*GetSignupPageCopyHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSignupPageCopyHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PublicSignupPageCopy
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	}
 
@@ -114171,6 +122648,13 @@ func ParseCreatePipelineV2HTTPResp(rsp *http.Response) (*CreatePipelineV2HTTPRes
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
 		var dest ApiErrorBody
