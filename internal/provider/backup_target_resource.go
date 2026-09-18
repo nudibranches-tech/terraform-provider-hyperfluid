@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
@@ -51,6 +53,7 @@ type backupTargetModel struct {
 	AccessKeySecretName       types.String `tfsdk:"access_key_secret_name"`
 	SecretAccessKeySecretName types.String `tfsdk:"secret_access_key_secret_name"`
 	Insecure                  types.Bool   `tfsdk:"insecure"`
+	RetentionDays             types.Int64  `tfsdk:"retention_days"`
 	Description               types.String `tfsdk:"description"`
 	Tags                      types.List   `tfsdk:"tags"`
 
@@ -103,6 +106,14 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 				Default:             booldefault.StaticBool(false),
 				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
 			},
+			"retention_days": schema.Int64Attribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "How long base backups and WAL archives are kept before they expire, " +
+					"in days (1-35). Left out, the platform resolves its own default of 7 days at every " +
+					"reconcile. A change is applied in place, and the value read back is the effective one " +
+					"the platform resolved, not the configured one.",
+				Validators: []validator.Int64{int64validator.Between(1, 35)},
+			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
@@ -147,6 +158,7 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		AccessKeySecretName:       plan.AccessKeySecretName.ValueString(),
 		SecretAccessKeySecretName: plan.SecretAccessKeySecretName.ValueString(),
 		Insecure:                  boolPtr(plan.Insecure),
+		RetentionDays:             int32PtrFromInt64(plan.RetentionDays),
 		Description:               stringPtr(plan.Description),
 		Tags:                      tags,
 	})
@@ -200,11 +212,22 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	// The configuration, not the plan: retention_days is Optional + Computed, so
+	// the plan for a target that never stated one carries the window the platform
+	// resolved. Patching that number back writes it into the target, which pins it
+	// there — the platform's own retention would stop reaching this target.
+	var retentionCfg types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("retention_days"), &retentionCfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	body := console.PatchBackupTargetCrdRequestBody{
 		EndpointUrl:               stringPtr(plan.EndpointURL),
 		DestinationPath:           stringPtr(plan.DestinationPath),
 		AccessKeySecretName:       stringPtr(plan.AccessKeySecretName),
 		SecretAccessKeySecretName: stringPtr(plan.SecretAccessKeySecretName),
+		RetentionDays:             int32PtrFromInt64(retentionCfg),
 		Description:               stringPtr(plan.Description),
 	}
 	if tags != nil {
@@ -233,6 +256,9 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 	if !plan.SecretAccessKeySecretName.IsUnknown() {
 		newState.SecretAccessKeySecretName = plan.SecretAccessKeySecretName
+	}
+	if !plan.RetentionDays.IsUnknown() {
+		newState.RetentionDays = plan.RetentionDays
 	}
 	if !plan.Tags.IsUnknown() {
 		newState.Tags = plan.Tags
@@ -304,6 +330,7 @@ func (r *backupTargetResource) readInto(ctx context.Context, id string) (backupT
 		AccessKeySecretName:       optString(bt.AccessKeySecretName),
 		SecretAccessKeySecretName: optString(bt.SecretAccessKeySecretName),
 		Insecure:                  types.BoolValue(bt.Insecure),
+		RetentionDays:             types.Int64Value(int64(bt.RetentionDays)),
 		Description:               optString(bt.Description),
 		Tags:                      tags,
 		Phase:                     types.StringValue(bt.Phase),

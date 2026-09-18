@@ -58,6 +58,9 @@ resource "hyperfluid_backup_target" "offsite" {
   destination_path              = "s3://my-backups/hyperfluid/"
   access_key_secret_name        = hyperfluid_secret.backup_access_key.name
   secret_access_key_secret_name = hyperfluid_secret.backup_secret_key.name
+  # How long base backups and WAL archives are kept, 1-35 days. Left out, the
+  # platform keeps 7.
+  retention_days = 14
 }
 ```
 
@@ -77,6 +80,7 @@ resource "hyperfluid_backup_target" "offsite" {
 
 - `description` (String) Free-form description.
 - `insecure` (Boolean) Skip TLS verification when probing the endpoint (dev only). Changing this forces a new target.
+- `retention_days` (Number) How long base backups and WAL archives are kept before they expire, in days (1-35). Left out, the platform resolves its own default of 7 days at every reconcile. A change is applied in place, and the value read back is the effective one the platform resolved, not the configured one.
 - `tags` (List of String) User-defined tags.
 
 ### Read-Only

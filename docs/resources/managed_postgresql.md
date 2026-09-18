@@ -17,8 +17,15 @@ data "hyperfluid_env" "default" {
   name = "default"
 }
 
+# Where the write-ahead log and the base backups ship. A recovery policy needs
+# one, so the database below depends on it explicitly.
+data "hyperfluid_backup_target" "offsite" {
+  env  = data.hyperfluid_env.default.id
+  name = "offsite"
+}
+
 resource "hyperfluid_managed_postgresql" "db" {
-  env           = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_env.default.id
   name             = "appdb"
   database_name    = "appdb"
   engine           = "postgresql"
@@ -30,10 +37,60 @@ resource "hyperfluid_managed_postgresql" "db" {
   # Defaults to false (reachable only in-cluster). Set true to publish an
   # external NodePort endpoint.
   expose_to_internet = true
+
+  backup_target_id = data.hyperfluid_backup_target.offsite.id
+
+  # A daily base backup. Recovery replays the write-ahead log forward from one,
+  # so a database that only archives WAL has nothing to restore from.
+  backup_policy = "automated"
+
+  # Point-in-time recovery. Leave archive_interval_seconds out and the platform
+  # resolves its own interval, so a platform change reaches this database; pin it
+  # to hold a tighter recovery point objective, at one 16 MiB upload per interval.
+  pitr = {
+    enabled                  = true
+    archive_interval_seconds = 300
+  }
+}
+
+# A second database recovered from the first one's archive, as it stood at a
+# chosen moment. restore is read when the database is created and never again:
+# the platform cannot rewind a database in place.
+resource "hyperfluid_managed_postgresql" "db_recovered" {
+  env           = data.hyperfluid_env.default.id
+  name          = "appdb-recovered"
+  database_name = "appdb"
+
+  # A restore refuses any engine or version but the source's, and an omitted one
+  # is read as postgresql / 17 rather than inherited.
+  engine           = "postgresql"
+  version          = "17"
+  node_tier        = "nano"
+  storage_capacity = 5
+
+  restore = {
+    source_instance_id = hyperfluid_managed_postgresql.db.id
+    target_time        = "2026-09-18T09:00:00Z"
+  }
+
+  # restore is write-only, so it never reaches state and Terraform cannot see it
+  # change. Change this token alongside it to ask for the restore again; that
+  # replaces the database, which is the only moment a restore happens.
+  restore_wo_version = "1"
 }
 
 output "write_endpoint" {
   value = hyperfluid_managed_postgresql.db.write_endpoint
+}
+
+# The bounds a restore can target: the earliest point the backup catalog still
+# holds, and the base backup recovery replays forward from.
+output "recovery_window" {
+  value = {
+    first_recoverability_point  = hyperfluid_managed_postgresql.db.first_recoverability_point
+    last_successful_backup_time = hyperfluid_managed_postgresql.db.last_successful_backup_time
+    archive_interval_seconds    = hyperfluid_managed_postgresql.db.archive_interval_seconds
+  }
 }
 ```
 
@@ -48,27 +105,72 @@ output "write_endpoint" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `backup_policy` (String) Backup policy: automated or manual (defaults to manual). Changing this forces a new cluster.
-- `backup_target_id` (String) Backup target id (required when backup_policy is automated). Changing this forces a new cluster.
+- `backup_target_id` (String) Backup target id — where base backups and, with `pitr`, the write-ahead log ship. Required when `backup_policy` is `automated` and whenever `pitr` is set. Changing this forces a new cluster.
+
+~> No API view reports it, so Terraform carries it from prior state. `terraform import` cannot recover it, and a target attached elsewhere is invisible to `terraform plan`.
 - `configuration` (String) Topology: standalone or high-availability.
 - `description` (String) Free-form description.
 - `engine` (String) Engine: postgresql, postgis, timescaledb.
 - `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish an external endpoint.
 - `node_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge.
+- `pitr` (Attributes) Point-in-time recovery policy. Needs a `backup_target_id`, because the write-ahead log has to ship somewhere; the platform refuses the policy otherwise, and refuses it at apply time rather than at plan time.
+
+~> No API view echoes this policy back, so Terraform carries it from prior state. `terraform import` therefore cannot recover it, and a policy changed in the console or through `hfctl` is invisible to `terraform plan`.
+
+~> Removing `pitr` from the configuration does **not** turn recovery off: the platform reads an absent policy as "leave it as it is", so `enabled = false` is the only off switch. (see [below for nested schema](#nestedatt--pitr))
+- `restore` (Attributes, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Bootstrap the database from an existing archive instead of an empty `initdb`. Write-only: it is sent on create and never written to state, so it requires Terraform >= 1.11.
+
+~> Read at create only. The platform cannot restore a database in place and echoes nothing back, so Terraform cannot see this block change on its own: editing it produces no plan unless `restore_wo_version` changes with it.
+
+`engine` and `version` must match the source exactly, and an omitted `engine` or `version` is compared as `postgresql` / `17` rather than inherited — state both on any other source. Leaving `backup_target_id` out inherits the source's backup target and its schedule, which can read back as `backup_policy = "automated"`. Nothing checks `storage_capacity` against the source's volume: a restore into a smaller one is accepted here and fails inside the cluster. (see [below for nested schema](#nestedatt--restore))
+- `restore_wo_version` (String) Arbitrary token that makes a changed `restore` visible to Terraform. A write-only attribute never reaches state, so nothing else can tell one restore descriptor from the next; change this alongside `restore` to ask for the restore again. Changing it forces a new cluster, because a restore only happens when a database is created.
 - `storage_capacity` (Number) Storage capacity in GB (1-30). Growth is applied in place but is eventually consistent — `plan` may show the increase as pending until the underlying volume finishes expanding.
 - `tags` (List of String) User-defined tags.
 - `version` (String) PostgreSQL major version, e.g. "17".
 
 ### Read-Only
 
+- `archive_interval_seconds` (Number) Seconds between forced WAL segment switches on the running cluster — the interval the platform resolved, not the one `pitr` asks for, so it lags a change until the cluster picks it up. `0` means no forced switch, so nothing bounds the lag on an idle database; null means the database archives nowhere, or the platform has not reported on it yet.
 - `external_endpoint` (String) External endpoint, if exposed.
+- `first_recoverability_point` (String) Earliest point a restore can target, as the backup catalog reports it. Null on a database that archives nowhere, and on one that ships WAL but has never completed a base backup — which is not restorable however healthy its archiver looks.
 - `id` (String) The ID of this resource.
 - `instances` (Number) Desired instance count.
+- `last_failed_backup_time` (String) When the last backup failed.
+- `last_successful_backup_time` (String) When the last base backup completed. A continuous-archive restore needs one, because recovery replays forward from a base backup.
 - `phase` (String) Current lifecycle phase.
 - `read_endpoint` (String) Read-only endpoint.
 - `ready_instances` (Number) Ready instance count.
 - `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
 - `write_endpoint` (String) Primary (read-write) endpoint.
+
+<a id="nestedatt--pitr"></a>
+### Nested Schema for `pitr`
+
+Required:
+
+- `enabled` (Boolean) Whether a bounded recovery point objective is kept. `false` does not stop archiving — a database with a backup target attached always ships its WAL, because a base backup is not consistent without it. It drops the forced segment switch, so WAL ships only as segments fill and an idle hour may not be recoverable.
+
+Optional:
+
+- `archive_interval_seconds` (Number) Seconds between forced WAL segment switches (60-86400) — the worst-case recovery point objective while the database is idle. Left out, the platform resolves its own interval at every reconcile, so a platform change reaches the database.
+
+~> There is no way back to that resolved interval: a pin can be changed to another number, and dropping it from the config keeps the pin the platform already stored. It also survives `enabled = false`, so turning recovery back on restores the same objective.
+
+This is what the database asks for. The top-level `archive_interval_seconds` is what the running cluster carries.
+
+
+<a id="nestedatt--restore"></a>
+### Nested Schema for `restore`
+
+Optional:
+
+- `backup_id` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Id of a completed backup to restore exactly as it was taken. Must live in the same environment as the new database.
+- `exclusive` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Stop immediately before `target_time` rather than at it.
+- `source_instance_id` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Id of the database whose continuous WAL archive to restore from. Must live in the same environment as the new database, and is the only route that accepts a `target_time`. The source must have completed at least one base backup.
+- `target_time` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) RFC 3339 point to recover to. Must fall between the source's `first_recoverability_point` and now, which the platform checks when the create call runs — the window is not known at plan time. Left out, recovery replays to the latest archived WAL.
 
 ## Import
 
