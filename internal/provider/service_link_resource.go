@@ -45,11 +45,33 @@ var (
 
 const serviceLinkWaitTimeout = 2 * time.Minute
 
-// serviceLinkKinds are the kinds the ServiceLink controller can resolve into a
-// pod selector and port. Object storage and the platform control plane are
-// deliberately absent: both are always reachable from a workload's baseline
-// policy, so neither is ever linked.
-var serviceLinkKinds = []string{"ContainerApp", "HfKeyValueCache", "ManagedPostgreSQL", "Trino", "Kafka"}
+// serviceLinkTargetKinds are the kinds the ServiceLink controller can resolve
+// into a pod selector and port, and therefore the only kinds that may be a
+// link's TARGET. Object storage and the platform control plane are deliberately
+// absent: both are always reachable from a workload's baseline policy, so
+// neither is ever linked.
+//
+// Spelled with the generated enum constants rather than literals, so a kind the
+// spec renames or drops breaks the build instead of leaving the provider
+// validating against a value the API no longer knows.
+var serviceLinkTargetKinds = []string{
+	string(console.ServiceLinkKindContainerApp),
+	string(console.ServiceLinkKindHfKeyValueCache),
+	string(console.ServiceLinkKindManagedPostgreSQL),
+	string(console.ServiceLinkKindTrino),
+	string(console.ServiceLinkKindKafka),
+}
+
+// serviceLinkConsumerKinds additionally covers the two CONSUMER-ONLY kinds.
+// An Airflow environment and a pipeline both reach their targets and are never
+// reached themselves, so the API accepts either as a consumer and refuses both
+// as a target. Keeping the two lists apart is what turns naming one as a target
+// into a plan-time error instead of an apply-time 400.
+var serviceLinkConsumerKinds = append(
+	append([]string{}, serviceLinkTargetKinds...),
+	string(console.ServiceLinkKindAirflow),
+	string(console.ServiceLinkKindPipeline),
+)
 
 func NewServiceLinkResource() resource.Resource {
 	return &serviceLinkResource{}
@@ -104,8 +126,10 @@ func (r *serviceLinkResource) Metadata(_ context.Context, req resource.MetadataR
 	resp.TypeName = req.ProviderTypeName + "_service_link"
 }
 
-// endpointAttribute builds the schema for one side of the link.
-func endpointAttribute(desc string) schema.SingleNestedAttribute {
+// endpointAttribute builds the schema for one side of the link. `kinds` is the
+// set legal on that side — the consumer side additionally accepts the
+// consumer-only kinds (see serviceLinkConsumerKinds).
+func endpointAttribute(desc string, kinds []string) schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
 		Required:            true,
 		MarkdownDescription: desc,
@@ -113,10 +137,10 @@ func endpointAttribute(desc string) schema.SingleNestedAttribute {
 		Attributes: map[string]schema.Attribute{
 			"kind": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "Kind of service. One of `" + strings.Join(serviceLinkKinds, "`, `") + "`. " +
+				MarkdownDescription: "Kind of service. One of `" + strings.Join(kinds, "`, `") + "`. " +
 					"A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict " +
 					"isolation. Changing this forces a new link.",
-				Validators: []validator.String{stringvalidator.OneOf(serviceLinkKinds...)},
+				Validators: []validator.String{stringvalidator.OneOf(kinds...)},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -160,8 +184,16 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 					"(`<consumer>-<target>`, truncated to 63 characters). Also its identifier within the environment.",
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
-			"consumer": endpointAttribute("The service that gets permission to reach `target`. Changing this forces a new link."),
-			"target":   endpointAttribute("The service that becomes reachable. Changing this forces a new link."),
+			"consumer": endpointAttribute(
+				"The service that gets permission to reach `target`. `Airflow` and `Pipeline` are valid here "+
+					"and nowhere else: both reach their targets and are never reached themselves. Note an "+
+					"Airflow environment can also declare its own egress inline, with "+
+					"`hyperfluid_airflow`'s `egress.in_cluster` block. Changing this forces a new link.",
+				serviceLinkConsumerKinds),
+			"target": endpointAttribute(
+				"The service that becomes reachable. `Airflow` and `Pipeline` are refused here — nothing "+
+					"connects to either. Changing this forces a new link.",
+				serviceLinkTargetKinds),
 			"target_ports": schema.SetNestedAttribute{
 				Optional: true,
 				MarkdownDescription: "Which of the target's ports to open. Valid only when `target.kind` is " +
@@ -235,15 +267,15 @@ func (r *serviceLinkResource) ValidateConfig(ctx context.Context, req resource.V
 		return
 	}
 	kind := target.Kind
-	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == "ContainerApp" {
+	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == string(console.ServiceLinkKindContainerApp) {
 		return
 	}
 	resp.Diagnostics.AddAttributeError(
 		path.Root("target_ports"),
 		"Target ports not supported for this kind",
-		fmt.Sprintf("target_ports may only be set when target.kind is ContainerApp, got %s. "+
+		fmt.Sprintf("target_ports may only be set when target.kind is %s, got %s. "+
 			"Every other kind publishes a single known port, which the platform opens for you — "+
-			"drop target_ports.", kind.ValueString()),
+			"drop target_ports.", console.ServiceLinkKindContainerApp, kind.ValueString()),
 	)
 }
 

@@ -101,6 +101,11 @@ func statusErr(op string, status int, body []byte) error {
 		return ErrNotFound
 	case status == http.StatusForbidden:
 		return fmt.Errorf("%w: %s: %s", ErrForbidden, op, forbiddenMessage(body))
+	// A 5xx keeps the exact same message but gets a type, so a poller can tell
+	// "the ask failed" from "the resource answered" without parsing it. See
+	// ServerError.
+	case status >= 500:
+		return &ServerError{Op: op, Status: status, Body: string(bytes.TrimSpace(body))}
 	case status >= 400:
 		return fmt.Errorf("hyperfluid: %s -> %d: %s", op, status, bytes.TrimSpace(body))
 	default:

@@ -5,6 +5,16 @@ output: ../internal/console/console.gen.go
 generate:
   models: true
   client: true
+compatibility:
+  # Prefix every enum constant with its type name (`AppProtocolHttp`, not `Http`).
+  # oapi-codegen only auto-prefixes when two enums share a value, so it happily
+  # emits a bare constant that collides with a same-named schema type — the spec
+  # has both an `AgentRequestKind` value `permission_reply` and a `PermissionReply`
+  # schema, and both a `security_decision` audit event and a `SecurityDecision`
+  # schema, each of which breaks the build ("PermissionReply redeclared"). Prefixing
+  # unconditionally keeps the constants in their own namespace so any future enum
+  # value named after a schema generates cleanly.
+  always-prefix-enum-values: true
 output-options:
   skip-prune: true
   # The spec has schema components named like `WriteFileResponse`; without a
