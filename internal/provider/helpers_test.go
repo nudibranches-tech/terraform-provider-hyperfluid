@@ -63,9 +63,9 @@ var (
 	transportDown = &url.Error{Op: "Get", URL: "https://console.example.com/api/v1", Err: errors.New("dial tcp: connection refused")}
 	// A verdict the poll itself reached about what it read — the shape
 	// backup_target and the two Airflow resources use to fail fast.
-	verdict = errors.New("the environment reported phase Error: metadata migration failed")
+	errVerdict = errors.New("the environment reported phase Error: metadata migration failed")
 	// A request the server refused, and will refuse identically next time.
-	badRequest = errors.New("hyperfluid: create airflow -> 400: name is already taken")
+	errBadRequest = errors.New("hyperfluid: create airflow -> 400: name is already taken")
 )
 
 func TestWaitForReadyRetriesTransientFailures(t *testing.T) {
@@ -282,8 +282,8 @@ func TestPollErrClassification(t *testing.T) {
 		{"a 5xx", badGateway, true, false},
 		{"a 5xx, wrapped", fmt.Errorf("reading it back: %w", badGateway), true, false},
 		{"a transport failure", transportDown, true, false},
-		{"the poll's own verdict", verdict, false, false},
-		{"a 4xx", badRequest, false, false},
+		{"the poll's own verdict", errVerdict, false, false},
+		{"a 4xx", errBadRequest, false, false},
 		{"not found", client.ErrNotFound, false, true},
 		{"forbidden", fmt.Errorf("get x: %w", client.ErrForbidden), false, true},
 		{"no error at all", nil, false, false},
@@ -307,7 +307,7 @@ func TestPollErrClassification(t *testing.T) {
 // reason under a retry count.
 func TestWaitForReadyKeepsFailingFast(t *testing.T) {
 	ctx := t.Context()
-	for name, err := range map[string]error{"a verdict": verdict, "a 4xx": badRequest} {
+	for name, err := range map[string]error{"a verdict": errVerdict, "a 4xx": errBadRequest} {
 		t.Run(name, func(t *testing.T) {
 			calls := 0
 			_, got := waitForReadyEvery(ctx, time.Minute, testPollInterval, func() (string, bool, error) {
