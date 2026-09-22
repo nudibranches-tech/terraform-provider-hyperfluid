@@ -44,6 +44,7 @@ output "backup_endpoint" {
 - `id` (String) Backup target id.
 - `insecure` (Boolean) Whether TLS verification is skipped.
 - `phase` (String) Current lifecycle phase.
+- `retention_days` (Number) Effective retention window in days — the configured value, or the platform default of 7.
 - `secret_access_key_secret_name` (String) Secret holding the S3 secret access key.
 - `slug` (String) Derived slug.
 - `tags` (List of String) User-defined tags.

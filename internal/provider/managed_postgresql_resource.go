@@ -9,7 +9,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -19,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -61,6 +66,12 @@ type managedPostgresqlModel struct {
 	Description      types.String `tfsdk:"description"`
 	Tags             types.List   `tfsdk:"tags"`
 
+	// Framework types, not Go structs: the nested objects carry null and, for
+	// `restore`, the framework's write-only nullification.
+	Pitr             types.Object `tfsdk:"pitr"`
+	Restore          types.Object `tfsdk:"restore"`
+	RestoreWoVersion types.String `tfsdk:"restore_wo_version"`
+
 	// computed
 	Phase            types.String `tfsdk:"phase"`
 	Instances        types.Int64  `tfsdk:"instances"`
@@ -69,6 +80,51 @@ type managedPostgresqlModel struct {
 	ReadEndpoint     types.String `tfsdk:"read_endpoint"`
 	ExternalEndpoint types.String `tfsdk:"external_endpoint"`
 	Slug             types.String `tfsdk:"slug"`
+
+	ArchiveIntervalSeconds   types.Int64  `tfsdk:"archive_interval_seconds"`
+	FirstRecoverabilityPoint types.String `tfsdk:"first_recoverability_point"`
+	LastSuccessfulBackupTime types.String `tfsdk:"last_successful_backup_time"`
+	LastFailedBackupTime     types.String `tfsdk:"last_failed_backup_time"`
+}
+
+// pitrModel is the configured point-in-time recovery policy.
+type pitrModel struct {
+	Enabled                types.Bool  `tfsdk:"enabled"`
+	ArchiveIntervalSeconds types.Int64 `tfsdk:"archive_interval_seconds"`
+}
+
+func pitrType() basetypes.ObjectType {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"enabled":                  types.BoolType,
+		"archive_interval_seconds": types.Int64Type,
+	}}
+}
+
+// restoreModel is the create-only bootstrap descriptor.
+type restoreModel struct {
+	BackupID         types.String `tfsdk:"backup_id"`
+	SourceInstanceID types.String `tfsdk:"source_instance_id"`
+	TargetTime       types.String `tfsdk:"target_time"`
+	Exclusive        types.Bool   `tfsdk:"exclusive"`
+}
+
+func restoreType() basetypes.ObjectType {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"backup_id":          types.StringType,
+		"source_instance_id": types.StringType,
+		"target_time":        types.StringType,
+		"exclusive":          types.BoolType,
+	}}
+}
+
+// managedPostgresqlKeep carries the attributes no read echoes back, so a
+// refresh keeps what the configuration asked for instead of nulling it: the
+// status view reports neither the backup target a database ships to nor its
+// recovery policy, and the CRD spec view exposes neither either.
+type managedPostgresqlKeep struct {
+	Pitr             types.Object
+	BackupTargetID   types.String
+	RestoreWoVersion types.String
 }
 
 func (r *managedPostgresqlResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -132,9 +188,14 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()},
 			},
 			"backup_target_id": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "Backup target id (required when backup_policy is automated). Changing this forces a new cluster.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Optional: true,
+				MarkdownDescription: "Backup target id — where base backups and, with `pitr`, the " +
+					"write-ahead log ship. Required when `backup_policy` is `automated` and whenever " +
+					"`pitr` is set. Changing this forces a new cluster.\n\n" +
+					"~> No API view reports it, so Terraform carries it from prior state. " +
+					"`terraform import` cannot recover it, and a target attached elsewhere is invisible " +
+					"to `terraform plan`.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"configuration": schema.StringAttribute{
 				Optional: true, Computed: true,
@@ -152,6 +213,99 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				MarkdownDescription: "User-defined tags.",
 				PlanModifiers:       []planmodifier.List{},
 			},
+			"pitr": schema.SingleNestedAttribute{
+				Optional: true,
+				MarkdownDescription: "Point-in-time recovery policy. Needs a `backup_target_id`, because the " +
+					"write-ahead log has to ship somewhere; the platform refuses the policy otherwise, " +
+					"and refuses it at apply time rather than at plan time.\n\n" +
+					"~> No API view echoes this policy back, so Terraform carries it from prior state. " +
+					"`terraform import` therefore cannot recover it, and a policy changed in the console " +
+					"or through `hfctl` is invisible to `terraform plan`.\n\n" +
+					"~> Removing `pitr` from the configuration does **not** turn recovery off: the " +
+					"platform reads an absent policy as \"leave it as it is\", so `enabled = false` is " +
+					"the only off switch.",
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Required: true,
+						MarkdownDescription: "Whether a bounded recovery point objective is kept. `false` does not " +
+							"stop archiving — a database with a backup target attached always ships its WAL, " +
+							"because a base backup is not consistent without it. It drops the forced segment " +
+							"switch, so WAL ships only as segments fill and an idle hour may not be recoverable.",
+					},
+					"archive_interval_seconds": schema.Int64Attribute{
+						Optional:   true,
+						Validators: []validator.Int64{int64validator.Between(60, 86400)},
+						MarkdownDescription: "Seconds between forced WAL segment switches (60-86400) — the " +
+							"worst-case recovery point objective while the database is idle. Left out, the " +
+							"platform resolves its own interval at every reconcile, so a platform change " +
+							"reaches the database.\n\n" +
+							"~> There is no way back to that resolved interval: a pin can be changed to " +
+							"another number, and dropping it from the config keeps the pin the platform " +
+							"already stored. It also survives `enabled = false`, so turning recovery back " +
+							"on restores the same objective.\n\n" +
+							"This is what the database asks for. The top-level `archive_interval_seconds` " +
+							"is what the running cluster carries.",
+					},
+				},
+			},
+			"restore": schema.SingleNestedAttribute{
+				Optional: true, WriteOnly: true,
+				MarkdownDescription: "Bootstrap the database from an existing archive instead of an empty " +
+					"`initdb`. Write-only: it is sent on create and never written to state, so it requires " +
+					"Terraform >= 1.11.\n\n" +
+					"~> Read at create only. The platform cannot restore a database in place and " +
+					"echoes nothing back, so Terraform cannot see this block change on its own: " +
+					"editing it produces no plan unless `restore_wo_version` changes with it.\n\n" +
+					"`engine` and `version` must match the source exactly, and an omitted `engine` or " +
+					"`version` is compared as `postgresql` / `17` rather than inherited — state both on " +
+					"any other source. Leaving `backup_target_id` out inherits the source's backup target " +
+					"and its schedule, which can read back as `backup_policy = \"automated\"`. Nothing " +
+					"checks `storage_capacity` against the source's volume: a restore into a smaller one " +
+					"is accepted here and fails inside the cluster.",
+				Attributes: map[string]schema.Attribute{
+					"backup_id": schema.StringAttribute{
+						Optional: true, WriteOnly: true,
+						MarkdownDescription: "Id of a completed backup to restore exactly as it was taken. " +
+							"Must live in the same environment as the new database.",
+						Validators: []validator.String{
+							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("source_instance_id")),
+						},
+					},
+					"source_instance_id": schema.StringAttribute{
+						Optional: true, WriteOnly: true,
+						MarkdownDescription: "Id of the database whose continuous WAL archive to restore from. " +
+							"Must live in the same environment as the new database, and is the only route that " +
+							"accepts a `target_time`. The source must have completed at least one base backup.",
+					},
+					"target_time": schema.StringAttribute{
+						Optional: true, WriteOnly: true,
+						MarkdownDescription: "RFC 3339 point to recover to. Must fall between the source's " +
+							"`first_recoverability_point` and now, which the platform checks when the create " +
+							"call runs — the window is not known at plan time. Left out, recovery replays to " +
+							"the latest archived WAL.",
+						Validators: []validator.String{
+							stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("source_instance_id")),
+						},
+					},
+					"exclusive": schema.BoolAttribute{
+						Optional: true, WriteOnly: true,
+						MarkdownDescription: "Stop immediately before `target_time` rather than at it.",
+						Validators: []validator.Bool{
+							boolvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("target_time")),
+						},
+					},
+				},
+			},
+			"restore_wo_version": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "Arbitrary token that makes a changed `restore` visible to Terraform. " +
+					"A write-only attribute never reaches state, so nothing else can tell one restore " +
+					"descriptor from the next; change this alongside `restore` to ask for the restore " +
+					"again. Changing it forces a new cluster, because a restore only happens when a " +
+					"database is created.",
+				Validators:    []validator.String{stringvalidator.AlsoRequires(path.MatchRoot("restore"))},
+				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+			},
 
 			"phase":             computedStr("Current lifecycle phase."),
 			"instances":         schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired instance count."},
@@ -160,6 +314,21 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			"read_endpoint":     computedStr("Read-only endpoint."),
 			"external_endpoint": computedStr("External endpoint, if exposed."),
 			"slug":              computedStr("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
+			"archive_interval_seconds": schema.Int64Attribute{
+				Computed: true,
+				MarkdownDescription: "Seconds between forced WAL segment switches on the running cluster — " +
+					"the interval the platform resolved, not the one `pitr` asks for, so it lags a change " +
+					"until the cluster picks it up. `0` means no forced switch, so nothing bounds the lag " +
+					"on an idle database; null means the database archives nowhere, or the platform has " +
+					"not reported on it yet.",
+			},
+			"first_recoverability_point": computedStr("Earliest point a restore can target, as the backup " +
+				"catalog reports it. Null on a database that archives nowhere, and on one that ships WAL " +
+				"but has never completed a base backup — which is not restorable however healthy its " +
+				"archiver looks."),
+			"last_successful_backup_time": computedStr("When the last base backup completed. A " +
+				"continuous-archive restore needs one, because recovery replays forward from a base backup."),
+			"last_failed_backup_time": computedStr("When the last backup failed."),
 		},
 	}
 }
@@ -227,6 +396,27 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		body.BackupTargetId = &bt
 	}
 
+	pitr, d := pitrRequestFrom(ctx, plan.Pitr)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	body.Pitr = pitr
+
+	// The config, not the plan: `restore` is write-only, so the framework has
+	// already nullified it everywhere but there.
+	var restoreCfg types.Object
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("restore"), &restoreCfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	restore, d := restoreFrom(ctx, restoreCfg)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	body.Restore = restore
+
 	created, err := r.p.API.CreateManagedPostgresql(ctx, r.p.OrgID, plan.Env.ValueString(), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create managed postgresql", err.Error())
@@ -238,7 +428,11 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, id)
+	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
+		Pitr:             plan.Pitr,
+		BackupTargetID:   plan.BackupTargetID,
+		RestoreWoVersion: plan.RestoreWoVersion,
+	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after create", err.Error())
 		return
@@ -252,7 +446,11 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.ID.ValueString(), managedPostgresqlKeep{
+		Pitr:             prior.Pitr,
+		BackupTargetID:   prior.BackupTargetID,
+		RestoreWoVersion: prior.RestoreWoVersion,
+	})
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -294,6 +492,12 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		cfg := console.Configuration(plan.Configuration.ValueString())
 		body.Configuration = &cfg
 	}
+	pitr, d := pitrRequestFrom(ctx, plan.Pitr)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	body.Pitr = pitr
 
 	id := state.ID.ValueString()
 	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body); err != nil {
@@ -304,7 +508,11 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		resp.Diagnostics.AddError("Cluster did not become ready after update", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, id)
+	newState, err := r.readInto(ctx, id, managedPostgresqlKeep{
+		Pitr:             plan.Pitr,
+		BackupTargetID:   plan.BackupTargetID,
+		RestoreWoVersion: plan.RestoreWoVersion,
+	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after update", err.Error())
 		return
@@ -358,13 +566,27 @@ func (r *managedPostgresqlResource) waitReady(ctx context.Context, id string) er
 		if err != nil {
 			return nil, false, err
 		}
+		// Fail fast: the operator parks a cluster it refuses to build at
+		// phase=Failed and names the reason on the ClusterReady condition (an
+		// archive prefix another database already occupies, a backup secret it
+		// cannot resolve, a CNPG cluster it cannot recover). Nothing is created in
+		// that state, so polling to the timeout only hides why.
+		if c.Phase != nil && *c.Phase == "Failed" {
+			msg := conditionMessage(c.Conditions, "ClusterReady")
+			if msg == "" {
+				msg = "database entered the Failed phase"
+			}
+			return nil, false, errors.New(msg)
+		}
 		ready := c.Instances > 0 && c.ReadyInstances == c.Instances
 		return c, ready, nil
 	})
 	return err
 }
 
-func (r *managedPostgresqlResource) readInto(ctx context.Context, id string) (managedPostgresqlModel, error) {
+// readInto builds the model from both views, carrying keep through for the
+// attributes neither view reports.
+func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, keep managedPostgresqlKeep) (managedPostgresqlModel, error) {
 	c, err := r.p.API.GetManagedPostgresql(ctx, r.p.OrgID, id)
 	if err != nil {
 		return managedPostgresqlModel{}, err
@@ -401,10 +623,80 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string) (ma
 		ReadEndpoint:     optString(c.ReadEndpoint),
 		ExternalEndpoint: optString(c.ExternalEndpoint),
 		Slug:             types.StringValue(c.Slug),
+
+		BackupTargetID:           keep.BackupTargetID,
+		Pitr:                     keep.Pitr,
+		Restore:                  types.ObjectNull(restoreType().AttrTypes),
+		RestoreWoVersion:         keep.RestoreWoVersion,
+		ArchiveIntervalSeconds:   optInt64FromInt32(c.ArchiveIntervalSeconds),
+		FirstRecoverabilityPoint: optTimeString(c.FirstRecoverabilityPoint),
+		LastSuccessfulBackupTime: optTimeString(c.LastSuccessfulBackupTime),
+		LastFailedBackupTime:     optTimeString(c.LastFailedBackupTime),
 	}
-	// backup_target_id and backup_policy=="" handling: the status view reports
-	// backup_policy but not the target id; keep target id null (it's ForceNew,
-	// set only at create and not echoed).
-	m.BackupTargetID = types.StringNull()
 	return m, nil
+}
+
+// pitrRequestFrom converts a configured `pitr` into the API input. Returns nil
+// when the config leaves it out, which the caller sends as an absent field —
+// and which the platform reads as "leave the policy as it is".
+func pitrRequestFrom(ctx context.Context, obj types.Object) (*console.PitrRequest, diag.Diagnostics) {
+	var d diag.Diagnostics
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil, d
+	}
+	var m pitrModel
+	d.Append(obj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if d.HasError() {
+		return nil, d
+	}
+	return &console.PitrRequest{
+		Enabled:                m.Enabled.ValueBool(),
+		ArchiveIntervalSeconds: int32PtrFromInt64(m.ArchiveIntervalSeconds),
+	}, d
+}
+
+// restoreFrom converts a configured `restore` into the API input, parsing the
+// ids and the timestamp into the shapes the API takes. Returns nil when the
+// config leaves it out, which bootstraps an empty database.
+func restoreFrom(ctx context.Context, obj types.Object) (*console.RestoreFromBackup, diag.Diagnostics) {
+	var d diag.Diagnostics
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil, d
+	}
+	var m restoreModel
+	d.Append(obj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if d.HasError() {
+		return nil, d
+	}
+
+	out := &console.RestoreFromBackup{}
+	root := path.Root("restore")
+	if !m.BackupID.IsNull() && !m.BackupID.IsUnknown() {
+		id, err := uuid.Parse(m.BackupID.ValueString())
+		if err != nil {
+			d.AddAttributeError(root.AtName("backup_id"), "Invalid backup_id", "must be a UUID: "+err.Error())
+			return nil, d
+		}
+		out.BackupId = &id
+	}
+	if !m.SourceInstanceID.IsNull() && !m.SourceInstanceID.IsUnknown() {
+		id, err := uuid.Parse(m.SourceInstanceID.ValueString())
+		if err != nil {
+			d.AddAttributeError(root.AtName("source_instance_id"), "Invalid source_instance_id", "must be a UUID: "+err.Error())
+			return nil, d
+		}
+		out.SourceInstanceId = &id
+	}
+	if !m.TargetTime.IsNull() && !m.TargetTime.IsUnknown() {
+		t, err := time.Parse(time.RFC3339, m.TargetTime.ValueString())
+		if err != nil {
+			d.AddAttributeError(root.AtName("target_time"), "Invalid target_time", "must be an RFC 3339 timestamp: "+err.Error())
+			return nil, d
+		}
+		out.TargetTime = &t
+	}
+	if !m.Exclusive.IsNull() && !m.Exclusive.IsUnknown() {
+		out.Exclusive = m.Exclusive.ValueBoolPointer()
+	}
+	return out, d
 }

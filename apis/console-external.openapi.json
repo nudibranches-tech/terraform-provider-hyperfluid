@@ -51184,6 +51184,10 @@
           "node_tier": {
             "$ref": "#/components/schemas/NodeTier"
           },
+          "pitr": {
+            "$ref": "#/components/schemas/PitrRequest",
+            "nullable": true
+          },
           "restore": {
             "$ref": "#/components/schemas/RestoreFromBackup",
             "nullable": true
@@ -59418,6 +59422,12 @@
           "updated_at"
         ],
         "properties": {
+          "archive_interval_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How long this database may go without shipping a WAL segment, in\nseconds — its worst-case recovery point objective while idle.\n\nThis is the value the running cluster is configured with, not the one\nits spec asks for, so it bounds a point-in-time restore picker on a fact\nrather than on an assumption. `0` means no forced segment switch, so\nnothing bounds the lag on an idle database; `null` means the platform\nhas nothing to say — the database archives nowhere, or the operator has\nnot reported on it yet.",
+            "nullable": true
+          },
           "backup_policy": {
             "type": "string"
           },
@@ -62280,6 +62290,10 @@
             "$ref": "#/components/schemas/NodeTier",
             "nullable": true
           },
+          "pitr": {
+            "$ref": "#/components/schemas/PitrRequest",
+            "nullable": true
+          },
           "storage_capacity": {
             "type": "integer",
             "format": "int32",
@@ -63466,6 +63480,27 @@
             "type": "integer",
             "format": "int64",
             "description": "Total pipelines matching the request's scope, across every type and\nsuspend state."
+          }
+        }
+      },
+      "PitrRequest": {
+        "type": "object",
+        "description": "Opt in to point-in-time recovery, and choose how tight it is.\n\nPostgreSQL ships its write-ahead log to object storage one 16 MiB segment at\na time, and a segment is archived only when it fills or when a timer forces\na switch. The interval is therefore the worst-case recovery point objective\nfor an *idle* database — a busy one fills segments and ships faster on its\nown.",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "archive_interval_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Seconds between forced WAL segment switches. Absent takes the platform's\nrecommended interval, resolved when the cluster is reconciled rather\nthan frozen into the resource now.\n\nFive minutes is the recommended floor, not the enforced one: a shorter\ninterval is a legitimate choice for a database whose writes are worth\nmore than the segments. One minute is the hard floor, because below it\nthe cost of near-empty segments lands on the shared object store rather\nthan on the database that chose it.",
+            "maximum": 86400,
+            "minimum": 60,
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Keep a bounded recovery point objective.\n\n`false` does not stop WAL archiving — nothing can, while a backup target\nis attached, because a base backup is not consistent without it. It\ndrops the forced segment switch, so WAL ships only when a segment fills:\nthe database stays restorable to its backups and to whatever WAL\nhappened to fill, but an idle hour may not be recoverable. That trades\na guarantee for the 16 MiB PUT a forced switch costs every interval."
           }
         }
       },
