@@ -1,4 +1,6 @@
-## 0.1.0 (Unreleased)
+## Unreleased
+
+## 0.9.0 (September 22, 2026)
 
 FEATURES:
 
