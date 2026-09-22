@@ -47,7 +47,7 @@ output "warehouse_level_applies" {
   value = data.hyperfluid_airflow_connection.warehouse.permission_level_applies
 }
 
-# A Trino connection: which catalog the task pods open every session against.
+# A Trino connection: the catalog its sessions default to for unqualified names.
 data "hyperfluid_airflow_connection" "lakehouse" {
   airflow = data.hyperfluid_airflow.analytics.id
   conn_id = "lakehouse"
@@ -81,7 +81,7 @@ output "warehouse_conditions" {
 ### Read-Only
 
 - `bucket_ref` (String) Name of the bucket the connection targets, for a bucket connection.
-- `catalog` (String) The Trino catalog the connection opens against. Set for a Trino connection, where it is required, and null for every other type.
+- `catalog` (String) The Trino catalog the connection opens against — the session default for unqualified table names, not a scope. Set for a Trino connection, where it is required, and null for every other type.
 - `collision` (Boolean) Whether an Airflow connection row the platform does not manage — a hand-written one, say — already owns this `conn_id`.
 - `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
 - `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`. (see [below for nested schema](#nestedatt--conditions))

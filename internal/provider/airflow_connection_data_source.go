@@ -60,8 +60,9 @@ func (d *airflowConnectionDataSource) Schema(_ context.Context, _ datasource.Sch
 			"managed_postgresql_ref": cs("Name of the PostgreSQL cluster the connection targets, for a database connection."),
 			"bucket_ref":             cs("Name of the bucket the connection targets, for a bucket connection."),
 			"trino_ref":              cs("Name of the Trino Data Dock the connection targets, for a Trino connection."),
-			"catalog": cs("The Trino catalog the connection opens against. Set for a Trino connection, where " +
-				"it is required, and null for every other type."),
+			"catalog": cs("The Trino catalog the connection opens against — the session default for " +
+				"unqualified table names, not a scope. Set for a Trino connection, where it is " +
+				"required, and null for every other type."),
 			"permission_level": cs("The level pinned on the connection, or null when it follows the platform default."),
 			"connection_type": cs("The Airflow `conn_type` of the row the platform wrote, derived from which " +
 				"target it names: `postgres`, `aws` for a bucket, or `hyperfluid_trino`."),

@@ -29,7 +29,7 @@ output "warehouse_level_applies" {
   value = data.hyperfluid_airflow_connection.warehouse.permission_level_applies
 }
 
-# A Trino connection: which catalog the task pods open every session against.
+# A Trino connection: the catalog its sessions default to for unqualified names.
 data "hyperfluid_airflow_connection" "lakehouse" {
   airflow = data.hyperfluid_airflow.analytics.id
   conn_id = "lakehouse"

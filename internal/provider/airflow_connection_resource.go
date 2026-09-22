@@ -301,6 +301,12 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 				MarkdownDescription: "The Trino catalog every session on the connection opens against. " +
 					"Required with `trino_ref`, and meaningless without it — both directions are plan " +
 					"errors.\n\n" +
+					"It is the session **default** for unqualified table names, not a scope: the platform " +
+					"authorizes each statement against the catalog of the table being touched, so a DAG " +
+					"that names `other_catalog.schema.table` in full reaches it, bounded by what the " +
+					"environment's service account is granted. Two connections on one dock naming " +
+					"different catalogs therefore carry identical authority — this attribute buys DAG " +
+					"ergonomics, never isolation.\n\n" +
 					"Required rather than defaulted because Airflow's own `TrinoHook` falls back to a " +
 					"catalog called `hive`, which exists on no Hyperfluid dock: a connection without one " +
 					"would aim every query at something that is not there. The platform cannot pick for you " +
