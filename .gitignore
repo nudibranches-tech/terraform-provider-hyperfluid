@@ -33,3 +33,8 @@ website/vendor
 
 # Keep windows files with windows line endings
 *.winfile eol=crlf
+
+# The provider binary `go build` / `make build` drops in the repo root. It is
+# named after the module, so none of the patterns above catch it, and it was
+# committed once (38 MB) before this line existed.
+/terraform-provider-hyperfluid
