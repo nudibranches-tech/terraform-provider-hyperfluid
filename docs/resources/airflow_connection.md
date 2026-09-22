@@ -3,17 +3,20 @@
 page_title: "hyperfluid_airflow_connection Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A managed Airflow connection: the platform resolves the target, mints a credential scoped to it and writes the Airflow connection row itself. A DAG then asks for the conn_id and never holds a secret — nothing here puts a password in Terraform state, because no password ever reaches Terraform.
-  A connection names exactly one target — managed_postgresql_ref or bucket_ref — and which one it is decides the connection's type. Both or neither is a configuration error, reported at plan time.
+  A managed Airflow connection: the platform resolves the target, puts a credential scoped to it in place and writes the Airflow connection row itself. A DAG then asks for the conn_id and never holds a secret — nothing here puts a password in Terraform state, because no password ever reaches Terraform.
+  A connection names exactly one target — managed_postgresql_ref, bucket_ref or trino_ref — and which one it is decides the connection's type. Two of them, or none, is a configuration error reported at plan time.
+  The Trino target is the one that is more than a name: it takes a required catalog, and it reaches the dock at its in-cluster address. It is also the one the platform provisions nothing for — it carries the environment's own service account, so permission_level has no meaning on it and is refused. permission_level_applies reports that, and is what to read before resolved_permission_level.
   ~> Object-store credentials are not exposed here. A bucket connection's credential is minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so it has no sane representation in Terraform state: by the time state were written the credential would already be expiring, and it would be useless anywhere but inside the cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and no data source, that hands it out.
   Import id is "<airflow_id>/<conn_id>" — the same composite the resource exports as id, so an id copied out of state is a usable import id.
 ---
 
 # hyperfluid_airflow_connection (Resource)
 
-A managed Airflow connection: the platform resolves the target, mints a credential scoped to it and writes the Airflow connection row itself. A DAG then asks for the `conn_id` and never holds a secret — nothing here puts a password in Terraform state, because no password ever reaches Terraform.
+A managed Airflow connection: the platform resolves the target, puts a credential scoped to it in place and writes the Airflow connection row itself. A DAG then asks for the `conn_id` and never holds a secret — nothing here puts a password in Terraform state, because no password ever reaches Terraform.
 
-A connection names exactly one target — `managed_postgresql_ref` **or** `bucket_ref` — and which one it is decides the connection's type. Both or neither is a configuration error, reported at plan time.
+A connection names exactly one target — `managed_postgresql_ref`, `bucket_ref` **or** `trino_ref` — and which one it is decides the connection's type. Two of them, or none, is a configuration error reported at plan time.
+
+The Trino target is the one that is more than a name: it takes a required `catalog`, and it reaches the dock at its in-cluster address. It is also the one the platform provisions nothing for — it carries the environment's own service account, so `permission_level` has no meaning on it and is refused. `permission_level_applies` reports that, and is what to read before `resolved_permission_level`.
 
 ~> **Object-store credentials are not exposed here.** A bucket connection's credential is minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so it has no sane representation in Terraform state: by the time state were written the credential would already be expiring, and it would be useless anywhere but inside the cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and no data source, that hands it out.
 
@@ -68,14 +71,39 @@ resource "hyperfluid_airflow_connection" "warehouse" {
   permission_level = "editor"
 }
 
-# The same for object storage. Exactly one target per connection: naming both
-# managed_postgresql_ref and bucket_ref, or neither, is a plan-time error.
+# The same for object storage. Exactly one target per connection: naming two of
+# managed_postgresql_ref, bucket_ref and trino_ref — or none of them — is a
+# plan-time error.
 resource "hyperfluid_airflow_connection" "exports" {
   airflow = hyperfluid_airflow.analytics.id
   conn_id = "exports"
 
   bucket_ref       = hyperfluid_bucket.exports.name
   permission_level = "editor"
+}
+
+# Governed SQL over a Trino Data Dock. The dock is named by the name the console
+# and hfctl list it under; Data Docks are not managed by this provider, so a
+# Trino connection names one that already exists in the environment's harbor.
+#
+# The catalog is required rather than defaulted: Airflow's own TrinoHook falls
+# back to a catalog called "hive", which exists on no Hyperfluid dock, so a
+# connection without one would aim every query at something that is not there.
+resource "hyperfluid_airflow_connection" "lakehouse" {
+  airflow = hyperfluid_airflow.analytics.id
+  conn_id = "lakehouse"
+
+  trino_ref = "analytics"
+  catalog   = "iceberg"
+
+  # There is no permission_level here, and not by omission: this connection
+  # carries the environment's own service account, so the platform grants it no
+  # authority of its own for a level to scale. Naming a level beside trino_ref
+  # is a plan error. Grant that service account what the DAGs need from the
+  # console, the same way you grant any other principal.
+  #
+  # Task pods reach the dock at its in-cluster address, TLS to the coordinator.
+  # There is no door to choose.
 }
 
 # Ready means the row is in Airflow and the credential reached the target. A
@@ -109,22 +137,37 @@ Changing this forces a new connection.
 
 ### Optional
 
-- `bucket_ref` (String) Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly one of this and `managed_postgresql_ref` must be set.
-- `managed_postgresql_ref` (String) Name of a `hyperfluid_managed_postgresql` in the same harbor to connect to. Exactly one of this and `bucket_ref` must be set. Switching a connection from one target to the other is applied in place: the platform releases the credential it no longer needs before minting the new one.
+- `bucket_ref` (String) Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly one of this, `managed_postgresql_ref` and `trino_ref` must be set.
+- `catalog` (String) The Trino catalog every session on the connection opens against. Required with `trino_ref`, and meaningless without it — both directions are plan errors.
+
+Required rather than defaulted because Airflow's own `TrinoHook` falls back to a catalog called `hive`, which exists on no Hyperfluid dock: a connection without one would aim every query at something that is not there. The platform cannot pick for you either, since a dock carries as many catalogs as the harbor has data containers and which one a DAG wants is not derivable.
+
+ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan time because the value travels to the coordinator as an HTTP header and is validated by the platform's API server — which would refuse it mid-apply, after the environment and the dock already exist.
+
+Changing it is applied in place; a Trino payload is always sent whole.
+- `managed_postgresql_ref` (String) Name of a `hyperfluid_managed_postgresql` in the same harbor to connect to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a connection from one target to another is applied in place: the platform releases the credential it no longer needs before putting the new one in place.
 - `permission_level` (String) Pin the access level granted on the target: `viewer` or `editor`. Leave it out to follow the platform default, which is resolved on every reconcile and is therefore a different thing from pinning today's default value — the level actually in force is always reported as `resolved_permission_level`. What the level means depends on the target: database grants for a PostgreSQL connection, the object-store verbs of a scoped identity for a bucket one.
 
-~> **Removing the pin forces a new connection.** The API can raise or lower a pinned level in place but has no way to un-pin one, so going back to the platform default means replacing the connection — which re-mints its credential.
+~> **It cannot be set on a Trino connection.** The level scales the authority the platform grants a connection's own identity, and a Trino connection carries the environment's service account, for which the platform grants none. The API refuses the combination with a 400 and the platform refuses the declaration; naming both here is a plan error instead.
+
+~> **Removing the pin forces a new connection.** The API can raise or lower a pinned level in place but has no way to un-pin one, so going back to the platform default means replacing the connection — which re-provisions its credential. Retargeting a pinned connection to `trino_ref` therefore replaces it too: the pin has to come out of the configuration for the Trino target to be legal at all.
+- `trino_ref` (String) Name of a Trino Data Dock in the same harbor to connect to — the dock's own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required beside this one.
+
+Data Docks are not managed by this provider; a Trino connection names one that already exists in the environment's harbor.
+
+~> **A Trino connection carries the environment's own service account** — the identity the platform's reserved `hyperfluid_default` connection already uses. Nothing is provisioned for it: no new service account, no scoped identity, no grant, and no credential minted per connection. Every query is authorized server-side against the grants that identity already holds, which is why `permission_level` cannot be set on this type — there is no authority of the connection's own for a level to scale. Grant the environment's service account what the DAGs need from the console, the same way you grant any other principal.
 
 ### Read-Only
 
 - `collision` (Boolean) Whether a connection row the platform does not manage — one written by hand in the Airflow UI, or left behind by something other than Hyperfluid — already owns this `conn_id`. A colliding connection is not applied. Resolving a collision requires an explicit takeover, which is done from the console or `hfctl`, not from Terraform. A `conn_id` a second Terraform declaration asks for is not this: that is refused at create time, before any connection exists to collide.
 - `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
 - `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`, and where the reason for a connection that will not apply is written. (see [below for nested schema](#nestedatt--conditions))
-- `connection_type` (String) Type of connection, derived from which target was named: a PostgreSQL connection or a bucket one.
+- `connection_type` (String) The Airflow `conn_type` of the row the platform wrote, derived from which target was named: `postgres`, `aws` for a bucket, or `hyperfluid_trino` — a Hyperfluid-owned spelling, not the stock `trino`, because the hook that serves the type is the platform's own.
 - `id` (String) Composite identifier `<airflow_id>/<conn_id>`, which is exactly the string `terraform import` takes — an id copied out of state imports the connection it came from. The connection object's own name, which is how the API addresses it, is exported separately as `name`.
 - `name` (String) The connection object's own name, which is how the API addresses it. Derived by the platform and not the same string as `conn_id`.
+- `permission_level_applies` (Boolean) Whether `permission_level` means anything for this connection's type. False for a Trino connection, permanently: it carries the environment's own service account, whose grants are yours to assign, so the platform grants the connection no authority of its own for a level to scale.
 - `phase` (String) Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` is not a failure — it is what a connection reports while its environment is asleep.
-- `resolved_permission_level` (String) The level actually in force: the value pinned in `permission_level`, or the platform's own default when nothing is pinned.
+- `resolved_permission_level` (String) The level actually in force: the value pinned in `permission_level`, or the platform's own default when nothing is pinned. Read `permission_level_applies` first — where the knob does not apply this field describes nothing the platform granted and must not be read as an access level.
 - `source_applied` (Boolean) Whether the credential has actually been applied to the target.
 - `spec_observed` (Boolean) Whether the platform has looked at the current declaration yet. False distinguishes "not seen" from "seen and cannot be satisfied", which otherwise look identical.
 

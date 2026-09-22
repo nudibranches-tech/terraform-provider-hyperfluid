@@ -114,6 +114,7 @@ const (
 	AirflowLinkKindHfKeyValueCache   AirflowLinkKind = "HfKeyValueCache"
 	AirflowLinkKindKafka             AirflowLinkKind = "Kafka"
 	AirflowLinkKindManagedPostgreSQL AirflowLinkKind = "ManagedPostgreSQL"
+	AirflowLinkKindTrino             AirflowLinkKind = "Trino"
 )
 
 // Valid indicates whether the value is a known member of the AirflowLinkKind enum.
@@ -126,6 +127,8 @@ func (e AirflowLinkKind) Valid() bool {
 	case AirflowLinkKindKafka:
 		return true
 	case AirflowLinkKindManagedPostgreSQL:
+		return true
+	case AirflowLinkKindTrino:
 		return true
 	default:
 		return false
@@ -4651,6 +4654,12 @@ type AddGroupMemberRequestBody struct {
 	PrincipalType string `json:"principal_type"`
 }
 
+// AddServiceAccountAttributeRequest One attribute to add.
+type AddServiceAccountAttributeRequest struct {
+	// Attribute Attribute in `namespace::value` format, e.g. `region::occitanie`.
+	Attribute string `json:"attribute"`
+}
+
 // AddUser defines model for AddUser.
 type AddUser struct {
 	Email string `json:"email"`
@@ -5115,7 +5124,23 @@ type AirflowConnectionResponse struct {
 	// internals, and the frozen contract §7 keeps host- and login-shaped
 	// fields out of the projection precisely so that a read of the console API
 	// can never assemble half a credential.
-	BucketRef                       *string                              `json:"bucket_ref,omitempty"`
+	BucketRef *string `json:"bucket_ref,omitempty"`
+
+	// Catalog The Trino catalog this connection opens against. Present only for a
+	// `Trino` connection, where it is always set (it is required for the
+	// type).
+	//
+	// Projected after reading §7's actual list — "environment UID, ownership
+	// nonce, collision observation digest, secret references, secret
+	// IDs/names, host, port, schema, login, password, URI, raw `extra`" — and
+	// it is none of them. It is not the row's `schema` column either: that is
+	// Airflow's default-schema field, which the reconciler writes as `None`
+	// for this type. What it is is the second half of the target the USER
+	// named, sitting beside `trino_ref` for the same reason §7 admits the
+	// "target display name": a console that could not read it back could not
+	// render the edit form for a connection it just created, and would have to
+	// ask the user to retype the catalog to change the dock.
+	Catalog                         *string                              `json:"catalog,omitempty"`
 	Collision                       bool                                 `json:"collision"`
 	CollisionExistingConnectionType *string                              `json:"collision_existing_connection_type,omitempty"`
 	Conditions                      []AirflowConnectionConditionResponse `json:"conditions"`
@@ -5152,7 +5177,20 @@ type AirflowConnectionResponse struct {
 	// claiming a choice the user never made. What that default currently
 	// resolves to is `resolved_permission_level` below.
 	PermissionLevel *string `json:"permission_level,omitempty"`
-	Phase           string  `json:"phase"`
+
+	// PermissionLevelApplies Whether `permission_level` means anything for this connection's type
+	// (D2).
+	//
+	// `false` for a Trino connection, permanently: it carries the
+	// environment's own service account, whose grants are the customer's to
+	// assign, so the platform grants the connection no authority for a level
+	// to scale — the API refuses a level on this type with a `400` and the
+	// reconciler refuses the spec with `PermissionLevelNotApplicable`. When
+	// this is `false`, `resolved_permission_level` below describes nothing the
+	// platform granted and must not be rendered. Sourced from a total match on
+	// the type, so a fourth type has to answer the question.
+	PermissionLevelApplies bool   `json:"permission_level_applies"`
+	Phase                  string `json:"phase"`
 
 	// ResolvedPermissionLevel The level actually in force: the pin above, or the platform's default
 	// when there is none.
@@ -5161,6 +5199,11 @@ type AirflowConnectionResponse struct {
 	// `unwrap_or_default()` both sources apply at reconcile time — a second
 	// literal here would let the console display one level while the platform
 	// granted another.
+	//
+	// Only meaningful where the knob applies: read
+	// `permission_level_applies` above first. For a type the platform grants
+	// no authority to, this field describes nothing — it is kept non-optional
+	// because it predates that type and every existing client requires it.
 	ResolvedPermissionLevel string `json:"resolved_permission_level"`
 	SourceApplied           *bool  `json:"source_applied,omitempty"`
 
@@ -5172,7 +5215,17 @@ type AirflowConnectionResponse struct {
 
 	// TakeoverChallenge Present only while this exact collision can be explicitly authorized.
 	TakeoverChallenge *openapi_types.UUID `json:"takeover_challenge,omitempty"`
-	UpdatedAt         *string             `json:"updated_at,omitempty"`
+
+	// TrinoRef Name of the Trino `DataDock` a `Trino` connection targets, and nothing
+	// else about it.
+	//
+	// The dock's address is what is missing here, deliberately: it is
+	// resolved at reconcile time from the dock's own resource, and the frozen
+	// contract §7 keeps `host`, `port` and `URI` out of this response. The
+	// name is the whole of what the declaration says, and it is the same
+	// value a `PATCH` sends back to retarget.
+	TrinoRef  *string `json:"trino_ref,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
 }
 
 // AirflowConnectionS3Session A short-lived object-store credential for one bucket connection.
@@ -5286,10 +5339,16 @@ type AirflowEgressRequest struct {
 type AirflowInClusterLinkRequest struct {
 	// Kind The service kinds an environment may be granted egress to — exactly the
 	// kinds the ServiceLink controller's `pod_selector_labels` can resolve into a
-	// pod selector + port (Trino and Pipeline are deliberately absent: a task
-	// pod reaches Trino through Bifrost, which is baseline, and nothing connects
+	// pod selector + port (`Pipeline` is deliberately absent: nothing connects
 	// *to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the
 	// operator maps 1:1.
+	//
+	// `Trino` is the door a managed Trino connection needs. It is not the
+	// governed-SQL path from DAG code — that one goes through Bifrost and is part
+	// of the task-egress baseline, which is why this kind used to be absent —
+	// but a connection that hands `TrinoHook` a coordinator address needs the
+	// coordinator reachable, and a connection implies its own link so the path
+	// opens with the connection and closes when it is withdrawn.
 	Kind AirflowLinkKind `json:"kind"`
 
 	// Name The target's name (its console slug) in the same Harbor.
@@ -5298,10 +5357,16 @@ type AirflowInClusterLinkRequest struct {
 
 // AirflowLinkKind The service kinds an environment may be granted egress to — exactly the
 // kinds the ServiceLink controller's `pod_selector_labels` can resolve into a
-// pod selector + port (Trino and Pipeline are deliberately absent: a task
-// pod reaches Trino through Bifrost, which is baseline, and nothing connects
+// pod selector + port (`Pipeline` is deliberately absent: nothing connects
 // *to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the
 // operator maps 1:1.
+//
+// `Trino` is the door a managed Trino connection needs. It is not the
+// governed-SQL path from DAG code — that one goes through Bifrost and is part
+// of the task-egress baseline, which is why this kind used to be absent —
+// but a connection that hands `TrinoHook` a coordinator address needs the
+// coordinator reachable, and a connection implies its own link so the path
+// opens with the connection and closes when it is withdrawn.
 type AirflowLinkKind string
 
 // AirflowNodeTier Predefined resource tiers for the Airflow api-server/scheduler/dag-processor/
@@ -7722,15 +7787,36 @@ type CreateAiAgentRequest struct {
 type CreateAirflowConnectionRequest struct {
 	// BucketRef Name of the `HFBucket` to connect to, for a bucket connection.
 	BucketRef *string `json:"bucket_ref,omitempty"`
-	ConnId    string  `json:"conn_id"`
+
+	// Catalog The Trino catalog every session on the connection opens against.
+	// REQUIRED with `trino_ref`, and refused with either other target.
+	//
+	// Required rather than defaulted because `TrinoHook` falls back to
+	// `catalog="hive"`, which exists on no Hyperfluid dock: a row without one
+	// aims every query at something that is not there. The platform cannot
+	// pick for the user either — a dock carries as many catalogs as the harbor
+	// has data containers.
+	//
+	// The charset is the CRD's own (`^[A-Za-z0-9_-]{1,63}$`) because the value
+	// leaves as the `X-Trino-Catalog` header, and it is answered here with a
+	// `400` rather than deferred to the Kubernetes API server: a `catalog`
+	// the CEL rule refuses — `hive.default`, say, which is what a caller
+	// reaching for `catalog.schema` writes first — comes back as a field
+	// error naming the rule instead of an opaque failure.
+	Catalog *string `json:"catalog,omitempty"`
+	ConnId  string  `json:"conn_id"`
 
 	// ManagedPostgresqlRef Name of the `ManagedPostgreSQL` to connect to, for a Postgres
-	// connection. Exactly one of this and `bucket_ref` is given, and which one
-	// it is decides the connection's type.
+	// connection. Exactly one of this, `bucket_ref` and `trino_ref` is given,
+	// and which one it is decides the connection's type.
 	ManagedPostgresqlRef *string `json:"managed_postgresql_ref,omitempty"`
 
 	// PermissionLevel Permission level granted to the user on the target database.
 	PermissionLevel *PermissionLevel `json:"permission_level,omitempty"`
+
+	// TrinoRef Name of the Trino `DataDock` to connect to, for a Trino connection.
+	// Requires `catalog` beside it.
+	TrinoRef *string `json:"trino_ref,omitempty"`
 }
 
 // CreateAirflowCrdRequestBody defines model for CreateAirflowCrdRequestBody.
@@ -8811,7 +8897,16 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
 	// Restore Optional restore descriptor: bootstrap the new database from an existing
-	// backup instead of initializing it empty.
+	// backup, or from a source database's continuous archive, instead of
+	// initializing it empty.
+	//
+	// Exactly one source must be named, because the two answer different
+	// questions:
+	// - `backup_id` — restore that one backup, as it was taken.
+	// - `source_instance_id` — restore that database's continuous archive. This is
+	//   the route a `target_time` needs: CNPG selects the base backup itself from
+	//   the target, so naming one alongside would be naming a backup CNPG may not
+	//   use.
 	Restore *RestoreFromBackup `json:"restore,omitempty"`
 
 	// StorageCapacity Storage capacity in GB (1-30)
@@ -13172,33 +13267,42 @@ type ManagedPostgresqlCrdSpecResponse struct {
 
 // ManagedPostgresqlResponse defines model for ManagedPostgresqlResponse.
 type ManagedPostgresqlResponse struct {
-	BackupPolicy          string             `json:"backup_policy"`
-	BackupSchedule        *string            `json:"backup_schedule,omitempty"`
-	BackupScheduleSuspend bool               `json:"backup_schedule_suspend"`
-	BackupScheduleTarget  *string            `json:"backup_schedule_target,omitempty"`
-	Conditions            interface{}        `json:"conditions,omitempty"`
-	Configuration         string             `json:"configuration"`
-	CreatedAt             time.Time          `json:"created_at"`
-	CurrentPrimary        *string            `json:"current_primary,omitempty"`
-	DatabaseName          string             `json:"database_name"`
-	Description           *string            `json:"description,omitempty"`
-	Engine                string             `json:"engine"`
-	ExternalEndpoint      *string            `json:"external_endpoint,omitempty"`
-	HarborId              openapi_types.UUID `json:"harbor_id"`
-	Id                    openapi_types.UUID `json:"id"`
-	Instances             int32              `json:"instances"`
-	Name                  string             `json:"name"`
-	NodeTier              string             `json:"node_tier"`
-	OrganizationId        openapi_types.UUID `json:"organization_id"`
-	Phase                 *string            `json:"phase,omitempty"`
-	ReadEndpoint          *string            `json:"read_endpoint,omitempty"`
-	ReadyInstances        int32              `json:"ready_instances"`
-	Slug                  string             `json:"slug"`
-	StorageSize           string             `json:"storage_size"`
-	Tags                  []string           `json:"tags"`
-	UpdatedAt             time.Time          `json:"updated_at"`
-	Version               string             `json:"version"`
-	WriteEndpoint         *string            `json:"write_endpoint,omitempty"`
+	BackupPolicy          string      `json:"backup_policy"`
+	BackupSchedule        *string     `json:"backup_schedule,omitempty"`
+	BackupScheduleSuspend bool        `json:"backup_schedule_suspend"`
+	BackupScheduleTarget  *string     `json:"backup_schedule_target,omitempty"`
+	Conditions            interface{} `json:"conditions,omitempty"`
+	Configuration         string      `json:"configuration"`
+	CreatedAt             time.Time   `json:"created_at"`
+	CurrentPrimary        *string     `json:"current_primary,omitempty"`
+	DatabaseName          string      `json:"database_name"`
+	Description           *string     `json:"description,omitempty"`
+	Engine                string      `json:"engine"`
+	ExternalEndpoint      *string     `json:"external_endpoint,omitempty"`
+
+	// FirstRecoverabilityPoint What barman says can actually be restored. All three are `null` on a
+	// database that archives nowhere; `first_recoverability_point` and
+	// `last_successful_backup_time` are both `null` on one that archives WAL
+	// and has never had a base backup — which is not restorable, however
+	// healthy its archiver looks.
+	FirstRecoverabilityPoint *time.Time         `json:"first_recoverability_point,omitempty"`
+	HarborId                 openapi_types.UUID `json:"harbor_id"`
+	Id                       openapi_types.UUID `json:"id"`
+	Instances                int32              `json:"instances"`
+	LastFailedBackupTime     *time.Time         `json:"last_failed_backup_time,omitempty"`
+	LastSuccessfulBackupTime *time.Time         `json:"last_successful_backup_time,omitempty"`
+	Name                     string             `json:"name"`
+	NodeTier                 string             `json:"node_tier"`
+	OrganizationId           openapi_types.UUID `json:"organization_id"`
+	Phase                    *string            `json:"phase,omitempty"`
+	ReadEndpoint             *string            `json:"read_endpoint,omitempty"`
+	ReadyInstances           int32              `json:"ready_instances"`
+	Slug                     string             `json:"slug"`
+	StorageSize              string             `json:"storage_size"`
+	Tags                     []string           `json:"tags"`
+	UpdatedAt                time.Time          `json:"updated_at"`
+	Version                  string             `json:"version"`
+	WriteEndpoint            *string            `json:"write_endpoint,omitempty"`
 }
 
 // ManagedPostgresqlUserCrdSpecResponse defines model for ManagedPostgresqlUserCrdSpecResponse.
@@ -14323,7 +14427,15 @@ type PartitionInput struct {
 
 // PatchAirflowConnectionRequest defines model for PatchAirflowConnectionRequest.
 type PatchAirflowConnectionRequest struct {
-	BucketRef            *string `json:"bucket_ref,omitempty"`
+	BucketRef *string `json:"bucket_ref,omitempty"`
+
+	// Catalog Travels with `trino_ref`, never alone: a target edit replaces the whole
+	// payload (see the `PATCH` handler), so changing the catalog of a Trino
+	// connection names its dock again in the same request. The console form
+	// reads both back from the projection, so it always has them to send.
+	//
+	// Same charset as the create body's, and checked for the same reason.
+	Catalog              *string `json:"catalog,omitempty"`
 	ManagedPostgresqlRef *string `json:"managed_postgresql_ref,omitempty"`
 
 	// PermissionLevel Permission level granted to the user on the target database.
@@ -14332,6 +14444,7 @@ type PatchAirflowConnectionRequest struct {
 	// TakeoverChallenge A collision challenge copied from the current safe projection. The
 	// controller consumes it once after its own final observation.
 	TakeoverChallenge *openapi_types.UUID `json:"takeover_challenge,omitempty"`
+	TrinoRef          *string             `json:"trino_ref,omitempty"`
 }
 
 // PatchAirflowCrdRequestBody defines model for PatchAirflowCrdRequestBody.
@@ -16251,12 +16364,36 @@ type ResourceTierCatalogResponse struct {
 }
 
 // RestoreFromBackup Optional restore descriptor: bootstrap the new database from an existing
-// backup instead of initializing it empty.
+// backup, or from a source database's continuous archive, instead of
+// initializing it empty.
+//
+// Exactly one source must be named, because the two answer different
+// questions:
+//   - `backup_id` — restore that one backup, as it was taken.
+//   - `source_instance_id` — restore that database's continuous archive. This is
+//     the route a `target_time` needs: CNPG selects the base backup itself from
+//     the target, so naming one alongside would be naming a backup CNPG may not
+//     use.
 type RestoreFromBackup struct {
-	// BackupId ID of the `ManagedPostgreSQLBackup` to bootstrap (restore) the new
-	// database from. The backup must be `Completed` and live in the same
-	// harbor as the new database.
-	BackupId openapi_types.UUID `json:"backup_id"`
+	// BackupId ID of the `ManagedPostgreSQLBackup` to restore. Must be `Completed` and
+	// live in the same harbor as the new database. Mutually exclusive with
+	// `source_instance_id`.
+	BackupId *openapi_types.UUID `json:"backup_id,omitempty"`
+
+	// Exclusive Stop immediately *before* `target_time` rather than at it. Only
+	// meaningful with `target_time`.
+	Exclusive *bool `json:"exclusive,omitempty"`
+
+	// SourceInstanceId ID of the database whose continuous archive to restore from. Must live
+	// in the same harbor as the new database. Mutually exclusive with
+	// `backup_id`.
+	SourceInstanceId *openapi_types.UUID `json:"source_instance_id,omitempty"`
+
+	// TargetTime Point in time to recover to. Requires `source_instance_id`, and must
+	// fall inside the source's recovery window
+	// (`first_recoverability_point` .. now). When absent, recovery replays to
+	// the latest archived WAL.
+	TargetTime *time.Time `json:"target_time,omitempty"`
 }
 
 // RestrictionEvaluationResult Result of evaluating a single contextual restriction.
@@ -17097,6 +17234,11 @@ type ServiceAccount struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// ServiceAccountAttributesResponse The attributes an account holds, in `namespace::value` form.
+type ServiceAccountAttributesResponse struct {
+	Attributes []string `json:"attributes"`
+}
+
 // ServiceAccountCrdConfig Keycloak-client settings read back from the `ServiceAccount` CRD, for the
 // console's configuration screen. These live only on the CRD — the console
 // database row carries identity and credentials, not client settings.
@@ -17257,6 +17399,13 @@ type SetRolePermissionsRequestBody struct {
 	PermissionIds []openapi_types.UUID `json:"permission_ids"`
 }
 
+// SetServiceAccountAttributesRequest Replaces the account's whole attribute set.
+type SetServiceAccountAttributesRequest struct {
+	// Attributes Attributes in `namespace::value` format.
+	// Example: `["region::occitanie", "department::sales"]`
+	Attributes []string `json:"attributes"`
+}
+
 // SetThresholdsBody defines model for SetThresholdsBody.
 type SetThresholdsBody struct {
 	CriticalPct int32 `json:"critical_pct"`
@@ -17267,6 +17416,11 @@ type SetThresholdsBody struct {
 type SetUserAttributesRequest struct {
 	// Attributes List of attributes in `namespace::value` format.
 	// Example: `["region::occitanie", "department::sales"]`
+	//
+	// Repeats are collapsed, so the limit applies to distinct attributes. The
+	// namespaces `role`, `email`, `email_domain` and `client_id` are reserved —
+	// the authorization bundles derive keys of those names from the principal's
+	// own identity and roles, so an attribute using one is refused.
 	Attributes []string `json:"attributes"`
 }
 
@@ -17626,6 +17780,60 @@ type SpendBudget struct {
 // ceiling that straddles two invoices explains nothing to the person reading
 // them.
 type SpendWindow string
+
+// SqlCopilotRepairContext Carries a previously-generated SQL statement back to the model along with
+// why it didn't validate, so the copilot can fix it instead of starting
+// over. Constructed by the handler (not the frontend) when a first
+// generation fails `TinyQueryService::validate_sql` — there is no
+// user-facing "fix it" trigger yet, unlike the dashboards copilot's repair
+// mode, but the shape mirrors it so one is a small addition later.
+type SqlCopilotRepairContext struct {
+	Error string `json:"error"`
+	Sql   string `json:"sql"`
+}
+
+// SqlCopilotRequest defines model for SqlCopilotRequest.
+type SqlCopilotRequest struct {
+	// DataDockId Data Dock whose schema grounds the generation.
+	DataDockId openapi_types.UUID `json:"data_dock_id"`
+
+	// Model Model override; defaults to the platform's generation model.
+	Model *string `json:"model,omitempty"`
+
+	// Prompt The user's natural-language ask ("insert a daily rollup of order
+	// totals into a new table"). May be empty when `repair` drives the
+	// request.
+	Prompt *string `json:"prompt,omitempty"`
+
+	// Repair Carries a previously-generated SQL statement back to the model along with
+	// why it didn't validate, so the copilot can fix it instead of starting
+	// over. Constructed by the handler (not the frontend) when a first
+	// generation fails `TinyQueryService::validate_sql` — there is no
+	// user-facing "fix it" trigger yet, unlike the dashboards copilot's repair
+	// mode, but the shape mirrors it so one is a small addition later.
+	Repair *SqlCopilotRepairContext `json:"repair,omitempty"`
+}
+
+// SqlCopilotResponse defines model for SqlCopilotResponse.
+type SqlCopilotResponse struct {
+	// Model Model that produced the SQL.
+	Model string `json:"model"`
+
+	// Notes Copilot commentary shown alongside the result (assumptions, caveats).
+	Notes *string `json:"notes,omitempty"`
+
+	// Sql No SELECT-only restriction — unlike the dashboards copilot, Tiny
+	// Query is a general SQL IDE (the scheduled-queries feature is built
+	// around INSERT/CTAS rollups), and running the result is still a
+	// separate, explicit action.
+	Sql string `json:"sql"`
+
+	// StatementType Leading-keyword classification of `sql` (SELECT/INSERT/CTAS/DDL/
+	// DELETE/UPDATE/OTHER, see `detect_statement_type`) — lets the frontend
+	// hold the review popover open and flag non-SELECT output instead of
+	// silently dropping it into the editor.
+	StatementType string `json:"statement_type"`
+}
 
 // StartHealthScanResponse Result of asking for a sweep.
 type StartHealthScanResponse struct {
@@ -21184,6 +21392,12 @@ type CreateServiceAccountCrdJSONRequestBody = CreateServiceAccountCrdRequestBody
 // UpdateServiceAccountCrdJSONRequestBody defines body for UpdateServiceAccountCrd for application/json ContentType.
 type UpdateServiceAccountCrdJSONRequestBody = UpdateServiceAccountCrdRequestBody
 
+// AddServiceAccountAttributeHandlerJSONRequestBody defines body for AddServiceAccountAttributeHandler for application/json ContentType.
+type AddServiceAccountAttributeHandlerJSONRequestBody = AddServiceAccountAttributeRequest
+
+// SetServiceAccountAttributesHandlerJSONRequestBody defines body for SetServiceAccountAttributesHandler for application/json ContentType.
+type SetServiceAccountAttributesHandlerJSONRequestBody = SetServiceAccountAttributesRequest
+
 // CreateServiceAccountGrantJSONRequestBody defines body for CreateServiceAccountGrant for application/json ContentType.
 type CreateServiceAccountGrantJSONRequestBody = CreateGrantRequestBody
 
@@ -21288,6 +21502,9 @@ type CreateSignupRequestJSONRequestBody = CreateSignupRequestBody
 
 // VerifySignupRequestJSONRequestBody defines body for VerifySignupRequest for application/json ContentType.
 type VerifySignupRequestJSONRequestBody = VerifySignupRequestBody
+
+// GenerateSqlHandlerJSONRequestBody defines body for GenerateSqlHandler for application/json ContentType.
+type GenerateSqlHandlerJSONRequestBody = SqlCopilotRequest
 
 // ExecuteQueryHandlerJSONRequestBody defines body for ExecuteQueryHandler for application/json ContentType.
 type ExecuteQueryHandlerJSONRequestBody = ExecuteRequest
@@ -25741,6 +25958,22 @@ type ClientInterface interface {
 	// RotateServiceAccountSecret request
 	RotateServiceAccountSecret(ctx context.Context, organizationId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetServiceAccountAttributesHandler request
+	GetServiceAccountAttributesHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddServiceAccountAttributeHandlerWithBody request with any body
+	AddServiceAccountAttributeHandlerWithBody(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddServiceAccountAttributeHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body AddServiceAccountAttributeHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetServiceAccountAttributesHandlerWithBody request with any body
+	SetServiceAccountAttributesHandlerWithBody(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetServiceAccountAttributesHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body SetServiceAccountAttributesHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveServiceAccountAttributeHandler request
+	RemoveServiceAccountAttributeHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, attribute string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListServiceAccountGrants request
 	ListServiceAccountGrants(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -26098,6 +26331,11 @@ type ClientInterface interface {
 
 	// CancelQueryHandler request
 	CancelQueryHandler(ctx context.Context, trinoQueryId string, params *CancelQueryHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GenerateSqlHandlerWithBody request with any body
+	GenerateSqlHandlerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GenerateSqlHandler(ctx context.Context, body GenerateSqlHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExecuteQueryHandlerWithBody request with any body
 	ExecuteQueryHandlerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -33740,6 +33978,78 @@ func (c *Client) RotateServiceAccountSecret(ctx context.Context, organizationId 
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetServiceAccountAttributesHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetServiceAccountAttributesHandlerRequest(c.Server, organizationId, serviceAccountId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddServiceAccountAttributeHandlerWithBody(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddServiceAccountAttributeHandlerRequestWithBody(c.Server, organizationId, serviceAccountId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddServiceAccountAttributeHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body AddServiceAccountAttributeHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddServiceAccountAttributeHandlerRequest(c.Server, organizationId, serviceAccountId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetServiceAccountAttributesHandlerWithBody(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetServiceAccountAttributesHandlerRequestWithBody(c.Server, organizationId, serviceAccountId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetServiceAccountAttributesHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body SetServiceAccountAttributesHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetServiceAccountAttributesHandlerRequest(c.Server, organizationId, serviceAccountId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveServiceAccountAttributeHandler(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, attribute string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveServiceAccountAttributeHandlerRequest(c.Server, organizationId, serviceAccountId, attribute)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListServiceAccountGrants(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListServiceAccountGrantsRequest(c.Server, organizationId, serviceAccountId)
 	if err != nil {
@@ -35302,6 +35612,30 @@ func (c *Client) VerifySignupRequest(ctx context.Context, id openapi_types.UUID,
 
 func (c *Client) CancelQueryHandler(ctx context.Context, trinoQueryId string, params *CancelQueryHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCancelQueryHandlerRequest(c.Server, trinoQueryId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GenerateSqlHandlerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGenerateSqlHandlerRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GenerateSqlHandler(ctx context.Context, body GenerateSqlHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGenerateSqlHandlerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -61294,6 +61628,203 @@ func NewRotateServiceAccountSecretRequest(server string, organizationId openapi_
 	return req, nil
 }
 
+// NewGetServiceAccountAttributesHandlerRequest generates requests for GetServiceAccountAttributesHandler
+func NewGetServiceAccountAttributesHandlerRequest(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "service_account_id", serviceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/service-accounts/%s/attributes", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAddServiceAccountAttributeHandlerRequest calls the generic AddServiceAccountAttributeHandler builder with application/json body
+func NewAddServiceAccountAttributeHandlerRequest(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body AddServiceAccountAttributeHandlerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddServiceAccountAttributeHandlerRequestWithBody(server, organizationId, serviceAccountId, "application/json", bodyReader)
+}
+
+// NewAddServiceAccountAttributeHandlerRequestWithBody generates requests for AddServiceAccountAttributeHandler with any type of body
+func NewAddServiceAccountAttributeHandlerRequestWithBody(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "service_account_id", serviceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/service-accounts/%s/attributes", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSetServiceAccountAttributesHandlerRequest calls the generic SetServiceAccountAttributesHandler builder with application/json body
+func NewSetServiceAccountAttributesHandlerRequest(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body SetServiceAccountAttributesHandlerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetServiceAccountAttributesHandlerRequestWithBody(server, organizationId, serviceAccountId, "application/json", bodyReader)
+}
+
+// NewSetServiceAccountAttributesHandlerRequestWithBody generates requests for SetServiceAccountAttributesHandler with any type of body
+func NewSetServiceAccountAttributesHandlerRequestWithBody(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "service_account_id", serviceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/service-accounts/%s/attributes", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveServiceAccountAttributeHandlerRequest generates requests for RemoveServiceAccountAttributeHandler
+func NewRemoveServiceAccountAttributeHandlerRequest(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, attribute string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "service_account_id", serviceAccountId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "attribute", attribute, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/service-accounts/%s/attributes/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListServiceAccountGrantsRequest generates requests for ListServiceAccountGrants
 func NewListServiceAccountGrantsRequest(server string, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -66092,6 +66623,46 @@ func NewCancelQueryHandlerRequest(server string, trinoQueryId string, params *Ca
 	return req, nil
 }
 
+// NewGenerateSqlHandlerRequest calls the generic GenerateSqlHandler builder with application/json body
+func NewGenerateSqlHandlerRequest(server string, body GenerateSqlHandlerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGenerateSqlHandlerRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGenerateSqlHandlerRequestWithBody generates requests for GenerateSqlHandler with any type of body
+func NewGenerateSqlHandlerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/tiny-query/copilot/generate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewExecuteQueryHandlerRequest calls the generic ExecuteQueryHandler builder with application/json body
 func NewExecuteQueryHandlerRequest(server string, body ExecuteQueryHandlerJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -69166,6 +69737,22 @@ type ClientWithResponsesInterface interface {
 	// RotateServiceAccountSecretWithResponse request
 	RotateServiceAccountSecretWithResponse(ctx context.Context, organizationId openapi_types.UUID, clientId string, reqEditors ...RequestEditorFn) (*RotateServiceAccountSecretHTTPResp, error)
 
+	// GetServiceAccountAttributesHandlerWithResponse request
+	GetServiceAccountAttributesHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetServiceAccountAttributesHandlerHTTPResp, error)
+
+	// AddServiceAccountAttributeHandlerWithBodyWithResponse request with any body
+	AddServiceAccountAttributeHandlerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServiceAccountAttributeHandlerHTTPResp, error)
+
+	AddServiceAccountAttributeHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body AddServiceAccountAttributeHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServiceAccountAttributeHandlerHTTPResp, error)
+
+	// SetServiceAccountAttributesHandlerWithBodyWithResponse request with any body
+	SetServiceAccountAttributesHandlerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetServiceAccountAttributesHandlerHTTPResp, error)
+
+	SetServiceAccountAttributesHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body SetServiceAccountAttributesHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*SetServiceAccountAttributesHandlerHTTPResp, error)
+
+	// RemoveServiceAccountAttributeHandlerWithResponse request
+	RemoveServiceAccountAttributeHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, attribute string, reqEditors ...RequestEditorFn) (*RemoveServiceAccountAttributeHandlerHTTPResp, error)
+
 	// ListServiceAccountGrantsWithResponse request
 	ListServiceAccountGrantsWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListServiceAccountGrantsHTTPResp, error)
 
@@ -69523,6 +70110,11 @@ type ClientWithResponsesInterface interface {
 
 	// CancelQueryHandlerWithResponse request
 	CancelQueryHandlerWithResponse(ctx context.Context, trinoQueryId string, params *CancelQueryHandlerParams, reqEditors ...RequestEditorFn) (*CancelQueryHandlerHTTPResp, error)
+
+	// GenerateSqlHandlerWithBodyWithResponse request with any body
+	GenerateSqlHandlerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GenerateSqlHandlerHTTPResp, error)
+
+	GenerateSqlHandlerWithResponse(ctx context.Context, body GenerateSqlHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*GenerateSqlHandlerHTTPResp, error)
 
 	// ExecuteQueryHandlerWithBodyWithResponse request with any body
 	ExecuteQueryHandlerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExecuteQueryHandlerHTTPResp, error)
@@ -85619,6 +86211,135 @@ func (r RotateServiceAccountSecretHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetServiceAccountAttributesHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServiceAccountAttributesResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetServiceAccountAttributesHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetServiceAccountAttributesHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetServiceAccountAttributesHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AddServiceAccountAttributeHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r AddServiceAccountAttributeHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddServiceAccountAttributeHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AddServiceAccountAttributeHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetServiceAccountAttributesHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetServiceAccountAttributesHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetServiceAccountAttributesHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetServiceAccountAttributesHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveServiceAccountAttributeHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveServiceAccountAttributeHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveServiceAccountAttributeHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveServiceAccountAttributeHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListServiceAccountGrantsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -88679,6 +89400,39 @@ func (r CancelQueryHandlerHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CancelQueryHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GenerateSqlHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SqlCopilotResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GenerateSqlHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GenerateSqlHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GenerateSqlHandlerHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -95268,6 +96022,58 @@ func (c *ClientWithResponses) RotateServiceAccountSecretWithResponse(ctx context
 	return ParseRotateServiceAccountSecretHTTPResp(rsp)
 }
 
+// GetServiceAccountAttributesHandlerWithResponse request returning *GetServiceAccountAttributesHandlerHTTPResp
+func (c *ClientWithResponses) GetServiceAccountAttributesHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetServiceAccountAttributesHandlerHTTPResp, error) {
+	rsp, err := c.GetServiceAccountAttributesHandler(ctx, organizationId, serviceAccountId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetServiceAccountAttributesHandlerHTTPResp(rsp)
+}
+
+// AddServiceAccountAttributeHandlerWithBodyWithResponse request with arbitrary body returning *AddServiceAccountAttributeHandlerHTTPResp
+func (c *ClientWithResponses) AddServiceAccountAttributeHandlerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServiceAccountAttributeHandlerHTTPResp, error) {
+	rsp, err := c.AddServiceAccountAttributeHandlerWithBody(ctx, organizationId, serviceAccountId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddServiceAccountAttributeHandlerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) AddServiceAccountAttributeHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body AddServiceAccountAttributeHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServiceAccountAttributeHandlerHTTPResp, error) {
+	rsp, err := c.AddServiceAccountAttributeHandler(ctx, organizationId, serviceAccountId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddServiceAccountAttributeHandlerHTTPResp(rsp)
+}
+
+// SetServiceAccountAttributesHandlerWithBodyWithResponse request with arbitrary body returning *SetServiceAccountAttributesHandlerHTTPResp
+func (c *ClientWithResponses) SetServiceAccountAttributesHandlerWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetServiceAccountAttributesHandlerHTTPResp, error) {
+	rsp, err := c.SetServiceAccountAttributesHandlerWithBody(ctx, organizationId, serviceAccountId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetServiceAccountAttributesHandlerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetServiceAccountAttributesHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, body SetServiceAccountAttributesHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*SetServiceAccountAttributesHandlerHTTPResp, error) {
+	rsp, err := c.SetServiceAccountAttributesHandler(ctx, organizationId, serviceAccountId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetServiceAccountAttributesHandlerHTTPResp(rsp)
+}
+
+// RemoveServiceAccountAttributeHandlerWithResponse request returning *RemoveServiceAccountAttributeHandlerHTTPResp
+func (c *ClientWithResponses) RemoveServiceAccountAttributeHandlerWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, attribute string, reqEditors ...RequestEditorFn) (*RemoveServiceAccountAttributeHandlerHTTPResp, error) {
+	rsp, err := c.RemoveServiceAccountAttributeHandler(ctx, organizationId, serviceAccountId, attribute, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveServiceAccountAttributeHandlerHTTPResp(rsp)
+}
+
 // ListServiceAccountGrantsWithResponse request returning *ListServiceAccountGrantsHTTPResp
 func (c *ClientWithResponses) ListServiceAccountGrantsWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListServiceAccountGrantsHTTPResp, error) {
 	rsp, err := c.ListServiceAccountGrants(ctx, organizationId, serviceAccountId, reqEditors...)
@@ -96410,6 +97216,23 @@ func (c *ClientWithResponses) CancelQueryHandlerWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseCancelQueryHandlerHTTPResp(rsp)
+}
+
+// GenerateSqlHandlerWithBodyWithResponse request with arbitrary body returning *GenerateSqlHandlerHTTPResp
+func (c *ClientWithResponses) GenerateSqlHandlerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GenerateSqlHandlerHTTPResp, error) {
+	rsp, err := c.GenerateSqlHandlerWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGenerateSqlHandlerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) GenerateSqlHandlerWithResponse(ctx context.Context, body GenerateSqlHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*GenerateSqlHandlerHTTPResp, error) {
+	rsp, err := c.GenerateSqlHandler(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGenerateSqlHandlerHTTPResp(rsp)
 }
 
 // ExecuteQueryHandlerWithBodyWithResponse request with arbitrary body returning *ExecuteQueryHandlerHTTPResp
@@ -118276,6 +119099,173 @@ func ParseRotateServiceAccountSecretHTTPResp(rsp *http.Response) (*RotateService
 	return response, nil
 }
 
+// ParseGetServiceAccountAttributesHandlerHTTPResp parses an HTTP response from a GetServiceAccountAttributesHandlerWithResponse call
+func ParseGetServiceAccountAttributesHandlerHTTPResp(rsp *http.Response) (*GetServiceAccountAttributesHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetServiceAccountAttributesHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServiceAccountAttributesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAddServiceAccountAttributeHandlerHTTPResp parses an HTTP response from a AddServiceAccountAttributeHandlerWithResponse call
+func ParseAddServiceAccountAttributeHandlerHTTPResp(rsp *http.Response) (*AddServiceAccountAttributeHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddServiceAccountAttributeHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetServiceAccountAttributesHandlerHTTPResp parses an HTTP response from a SetServiceAccountAttributesHandlerWithResponse call
+func ParseSetServiceAccountAttributesHandlerHTTPResp(rsp *http.Response) (*SetServiceAccountAttributesHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetServiceAccountAttributesHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveServiceAccountAttributeHandlerHTTPResp parses an HTTP response from a RemoveServiceAccountAttributeHandlerWithResponse call
+func ParseRemoveServiceAccountAttributeHandlerHTTPResp(rsp *http.Response) (*RemoveServiceAccountAttributeHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveServiceAccountAttributeHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListServiceAccountGrantsHTTPResp parses an HTTP response from a ListServiceAccountGrantsWithResponse call
 func ParseListServiceAccountGrantsHTTPResp(rsp *http.Response) (*ListServiceAccountGrantsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -122068,6 +123058,53 @@ func ParseCancelQueryHandlerHTTPResp(rsp *http.Response) (*CancelQueryHandlerHTT
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGenerateSqlHandlerHTTPResp parses an HTTP response from a GenerateSqlHandlerWithResponse call
+func ParseGenerateSqlHandlerHTTPResp(rsp *http.Response) (*GenerateSqlHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GenerateSqlHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SqlCopilotResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

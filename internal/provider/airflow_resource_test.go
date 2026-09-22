@@ -5,6 +5,7 @@ package provider
 
 import (
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -808,8 +809,24 @@ func TestAirflowLinkKindsAreWireValues(t *testing.T) {
 			t.Errorf("link kind %q is not a value the API accepts", kind)
 		}
 	}
-	if len(airflowLinkKinds) != 4 {
-		t.Errorf("expected the four linkable kinds, got %v", airflowLinkKinds)
+	// Every value of the API's own enum except `Pipeline` (consumer-only, so
+	// never a link target) and `Airflow` (the consumer side of a link, not a
+	// kind an environment reaches). A kind missing from this list is not merely
+	// unofferable: `egress.in_cluster` is replace-semantics, so the next apply
+	// would delete an entry of that kind declared through the console or hfctl.
+	if len(airflowLinkKinds) != 5 {
+		t.Errorf("expected the five linkable kinds, got %v", airflowLinkKinds)
+	}
+	for _, kind := range []console.AirflowLinkKind{
+		console.AirflowLinkKindManagedPostgreSQL,
+		console.AirflowLinkKindContainerApp,
+		console.AirflowLinkKindKafka,
+		console.AirflowLinkKindHfKeyValueCache,
+		console.AirflowLinkKindTrino,
+	} {
+		if !slices.Contains(airflowLinkKinds, string(kind)) {
+			t.Errorf("link kind %q is accepted by the API but not offered here; a replace-semantics apply would drop it", kind)
+		}
 	}
 }
 

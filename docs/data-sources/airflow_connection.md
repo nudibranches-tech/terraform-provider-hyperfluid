@@ -4,14 +4,14 @@ page_title: "hyperfluid_airflow_connection Data Source - Hyperfluid"
 subcategory: ""
 description: |-
   Look up a managed Airflow connection by the conn_id a DAG asks for — a connection declared through the console, hfctl, or another Terraform configuration.
-  This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: phase, source_applied and collision say whether the credential reached the target, and resolved_permission_level says what access it granted. No credential is exposed — the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived, and it is never part of any read.
+  This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: phase, source_applied and collision say whether the credential reached the target, and resolved_permission_level says what access it granted — where the target is one the platform grants access on at all, which permission_level_applies reports. No credential is exposed: the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived and it is part of no read, and neither is the client secret a Trino connection's row carries.
 ---
 
 # hyperfluid_airflow_connection (Data Source)
 
 Look up a managed Airflow connection by the `conn_id` a DAG asks for — a connection declared through the console, `hfctl`, or another Terraform configuration.
 
-This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: `phase`, `source_applied` and `collision` say whether the credential reached the target, and `resolved_permission_level` says what access it granted. No credential is exposed — the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived, and it is never part of any read.
+This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: `phase`, `source_applied` and `collision` say whether the credential reached the target, and `resolved_permission_level` says what access it granted — where the target is one the platform grants access on at all, which `permission_level_applies` reports. No credential is exposed: the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived and it is part of no read, and neither is the client secret a Trino connection's row carries.
 
 ## Example Usage
 
@@ -27,16 +27,34 @@ data "hyperfluid_airflow" "analytics" {
 
 # Read a connection by the conn_id a DAG asks for — its declaration and its
 # status, never its credential. A bucket connection's object-store session is
-# minted fresh, short-lived and in-cluster only, so it is part of no read.
+# minted fresh, short-lived and in-cluster only, so it is part of no read; nor is
+# the client secret a Trino connection's row carries.
 data "hyperfluid_airflow_connection" "warehouse" {
   airflow = data.hyperfluid_airflow.analytics.id
   conn_id = "warehouse"
 }
 
 # What access the connection actually grants: the pinned level, or the platform
-# default when nothing is pinned.
+# default when nothing is pinned. Read permission_level_applies first — it is
+# false for a Trino connection, which carries the environment's own service
+# account and is granted no authority of its own, and this field then describes
+# nothing the platform granted.
 output "warehouse_level" {
   value = data.hyperfluid_airflow_connection.warehouse.resolved_permission_level
+}
+
+output "warehouse_level_applies" {
+  value = data.hyperfluid_airflow_connection.warehouse.permission_level_applies
+}
+
+# A Trino connection: which catalog the task pods open every session against.
+data "hyperfluid_airflow_connection" "lakehouse" {
+  airflow = data.hyperfluid_airflow.analytics.id
+  conn_id = "lakehouse"
+}
+
+output "lakehouse_catalog" {
+  value = data.hyperfluid_airflow_connection.lakehouse.catalog
 }
 
 # True only once the credential has reached the target — the difference between
@@ -63,18 +81,21 @@ output "warehouse_conditions" {
 ### Read-Only
 
 - `bucket_ref` (String) Name of the bucket the connection targets, for a bucket connection.
+- `catalog` (String) The Trino catalog the connection opens against. Set for a Trino connection, where it is required, and null for every other type.
 - `collision` (Boolean) Whether an Airflow connection row the platform does not manage — a hand-written one, say — already owns this `conn_id`.
 - `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
 - `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`. (see [below for nested schema](#nestedatt--conditions))
-- `connection_type` (String) Type of connection, derived from which target it names.
+- `connection_type` (String) The Airflow `conn_type` of the row the platform wrote, derived from which target it names: `postgres`, `aws` for a bucket, or `hyperfluid_trino`.
 - `id` (String) Composite identifier `<airflow_id>/<conn_id>`, the same string the `hyperfluid_airflow_connection` resource exports as `id` and `terraform import` takes.
 - `managed_postgresql_ref` (String) Name of the PostgreSQL cluster the connection targets, for a database connection.
 - `name` (String) The connection object's own name, which is how the API addresses it. Not the same string as `conn_id`.
 - `permission_level` (String) The level pinned on the connection, or null when it follows the platform default.
+- `permission_level_applies` (Boolean) Whether `permission_level` means anything for this connection's type. False for a Trino connection, which carries the environment's own service account and is therefore granted no authority of its own for a level to scale.
 - `phase` (String) Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` means the environment is asleep.
-- `resolved_permission_level` (String) The level actually in force: the pinned value, or the platform's own default when nothing is pinned.
+- `resolved_permission_level` (String) The level actually in force: the pinned value, or the platform's own default when nothing is pinned. Read `permission_level_applies` first — where the knob does not apply, this field describes nothing the platform granted.
 - `source_applied` (Boolean) Whether the credential has actually been applied to the target.
 - `spec_observed` (Boolean) Whether the platform has looked at the current declaration yet.
+- `trino_ref` (String) Name of the Trino Data Dock the connection targets, for a Trino connection.
 
 <a id="nestedatt--conditions"></a>
 ### Nested Schema for `conditions`

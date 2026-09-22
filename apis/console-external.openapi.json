@@ -35345,6 +35345,298 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/service-accounts/{service_account_id}/attributes": {
+      "get": {
+        "tags": [
+          "Service Accounts"
+        ],
+        "operationId": "get_service_account_attributes_handler",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "description": "Service account ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account's attributes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountAttributesResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Service Accounts"
+        ],
+        "operationId": "set_service_account_attributes_handler",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "description": "Service account ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetServiceAccountAttributesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Attributes updated"
+          },
+          "400": {
+            "description": "Invalid attribute format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Service Accounts"
+        ],
+        "operationId": "add_service_account_attribute_handler",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "description": "Service account ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddServiceAccountAttributeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Attribute added"
+          },
+          "400": {
+            "description": "Invalid attribute format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The account is managed by Hyperfluid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/service-accounts/{service_account_id}/attributes/{attribute}": {
+      "delete": {
+        "tags": [
+          "Service Accounts"
+        ],
+        "operationId": "remove_service_account_attribute_handler",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "description": "Service account ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attribute",
+            "in": "path",
+            "description": "Attribute in namespace::value format, URL-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Attribute removed"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service account not found, or the account does not hold this attribute",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The account is managed by Hyperfluid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/service-accounts/{service_account_id}/grants": {
       "get": {
         "tags": [
@@ -36865,7 +37157,7 @@
             "description": "Attributes updated successfully"
           },
           "400": {
-            "description": "Invalid attribute format",
+            "description": "Invalid attribute format, a reserved namespace, or more than 100 distinct attributes",
             "content": {
               "application/json": {
                 "schema": {
@@ -36940,7 +37232,7 @@
             "description": "Attribute added successfully"
           },
           "400": {
-            "description": "Invalid attribute format",
+            "description": "Invalid attribute format, a reserved namespace, or the principal already holds 100 attributes",
             "content": {
               "application/json": {
                 "schema": {
@@ -37036,7 +37328,7 @@
             }
           },
           "404": {
-            "description": "User not found",
+            "description": "User not found, or the user does not hold this attribute",
             "content": {
               "application/json": {
                 "schema": {
@@ -41532,6 +41824,67 @@
         }
       }
     },
+    "/api/v1/tiny-query/copilot/generate": {
+      "post": {
+        "tags": [
+          "Petite Requête"
+        ],
+        "summary": "NL → SQL. The schema grounding is fetched with the *caller's* JWT (same\ntrust boundary as the SQL editor and `execute_query_handler`). Unlike the\ndashboards copilot, the result is not restricted to SELECT — Tiny Query is\na general SQL IDE — and it lands in the editor as a draft; running it is\nstill a separate, explicit action. One repair round if the generated SQL\nfails schema validation (`TinyQueryService::validate_sql`, a\nnon-executing `EXPLAIN (TYPE VALIDATE)`), so a hallucinated table/column\nname is corrected — or clearly still wrong — before the caller sees it,\nrather than silently returned.",
+        "operationId": "generate_sql_handler",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SqlCopilotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Generated SQL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SqlCopilotResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tiny-query/execute": {
       "post": {
         "tags": [
@@ -43484,6 +43837,19 @@
           }
         }
       },
+      "AddServiceAccountAttributeRequest": {
+        "type": "object",
+        "description": "One attribute to add.",
+        "required": [
+          "attribute"
+        ],
+        "properties": {
+          "attribute": {
+            "type": "string",
+            "description": "Attribute in `namespace::value` format, e.g. `region::occitanie`."
+          }
+        }
+      },
       "AddUser": {
         "type": "object",
         "required": [
@@ -44277,6 +44643,7 @@
           "airflow_name",
           "conn_id",
           "connection_type",
+          "permission_level_applies",
           "resolved_permission_level",
           "phase",
           "spec_observed",
@@ -44291,6 +44658,11 @@
           "bucket_ref": {
             "type": "string",
             "description": "Name of the `HFBucket` a `Bucket` connection targets, and nothing else\nabout it.\n\nThe endpoint, the access key id and the region of the scoped identity\nbehind it are deliberately absent: they are `PlatformS3Identity`\ninternals, and the frozen contract §7 keeps host- and login-shaped\nfields out of the projection precisely so that a read of the console API\ncan never assemble half a credential.",
+            "nullable": true
+          },
+          "catalog": {
+            "type": "string",
+            "description": "The Trino catalog this connection opens against. Present only for a\n`Trino` connection, where it is always set (it is required for the\ntype).\n\nProjected after reading §7's actual list — \"environment UID, ownership\nnonce, collision observation digest, secret references, secret\nIDs/names, host, port, schema, login, password, URI, raw `extra`\" — and\nit is none of them. It is not the row's `schema` column either: that is\nAirflow's default-schema field, which the reconciler writes as `None`\nfor this type. What it is is the second half of the target the USER\nnamed, sitting beside `trino_ref` for the same reason §7 admits the\n\"target display name\": a console that could not read it back could not\nrender the edit form for a connection it just created, and would have to\nask the user to retype the catalog to change the dock.",
             "nullable": true
           },
           "collision": {
@@ -44349,12 +44721,16 @@
             "description": "The level the user PINNED, absent when they said nothing.\n\nAbsent is not \"viewer\": the two are distinguishable on purpose (the\nplatform default is resolved on every reconcile and never written into\nthe spec), so the console can say \"the platform's default\" rather than\nclaiming a choice the user never made. What that default currently\nresolves to is `resolved_permission_level` below.",
             "nullable": true
           },
+          "permission_level_applies": {
+            "type": "boolean",
+            "description": "Whether `permission_level` means anything for this connection's type\n(D2).\n\n`false` for a Trino connection, permanently: it carries the\nenvironment's own service account, whose grants are the customer's to\nassign, so the platform grants the connection no authority for a level\nto scale — the API refuses a level on this type with a `400` and the\nreconciler refuses the spec with `PermissionLevelNotApplicable`. When\nthis is `false`, `resolved_permission_level` below describes nothing the\nplatform granted and must not be rendered. Sourced from a total match on\nthe type, so a fourth type has to answer the question."
+          },
           "phase": {
             "type": "string"
           },
           "resolved_permission_level": {
             "type": "string",
-            "description": "The level actually in force: the pin above, or the platform's default\nwhen there is none.\n\nResolved through `PermissionLevel`'s own `Default`, which is the same\n`unwrap_or_default()` both sources apply at reconcile time — a second\nliteral here would let the console display one level while the platform\ngranted another."
+            "description": "The level actually in force: the pin above, or the platform's default\nwhen there is none.\n\nResolved through `PermissionLevel`'s own `Default`, which is the same\n`unwrap_or_default()` both sources apply at reconcile time — a second\nliteral here would let the console display one level while the platform\ngranted another.\n\nOnly meaningful where the knob applies: read\n`permission_level_applies` above first. For a type the platform grants\nno authority to, this field describes nothing — it is kept non-optional\nbecause it predates that type and every existing client requires it."
           },
           "source_applied": {
             "type": "boolean",
@@ -44368,6 +44744,11 @@
             "type": "string",
             "format": "uuid",
             "description": "Present only while this exact collision can be explicitly authorized.",
+            "nullable": true
+          },
+          "trino_ref": {
+            "type": "string",
+            "description": "Name of the Trino `DataDock` a `Trino` connection targets, and nothing\nelse about it.\n\nThe dock's address is what is missing here, deliberately: it is\nresolved at reconcile time from the dock's own resource, and the frozen\ncontract §7 keeps `host`, `port` and `URI` out of this response. The\nname is the whole of what the declaration says, and it is the same\nvalue a `PATCH` sends back to retarget.",
             "nullable": true
           },
           "updated_at": {
@@ -44581,12 +44962,13 @@
       },
       "AirflowLinkKind": {
         "type": "string",
-        "description": "The service kinds an environment may be granted egress to — exactly the\nkinds the ServiceLink controller's `pod_selector_labels` can resolve into a\npod selector + port (Trino and Pipeline are deliberately absent: a task\npod reaches Trino through Bifrost, which is baseline, and nothing connects\n*to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the\noperator maps 1:1.",
+        "description": "The service kinds an environment may be granted egress to — exactly the\nkinds the ServiceLink controller's `pod_selector_labels` can resolve into a\npod selector + port (`Pipeline` is deliberately absent: nothing connects\n*to* a pipeline). Serialised PascalCase like `ServiceLinkKind` so the\noperator maps 1:1.\n\n`Trino` is the door a managed Trino connection needs. It is not the\ngoverned-SQL path from DAG code — that one goes through Bifrost and is part\nof the task-egress baseline, which is why this kind used to be absent —\nbut a connection that hands `TrinoHook` a coordinator address needs the\ncoordinator reachable, and a connection implies its own link so the path\nopens with the connection and closes when it is withdrawn.",
         "enum": [
           "ManagedPostgreSQL",
           "ContainerApp",
           "Kafka",
-          "HfKeyValueCache"
+          "HfKeyValueCache",
+          "Trino"
         ]
       },
       "AirflowNodeTier": {
@@ -49346,16 +49728,26 @@
             "description": "Name of the `HFBucket` to connect to, for a bucket connection.",
             "nullable": true
           },
+          "catalog": {
+            "type": "string",
+            "description": "The Trino catalog every session on the connection opens against.\nREQUIRED with `trino_ref`, and refused with either other target.\n\nRequired rather than defaulted because `TrinoHook` falls back to\n`catalog=\"hive\"`, which exists on no Hyperfluid dock: a row without one\naims every query at something that is not there. The platform cannot\npick for the user either — a dock carries as many catalogs as the harbor\nhas data containers.\n\nThe charset is the CRD's own (`^[A-Za-z0-9_-]{1,63}$`) because the value\nleaves as the `X-Trino-Catalog` header, and it is answered here with a\n`400` rather than deferred to the Kubernetes API server: a `catalog`\nthe CEL rule refuses — `hive.default`, say, which is what a caller\nreaching for `catalog.schema` writes first — comes back as a field\nerror naming the rule instead of an opaque failure.",
+            "nullable": true
+          },
           "conn_id": {
             "type": "string"
           },
           "managed_postgresql_ref": {
             "type": "string",
-            "description": "Name of the `ManagedPostgreSQL` to connect to, for a Postgres\nconnection. Exactly one of this and `bucket_ref` is given, and which one\nit is decides the connection's type.",
+            "description": "Name of the `ManagedPostgreSQL` to connect to, for a Postgres\nconnection. Exactly one of this, `bucket_ref` and `trino_ref` is given,\nand which one it is decides the connection's type.",
             "nullable": true
           },
           "permission_level": {
             "$ref": "#/components/schemas/PermissionLevel",
+            "nullable": true
+          },
+          "trino_ref": {
+            "type": "string",
+            "description": "Name of the Trino `DataDock` to connect to, for a Trino connection.\nRequires `catalog` beside it.",
             "nullable": true
           }
         }
@@ -59197,6 +59589,12 @@
             "type": "string",
             "nullable": true
           },
+          "first_recoverability_point": {
+            "type": "string",
+            "format": "date-time",
+            "description": "What barman says can actually be restored. All three are `null` on a\ndatabase that archives nowhere; `first_recoverability_point` and\n`last_successful_backup_time` are both `null` on one that archives WAL\nand has never had a base backup — which is not restorable, however\nhealthy its archiver looks.",
+            "nullable": true
+          },
           "harbor_id": {
             "type": "string",
             "format": "uuid"
@@ -59208,6 +59606,16 @@
           "instances": {
             "type": "integer",
             "format": "int32"
+          },
+          "last_failed_backup_time": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_successful_backup_time": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "type": "string"
@@ -61522,6 +61930,11 @@
             "type": "string",
             "nullable": true
           },
+          "catalog": {
+            "type": "string",
+            "description": "Travels with `trino_ref`, never alone: a target edit replaces the whole\npayload (see the `PATCH` handler), so changing the catalog of a Trino\nconnection names its dock again in the same request. The console form\nreads both back from the projection, so it always has them to send.\n\nSame charset as the create body's, and checked for the same reason.",
+            "nullable": true
+          },
           "managed_postgresql_ref": {
             "type": "string",
             "nullable": true
@@ -61534,6 +61947,10 @@
             "type": "string",
             "format": "uuid",
             "description": "A collision challenge copied from the current safe projection. The\ncontroller consumes it once after its own final observation.",
+            "nullable": true
+          },
+          "trino_ref": {
+            "type": "string",
             "nullable": true
           }
         }
@@ -65050,15 +65467,30 @@
       },
       "RestoreFromBackup": {
         "type": "object",
-        "description": "Optional restore descriptor: bootstrap the new database from an existing\nbackup instead of initializing it empty.",
-        "required": [
-          "backup_id"
-        ],
+        "description": "Optional restore descriptor: bootstrap the new database from an existing\nbackup, or from a source database's continuous archive, instead of\ninitializing it empty.\n\nExactly one source must be named, because the two answer different\nquestions:\n- `backup_id` — restore that one backup, as it was taken.\n- `source_instance_id` — restore that database's continuous archive. This is\n  the route a `target_time` needs: CNPG selects the base backup itself from\n  the target, so naming one alongside would be naming a backup CNPG may not\n  use.",
         "properties": {
           "backup_id": {
             "type": "string",
             "format": "uuid",
-            "description": "ID of the `ManagedPostgreSQLBackup` to bootstrap (restore) the new\ndatabase from. The backup must be `Completed` and live in the same\nharbor as the new database."
+            "description": "ID of the `ManagedPostgreSQLBackup` to restore. Must be `Completed` and\nlive in the same harbor as the new database. Mutually exclusive with\n`source_instance_id`.",
+            "nullable": true
+          },
+          "exclusive": {
+            "type": "boolean",
+            "description": "Stop immediately *before* `target_time` rather than at it. Only\nmeaningful with `target_time`.",
+            "nullable": true
+          },
+          "source_instance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the database whose continuous archive to restore from. Must live\nin the same harbor as the new database. Mutually exclusive with\n`backup_id`.",
+            "nullable": true
+          },
+          "target_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Point in time to recover to. Requires `source_instance_id`, and must\nfall inside the source's recovery window\n(`first_recoverability_point` .. now). When absent, recovery replays to\nthe latest archived WAL.",
+            "nullable": true
           }
         }
       },
@@ -66688,6 +67120,21 @@
           }
         }
       },
+      "ServiceAccountAttributesResponse": {
+        "type": "object",
+        "description": "The attributes an account holds, in `namespace::value` form.",
+        "required": [
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ServiceAccountCrdConfig": {
         "type": "object",
         "description": "Keycloak-client settings read back from the `ServiceAccount` CRD, for the\nconsole's configuration screen. These live only on the CRD — the console\ndatabase row carries identity and credentials, not client settings.",
@@ -66954,6 +67401,22 @@
           }
         }
       },
+      "SetServiceAccountAttributesRequest": {
+        "type": "object",
+        "description": "Replaces the account's whole attribute set.",
+        "required": [
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Attributes in `namespace::value` format.\nExample: `[\"region::occitanie\", \"department::sales\"]`"
+          }
+        }
+      },
       "SetThresholdsBody": {
         "type": "object",
         "required": [
@@ -66983,7 +67446,8 @@
             "items": {
               "type": "string"
             },
-            "description": "List of attributes in `namespace::value` format.\nExample: `[\"region::occitanie\", \"department::sales\"]`"
+            "description": "List of attributes in `namespace::value` format.\nExample: `[\"region::occitanie\", \"department::sales\"]`\n\nRepeats are collapsed, so the limit applies to distinct attributes. The\nnamespaces `role`, `email`, `email_domain` and `client_id` are reserved —\nthe authorization bundles derive keys of those names from the principal's\nown identity and roles, so an attribute using one is refused.",
+            "maxItems": 100
           }
         }
       },
@@ -67528,6 +67992,75 @@
           "weekly",
           "monthly"
         ]
+      },
+      "SqlCopilotRepairContext": {
+        "type": "object",
+        "description": "Carries a previously-generated SQL statement back to the model along with\nwhy it didn't validate, so the copilot can fix it instead of starting\nover. Constructed by the handler (not the frontend) when a first\ngeneration fails `TinyQueryService::validate_sql` — there is no\nuser-facing \"fix it\" trigger yet, unlike the dashboards copilot's repair\nmode, but the shape mirrors it so one is a small addition later.",
+        "required": [
+          "sql",
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "sql": {
+            "type": "string"
+          }
+        }
+      },
+      "SqlCopilotRequest": {
+        "type": "object",
+        "required": [
+          "data_dock_id"
+        ],
+        "properties": {
+          "data_dock_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Data Dock whose schema grounds the generation."
+          },
+          "model": {
+            "type": "string",
+            "description": "Model override; defaults to the platform's generation model.",
+            "nullable": true
+          },
+          "prompt": {
+            "type": "string",
+            "description": "The user's natural-language ask (\"insert a daily rollup of order\ntotals into a new table\"). May be empty when `repair` drives the\nrequest."
+          },
+          "repair": {
+            "$ref": "#/components/schemas/SqlCopilotRepairContext",
+            "nullable": true
+          }
+        }
+      },
+      "SqlCopilotResponse": {
+        "type": "object",
+        "required": [
+          "sql",
+          "model",
+          "statement_type"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Model that produced the SQL."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Copilot commentary shown alongside the result (assumptions, caveats).",
+            "nullable": true
+          },
+          "sql": {
+            "type": "string",
+            "description": "No SELECT-only restriction — unlike the dashboards copilot, Tiny\nQuery is a general SQL IDE (the scheduled-queries feature is built\naround INSERT/CTAS rollups), and running the result is still a\nseparate, explicit action."
+          },
+          "statement_type": {
+            "type": "string",
+            "description": "Leading-keyword classification of `sql` (SELECT/INSERT/CTAS/DDL/\nDELETE/UPDATE/OTHER, see `detect_statement_type`) — lets the frontend\nhold the review popover open and flag non-SELECT output instead of\nsilently dropping it into the editor."
+          }
+        }
       },
       "StartHealthScanResponse": {
         "type": "object",
