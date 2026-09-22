@@ -5,11 +5,13 @@ package provider
 
 import (
 	"errors"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	fwschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -55,15 +57,29 @@ func TestAirflowConnectionResourceSchema(t *testing.T) {
 			level.IsOptional(), level.IsComputed())
 	}
 
-	// Neither target may be Computed either: exactly one of the two is named by
-	// the configuration and the pair is what decides the connection's type.
-	for _, name := range []string{"managed_postgresql_ref", "bucket_ref"} {
+	// No target may be Computed either: exactly one of the three is named by the
+	// configuration and which one it is decides the connection's type. `catalog`
+	// belongs with them — it is the second half of one of those targets, not a
+	// field the platform fills in.
+	for _, name := range []string{"managed_postgresql_ref", "bucket_ref", "trino_ref", "catalog"} {
 		attr, ok := s.Attributes[name]
 		if !ok {
 			t.Fatalf("%s attribute missing", name)
 		}
 		if !attr.IsOptional() || attr.IsComputed() {
 			t.Errorf("%s must be Optional and not Computed", name)
+		}
+	}
+
+	// The two projections that say what is actually in force are reads, not
+	// declarations: pinning either would be claiming a choice nobody made.
+	for _, name := range []string{"permission_level_applies"} {
+		attr, ok := s.Attributes[name]
+		if !ok {
+			t.Fatalf("%s attribute missing", name)
+		}
+		if !attr.IsComputed() || attr.IsOptional() || attr.IsRequired() {
+			t.Errorf("%s must be Computed only", name)
 		}
 	}
 
@@ -79,56 +95,157 @@ func TestAirflowConnectionResourceSchema(t *testing.T) {
 	}
 }
 
-// ── exactly-one-target, enforced at plan time ─────────────────────────────
+// ── the target, enforced at plan time ─────────────────────────────────────
 
-// TestAirflowConnectionExactlyOneTarget runs the resource's own
-// ConfigValidators, which is what makes the one-target rule a plan error rather
-// than a 400 discovered halfway through an apply.
-func TestAirflowConnectionExactlyOneTarget(t *testing.T) {
+// airflowConnectionValidateConfig runs every plan-time check the framework would
+// run over one configuration of this resource: the ConfigValidators, which own
+// the rules about the set of target references, and the validators declared on
+// the individual attributes, which own the rules a diagnostic should name one
+// field for.
+//
+// Each ConfigValidator gets its OWN response, exactly as the framework does
+// ("Instantiate a new response for each request to prevent validators from
+// modifying or removing diagnostics", server_validateresourceconfig.go). Both
+// validators this resource declares ASSIGN resp.Diagnostics rather than
+// appending to it, so a shared response lets the second erase the first's
+// verdict — with one that read a two-target configuration as valid.
+func airflowConnectionValidateConfig(t *testing.T, model airflowConnectionModel) diag.Diagnostics {
+	t.Helper()
 	ctx := t.Context()
-	s := resourceSchema(t, NewAirflowConnectionResource()).Schema
-	validatable, ok := NewAirflowConnectionResource().(fwresource.ResourceWithConfigValidators)
+	res := NewAirflowConnectionResource()
+	s := resourceSchema(t, res).Schema
+
+	state := tfsdk.State{Schema: s, Raw: tftypes.NewValue(s.Type().TerraformType(ctx), nil)}
+	if d := state.Set(ctx, model); d.HasError() {
+		t.Fatalf("building the config: %v", d.Errors())
+	}
+	cfg := tfsdk.Config{Schema: s, Raw: state.Raw}
+
+	var diags diag.Diagnostics
+
+	validatable, ok := res.(fwresource.ResourceWithConfigValidators)
 	if !ok {
-		t.Fatal("the connection resource declares no ConfigValidators; the one-target rule would only be enforced by the API")
+		t.Fatal("the connection resource declares no ConfigValidators; the target rules would only be enforced by the API")
 	}
 	validators := validatable.ConfigValidators(ctx)
 	if len(validators) == 0 {
-		t.Fatal("no config validators declared; the one-target rule would only be enforced by the API")
+		t.Fatal("no config validators declared; the target rules would only be enforced by the API")
+	}
+	for _, v := range validators {
+		resp := &fwresource.ValidateConfigResponse{}
+		v.ValidateResource(ctx, fwresource.ValidateConfigRequest{Config: cfg}, resp)
+		diags.Append(resp.Diagnostics...)
+	}
+
+	for name, attr := range s.Attributes {
+		str, ok := attr.(fwschema.StringAttribute)
+		if !ok {
+			continue
+		}
+		var value types.String
+		if d := cfg.GetAttribute(ctx, path.Root(name), &value); d.HasError() {
+			t.Fatalf("reading %s out of the config: %v", name, d.Errors())
+		}
+		for _, v := range str.Validators {
+			resp := &validator.StringResponse{}
+			v.ValidateString(ctx, validator.StringRequest{
+				Config:         cfg,
+				Path:           path.Root(name),
+				PathExpression: path.MatchRoot(name),
+				ConfigValue:    value,
+			}, resp)
+			diags.Append(resp.Diagnostics...)
+		}
+	}
+	return diags
+}
+
+// TestAirflowConnectionTargetRules is what makes every rule about the target a
+// plan error rather than a 400 discovered halfway through an apply — by which
+// point the environment, database, bucket or dock this connection depends on
+// already exist, and `conn_id` forces replacement, so the mistake cannot be
+// corrected in place.
+//
+// Three rules, and they are separate statements: exactly one of the three
+// references; a Trino target is a dock AND a catalog, both directions; and a
+// permission level does not belong to one, ever.
+func TestAirflowConnectionTargetRules(t *testing.T) {
+	postgres := func(m *airflowConnectionModel) { m.ManagedPostgresqlRef = types.StringValue("warehouse") }
+	bucket := func(m *airflowConnectionModel) { m.BucketRef = types.StringValue("lake") }
+	trino := func(m *airflowConnectionModel) { m.TrinoRef = types.StringValue("analytics") }
+	catalog := func(m *airflowConnectionModel) { m.Catalog = types.StringValue("iceberg") }
+	level := func(m *airflowConnectionModel) { m.PermissionLevel = types.StringValue("editor") }
+	all := func(fns ...func(*airflowConnectionModel)) func(*airflowConnectionModel) {
+		return func(m *airflowConnectionModel) {
+			for _, fn := range fns {
+				fn(m)
+			}
+		}
 	}
 
 	cases := []struct {
 		name    string
-		pg      types.String
-		bucket  types.String
+		config  func(*airflowConnectionModel)
 		wantErr bool
 	}{
-		{"postgres only", types.StringValue("warehouse"), types.StringNull(), false},
-		{"bucket only", types.StringNull(), types.StringValue("lake"), false},
-		{"both", types.StringValue("warehouse"), types.StringValue("lake"), true},
-		{"neither", types.StringNull(), types.StringNull(), true},
+		{"postgres only", postgres, false},
+		{"bucket only", bucket, false},
+		{"postgres with a level", all(postgres, level), false},
+		{"trino with a catalog", all(trino, catalog), false},
+
+		{"two targets", all(postgres, bucket), true},
+		{"two targets including trino", all(postgres, trino, catalog), true},
+		{"no target at all", func(*airflowConnectionModel) {}, true},
+
+		// The catalog is required BECAUSE the hook defaults it to a catalog no
+		// dock has, so a dock without one is not a smaller declaration — it is
+		// one that aims every query at something that is not there.
+		{"a dock with no catalog", trino, true},
+		{"a catalog with no dock", catalog, true},
+		{"a catalog on a postgres target", all(postgres, catalog), true},
+
+		// D2: the level scales authority the platform grants the connection's
+		// own identity, and a Trino connection carries the environment's service
+		// account, for which it grants none.
+		{"a level with a trino target", all(trino, catalog, level), true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			model := airflowConnectionNullModel()
 			model.Airflow = types.StringValue("11111111-1111-1111-1111-111111111111")
 			model.ConnID = types.StringValue("warehouse")
-			model.ManagedPostgresqlRef = tc.pg
-			model.BucketRef = tc.bucket
+			tc.config(&model)
 
-			state := tfsdk.State{Schema: s, Raw: tftypes.NewValue(s.Type().TerraformType(ctx), nil)}
-			if d := state.Set(ctx, model); d.HasError() {
-				t.Fatalf("building the config: %v", d.Errors())
-			}
-			cfg := tfsdk.Config{Schema: s, Raw: state.Raw}
-
-			resp := &fwresource.ValidateConfigResponse{}
-			for _, v := range validators {
-				v.ValidateResource(ctx, fwresource.ValidateConfigRequest{Config: cfg}, resp)
-			}
-			if got := resp.Diagnostics.HasError(); got != tc.wantErr {
-				t.Errorf("error = %v, want %v (diagnostics: %v)", got, tc.wantErr, resp.Diagnostics)
+			diags := airflowConnectionValidateConfig(t, model)
+			if got := diags.HasError(); got != tc.wantErr {
+				t.Errorf("error = %v, want %v (diagnostics: %v)", got, tc.wantErr, diags)
 			}
 		})
+	}
+
+	// The two refusals a Trino declaration is most likely to hit have to name
+	// the attribute actually at fault, or the message sends the user to the
+	// wrong field.
+	refusal := func(fns ...func(*airflowConnectionModel)) string {
+		t.Helper()
+		model := airflowConnectionNullModel()
+		model.Airflow = types.StringValue("11111111-1111-1111-1111-111111111111")
+		model.ConnID = types.StringValue("warehouse")
+		all(fns...)(&model)
+		details := make([]string, 0, 2)
+		for _, d := range airflowConnectionValidateConfig(t, model).Errors() {
+			details = append(details, d.Summary()+": "+d.Detail())
+		}
+		if len(details) == 0 {
+			t.Fatal("the configuration was accepted; there is no refusal to read")
+		}
+		return strings.Join(details, " | ")
+	}
+	if got := refusal(trino, catalog, level); !strings.Contains(got, "permission_level") {
+		t.Errorf("the refusal of a level on a Trino target is %q, want it to name permission_level", got)
+	}
+	if got := refusal(trino); !strings.Contains(got, "catalog") {
+		t.Errorf("the refusal of a dock with no catalog is %q, want it to name catalog", got)
 	}
 }
 
@@ -238,6 +355,76 @@ func TestAirflowConnectionToModelKeepsAnAbsentPinAbsent(t *testing.T) {
 	}
 	if model.Conditions.IsNull() {
 		t.Error("conditions = null for an empty list, want an empty list")
+	}
+}
+
+// TestAirflowConnectionToModelTrino covers the projection of the one target
+// that is more than a name. The dock and the catalog are both halves of what the
+// user declared and both have to come back, or an edit form — and a `terraform
+// plan` — could not restate the target it is changing.
+func TestAirflowConnectionToModelTrino(t *testing.T) {
+	ctx := t.Context()
+	model, d := airflowConnectionToModel(ctx, "11111111-1111-1111-1111-111111111111", &console.AirflowConnectionResponse{
+		Name:           "afconn-5d0e",
+		ConnId:         "lakehouse",
+		ConnectionType: "hyperfluid_trino",
+		TrinoRef:       ptr("analytics"),
+		Catalog:        ptr("iceberg"),
+		// Nothing pinned: the platform resolved its own default.
+		// D2: the knob does not apply to this type, so the level beside it
+		// describes nothing the platform granted.
+		PermissionLevelApplies:  false,
+		ResolvedPermissionLevel: "viewer",
+		Phase:                   airflowConnectionPhaseReady,
+		SpecObserved:            true,
+	})
+	if d.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", d.Errors())
+	}
+
+	if got := model.TrinoRef.ValueString(); got != "analytics" {
+		t.Errorf("trino_ref = %q, want the dock the declaration names", got)
+	}
+	if got := model.Catalog.ValueString(); got != "iceberg" {
+		t.Errorf("catalog = %q, want the catalog the declaration names", got)
+	}
+	if model.PermissionLevelApplies.ValueBool() {
+		t.Error("permission_level_applies = true for a Trino connection; the platform grants it no authority of its own")
+	}
+	if !model.PermissionLevel.IsNull() {
+		t.Errorf("permission_level = %v, want null: it cannot be set on this type at all", model.PermissionLevel)
+	}
+}
+
+// TestAirflowConnectionToModelLeavesTrinoFieldsAbsent is the other half: a
+// Postgres or bucket projection carries no Trino-shaped value, so those
+// attributes read back null instead of "" — which would show up as permanent
+// drift against a configuration that never mentioned them.
+func TestAirflowConnectionToModelLeavesTrinoFieldsAbsent(t *testing.T) {
+	ctx := t.Context()
+	model, d := airflowConnectionToModel(ctx, "11111111-1111-1111-1111-111111111111", &console.AirflowConnectionResponse{
+		Name:                    "afconn-9c11",
+		ConnId:                  "lake",
+		ConnectionType:          "aws",
+		BucketRef:               ptr("lake"),
+		PermissionLevelApplies:  true,
+		ResolvedPermissionLevel: "viewer",
+		Phase:                   airflowConnectionPhaseReady,
+		SpecObserved:            true,
+	})
+	if d.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", d.Errors())
+	}
+	for name, value := range map[string]types.String{
+		"trino_ref": model.TrinoRef,
+		"catalog":   model.Catalog,
+	} {
+		if !value.IsNull() {
+			t.Errorf("%s = %v for a bucket connection, want null", name, value)
+		}
+	}
+	if !model.PermissionLevelApplies.ValueBool() {
+		t.Error("permission_level_applies = false for a bucket connection, whose level the platform does grant")
 	}
 }
 
@@ -389,6 +576,102 @@ func TestAirflowPermissionLevelsAreWireValues(t *testing.T) {
 	}
 }
 
+// ── the catalog, validated at plan time ───────────────────────────────────
+
+// TestAirflowConnectionCatalogValidators mirrors the CRD's own CEL rules on the
+// catalog. The console API bounds only the length, so a bad charset is refused
+// by the Kubernetes API server — which happens during the apply, after the
+// environment and the dock already exist.
+func TestAirflowConnectionCatalogValidators(t *testing.T) {
+	ctx := t.Context()
+	s := resourceSchema(t, NewAirflowConnectionResource()).Schema
+	attr, ok := s.Attributes["catalog"].(fwschema.StringAttribute)
+	if !ok {
+		t.Fatalf("catalog is %T, want a schema.StringAttribute whose validators can be read", s.Attributes["catalog"])
+	}
+
+	cases := []struct {
+		name    string
+		value   string
+		wantErr bool
+	}{
+		{"plain", "iceberg", false},
+		{"underscore and hyphen", "raw_zone-2", false},
+		{"mixed case and digits", "Lake9", false},
+		{"at the length limit", strings.Repeat("a", 63), false},
+
+		{"a dot", "iceberg.raw", true},
+		{"a space", "my catalog", true},
+		{"a slash", "iceberg/raw", true},
+		{"non-ascii", "icebérg", true},
+		{"empty", "", true},
+		{"one character over the limit", strings.Repeat("a", 64), true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := validator.StringRequest{
+				Path:           path.Root("catalog"),
+				PathExpression: path.MatchRoot("catalog"),
+				ConfigValue:    types.StringValue(tc.value),
+			}
+			// Only the value rules live here; the catalog's cross-attribute rule
+			// ("required with a dock, meaningless without one") is a
+			// ConfigValidator and is covered by TestAirflowConnectionTargetRules.
+			resp := &validator.StringResponse{}
+			for _, v := range attr.Validators {
+				v.ValidateString(ctx, req, resp)
+			}
+			if got := resp.Diagnostics.HasError(); got != tc.wantErr {
+				t.Errorf("error = %v, want %v (diagnostics: %v)", got, tc.wantErr, resp.Diagnostics)
+			}
+		})
+	}
+}
+
+// ── the update body carries the whole target ──────────────────────────────
+
+// TestAirflowConnectionTargetChanged: the API treats a target edit as a
+// replacement of the whole payload and refuses `catalog` arriving without
+// `trino_ref`, so a change to it is a change to the target and has to re-send
+// the dock. A predicate that only watched the three references would send a
+// catalog-only edit as a bare `catalog` — a 400 — or, if it sent nothing at
+// all, would report success for an edit that never happened.
+func TestAirflowConnectionTargetChanged(t *testing.T) {
+	trino := func(dock, catalog string) airflowConnectionModel {
+		m := airflowConnectionNullModel()
+		m.TrinoRef = types.StringValue(dock)
+		m.Catalog = types.StringValue(catalog)
+		return m
+	}
+	postgres := func(name string) airflowConnectionModel {
+		m := airflowConnectionNullModel()
+		m.ManagedPostgresqlRef = types.StringValue(name)
+		return m
+	}
+
+	cases := []struct {
+		name        string
+		plan, state airflowConnectionModel
+		want        bool
+	}{
+		{"nothing moved", trino("analytics", "iceberg"), trino("analytics", "iceberg"), false},
+		{"another dock", trino("reporting", "iceberg"), trino("analytics", "iceberg"), true},
+		{"another catalog", trino("analytics", "raw"), trino("analytics", "iceberg"), true},
+		{"retargeted to trino", trino("analytics", "iceberg"), postgres("warehouse"), true},
+		{"retargeted away from trino", postgres("warehouse"), trino("analytics", "iceberg"), true},
+		// A level-only edit must NOT re-send the target: a body carrying the
+		// target again is a retarget, and a retarget re-provisions the credential.
+		{"only the level moved", postgres("warehouse"), postgres("warehouse"), false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := airflowConnectionTargetChanged(tc.plan, tc.state); got != tc.want {
+				t.Errorf("targetChanged = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 // ── acceptance tests (skipped without credentials) ────────────────────────
 
 // TestAccAirflowConnectionResource covers a Postgres connection and a bucket
@@ -443,25 +726,116 @@ func TestAccAirflowConnectionResource(t *testing.T) {
 }
 
 // TestAccAirflowConnectionRejectsTwoTargets asserts the one-target rule lands
-// at plan time, before anything is created.
+// at plan time, before anything is created. The Trino cases are here for the
+// same reason and cost the same nothing: each is refused during validation, so
+// none of them needs an environment, a database or a dock to exist.
 func TestAccAirflowConnectionRejectsTwoTargets(t *testing.T) {
+	bad := func(body string) string {
+		return `
+resource "hyperfluid_airflow_connection" "bad" {
+  airflow = "11111111-1111-1111-1111-111111111111"
+  conn_id = "tf_acc_bad"
+` + body + `
+}
+`
+	}
+	steps := []resource.TestStep{
+		{
+			Config: bad(`  managed_postgresql_ref = "warehouse"
+  bucket_ref             = "lake"`),
+			ExpectError: regexp.MustCompile(`Invalid Attribute Combination`),
+		},
+		{
+			// A dock with no catalog: the hook would default it to a catalog no
+			// Hyperfluid dock has.
+			Config:      bad(`  trino_ref = "analytics"`),
+			ExpectError: regexp.MustCompile(`Invalid Attribute Combination`),
+		},
+		{
+			// D2: the level scales authority the platform grants a connection's
+			// own identity, and a Trino connection carries the environment's.
+			Config: bad(`  trino_ref        = "analytics"
+  catalog          = "iceberg"
+  permission_level = "editor"`),
+			ExpectError: regexp.MustCompile(`Invalid Attribute Combination`),
+		},
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
+
+// TestAccAirflowConnectionTrinoResource covers a real Trino connection: create,
+// read it back through the data source, import.
+//
+// It needs an existing Trino Data Dock, named by HYPERFLUID_ACC_TRINO_DOCK,
+// because this provider does not manage Data Docks — there is nothing to declare
+// one with, so the fixture has to come from the environment (the same shape as
+// the backup-target test's S3 fixture).
+func TestAccAirflowConnectionTrinoResource(t *testing.T) {
+	dock := os.Getenv("HYPERFLUID_ACC_TRINO_DOCK")
+	catalog := os.Getenv("HYPERFLUID_ACC_TRINO_CATALOG")
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			if dock == "" || catalog == "" {
+				t.Skip("HYPERFLUID_ACC_TRINO_DOCK / _CATALOG not set; skipping the Trino connection acceptance test")
+			}
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: `
-resource "hyperfluid_airflow_connection" "bad" {
-  airflow                = "11111111-1111-1111-1111-111111111111"
-  conn_id                = "tf_acc_both"
-  managed_postgresql_ref = "warehouse"
-  bucket_ref             = "lake"
-}
-`,
-				ExpectError: regexp.MustCompile(`Invalid Attribute Combination`),
+				Config: testAccAirflowConnectionTrinoConfig(dock, catalog),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("hyperfluid_airflow_connection.lakehouse", "trino_ref", dock),
+					resource.TestCheckResourceAttr("hyperfluid_airflow_connection.lakehouse", "catalog", catalog),
+					resource.TestCheckResourceAttr("hyperfluid_airflow_connection.lakehouse", "connection_type", "hyperfluid_trino"),
+					resource.TestCheckResourceAttr("hyperfluid_airflow_connection.lakehouse", "phase", "Ready"),
+					// D2, projected rather than inferred from the conn_type.
+					resource.TestCheckResourceAttr("hyperfluid_airflow_connection.lakehouse", "permission_level_applies", "false"),
+					resource.TestCheckNoResourceAttr("hyperfluid_airflow_connection.lakehouse", "permission_level"),
+
+					resource.TestCheckResourceAttrPair(
+						"data.hyperfluid_airflow_connection.lakehouse", "catalog",
+						"hyperfluid_airflow_connection.lakehouse", "catalog"),
+				),
+			},
+			{
+				ResourceName:      "hyperfluid_airflow_connection.lakehouse",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
+}
+
+func testAccAirflowConnectionTrinoConfig(dock, catalog string) string {
+	return `
+data "hyperfluid_env" "default" {
+  name = "default"
+}
+
+resource "hyperfluid_airflow" "etl" {
+  env       = data.hyperfluid_env.default.id
+  name      = "tf-acc-af-trino"
+  node_tier = "micro"
+}
+
+resource "hyperfluid_airflow_connection" "lakehouse" {
+  airflow   = hyperfluid_airflow.etl.id
+  conn_id   = "tf_acc_lakehouse"
+  trino_ref = "` + dock + `"
+  catalog   = "` + catalog + `"
+}
+
+data "hyperfluid_airflow_connection" "lakehouse" {
+  airflow    = hyperfluid_airflow.etl.id
+  conn_id    = hyperfluid_airflow_connection.lakehouse.conn_id
+  depends_on = [hyperfluid_airflow_connection.lakehouse]
+}
+`
 }
 
 func testAccAirflowConnectionConfig(level string) string {

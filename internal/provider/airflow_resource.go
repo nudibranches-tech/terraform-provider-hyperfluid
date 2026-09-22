@@ -80,15 +80,30 @@ var airflowTierResources = map[string]struct{ cpuRequest, cpuLimit, memory strin
 }
 
 // airflowLinkKinds are the service kinds an environment's task pods may be
-// granted egress to — the kinds the platform can resolve into a pod selector
-// and a port. Trino and Pipeline are absent on purpose: a task pod reaches
-// Trino through Bifrost, which is part of the non-editable baseline, and
-// nothing connects *to* a pipeline.
+// granted egress to BY HAND — the kinds the platform can resolve into a pod
+// selector and a port. Only `Pipeline` is absent, and for a reason of its own:
+// nothing connects *to* a pipeline, so it can never be a link target.
+//
+// This has to stay the WHOLE set the API accepts as a target, not a curated
+// subset of it. `egress.in_cluster` is sent with REPLACE semantics — one apply
+// carries the complete set and anything left out is removed — so a kind
+// missing here is not "a kind Terraform declines to offer", it is a kind that
+// gets deleted from `spec.egress.inCluster` the next time anyone applies this
+// resource, silently closing a hole the user declared through the console or
+// `hfctl` (both of which accept every value of `AirflowLinkKind`).
+//
+// `Trino` in particular is hand-declarable on its own terms: it opens the
+// coordinator's HTTPS port, which is the same single hole a managed
+// `hyperfluid_airflow_connection` to that dock implies — one dock is one link
+// — so declaring it by hand and connecting to it stay one entry rather than
+// two. Governed SQL from DAG code still goes through Bifrost, which is part of
+// the non-editable baseline and needs no declaration at all.
 var airflowLinkKinds = []string{
 	string(console.AirflowLinkKindManagedPostgreSQL),
 	string(console.AirflowLinkKindContainerApp),
 	string(console.AirflowLinkKindKafka),
 	string(console.AirflowLinkKindHfKeyValueCache),
+	string(console.AirflowLinkKindTrino),
 }
 
 // Ceilings the API enforces; mirrored here so an over-long list is a plan error

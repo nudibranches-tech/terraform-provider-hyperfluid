@@ -156,7 +156,7 @@ Optional:
 
 Required:
 
-- `kind` (String) Kind of service. One of `ManagedPostgreSQL`, `ContainerApp`, `Kafka`, `HfKeyValueCache`.
+- `kind` (String) Kind of service. One of `ManagedPostgreSQL`, `ContainerApp`, `Kafka`, `HfKeyValueCache`, `Trino`.
 - `name` (String) The target's slug in the same harbor — the `slug` attribute of the resource, not its display name.
 
 ## Import

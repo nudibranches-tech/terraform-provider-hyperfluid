@@ -28,8 +28,19 @@ import (
 )
 
 // airflow_connection_resource.go — a managed Airflow connection: the platform
-// mints the credential for a database or a bucket and writes the Airflow
-// connection row itself, so a DAG asks for `conn_id` and never holds a secret.
+// resolves a database, a bucket or a Trino catalog, puts the credential in place
+// and writes the Airflow connection row itself, so a DAG asks for `conn_id` and
+// never holds a secret.
+//
+// The three target kinds are not three variations on one shape. A Postgres or
+// bucket connection gets an identity the platform MINTS for it, which is what
+// `permission_level` scales. A Trino connection carries the environment's own
+// service account instead — the platform provisions nothing, every query is
+// decided server-side against grants the customer already owns, and so there is
+// no authority for a level to scale: `permission_level` does not apply to it and
+// the API refuses it. That is why the Trino target is the only one that is more
+// than a name (it needs a `catalog`), and the only one
+// with an attribute the others have no answer for.
 //
 // Two names, and they are not interchangeable: `conn_id` is what the DAG asks
 // for, `name` is the connection object's own name and the only one the API
@@ -58,11 +69,22 @@ const (
 
 // airflowPermissionLevels are the only two levels a connection can pin. What
 // each means depends on the target: database grants for a Postgres connection,
-// the S3 verbs of a scoped object-store identity for a bucket one.
+// the S3 verbs of a scoped object-store identity for a bucket one. A Trino
+// connection has no answer at all — see permission_level's ConflictsWith.
 var airflowPermissionLevels = []string{
 	string(console.PermissionLevelViewer),
 	string(console.PermissionLevelEditor),
 }
+
+// The catalog rules, mirrored from the CRD's own CEL validations
+// (`^[A-Za-z0-9_-]+$`, 1..63) for the same reason the conn_id rules are: the
+// console API bounds only the length, so a bad charset is refused by the
+// Kubernetes API server — which happens during the apply, after the environment
+// and the dock this connection depends on already exist. The value travels to
+// the coordinator as an HTTP header, which is why the charset is pinned at all.
+var airflowCatalogPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+const airflowCatalogMaxLen = 63
 
 // The conn_id rules the platform enforces, mirrored so they land at plan time.
 // Discovering them as a 400 halfway through an apply is the wrong place: by
@@ -105,12 +127,15 @@ type airflowConnectionModel struct {
 	ConnID               types.String `tfsdk:"conn_id"`
 	ManagedPostgresqlRef types.String `tfsdk:"managed_postgresql_ref"`
 	BucketRef            types.String `tfsdk:"bucket_ref"`
+	TrinoRef             types.String `tfsdk:"trino_ref"`
+	Catalog              types.String `tfsdk:"catalog"`
 	PermissionLevel      types.String `tfsdk:"permission_level"`
 
 	// computed
 	Name                            types.String `tfsdk:"name"`
 	ConnectionType                  types.String `tfsdk:"connection_type"`
 	ResolvedPermissionLevel         types.String `tfsdk:"resolved_permission_level"`
+	PermissionLevelApplies          types.Bool   `tfsdk:"permission_level_applies"`
 	Phase                           types.String `tfsdk:"phase"`
 	SpecObserved                    types.Bool   `tfsdk:"spec_observed"`
 	SourceApplied                   types.Bool   `tfsdk:"source_applied"`
@@ -139,15 +164,30 @@ func (r *airflowConnectionResource) Metadata(_ context.Context, req resource.Met
 	resp.TypeName = req.ProviderTypeName + "_airflow_connection"
 }
 
-// ConfigValidators enforces the one-target rule at plan time. The API answers
-// 400 for both zero and two targets, but discovering that during apply — after
-// the rest of the configuration has already been created — is the wrong place
-// to learn it, and a check written inside Create could only ever fire there.
+// ConfigValidators enforces the shape of the target at plan time. The API
+// answers 400 for every one of these, but discovering that during apply — after
+// the rest of the configuration has already been created — is the wrong place to
+// learn it, and a check written inside Create could only ever fire there.
+//
+// Two rules, and they are separate statements. "Exactly one target" is about the
+// three references. "A Trino target is a dock AND a catalog" is about one target
+// being fully specified: the catalog is required because Airflow's own hook
+// defaults it to a catalog that exists on no Hyperfluid dock, so a dock without
+// one aims every query at something that is not there — and a catalog without a
+// dock is a field with no target to belong to. Spelling it as one
+// RequiredTogether keeps both directions in one place; the third rule
+// (`catalog` needs a dock, `permission_level` refuses one) sits on the
+// attributes themselves, where the diagnostic can name the attribute at fault.
 func (r *airflowConnectionResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.ExactlyOneOf(
 			path.MatchRoot("managed_postgresql_ref"),
 			path.MatchRoot("bucket_ref"),
+			path.MatchRoot("trino_ref"),
+		),
+		resourcevalidator.RequiredTogether(
+			path.MatchRoot("trino_ref"),
+			path.MatchRoot("catalog"),
 		),
 	}
 }
@@ -160,13 +200,18 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 		return schema.BoolAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A managed Airflow connection: the platform resolves the target, mints a " +
-			"credential scoped to it and writes the Airflow connection row itself. A DAG then asks for " +
-			"the `conn_id` and never holds a secret — nothing here puts a password in Terraform state, " +
-			"because no password ever reaches Terraform.\n\n" +
-			"A connection names exactly one target — `managed_postgresql_ref` **or** `bucket_ref` — and " +
-			"which one it is decides the connection's type. Both or neither is a configuration error, " +
-			"reported at plan time.\n\n" +
+		MarkdownDescription: "A managed Airflow connection: the platform resolves the target, puts a " +
+			"credential scoped to it in place and writes the Airflow connection row itself. A DAG then " +
+			"asks for the `conn_id` and never holds a secret — nothing here puts a password in Terraform " +
+			"state, because no password ever reaches Terraform.\n\n" +
+			"A connection names exactly one target — `managed_postgresql_ref`, `bucket_ref` **or** " +
+			"`trino_ref` — and which one it is decides the connection's type. Two of them, or none, is a " +
+			"configuration error reported at plan time.\n\n" +
+			"The Trino target is the one that is more than a name: it takes a required `catalog`, and it " +
+			"reaches the dock at its in-cluster address. It is also the one the " +
+			"platform provisions nothing for — it carries the environment's own service account, so " +
+			"`permission_level` has no meaning on it and is refused. `permission_level_applies` reports " +
+			"that, and is what to read before `resolved_permission_level`.\n\n" +
 			"~> **Object-store credentials are not exposed here.** A bucket connection's credential is " +
 			"minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so " +
 			"it has no sane representation in Terraform state: by the time state were written the " +
@@ -222,16 +267,55 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			"managed_postgresql_ref": schema.StringAttribute{
 				Optional: true,
 				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same harbor to connect " +
-					"to. Exactly one of this and `bucket_ref` must be set. Switching a connection from one " +
-					"target to the other is applied in place: the platform releases the credential it no " +
-					"longer needs before minting the new one.",
+					"to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a " +
+					"connection from one target to another is applied in place: the platform releases the " +
+					"credential it no longer needs before putting the new one in place.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
 			},
 			"bucket_ref": schema.StringAttribute{
 				Optional: true,
 				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly " +
-					"one of this and `managed_postgresql_ref` must be set.",
+					"one of this, `managed_postgresql_ref` and `trino_ref` must be set.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
+			},
+			"trino_ref": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "Name of a Trino Data Dock in the same harbor to connect to — the dock's " +
+					"own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of " +
+					"this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required " +
+					"beside this one.\n\n" +
+					"Data Docks are not managed by this provider; a Trino connection names one that already " +
+					"exists in the environment's harbor.\n\n" +
+					"~> **A Trino connection carries the environment's own service account** — the identity " +
+					"the platform's reserved `hyperfluid_default` connection already uses. Nothing is " +
+					"provisioned for it: no new service account, no scoped identity, no grant, and no " +
+					"credential minted per connection. Every query is authorized server-side against the " +
+					"grants that identity already holds, which is why `permission_level` cannot be set on " +
+					"this type — there is no authority of the connection's own for a level to scale. Grant " +
+					"the environment's service account what the DAGs need from the console, the same way you " +
+					"grant any other principal.",
+				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
+			},
+			"catalog": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "The Trino catalog every session on the connection opens against. " +
+					"Required with `trino_ref`, and meaningless without it — both directions are plan " +
+					"errors.\n\n" +
+					"Required rather than defaulted because Airflow's own `TrinoHook` falls back to a " +
+					"catalog called `hive`, which exists on no Hyperfluid dock: a connection without one " +
+					"would aim every query at something that is not there. The platform cannot pick for you " +
+					"either, since a dock carries as many catalogs as the harbor has data containers and " +
+					"which one a DAG wants is not derivable.\n\n" +
+					"ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan " +
+					"time because the value travels to the coordinator as an HTTP header and is validated by " +
+					"the platform's API server — which would refuse it mid-apply, after the environment and " +
+					"the dock already exist.\n\n" +
+					"Changing it is applied in place; a Trino payload is always sent whole.",
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, airflowCatalogMaxLen),
+					stringvalidator.RegexMatches(airflowCatalogPattern,
+						"must contain only ASCII letters, digits, underscore or hyphen"),
+				},
 			},
 			"permission_level": schema.StringAttribute{
 				// Optional and deliberately NOT Computed, and never defaulted
@@ -248,10 +332,20 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 					"in force is always reported as `resolved_permission_level`. What the level means " +
 					"depends on the target: database grants for a PostgreSQL connection, the object-store " +
 					"verbs of a scoped identity for a bucket one.\n\n" +
+					"~> **It cannot be set on a Trino connection.** The level scales the authority the " +
+					"platform grants a connection's own identity, and a Trino connection carries the " +
+					"environment's service account, for which the platform grants none. The API refuses " +
+					"the combination with a 400 and the platform refuses the declaration; naming both here " +
+					"is a plan error instead.\n\n" +
 					"~> **Removing the pin forces a new connection.** The API can raise or lower a pinned " +
 					"level in place but has no way to un-pin one, so going back to the platform default " +
-					"means replacing the connection — which re-mints its credential.",
-				Validators: []validator.String{stringvalidator.OneOf(airflowPermissionLevels...)},
+					"means replacing the connection — which re-provisions its credential. Retargeting a " +
+					"pinned connection to `trino_ref` therefore replaces it too: the pin has to come out " +
+					"of the configuration for the Trino target to be legal at all.",
+				Validators: []validator.String{
+					stringvalidator.OneOf(airflowPermissionLevels...),
+					stringvalidator.ConflictsWith(path.MatchRoot("trino_ref")),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIf(
 						func(_ context.Context, req planmodifier.StringRequest, resp *stringplanmodifier.RequiresReplaceIfFuncResponse) {
@@ -265,10 +359,18 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 
 			"name": computedStr("The connection object's own name, which is how the API addresses it. " +
 				"Derived by the platform and not the same string as `conn_id`."),
-			"connection_type": computedStr("Type of connection, derived from which target was named: a " +
-				"PostgreSQL connection or a bucket one."),
+			"connection_type": computedStr("The Airflow `conn_type` of the row the platform wrote, derived " +
+				"from which target was named: `postgres`, `aws` for a bucket, or `hyperfluid_trino` — a " +
+				"Hyperfluid-owned spelling, not the stock `trino`, because the hook that serves the type " +
+				"is the platform's own."),
 			"resolved_permission_level": computedStr("The level actually in force: the value pinned in " +
-				"`permission_level`, or the platform's own default when nothing is pinned."),
+				"`permission_level`, or the platform's own default when nothing is pinned. Read " +
+				"`permission_level_applies` first — where the knob does not apply this field describes " +
+				"nothing the platform granted and must not be read as an access level."),
+			"permission_level_applies": computedBool("Whether `permission_level` means anything for this " +
+				"connection's type. False for a Trino connection, permanently: it carries the " +
+				"environment's own service account, whose grants are yours to assign, so the platform " +
+				"grants the connection no authority of its own for a level to scale."),
 			"phase": computedStr("Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, " +
 				"`TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` is not a " +
 				"failure — it is what a connection reports while its environment is asleep."),
@@ -309,6 +411,18 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 // Raising or lowering a pin, and adding one, are all in-place changes.
 func airflowConnectionUnpinRequiresReplace(state, config types.String) bool {
 	return !state.IsNull() && config.IsNull()
+}
+
+// airflowConnectionTargetChanged reports whether the target payload has to be
+// re-sent. Every field of it counts, not just the three references: the API
+// treats a target edit as a replacement of the whole payload and refuses
+// `catalog` arriving without `trino_ref`, so a change to it is still a change
+// to the target and has to carry the dock with it.
+func airflowConnectionTargetChanged(plan, state airflowConnectionModel) bool {
+	return !plan.ManagedPostgresqlRef.Equal(state.ManagedPostgresqlRef) ||
+		!plan.BucketRef.Equal(state.BucketRef) ||
+		!plan.TrinoRef.Equal(state.TrinoRef) ||
+		!plan.Catalog.Equal(state.Catalog)
 }
 
 func (r *airflowConnectionResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -357,9 +471,13 @@ func (r *airflowConnectionResource) Create(ctx context.Context, req resource.Cre
 		ConnId:               connID,
 		ManagedPostgresqlRef: stringPtr(plan.ManagedPostgresqlRef),
 		BucketRef:            stringPtr(plan.BucketRef),
+		TrinoRef:             stringPtr(plan.TrinoRef),
+		Catalog:              stringPtr(plan.Catalog),
 	}
 	// Absent stays absent: a body that materialised the platform default would
-	// pin it into the object and destroy the "unpinned" state for good.
+	// pin it into the object and destroy the "unpinned" state for good, which is
+	// why it goes through a converter that keeps null null rather than through a
+	// zero value.
 	if level := stringPtr(plan.PermissionLevel); level != nil {
 		body.PermissionLevel = ptr(console.PermissionLevel(*level))
 	}
@@ -457,14 +575,22 @@ func (r *airflowConnectionResource) Update(ctx context.Context, req resource.Upd
 
 	var body console.PatchAirflowConnectionRequest
 	// A retarget replaces the whole payload, so the new reference is sent on its
-	// own and the abandoned one is simply absent — a body carrying both is the
-	// one shape the platform refuses outright.
-	if !plan.ManagedPostgresqlRef.Equal(state.ManagedPostgresqlRef) || !plan.BucketRef.Equal(state.BucketRef) {
+	// own and the abandoned one is simply absent — a body carrying two of them is
+	// the one shape the platform refuses outright. `catalog` is part of a Trino
+	// payload rather than a field beside it: the API refuses either without
+	// `trino_ref`, so changing only the catalog still names the dock again.
+	// Sending the whole payload whenever any part of it moved is what makes that
+	// true.
+	if airflowConnectionTargetChanged(plan, state) {
 		body.ManagedPostgresqlRef = stringPtr(plan.ManagedPostgresqlRef)
 		body.BucketRef = stringPtr(plan.BucketRef)
+		body.TrinoRef = stringPtr(plan.TrinoRef)
+		body.Catalog = stringPtr(plan.Catalog)
 	}
 	// Only a present level is read by the API, which is why removing the pin
-	// forces replacement (see the schema) and never reaches this path.
+	// forces replacement (see the schema) and never reaches this path. A plan
+	// that targets Trino has no level to send either — the two cannot both be in
+	// the configuration — so this stays absent rather than having to be cleared.
 	if !plan.PermissionLevel.Equal(state.PermissionLevel) {
 		if level := stringPtr(plan.PermissionLevel); level != nil {
 			body.PermissionLevel = ptr(console.PermissionLevel(*level))
@@ -516,12 +642,13 @@ func (r *airflowConnectionResource) Delete(ctx context.Context, req resource.Del
 }
 
 // removeConnection deletes a connection and waits for it to be gone. Both
-// callers need that confirmation, and for the same reason: the credential a
-// connection minted — a scoped database role, or an object-store identity — is
-// released by the object's finalizer, so a 204 is an acceptance and not a
-// release. A finalizer that cannot finish leaves the credential live on tenant
-// data, which is precisely what the caller has to be able to tell the user
-// about. A 404 needs nothing further: it is the state the poll waits for.
+// callers need that confirmation, and for the same reason: what a connection put
+// in place — a scoped database role, an object-store identity, or the in-cluster
+// path a Trino connection opened — is released by the object's finalizer, so a
+// 204 is an acceptance and not a release. A finalizer that cannot finish leaves
+// that access live on tenant data, which is precisely what the caller has to be
+// able to tell the user about. A 404 needs nothing further: it is the state the
+// poll waits for.
 func (r *airflowConnectionResource) removeConnection(ctx context.Context, airflowID, name string) error {
 	return airflowConnectionRemove(ctx, airflowConnectionWaitTimeout,
 		func() error { return r.p.API.DeleteAirflowConnection(ctx, r.p.OrgID, airflowID, name) },
@@ -737,7 +864,8 @@ func airflowConnectionDetail(conn *console.AirflowConnectionResponse) string {
 // airflowConnectionToModel maps the API view into state. `permission_level`
 // comes straight from the projection, which reports the pin and only the pin —
 // absent when the user pinned nothing — so an unpinned connection stays
-// unpinned in state and a level someone pinned elsewhere shows up as drift.
+// unpinned in state and a value someone pinned elsewhere shows up as drift.
+// What is actually in force is `resolved_permission_level` beside it.
 func airflowConnectionToModel(ctx context.Context, airflowID string, conn *console.AirflowConnectionResponse) (airflowConnectionModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
@@ -763,10 +891,13 @@ func airflowConnectionToModel(ctx context.Context, airflowID string, conn *conso
 		ConnID:                          types.StringValue(conn.ConnId),
 		ManagedPostgresqlRef:            optString(conn.ManagedPostgresqlRef),
 		BucketRef:                       optString(conn.BucketRef),
+		TrinoRef:                        optString(conn.TrinoRef),
+		Catalog:                         optString(conn.Catalog),
 		PermissionLevel:                 optString(conn.PermissionLevel),
 		Name:                            types.StringValue(conn.Name),
 		ConnectionType:                  types.StringValue(conn.ConnectionType),
 		ResolvedPermissionLevel:         types.StringValue(conn.ResolvedPermissionLevel),
+		PermissionLevelApplies:          types.BoolValue(conn.PermissionLevelApplies),
 		Phase:                           types.StringValue(conn.Phase),
 		SpecObserved:                    types.BoolValue(conn.SpecObserved),
 		SourceApplied:                   types.BoolValue(conn.SourceApplied != nil && *conn.SourceApplied),
