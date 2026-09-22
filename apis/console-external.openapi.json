@@ -12712,143 +12712,6 @@
         }
       }
     },
-    "/api/v1/harbors/{harbor_id}/tiny-query/schedule-auth": {
-      "get": {
-        "tags": [
-          "Petite Requête"
-        ],
-        "operationId": "get_schedule_auth_status_handler",
-        "parameters": [
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "description": "Harbor ID",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Background-execution grant status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScheduleAuthStatusResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Petite Requête"
-        ],
-        "operationId": "revoke_schedule_auth_handler",
-        "parameters": [
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "description": "Harbor ID",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Background-execution grant revoked"
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/harbors/{harbor_id}/tiny-query/schedule-auth/start": {
-      "post": {
-        "tags": [
-          "Petite Requête"
-        ],
-        "operationId": "start_schedule_auth_handler",
-        "parameters": [
-          {
-            "name": "harbor_id",
-            "in": "path",
-            "description": "Harbor ID",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartScheduleAuthRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Keycloak authorize URL to redirect the browser to",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartScheduleAuthResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/invitations/{token}/accept": {
       "post": {
         "tags": [
@@ -49730,7 +49593,7 @@
           },
           "catalog": {
             "type": "string",
-            "description": "The Trino catalog every session on the connection opens against.\nREQUIRED with `trino_ref`, and refused with either other target.\n\nRequired rather than defaulted because `TrinoHook` falls back to\n`catalog=\"hive\"`, which exists on no Hyperfluid dock: a row without one\naims every query at something that is not there. The platform cannot\npick for the user either — a dock carries as many catalogs as the harbor\nhas data containers.\n\nThe charset is the CRD's own (`^[A-Za-z0-9_-]{1,63}$`) because the value\nleaves as the `X-Trino-Catalog` header, and it is answered here with a\n`400` rather than deferred to the Kubernetes API server: a `catalog`\nthe CEL rule refuses — `hive.default`, say, which is what a caller\nreaching for `catalog.schema` writes first — comes back as a field\nerror naming the rule instead of an opaque failure.",
+            "description": "The Trino catalog every session on the connection opens against.\nREQUIRED with `trino_ref`, and refused with either other target.\n\nThe session **default** for unqualified table names, and not a scope:\nOPA decides every statement against the catalog of the table being\ntouched, so a DAG that writes `other_catalog.schema.table` in full\nreaches it, bounded by the grants the environment's service account\nalready holds. Two connections on one dock naming different catalogs\ntherefore carry identical authority — this field is ergonomics, not\nisolation.\n\nRequired rather than defaulted because `TrinoHook` falls back to\n`catalog=\"hive\"`, which exists on no Hyperfluid dock: a row without one\naims every query at something that is not there. The platform cannot\npick for the user either — a dock carries as many catalogs as the harbor\nhas data containers.\n\nThe charset is the CRD's own (`^[A-Za-z0-9_-]{1,63}$`) because the value\nleaves as the `X-Trino-Catalog` header, and it is answered here with a\n`400` rather than deferred to the Kubernetes API server: a `catalog`\nthe CEL rule refuses — `hive.default`, say, which is what a caller\nreaching for `catalog.schema` writes first — comes back as a field\nerror naming the rule instead of an opaque failure.",
             "nullable": true
           },
           "conn_id": {
@@ -52011,6 +51874,12 @@
           "schedule": {
             "type": "string",
             "description": "Cron expression. Omitted or `null` means the query only runs on demand.",
+            "nullable": true
+          },
+          "service_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The service account the schedule runs as. Required whenever `schedule`\nis set, ignored otherwise — an on-demand query runs on its caller's own\ntoken and needs no standing identity.",
             "nullable": true
           },
           "sql_text": {
@@ -64285,6 +64154,12 @@
             "type": "string",
             "nullable": true
           },
+          "executed_as_service_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The service account whose token actually executed this run, and which\nTrino/OPA therefore authorized it as.\n\nDistinct from `user_id`, which is who the run is attributed to. For an\ninteractive run they are the same person and this is `None`. For a\nscheduled run they differ by design (see ADR-0041): the query belongs\nto its author, but it reads the data as the account assigned to it.\nRecorded per run rather than derived from the schedule, because a\nschedule's account can be reassigned and the audit question is about\nthe identity that held the token at run time.",
+            "nullable": true
+          },
           "execution_time_ms": {
             "type": "integer",
             "format": "int64",
@@ -66477,18 +66352,6 @@
           "manual"
         ]
       },
-      "ScheduleAuthStatusResponse": {
-        "type": "object",
-        "required": [
-          "granted"
-        ],
-        "properties": {
-          "granted": {
-            "type": "boolean",
-            "description": "Whether the caller has a background-execution grant on file — an\nexistence check only (see `UserAccessTokenBroker::has_grant`), not a\nguarantee the refresh token is still accepted by Keycloak."
-          }
-        }
-      },
       "ScheduleState": {
         "type": "object",
         "description": "A saved query's cron schedule and everything about its scheduled\nexecution — grouped into one type so \"does this query have a schedule\"\nand \"what's its run state\" can't drift apart into independently optional\ncolumns that are only ever meaningful together. `None` on\n`SavedQuery.schedule` means on-demand execution only; every field here is\notherwise only ever read once that's `Some`.",
@@ -66531,6 +66394,12 @@
             "type": "string",
             "format": "date-time",
             "description": "When the next run is due.\n\n`None` means \"due at the next poll\" — the scheduler's claim predicate is\n`(next_run_at IS NULL OR next_run_at <= now())`, so a freshly created or\nfreshly re-scheduled query runs on the next tick rather than waiting for\nsomething to compute an occurrence first. Nothing populates this yet;\nsee the schedule columns in the migration for the intended writer.",
+            "nullable": true
+          },
+          "service_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The service account this schedule runs as. Its token is what reaches\nTrino, so this — not the query's `created_by` — is the identity OPA\nauthorizes the run against (see ADR-0041).\n\n`None` only ever describes a schedule that cannot currently run: a\npre-ADR-0041 row suspended by the migration and still awaiting an\nassignment, or one whose account was removed. The DB mirrors exactly\nthat (`saved_queries_active_schedule_needs_service_account`), and\n`claim_due` skips such rows, so an active schedule always has one.",
             "nullable": true
           },
           "suspended": {
@@ -68071,30 +67940,6 @@
         "properties": {
           "scan": {
             "$ref": "#/components/schemas/IcebergHealthScan"
-          }
-        }
-      },
-      "StartScheduleAuthRequest": {
-        "type": "object",
-        "required": [
-          "redirect_path"
-        ],
-        "properties": {
-          "redirect_path": {
-            "type": "string",
-            "description": "Where to send the browser back to once the consent redirect\ncompletes, relative to the console's own origin (e.g.\n`/harbors/acme/tiny-query`) — the frontend computes this with\n`useHarborPath()`, same as any other in-app link. Must be a\nsame-origin relative path (starts with `/`, not `//`, no `://`, no\n`\\`), so this endpoint can't be turned into an open redirector."
-          }
-        }
-      },
-      "StartScheduleAuthResponse": {
-        "type": "object",
-        "required": [
-          "authorize_url"
-        ],
-        "properties": {
-          "authorize_url": {
-            "type": "string",
-            "description": "The Keycloak `/auth` URL to redirect the browser to next."
           }
         }
       },
@@ -70370,6 +70215,12 @@
           "schedule": {
             "type": "string",
             "description": "Absent = keep the current schedule; `null` = unschedule the query;\na string = replace the cron.\n\nThis is a double option on purpose. With a plain `Option<String>` serde\nfolds \"absent\" and \"explicit null\" together, and the repository's\n`.or(current)` fallback then writes the old cron back — which left no\nrequest at all that could stop a scheduled query.",
+            "nullable": true
+          },
+          "service_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Absent = keep the current account; a value = reassign the schedule to\nit. Deliberately *not* a double option: there is no request that\ndetaches an account while leaving the schedule active, because that\nwould be a schedule nothing can authorize. Clearing the `schedule`\nclears this alongside it.",
             "nullable": true
           },
           "sql_text": {

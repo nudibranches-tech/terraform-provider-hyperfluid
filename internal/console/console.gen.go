@@ -7791,6 +7791,14 @@ type CreateAirflowConnectionRequest struct {
 	// Catalog The Trino catalog every session on the connection opens against.
 	// REQUIRED with `trino_ref`, and refused with either other target.
 	//
+	// The session **default** for unqualified table names, and not a scope:
+	// OPA decides every statement against the catalog of the table being
+	// touched, so a DAG that writes `other_catalog.schema.table` in full
+	// reaches it, bounded by the grants the environment's service account
+	// already holds. Two connections on one dock naming different catalogs
+	// therefore carry identical authority — this field is ergonomics, not
+	// isolation.
+	//
 	// Required rather than defaulted because `TrinoHook` falls back to
 	// `catalog="hive"`, which exists on no Hyperfluid dock: a row without one
 	// aims every query at something that is not there. The platform cannot
@@ -9468,11 +9476,16 @@ type CreateSavedQueryRequest struct {
 	Description *string            `json:"description,omitempty"`
 
 	// Schedule Cron expression. Omitted or `null` means the query only runs on demand.
-	Schedule   *string   `json:"schedule,omitempty"`
-	SqlText    string    `json:"sql_text"`
-	Tags       *[]string `json:"tags,omitempty"`
-	Title      string    `json:"title"`
-	Visibility *string   `json:"visibility,omitempty"`
+	Schedule *string `json:"schedule,omitempty"`
+
+	// ServiceAccountId The service account the schedule runs as. Required whenever `schedule`
+	// is set, ignored otherwise — an on-demand query runs on its caller's own
+	// token and needs no standing identity.
+	ServiceAccountId *openapi_types.UUID `json:"service_account_id,omitempty"`
+	SqlText          string              `json:"sql_text"`
+	Tags             *[]string           `json:"tags,omitempty"`
+	Title            string              `json:"title"`
+	Visibility       *string             `json:"visibility,omitempty"`
 }
 
 // CreateSecretRequestBody defines model for CreateSecretRequestBody.
@@ -15736,22 +15749,34 @@ type PublicSignupPageCopy struct {
 
 // QueryHistoryEntry defines model for QueryHistoryEntry.
 type QueryHistoryEntry struct {
-	AnalysisTimeMs     *int64             `json:"analysis_time_ms,omitempty"`
-	BytesScanned       *int64             `json:"bytes_scanned,omitempty"`
-	CpuTimeMs          *int64             `json:"cpu_time_ms,omitempty"`
-	CreatedAt          time.Time          `json:"created_at"`
-	DataDockId         openapi_types.UUID `json:"data_dock_id"`
-	ErrorMessage       *string            `json:"error_message,omitempty"`
-	ExecutionTimeMs    *int64             `json:"execution_time_ms,omitempty"`
-	Id                 openapi_types.UUID `json:"id"`
-	OrganizationId     openapi_types.UUID `json:"organization_id"`
-	OutputBytes        *int64             `json:"output_bytes,omitempty"`
-	OutputRows         *int64             `json:"output_rows,omitempty"`
-	PeakMemoryBytes    *int64             `json:"peak_memory_bytes,omitempty"`
-	PhysicalInputBytes *int64             `json:"physical_input_bytes,omitempty"`
-	PhysicalInputRows  *int64             `json:"physical_input_rows,omitempty"`
-	PlanningTimeMs     *int64             `json:"planning_time_ms,omitempty"`
-	QueuedTimeMs       *int64             `json:"queued_time_ms,omitempty"`
+	AnalysisTimeMs *int64             `json:"analysis_time_ms,omitempty"`
+	BytesScanned   *int64             `json:"bytes_scanned,omitempty"`
+	CpuTimeMs      *int64             `json:"cpu_time_ms,omitempty"`
+	CreatedAt      time.Time          `json:"created_at"`
+	DataDockId     openapi_types.UUID `json:"data_dock_id"`
+	ErrorMessage   *string            `json:"error_message,omitempty"`
+
+	// ExecutedAsServiceAccountId The service account whose token actually executed this run, and which
+	// Trino/OPA therefore authorized it as.
+	//
+	// Distinct from `user_id`, which is who the run is attributed to. For an
+	// interactive run they are the same person and this is `None`. For a
+	// scheduled run they differ by design (see ADR-0041): the query belongs
+	// to its author, but it reads the data as the account assigned to it.
+	// Recorded per run rather than derived from the schedule, because a
+	// schedule's account can be reassigned and the audit question is about
+	// the identity that held the token at run time.
+	ExecutedAsServiceAccountId *openapi_types.UUID `json:"executed_as_service_account_id,omitempty"`
+	ExecutionTimeMs            *int64              `json:"execution_time_ms,omitempty"`
+	Id                         openapi_types.UUID  `json:"id"`
+	OrganizationId             openapi_types.UUID  `json:"organization_id"`
+	OutputBytes                *int64              `json:"output_bytes,omitempty"`
+	OutputRows                 *int64              `json:"output_rows,omitempty"`
+	PeakMemoryBytes            *int64              `json:"peak_memory_bytes,omitempty"`
+	PhysicalInputBytes         *int64              `json:"physical_input_bytes,omitempty"`
+	PhysicalInputRows          *int64              `json:"physical_input_rows,omitempty"`
+	PlanningTimeMs             *int64              `json:"planning_time_ms,omitempty"`
+	QueuedTimeMs               *int64              `json:"queued_time_ms,omitempty"`
 
 	// ResultData The run's actual output — `{columns, rows, total_rows, truncated}` —
 	// populated only for scheduled runs (`scheduled_query_id.is_some()`),
@@ -16875,14 +16900,6 @@ type ScanSummary struct {
 // as a separate console-DB enum so the domain crate takes no console dep.
 type ScanTrigger string
 
-// ScheduleAuthStatusResponse defines model for ScheduleAuthStatusResponse.
-type ScheduleAuthStatusResponse struct {
-	// Granted Whether the caller has a background-execution grant on file — an
-	// existence check only (see `UserAccessTokenBroker::has_grant`), not a
-	// guarantee the refresh token is still accepted by Keycloak.
-	Granted bool `json:"granted"`
-}
-
 // ScheduleState A saved query's cron schedule and everything about its scheduled
 // execution — grouped into one type so "does this query have a schedule"
 // and "what's its run state" can't drift apart into independently optional
@@ -16937,6 +16954,17 @@ type ScheduleState struct {
 	// something to compute an occurrence first. Nothing populates this yet;
 	// see the schedule columns in the migration for the intended writer.
 	NextRunAt *time.Time `json:"next_run_at,omitempty"`
+
+	// ServiceAccountId The service account this schedule runs as. Its token is what reaches
+	// Trino, so this — not the query's `created_by` — is the identity OPA
+	// authorizes the run against (see ADR-0041).
+	//
+	// `None` only ever describes a schedule that cannot currently run: a
+	// pre-ADR-0041 row suspended by the migration and still awaiting an
+	// assignment, or one whose account was removed. The DB mirrors exactly
+	// that (`saved_queries_active_schedule_needs_service_account`), and
+	// `claim_due` skips such rows, so an active schedule always has one.
+	ServiceAccountId *openapi_types.UUID `json:"service_account_id,omitempty"`
 
 	// Suspended While `true`, the poller's `claim_due` never claims this row, even
 	// past its stored `next_run_at` — a schedule can be paused without
@@ -17839,23 +17867,6 @@ type SqlCopilotResponse struct {
 type StartHealthScanResponse struct {
 	// Scan One sweep of a catalog.
 	Scan IcebergHealthScan `json:"scan"`
-}
-
-// StartScheduleAuthRequest defines model for StartScheduleAuthRequest.
-type StartScheduleAuthRequest struct {
-	// RedirectPath Where to send the browser back to once the consent redirect
-	// completes, relative to the console's own origin (e.g.
-	// `/harbors/acme/tiny-query`) — the frontend computes this with
-	// `useHarborPath()`, same as any other in-app link. Must be a
-	// same-origin relative path (starts with `/`, not `//`, no `://`, no
-	// `\`), so this endpoint can't be turned into an open redirector.
-	RedirectPath string `json:"redirect_path"`
-}
-
-// StartScheduleAuthResponse defines model for StartScheduleAuthResponse.
-type StartScheduleAuthResponse struct {
-	// AuthorizeUrl The Keycloak `/auth` URL to redirect the browser to next.
-	AuthorizeUrl string `json:"authorize_url"`
 }
 
 // StorageZoneView A `cephZones` catalog entry joined with whether the org has enabled it.
@@ -19036,7 +19047,14 @@ type UpdateSavedQueryRequest struct {
 	// `.or(current)` fallback then writes the old cron back — which left no
 	// request at all that could stop a scheduled query.
 	Schedule *string `json:"schedule,omitempty"`
-	SqlText  *string `json:"sql_text,omitempty"`
+
+	// ServiceAccountId Absent = keep the current account; a value = reassign the schedule to
+	// it. Deliberately *not* a double option: there is no request that
+	// detaches an account while leaving the schedule active, because that
+	// would be a schedule nothing can authorize. Clearing the `schedule`
+	// clears this alongside it.
+	ServiceAccountId *openapi_types.UUID `json:"service_account_id,omitempty"`
+	SqlText          *string             `json:"sql_text,omitempty"`
 
 	// Suspended Omitted leaves suspended state unchanged. `Some(false)` (an explicit
 	// resume) with no schedule text change also recomputes `next_run_at`
@@ -21166,9 +21184,6 @@ type IssueScopedS3KeyJSONRequestBody = IssueScopedS3KeyRequest
 
 // EnableSqlEngineJSONRequestBody defines body for EnableSqlEngine for application/json ContentType.
 type EnableSqlEngineJSONRequestBody = EnableSqlEngineRequest
-
-// StartScheduleAuthHandlerJSONRequestBody defines body for StartScheduleAuthHandler for application/json ContentType.
-type StartScheduleAuthHandlerJSONRequestBody = StartScheduleAuthRequest
 
 // AcceptInvitationJSONRequestBody defines body for AcceptInvitation for application/json ContentType.
 type AcceptInvitationJSONRequestBody = AcceptInvitationBody
@@ -24913,17 +24928,6 @@ type ClientInterface interface {
 
 	// ListSavedQueriesHandler request
 	ListSavedQueriesHandler(ctx context.Context, harborId openapi_types.UUID, params *ListSavedQueriesHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RevokeScheduleAuthHandler request
-	RevokeScheduleAuthHandler(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetScheduleAuthStatusHandler request
-	GetScheduleAuthStatusHandler(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// StartScheduleAuthHandlerWithBody request with any body
-	StartScheduleAuthHandlerWithBody(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	StartScheduleAuthHandler(ctx context.Context, harborId openapi_types.UUID, body StartScheduleAuthHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AcceptInvitationWithBody request with any body
 	AcceptInvitationWithBody(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -29492,54 +29496,6 @@ func (c *Client) GetHistoryHandler(ctx context.Context, harborId openapi_types.U
 
 func (c *Client) ListSavedQueriesHandler(ctx context.Context, harborId openapi_types.UUID, params *ListSavedQueriesHandlerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSavedQueriesHandlerRequest(c.Server, harborId, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RevokeScheduleAuthHandler(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeScheduleAuthHandlerRequest(c.Server, harborId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetScheduleAuthStatusHandler(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetScheduleAuthStatusHandlerRequest(c.Server, harborId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) StartScheduleAuthHandlerWithBody(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStartScheduleAuthHandlerRequestWithBody(c.Server, harborId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) StartScheduleAuthHandler(ctx context.Context, harborId openapi_types.UUID, body StartScheduleAuthHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStartScheduleAuthHandlerRequest(c.Server, harborId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -45421,121 +45377,6 @@ func NewListSavedQueriesHandlerRequest(server string, harborId openapi_types.UUI
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewRevokeScheduleAuthHandlerRequest generates requests for RevokeScheduleAuthHandler
-func NewRevokeScheduleAuthHandlerRequest(server string, harborId openapi_types.UUID) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/harbors/%s/tiny-query/schedule-auth", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetScheduleAuthStatusHandlerRequest generates requests for GetScheduleAuthStatusHandler
-func NewGetScheduleAuthStatusHandlerRequest(server string, harborId openapi_types.UUID) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/harbors/%s/tiny-query/schedule-auth", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewStartScheduleAuthHandlerRequest calls the generic StartScheduleAuthHandler builder with application/json body
-func NewStartScheduleAuthHandlerRequest(server string, harborId openapi_types.UUID, body StartScheduleAuthHandlerJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewStartScheduleAuthHandlerRequestWithBody(server, harborId, "application/json", bodyReader)
-}
-
-// NewStartScheduleAuthHandlerRequestWithBody generates requests for StartScheduleAuthHandler with any type of body
-func NewStartScheduleAuthHandlerRequestWithBody(server string, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/v1/harbors/%s/tiny-query/schedule-auth/start", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -68693,17 +68534,6 @@ type ClientWithResponsesInterface interface {
 	// ListSavedQueriesHandlerWithResponse request
 	ListSavedQueriesHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, params *ListSavedQueriesHandlerParams, reqEditors ...RequestEditorFn) (*ListSavedQueriesHandlerHTTPResp, error)
 
-	// RevokeScheduleAuthHandlerWithResponse request
-	RevokeScheduleAuthHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RevokeScheduleAuthHandlerHTTPResp, error)
-
-	// GetScheduleAuthStatusHandlerWithResponse request
-	GetScheduleAuthStatusHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetScheduleAuthStatusHandlerHTTPResp, error)
-
-	// StartScheduleAuthHandlerWithBodyWithResponse request with any body
-	StartScheduleAuthHandlerWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartScheduleAuthHandlerHTTPResp, error)
-
-	StartScheduleAuthHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, body StartScheduleAuthHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*StartScheduleAuthHandlerHTTPResp, error)
-
 	// AcceptInvitationWithBodyWithResponse request with any body
 	AcceptInvitationWithBodyWithResponse(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptInvitationHTTPResp, error)
 
@@ -76468,99 +76298,6 @@ func (r ListSavedQueriesHandlerHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListSavedQueriesHandlerHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type RevokeScheduleAuthHandlerHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON403      *ApiErrorBody
-}
-
-// Status returns HTTPResponse.Status
-func (r RevokeScheduleAuthHandlerHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RevokeScheduleAuthHandlerHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r RevokeScheduleAuthHandlerHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type GetScheduleAuthStatusHandlerHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *ScheduleAuthStatusResponse
-	JSON403      *ApiErrorBody
-}
-
-// Status returns HTTPResponse.Status
-func (r GetScheduleAuthStatusHandlerHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetScheduleAuthStatusHandlerHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetScheduleAuthStatusHandlerHTTPResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type StartScheduleAuthHandlerHTTPResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *StartScheduleAuthResponse
-	JSON400      *ApiErrorBody
-	JSON403      *ApiErrorBody
-}
-
-// Status returns HTTPResponse.Status
-func (r StartScheduleAuthHandlerHTTPResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r StartScheduleAuthHandlerHTTPResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r StartScheduleAuthHandlerHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -92740,41 +92477,6 @@ func (c *ClientWithResponses) ListSavedQueriesHandlerWithResponse(ctx context.Co
 	return ParseListSavedQueriesHandlerHTTPResp(rsp)
 }
 
-// RevokeScheduleAuthHandlerWithResponse request returning *RevokeScheduleAuthHandlerHTTPResp
-func (c *ClientWithResponses) RevokeScheduleAuthHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RevokeScheduleAuthHandlerHTTPResp, error) {
-	rsp, err := c.RevokeScheduleAuthHandler(ctx, harborId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRevokeScheduleAuthHandlerHTTPResp(rsp)
-}
-
-// GetScheduleAuthStatusHandlerWithResponse request returning *GetScheduleAuthStatusHandlerHTTPResp
-func (c *ClientWithResponses) GetScheduleAuthStatusHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetScheduleAuthStatusHandlerHTTPResp, error) {
-	rsp, err := c.GetScheduleAuthStatusHandler(ctx, harborId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetScheduleAuthStatusHandlerHTTPResp(rsp)
-}
-
-// StartScheduleAuthHandlerWithBodyWithResponse request with arbitrary body returning *StartScheduleAuthHandlerHTTPResp
-func (c *ClientWithResponses) StartScheduleAuthHandlerWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartScheduleAuthHandlerHTTPResp, error) {
-	rsp, err := c.StartScheduleAuthHandlerWithBody(ctx, harborId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseStartScheduleAuthHandlerHTTPResp(rsp)
-}
-
-func (c *ClientWithResponses) StartScheduleAuthHandlerWithResponse(ctx context.Context, harborId openapi_types.UUID, body StartScheduleAuthHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*StartScheduleAuthHandlerHTTPResp, error) {
-	rsp, err := c.StartScheduleAuthHandler(ctx, harborId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseStartScheduleAuthHandlerHTTPResp(rsp)
-}
-
 // AcceptInvitationWithBodyWithResponse request with arbitrary body returning *AcceptInvitationHTTPResp
 func (c *ClientWithResponses) AcceptInvitationWithBodyWithResponse(ctx context.Context, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptInvitationHTTPResp, error) {
 	rsp, err := c.AcceptInvitationWithBody(ctx, token, contentType, body, reqEditors...)
@@ -105759,105 +105461,6 @@ func ParseListSavedQueriesHandlerHTTPResp(rsp *http.Response) (*ListSavedQueries
 			return nil, err
 		}
 		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ApiErrorBody
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseRevokeScheduleAuthHandlerHTTPResp parses an HTTP response from a RevokeScheduleAuthHandlerWithResponse call
-func ParseRevokeScheduleAuthHandlerHTTPResp(rsp *http.Response) (*RevokeScheduleAuthHandlerHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RevokeScheduleAuthHandlerHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ApiErrorBody
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetScheduleAuthStatusHandlerHTTPResp parses an HTTP response from a GetScheduleAuthStatusHandlerWithResponse call
-func ParseGetScheduleAuthStatusHandlerHTTPResp(rsp *http.Response) (*GetScheduleAuthStatusHandlerHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetScheduleAuthStatusHandlerHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ScheduleAuthStatusResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ApiErrorBody
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseStartScheduleAuthHandlerHTTPResp parses an HTTP response from a StartScheduleAuthHandlerWithResponse call
-func ParseStartScheduleAuthHandlerHTTPResp(rsp *http.Response) (*StartScheduleAuthHandlerHTTPResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &StartScheduleAuthHandlerHTTPResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest StartScheduleAuthResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ApiErrorBody
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody

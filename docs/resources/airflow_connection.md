@@ -140,6 +140,8 @@ Changing this forces a new connection.
 - `bucket_ref` (String) Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly one of this, `managed_postgresql_ref` and `trino_ref` must be set.
 - `catalog` (String) The Trino catalog every session on the connection opens against. Required with `trino_ref`, and meaningless without it — both directions are plan errors.
 
+It is the session **default** for unqualified table names, not a scope: the platform authorizes each statement against the catalog of the table being touched, so a DAG that names `other_catalog.schema.table` in full reaches it, bounded by what the environment's service account is granted. Two connections on one dock naming different catalogs therefore carry identical authority — this attribute buys DAG ergonomics, never isolation.
+
 Required rather than defaulted because Airflow's own `TrinoHook` falls back to a catalog called `hive`, which exists on no Hyperfluid dock: a connection without one would aim every query at something that is not there. The platform cannot pick for you either, since a dock carries as many catalogs as the harbor has data containers and which one a DAG wants is not derivable.
 
 ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan time because the value travels to the coordinator as an HTTP header and is validated by the platform's API server — which would refuse it mid-apply, after the environment and the dock already exist.
