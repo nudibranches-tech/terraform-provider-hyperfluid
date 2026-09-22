@@ -8904,6 +8904,15 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
+	// Pitr Opt in to point-in-time recovery, and choose how tight it is.
+	//
+	// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+	// a time, and a segment is archived only when it fills or when a timer forces
+	// a switch. The interval is therefore the worst-case recovery point objective
+	// for an *idle* database — a busy one fills segments and ships faster on its
+	// own.
+	Pitr *PitrRequest `json:"pitr,omitempty"`
+
 	// Restore Optional restore descriptor: bootstrap the new database from an existing
 	// backup, or from a source database's continuous archive, instead of
 	// initializing it empty.
@@ -13280,18 +13289,28 @@ type ManagedPostgresqlCrdSpecResponse struct {
 
 // ManagedPostgresqlResponse defines model for ManagedPostgresqlResponse.
 type ManagedPostgresqlResponse struct {
-	BackupPolicy          string      `json:"backup_policy"`
-	BackupSchedule        *string     `json:"backup_schedule,omitempty"`
-	BackupScheduleSuspend bool        `json:"backup_schedule_suspend"`
-	BackupScheduleTarget  *string     `json:"backup_schedule_target,omitempty"`
-	Conditions            interface{} `json:"conditions,omitempty"`
-	Configuration         string      `json:"configuration"`
-	CreatedAt             time.Time   `json:"created_at"`
-	CurrentPrimary        *string     `json:"current_primary,omitempty"`
-	DatabaseName          string      `json:"database_name"`
-	Description           *string     `json:"description,omitempty"`
-	Engine                string      `json:"engine"`
-	ExternalEndpoint      *string     `json:"external_endpoint,omitempty"`
+	// ArchiveIntervalSeconds How long this database may go without shipping a WAL segment, in
+	// seconds — its worst-case recovery point objective while idle.
+	//
+	// This is the value the running cluster is configured with, not the one
+	// its spec asks for, so it bounds a point-in-time restore picker on a fact
+	// rather than on an assumption. `0` means no forced segment switch, so
+	// nothing bounds the lag on an idle database; `null` means the platform
+	// has nothing to say — the database archives nowhere, or the operator has
+	// not reported on it yet.
+	ArchiveIntervalSeconds *int32      `json:"archive_interval_seconds,omitempty"`
+	BackupPolicy           string      `json:"backup_policy"`
+	BackupSchedule         *string     `json:"backup_schedule,omitempty"`
+	BackupScheduleSuspend  bool        `json:"backup_schedule_suspend"`
+	BackupScheduleTarget   *string     `json:"backup_schedule_target,omitempty"`
+	Conditions             interface{} `json:"conditions,omitempty"`
+	Configuration          string      `json:"configuration"`
+	CreatedAt              time.Time   `json:"created_at"`
+	CurrentPrimary         *string     `json:"current_primary,omitempty"`
+	DatabaseName           string      `json:"database_name"`
+	Description            *string     `json:"description,omitempty"`
+	Engine                 string      `json:"engine"`
+	ExternalEndpoint       *string     `json:"external_endpoint,omitempty"`
 
 	// FirstRecoverabilityPoint What barman says can actually be restored. All three are `null` on a
 	// database that archives nowhere; `first_recoverability_point` and
@@ -14808,6 +14827,15 @@ type PatchManagedPostgresqlCrdRequestBody struct {
 	// Memory request and limit are always equal.
 	NodeTier *NodeTier `json:"node_tier,omitempty"`
 
+	// Pitr Opt in to point-in-time recovery, and choose how tight it is.
+	//
+	// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+	// a time, and a segment is archived only when it fills or when a timer forces
+	// a switch. The interval is therefore the worst-case recovery point objective
+	// for an *idle* database — a busy one fills segments and ships faster on its
+	// own.
+	Pitr *PitrRequest `json:"pitr,omitempty"`
+
 	// StorageCapacity Storage capacity in GB (1-30)
 	StorageCapacity *int32 `json:"storage_capacity,omitempty"`
 
@@ -15446,6 +15474,36 @@ type PipelinesStats struct {
 	// Total Total pipelines matching the request's scope, across every type and
 	// suspend state.
 	Total int64 `json:"total"`
+}
+
+// PitrRequest Opt in to point-in-time recovery, and choose how tight it is.
+//
+// PostgreSQL ships its write-ahead log to object storage one 16 MiB segment at
+// a time, and a segment is archived only when it fills or when a timer forces
+// a switch. The interval is therefore the worst-case recovery point objective
+// for an *idle* database — a busy one fills segments and ships faster on its
+// own.
+type PitrRequest struct {
+	// ArchiveIntervalSeconds Seconds between forced WAL segment switches. Absent takes the platform's
+	// recommended interval, resolved when the cluster is reconciled rather
+	// than frozen into the resource now.
+	//
+	// Five minutes is the recommended floor, not the enforced one: a shorter
+	// interval is a legitimate choice for a database whose writes are worth
+	// more than the segments. One minute is the hard floor, because below it
+	// the cost of near-empty segments lands on the shared object store rather
+	// than on the database that chose it.
+	ArchiveIntervalSeconds *int32 `json:"archive_interval_seconds,omitempty"`
+
+	// Enabled Keep a bounded recovery point objective.
+	//
+	// `false` does not stop WAL archiving — nothing can, while a backup target
+	// is attached, because a base backup is not consistent without it. It
+	// drops the forced segment switch, so WAL ships only when a segment fills:
+	// the database stays restorable to its backups and to whatever WAL
+	// happened to fill, but an idle hour may not be recoverable. That trades
+	// a guarantee for the 16 MiB PUT a forced switch costs every interval.
+	Enabled bool `json:"enabled"`
 }
 
 // Platform An OS/architecture pair. Shared with the registry read views
