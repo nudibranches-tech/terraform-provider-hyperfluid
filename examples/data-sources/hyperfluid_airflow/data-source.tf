@@ -25,7 +25,7 @@ output "airflow_url" {
 }
 
 # Anything listed here is an egress allow-list the last reconcile could not
-# resolve in this harbor — a grant that silently is not in force.
+# resolve in this Hyperfluid environment — a grant that silently is not in force.
 output "unresolved_allowlists" {
   value = data.hyperfluid_airflow.analytics.unresolved_allowlists
 }

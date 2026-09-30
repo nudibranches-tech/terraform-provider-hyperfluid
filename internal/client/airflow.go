@@ -18,7 +18,7 @@ func (c *Client) CreateAirflow(ctx context.Context, orgID, harborID string, body
 	if err != nil {
 		return nil, err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (c *Client) FindAirflow(ctx context.Context, orgID, harborID, name string) 
 	if err != nil {
 		return "", err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return "", err
 	}

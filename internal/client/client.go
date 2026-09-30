@@ -124,11 +124,11 @@ func (c *Client) ListHarbors(ctx context.Context, orgID string) ([]console.Harbo
 	if err != nil {
 		return nil, err
 	}
-	if err := statusErr("list harbors", resp.StatusCode(), resp.Body); err != nil {
+	if err := statusErr("list environments", resp.StatusCode(), resp.Body); err != nil {
 		return nil, err
 	}
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("hyperfluid: list harbors: empty response")
+		return nil, fmt.Errorf("hyperfluid: list environments: empty response")
 	}
 	return *resp.JSON200, nil
 }
@@ -151,7 +151,7 @@ func (c *Client) FindEnv(ctx context.Context, orgID, name string) (*console.Harb
 // GetBucket reads the single-bucket detail view (HFBucketDetail) — the only
 // shape that carries quota_gb/freeze_writes, per the read-mapping note.
 func (c *Client) GetBucket(ctx context.Context, harborID, name string) (*console.HFBucketDetail, error) {
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (c *Client) GetBucket(ctx context.Context, harborID, name string) (*console
 // CreateBucket places the bucket in zoneID, or the org's primary zone when
 // zoneID is empty (the API resolves an omitted zone_id to "default").
 func (c *Client) CreateBucket(ctx context.Context, harborID, name, zoneID string) error {
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func (c *Client) CreateBucket(ctx context.Context, harborID, name, zoneID string
 }
 
 func (c *Client) PatchBucket(ctx context.Context, harborID, name string, body console.PatchHFBucketRequest) error {
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (c *Client) PatchBucket(ctx context.Context, harborID, name string, body co
 }
 
 func (c *Client) DeleteBucket(ctx context.Context, harborID, name string) error {
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (c *Client) DeleteBucket(ctx context.Context, harborID, name string) error 
 // object-storage owner; they are sensitive, so the data source that surfaces
 // them keeps the secret out of logs and callers must treat state as secret.
 func (c *Client) GetBucketCredentials(ctx context.Context, harborID, bucketName string) (*console.BucketCredentials, error) {
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}

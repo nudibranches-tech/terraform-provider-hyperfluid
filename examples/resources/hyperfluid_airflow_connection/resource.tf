@@ -57,7 +57,8 @@ resource "hyperfluid_airflow_connection" "exports" {
 
 # Governed SQL over a Trino Data Dock. The dock is named by the name the console
 # and hfctl list it under; Data Docks are not managed by this provider, so a
-# Trino connection names one that already exists in the environment's harbor.
+# Trino connection names one that already exists in the Hyperfluid environment
+# the Airflow environment runs in.
 #
 # The catalog is required rather than defaulted: Airflow's own TrinoHook falls
 # back to a catalog called "hive", which exists on no Hyperfluid dock, so a

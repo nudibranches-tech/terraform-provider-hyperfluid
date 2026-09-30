@@ -41,7 +41,7 @@ resource "hyperfluid_airflow" "analytics" {
       },
     ]
 
-    # A shared egress allow-list of this harbor. A name that does not resolve is
+    # A shared egress allow-list of this Hyperfluid environment. A name that does not resolve is
     # reported back in unresolved_allowlists rather than failing the apply.
     allowlists = ["python-packages"]
   }
