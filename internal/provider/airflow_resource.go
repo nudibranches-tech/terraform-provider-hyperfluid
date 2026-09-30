@@ -238,14 +238,14 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"env": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Environment (harbor) id the Airflow environment runs in. Changing this forces a new environment.",
+				MarkdownDescription: "Id of the Hyperfluid environment the Airflow environment runs in. Changing this forces a new Airflow environment.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
 				MarkdownDescription: "Environment name. Must be a slug: lowercase letters, digits and hyphens, " +
 					"not starting or ending with a hyphen. It has to be unique across the organization's " +
-					"workload namespace, not merely within the harbor, because every per-environment child " +
+					"workload namespace, not merely within the Hyperfluid environment, because every per-environment child " +
 					"object is named after it. Changing this forces a new environment.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 63),
@@ -256,7 +256,7 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"postgres_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of an existing `hyperfluid_managed_postgresql` in the same harbor to " +
+				MarkdownDescription: "Name of an existing `hyperfluid_managed_postgresql` in the same Hyperfluid environment to " +
 					"host Airflow's metadata database. Omit it and the platform provisions a dedicated cluster " +
 					"for the environment. Create-only: changing it forces a new environment.",
 				Validators:    []validator.String{stringvalidator.LengthBetween(1, 63)},
@@ -264,7 +264,7 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"dag_bucket_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of an existing `hyperfluid_bucket` in the same harbor to deliver DAGs " +
+				MarkdownDescription: "Name of an existing `hyperfluid_bucket` in the same Hyperfluid environment to deliver DAGs " +
 					"through. Omit it and the platform provisions `<name>-airflow`; either way the bucket " +
 					"actually in use is reported as `dag_bucket`. Create-only: changing it forces a new " +
 					"environment.",
@@ -369,7 +369,7 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 					"in_cluster": schema.SetNestedAttribute{
 						Optional: true,
-						MarkdownDescription: "Services in the same harbor that task pods may reach, by kind " +
+						MarkdownDescription: "Services in the same Hyperfluid environment that task pods may reach, by kind " +
 							"and name. This is the Airflow equivalent of a `hyperfluid_service_link`, " +
 							"declared on the environment rather than as its own resource.",
 						Validators: []validator.Set{setvalidator.SizeBetween(1, airflowMaxInClusterLinks)},
@@ -383,7 +383,7 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								},
 								"name": schema.StringAttribute{
 									Required: true,
-									MarkdownDescription: "The target's slug in the same harbor — the `slug` " +
+									MarkdownDescription: "The target's slug in the same Hyperfluid environment — the `slug` " +
 										"attribute of the resource, not its display name.",
 									Validators: []validator.String{
 										stringvalidator.RegexMatches(airflowDNSLabelPattern,
@@ -395,9 +395,9 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 					"allowlists": schema.SetAttribute{
 						ElementType: types.StringType, Optional: true,
-						MarkdownDescription: "Names of the harbor's shared egress allow-lists to attach — the " +
+						MarkdownDescription: "Names of the Hyperfluid environment's shared egress allow-lists to attach — the " +
 							"same named lists dev workstations and CI runners attach. A name that does not " +
-							"resolve to an allow-list of this harbor reaches the task policy as nothing at " +
+							"resolve to an allow-list of this Hyperfluid environment reaches the task policy as nothing at " +
 							"all, and is reported back in `unresolved_allowlists`.",
 						Validators: []validator.Set{
 							setvalidator.SizeBetween(1, airflowMaxEgressAllowlist),
@@ -440,7 +440,7 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"unresolved_allowlists": schema.ListAttribute{
 				ElementType: types.StringType, Computed: true,
 				MarkdownDescription: "Names from `egress.allowlists` the last reconcile could not resolve to " +
-					"an allow-list of this harbor. Empty is the healthy case; anything listed here is a " +
+					"an allow-list of this Hyperfluid environment. Empty is the healthy case; anything listed here is a " +
 					"grant that silently is not in force.",
 			},
 			"cpu_request":    computedStr("CPU request per component, resolved from `node_tier`."),

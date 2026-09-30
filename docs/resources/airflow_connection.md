@@ -84,7 +84,8 @@ resource "hyperfluid_airflow_connection" "exports" {
 
 # Governed SQL over a Trino Data Dock. The dock is named by the name the console
 # and hfctl list it under; Data Docks are not managed by this provider, so a
-# Trino connection names one that already exists in the environment's harbor.
+# Trino connection names one that already exists in the Hyperfluid environment
+# the Airflow environment runs in.
 #
 # The catalog is required rather than defaulted: Airflow's own TrinoHook falls
 # back to a catalog called "hive", which exists on no Hyperfluid dock, so a
@@ -137,25 +138,25 @@ Changing this forces a new connection.
 
 ### Optional
 
-- `bucket_ref` (String) Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly one of this, `managed_postgresql_ref` and `trino_ref` must be set.
+- `bucket_ref` (String) Name of a `hyperfluid_bucket` in the same Hyperfluid environment to connect to. Exactly one of this, `managed_postgresql_ref` and `trino_ref` must be set.
 - `catalog` (String) The Trino catalog every session on the connection opens against. Required with `trino_ref`, and meaningless without it — both directions are plan errors.
 
 It is the session **default** for unqualified table names, not a scope: the platform authorizes each statement against the catalog of the table being touched, so a DAG that names `other_catalog.schema.table` in full reaches it, bounded by what the environment's service account is granted. Two connections on one dock naming different catalogs therefore carry identical authority — this attribute buys DAG ergonomics, never isolation.
 
-Required rather than defaulted because Airflow's own `TrinoHook` falls back to a catalog called `hive`, which exists on no Hyperfluid dock: a connection without one would aim every query at something that is not there. The platform cannot pick for you either, since a dock carries as many catalogs as the harbor has data containers and which one a DAG wants is not derivable.
+Required rather than defaulted because Airflow's own `TrinoHook` falls back to a catalog called `hive`, which exists on no Hyperfluid dock: a connection without one would aim every query at something that is not there. The platform cannot pick for you either, since a dock carries as many catalogs as the Hyperfluid environment has data containers and which one a DAG wants is not derivable.
 
 ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan time because the value travels to the coordinator as an HTTP header and is validated by the platform's API server — which would refuse it mid-apply, after the environment and the dock already exist.
 
 Changing it is applied in place; a Trino payload is always sent whole.
-- `managed_postgresql_ref` (String) Name of a `hyperfluid_managed_postgresql` in the same harbor to connect to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a connection from one target to another is applied in place: the platform releases the credential it no longer needs before putting the new one in place.
+- `managed_postgresql_ref` (String) Name of a `hyperfluid_managed_postgresql` in the same Hyperfluid environment to connect to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a connection from one target to another is applied in place: the platform releases the credential it no longer needs before putting the new one in place.
 - `permission_level` (String) Pin the access level granted on the target: `viewer` or `editor`. Leave it out to follow the platform default, which is resolved on every reconcile and is therefore a different thing from pinning today's default value — the level actually in force is always reported as `resolved_permission_level`. What the level means depends on the target: database grants for a PostgreSQL connection, the object-store verbs of a scoped identity for a bucket one.
 
 ~> **It cannot be set on a Trino connection.** The level scales the authority the platform grants a connection's own identity, and a Trino connection carries the environment's service account, for which the platform grants none. The API refuses the combination with a 400 and the platform refuses the declaration; naming both here is a plan error instead.
 
 ~> **Removing the pin forces a new connection.** The API can raise or lower a pinned level in place but has no way to un-pin one, so going back to the platform default means replacing the connection — which re-provisions its credential. Retargeting a pinned connection to `trino_ref` therefore replaces it too: the pin has to come out of the configuration for the Trino target to be legal at all.
-- `trino_ref` (String) Name of a Trino Data Dock in the same harbor to connect to — the dock's own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required beside this one.
+- `trino_ref` (String) Name of a Trino Data Dock in the same Hyperfluid environment to connect to — the dock's own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required beside this one.
 
-Data Docks are not managed by this provider; a Trino connection names one that already exists in the environment's harbor.
+Data Docks are not managed by this provider; a Trino connection names one that already exists in the Hyperfluid environment the Airflow environment runs in.
 
 ~> **A Trino connection carries the environment's own service account** — the identity the platform's reserved `hyperfluid_default` connection already uses. Nothing is provisioned for it: no new service account, no scoped identity, no grant, and no credential minted per connection. Every query is authorized server-side against the grants that identity already holds, which is why `permission_level` cannot be set on this type — there is no authority of the connection's own for a level to scale. Grant the environment's service account what the DAGs need from the console, the same way you grant any other principal.
 

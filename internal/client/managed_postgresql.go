@@ -18,7 +18,7 @@ func (c *Client) CreateManagedPostgresql(ctx context.Context, orgID, harborID st
 	if err != nil {
 		return nil, err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *Client) FindManagedPostgresql(ctx context.Context, orgID, harborID, nam
 	if err != nil {
 		return "", err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return "", err
 	}

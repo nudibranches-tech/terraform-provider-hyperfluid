@@ -20,7 +20,7 @@ func (c *Client) CreateContainerApp(ctx context.Context, orgID, harborID string,
 	if err != nil {
 		return err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (c *Client) FindContainerAppID(ctx context.Context, orgID, harborID, name s
 	if err != nil {
 		return "", err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +69,7 @@ func (c *Client) FindContainerAppIDBySlug(ctx context.Context, orgID, harborID, 
 	if err != nil {
 		return "", err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return "", err
 	}
