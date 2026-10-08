@@ -67,6 +67,34 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
 			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
+			"image_source": schema.SingleNestedAttribute{
+				Computed: true,
+				MarkdownDescription: "The Git source the app's image comes from, or null for an app with a literal " +
+					"image. `image_repository` and `image_tag` then report the image it resolved, when it has one.",
+				Attributes: map[string]schema.Attribute{
+					"git": schema.SingleNestedAttribute{
+						Computed:            true,
+						MarkdownDescription: "The repository holding the `hyperfluid.toml` that declares the image.",
+						Attributes: map[string]schema.Attribute{
+							"provider":              cs("Git host: `github`, `gitlab` or `forgejo`."),
+							"repository":            cs("Repository path on the provider."),
+							"base_url":              cs("Origin of a self-hosted provider, or null for the public host."),
+							"credential":            cs("Name of the `scm_credential` secret used to read the repository, or null for a public one."),
+							"branch":                cs("The branch followed, or null."),
+							"tag_pattern":           cs("The regular expression selecting the tag followed, or null."),
+							"path":                  cs("Path of the file in the repository, or null for `hyperfluid.toml`."),
+							"container":             cs("Key of the entry the app reads, or null for the app's name."),
+							"interval":              cs("How often the repository is checked, or null for the platform default."),
+							"alert_on_sync_failure": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether a failing check raises an alert, or null for the platform default."},
+						},
+					},
+				},
+			},
+			"resolved_image": cs("The image a Git source resolved and runs, as `repository:tag@digest`."),
+			"resolved_ref":   cs("The branch followed, or the tag a Git source's `tag_pattern` selected."),
+			"revision":       cs("The commit the running image was read from."),
+			"last_synced_at": cs("When the repository was last checked successfully (RFC 3339)."),
+			"sync_error":     cs("Why the last check failed, or null."),
 			"ports": schema.ListNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Every port the app publishes.",
@@ -117,7 +145,7 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 	// Reuse the resource's mapper so spec/status → model lives in one place; it
 	// only needs the API client, so a zero-value resource with our providerData is
 	// enough. resource_tier isn't returned by the API → null on a data source.
-	state, err := (&containerAppResource{p: d.p}).readInto(ctx, appID, types.StringNull())
+	state, err := (&containerAppResource{p: d.p}).readInto(ctx, appID, types.StringNull(), nullImageSource())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app", err.Error())
 		return

@@ -4,11 +4,26 @@ page_title: "hyperfluid_container_app Resource - Hyperfluid"
 subcategory: ""
 description: |-
   A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a follow-up.
+  Deploying from Git
+  An image_source { git { ... } } block replaces the literal image_repository / image_tag: the platform polls a hyperfluid.toml file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless alert_on_sync_failure is false. The repository is read with an organization-wide hyperfluid_secret of type scm_credential, named in credential.
+  Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, hyperfluid.toml, an entry named after the app, a check every 5 minutes). The image that runs is never written to image_repository / image_tag: read it from resolved_image, resolved_ref, revision and last_synced_at, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in sync_error.
+  Removing the block detaches the source: the app keeps running the image it last resolved until the literal image_repository / image_tag you set in its place is applied.
+  ~> Push access to the tracked branch, or to a tag matching tag_pattern, is deploy access. Protect them (GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).
 ---
 
 # hyperfluid_container_app (Resource)
 
 A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a follow-up.
+
+## Deploying from Git
+
+An `image_source { git { ... } }` block replaces the literal `image_repository` / `image_tag`: the platform polls a `hyperfluid.toml` file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless `alert_on_sync_failure` is `false`. The repository is read with an organization-wide `hyperfluid_secret` of type `scm_credential`, named in `credential`.
+
+Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, `hyperfluid.toml`, an entry named after the app, a check every 5 minutes). The image that runs is never written to `image_repository` / `image_tag`: read it from `resolved_image`, `resolved_ref`, `revision` and `last_synced_at`, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in `sync_error`.
+
+Removing the block detaches the source: the app keeps running the image it last resolved until the literal `image_repository` / `image_tag` you set in its place is applied.
+
+~> Push access to the tracked branch, or to a tag matching `tag_pattern`, is deploy access. Protect them (GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).
 
 ## Example Usage
 
@@ -36,6 +51,57 @@ resource "hyperfluid_container_app" "web" {
 output "endpoint" {
   value = hyperfluid_container_app.web.endpoint
 }
+
+# Deploy what a Git repository declares instead of a literal image. The platform
+# polls `hyperfluid.toml` in the repository and rolls the app out when this app's
+# entry changes. Push access to the tracked branch (or to a matching tag) is
+# deploy access: protect it.
+#
+# `image_source` conflicts with `image_repository` / `image_tag`. The image that
+# runs is reported in `resolved_image`, which Terraform never plans a change for,
+# so a release made through Git is not drift.
+variable "git_token" {
+  type      = string
+  sensitive = true
+}
+
+# A read-only token is enough. It must be an organization-wide secret, which is
+# what `hyperfluid_secret` creates.
+resource "hyperfluid_secret" "git" {
+  name             = "production/git/acme"
+  secret_type      = "scm_credential"
+  value            = jsonencode({ provider = "github", token = var.git_token })
+  value_wo_version = "1"
+}
+
+resource "hyperfluid_container_app" "orders" {
+  env  = data.hyperfluid_env.default.id
+  name = "orders-api"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
+  resource_tier = "nano"
+
+  image_source {
+    git {
+      provider   = "github"
+      repository = "acme/orders-api"
+      credential = hyperfluid_secret.git.name
+
+      # Optional, and left to the platform when omitted: the default branch, the
+      # `hyperfluid.toml` file, an entry named after the app, a check every 5m.
+      # branch      = "main"       # or: tag_pattern = "v?(?<version>\\d+\\.\\d+\\.\\d+)"
+      # path        = "deploy/orders-api/hyperfluid.toml"
+      # container   = "orders-api"
+      # interval    = "15m"
+      # alert_on_sync_failure = false
+    }
+  }
+}
+
+output "orders_image" {
+  value = hyperfluid_container_app.orders.resolved_image
+}
 ```
 
 <!-- schema generated by tfplugindocs -->
@@ -44,8 +110,6 @@ output "endpoint" {
 ### Required
 
 - `env` (String) Environment id the app runs in. Changing this forces a new app.
-- `image_repository` (String) Container image repository.
-- `image_tag` (String) Container image tag.
 - `name` (String) App name (slug). Changing this forces a new app.
 
 ### Optional
@@ -54,6 +118,9 @@ output "endpoint" {
 - `expose_to_internet` (Boolean) Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.
 - `health_check_path` (String) HTTP health check path.
 - `health_check_port` (Number) HTTP health check port.
+- `image_repository` (String) Container image repository. Required unless `image_source` is set, and conflicts with it.
+- `image_source` (Block, Optional) Deploy the image a Git repository declares instead of a literal `image_repository` / `image_tag`, which it conflicts with. See "Deploying from Git" above. (see [below for nested schema](#nestedblock--image_source))
+- `image_tag` (String) Container image tag. Required unless `image_source` is set, and conflicts with it.
 - `port` (Number) The app's single container port. **Deprecated — use `ports`**, which this conflicts with.
 
 ~> The platform ignores writes to this attribute once the app's spec carries a non-empty `ports`, so on such an app a change here applies cleanly in Terraform and does nothing. Move the app to `ports` rather than editing this.
@@ -71,11 +138,41 @@ Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads
 - `desired_replicas` (Number) Desired replicas reported by the platform.
 - `endpoint` (String) Public endpoint, once provisioned.
 - `id` (String) The ID of this resource.
+- `last_synced_at` (String) When the repository was last checked successfully (RFC 3339), whether or not anything changed.
 - `memory_limit` (String) Memory limit derived from resource_tier.
 - `memory_request` (String) Memory request derived from resource_tier.
 - `phase` (String) Current lifecycle phase.
+- `resolved_image` (String) The image a Git `image_source` resolved and runs, as `repository:tag@digest`. Null until the first successful check, and for an app without a Git source.
+- `resolved_ref` (String) The branch followed, or the tag `tag_pattern` selected.
 - `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
+- `revision` (String) The commit the running image was read from.
 - `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot.
+- `sync_error` (String) Why the last check failed, or null. A failing check never stops the app: it keeps running the last good image.
+
+<a id="nestedblock--image_source"></a>
+### Nested Schema for `image_source`
+
+Optional:
+
+- `git` (Block, Optional) A Git repository holding the `hyperfluid.toml` that declares the image. Required when `image_source` is set. (see [below for nested schema](#nestedblock--image_source--git))
+
+<a id="nestedblock--image_source--git"></a>
+### Nested Schema for `image_source.git`
+
+Optional:
+
+- `alert_on_sync_failure` (Boolean) Whether a failing check raises the default "Git sync failed" alert. The platform raises it unless this is `false`.
+- `base_url` (String) Origin of a self-hosted provider (GitHub Enterprise, self-managed GitLab, external Forgejo). Leave it out for the provider's public host, or for the organization's own Forgejo.
+- `branch` (String) Follow the head of this branch. Conflicts with `tag_pattern`. When neither is set, the repository's default branch is followed.
+- `container` (String) Key of the `[containers.<key>]` entry this app reads. Defaults to the app's name.
+- `credential` (String) Name of an organization-scoped `hyperfluid_secret` of type `scm_credential` the platform reads the repository with. A read-only token is enough (GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo `read:repository`). Leave it out for a public repository.
+- `interval` (String) How often the repository is checked, as a duration such as `5m`, `15m`, `1h` or `24h`. At least `5m`, which is also the default.
+- `path` (String) Path of the file in the repository. Defaults to `hyperfluid.toml`.
+- `provider` (String) Git host: `github`, `gitlab` or `forgejo`. Required.
+- `repository` (String) Repository path on the provider, e.g. `acme/orders-api`. For GitLab, the full group path. Required.
+- `tag_pattern` (String) Follow the highest tag matching this regular expression, which must capture the version in a group named `version`, e.g. `v?(?<version>\d+\.\d+\.\d+)`. It is matched against the whole tag, and the file is read at that tag. Conflicts with `branch`.
+
+
 
 <a id="nestedatt--ports"></a>
 ### Nested Schema for `ports`

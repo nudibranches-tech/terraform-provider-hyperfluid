@@ -174,3 +174,21 @@ func (c *Client) DeleteContainerApp(ctx context.Context, orgID, appID string) er
 	}
 	return statusErr("delete container app", resp.StatusCode(), resp.Body)
 }
+
+// DetachImageSource removes an app's Git source. The app keeps running the image
+// the source last resolved, which becomes its literal image.
+func (c *Client) DetachImageSource(ctx context.Context, orgID, appID string) error {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return err
+	}
+	app, err := parseUUID("id", appID)
+	if err != nil {
+		return err
+	}
+	resp, err := c.api.DetachImageSourceWithResponse(ctx, org, app)
+	if err != nil {
+		return err
+	}
+	return statusErr("detach image source", resp.StatusCode(), resp.Body)
+}
