@@ -4,6 +4,7 @@
 package provider
 
 import (
+	"os"
 	"strconv"
 	"testing"
 
@@ -77,4 +78,62 @@ resource "hyperfluid_container_app" "test" {
   resource_tier    = "nano"
 }
 `
+}
+
+// TestAccContainerAppGitSource deploys from a public repository holding a
+// hyperfluid.toml with an entry named after the app. Skipped unless
+// HYPERFLUID_TEST_GIT_REPO (e.g. "acme/orders-api", on github.com) is set on top
+// of the credentials the other acceptance tests need.
+func TestAccContainerAppGitSource(t *testing.T) {
+	repo := os.Getenv("HYPERFLUID_TEST_GIT_REPO")
+	config := `
+data "hyperfluid_env" "default" {
+  name = "default"
+}
+
+resource "hyperfluid_container_app" "git" {
+  env  = data.hyperfluid_env.default.id
+  name = "tf-acc-git-app"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
+  resource_tier = "nano"
+
+  image_source {
+    git {
+      provider   = "github"
+      repository = "` + repo + `"
+    }
+  }
+}
+`
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			if repo == "" {
+				t.Skip("HYPERFLUID_TEST_GIT_REPO not set; skipping Git source acceptance test")
+			}
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "resolved_image"),
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "revision"),
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "last_synced_at"),
+					// The resolved image never lands in the literal-image attributes.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_repository"),
+					// Nothing the config left out is written back.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_source.git.branch"),
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_source.git.interval"),
+				),
+			},
+			{
+				// A release made through Git is not drift: re-planning shows nothing.
+				Config:   config,
+				PlanOnly: true,
+			},
+		},
+	})
 }

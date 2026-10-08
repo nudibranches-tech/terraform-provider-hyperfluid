@@ -13,11 +13,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"golang.org/x/oauth2/clientcredentials"
-
-	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
 // serviceAccount mirrors the JSON the console produces, using the same field
@@ -86,12 +83,9 @@ func NewFromServiceAccount(endpoint, credsPath string) (*Client, string, error) 
 
 	// cfg.Client returns an *http.Client whose transport injects (and refreshes)
 	// the bearer token automatically.
-	api, err := console.NewClientWithResponses(
-		strings.TrimRight(base, "/"),
-		console.WithHTTPClient(withErrorBodyShim(cfg.Client(context.Background()))),
-	)
+	c, err := New(base, cfg.Client(context.Background()))
 	if err != nil {
-		return nil, "", fmt.Errorf("build console client: %w", err)
+		return nil, "", err
 	}
 
 	// org_id wins over the human-readable org slug when both are present.
@@ -99,5 +93,5 @@ func NewFromServiceAccount(endpoint, credsPath string) (*Client, string, error) 
 	if orgID == "" {
 		orgID = sa.Org
 	}
-	return &Client{api: api}, orgID, nil
+	return c, orgID, nil
 }
