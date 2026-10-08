@@ -59,29 +59,29 @@ func buildScmCredentialValue(valueStr string) (map[string]interface{}, error) {
 			return nil, fmt.Errorf("secret_type=scm_credential: unknown key %q (expected provider, username, base_url, token)", key)
 		}
 	}
-	str := func(key string) (string, bool, error) {
+	str := func(key string) (string, error) {
 		field, ok := raw[key]
 		if !ok {
-			return "", false, nil
+			return "", nil
 		}
 		var v *string
 		if err := json.Unmarshal(field, &v); err != nil {
-			return "", false, fmt.Errorf("secret_type=scm_credential: %q must be a string", key)
+			return "", fmt.Errorf("secret_type=scm_credential: %q must be a string", key)
 		}
 		if v == nil {
-			return "", false, nil
+			return "", nil
 		}
-		return *v, true, nil
+		return *v, nil
 	}
 
-	provider, _, err := str("provider")
+	provider, err := str("provider")
 	if err != nil {
 		return nil, err
 	}
 	if !slices.Contains(scmProviders, provider) {
 		return nil, fmt.Errorf("secret_type=scm_credential: \"provider\" must be one of %s", strings.Join(scmProviders, ", "))
 	}
-	token, _, err := str("token")
+	token, err := str("token")
 	if err != nil {
 		return nil, err
 	}
@@ -92,14 +92,14 @@ func buildScmCredentialValue(valueStr string) (map[string]interface{}, error) {
 
 	// Blank fields are left out, not sent empty, so the provider's own default
 	// applies.
-	username, _, err := str("username")
+	username, err := str("username")
 	if err != nil {
 		return nil, err
 	}
 	if username = strings.TrimSpace(username); username != "" {
 		out["username"] = username
 	}
-	baseURL, _, err := str("base_url")
+	baseURL, err := str("base_url")
 	if err != nil {
 		return nil, err
 	}
