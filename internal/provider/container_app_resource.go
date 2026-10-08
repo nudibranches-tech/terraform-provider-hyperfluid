@@ -661,6 +661,9 @@ func (r *containerAppResource) waitDeployed(ctx context.Context, appID string, g
 		return spec, st != nil && (st.Resolved != nil || st.Error != nil), nil
 	})
 	if err != nil {
+		if ctx.Err() != nil {
+			return err
+		}
 		diags.AddWarning("Git image source not synced yet",
 			"The platform has not finished its first check of the repository ("+err.Error()+"). The app is "+
 				"created and will deploy once a check succeeds; see `sync_error` and `resolved_image`.")

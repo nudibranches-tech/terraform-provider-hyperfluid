@@ -218,7 +218,14 @@ func TestContainerAppImageSourceSchema(t *testing.T) {
 
 	// No optional field of the git block may be Computed or carry a default: a
 	// plan must never write a platform default into the app.
-	git := s.Blocks["image_source"].(schema.SingleNestedBlock).Blocks["git"].(schema.SingleNestedBlock)
+	imageSource, ok := s.Blocks["image_source"].(schema.SingleNestedBlock)
+	if !ok {
+		t.Fatalf("image_source is not a single nested block")
+	}
+	git, ok := imageSource.Blocks["git"].(schema.SingleNestedBlock)
+	if !ok {
+		t.Fatalf("image_source.git is not a single nested block")
+	}
 	for name, a := range git.Attributes {
 		switch a := a.(type) {
 		case schema.StringAttribute:

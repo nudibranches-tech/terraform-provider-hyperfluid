@@ -199,10 +199,10 @@ func (f *fakeConsole) statusResponse() console.ContainerAppResponse {
 	}
 }
 
-func resolved(repo, tag string) *console.ImageSourceStatus {
-	at, ref, rev := "2026-10-08T10:00:00Z", "main", "4f9c2e1"
+func resolved() *console.ImageSourceStatus {
+	at, ref, rev, tag := "2026-10-08T10:00:00Z", "main", "4f9c2e1", "1.4.2"
 	return &console.ImageSourceStatus{
-		Resolved:    &console.ResolvedImage{Repository: repo, Tag: &tag},
+		Resolved:    &console.ResolvedImage{Repository: "ghcr.io/acme/orders-api", Tag: &tag},
 		ResolvedRef: &ref, Revision: &rev, LastSyncedAt: &at,
 	}
 }
@@ -237,7 +237,6 @@ func sourceModel(t *testing.T, edit func(*gitSourceModel)) types.Object {
 type appHarness struct {
 	t *testing.T
 	r *containerAppResource
-	s tfsdk.State
 	f *fakeConsole
 }
 
@@ -266,7 +265,7 @@ func (h *appHarness) plan(m containerAppModel) tfsdk.Plan {
 
 func (h *appHarness) config(m containerAppModel) tfsdk.Config {
 	p := h.plan(m)
-	return tfsdk.Config{Schema: p.Schema, Raw: p.Raw}
+	return tfsdk.Config(p)
 }
 
 func (h *appHarness) create(m containerAppModel) (containerAppModel, diag.Diagnostics) {
@@ -313,7 +312,7 @@ func noErrors(t *testing.T, d diag.Diagnostics) {
 // resolved through the computed attributes.
 func TestContainerAppCreateWithGitSource(t *testing.T) {
 	h := newHarness(t)
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 
 	plan := nullApp(h.f)
 	plan.ImageSource = sourceModel(t, nil)
@@ -393,7 +392,7 @@ func TestContainerAppCreateWithLiteralImageIsUnchanged(t *testing.T) {
 
 func TestContainerAppUpdateEditsTheSource(t *testing.T) {
 	h := newHarness(t)
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 	plan := nullApp(h.f)
 	plan.ImageSource = sourceModel(t, nil)
 	created, d := h.create(plan)
@@ -432,7 +431,7 @@ func TestContainerAppUpdateEditsTheSource(t *testing.T) {
 
 func TestContainerAppUpdateDropsAnExplicitAlertSetting(t *testing.T) {
 	h := newHarness(t)
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 	off := sourceModel(t, func(m *gitSourceModel) { m.AlertOnSyncFailure = types.BoolValue(false) })
 	plan := nullApp(h.f)
 	plan.ImageSource = off
@@ -462,7 +461,7 @@ func TestContainerAppUpdateAttachesASource(t *testing.T) {
 	created, d := h.create(plan)
 	noErrors(t, d)
 
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 	next := created
 	next.ImageRepository, next.ImageTag = types.StringNull(), types.StringNull()
 	next.ImageSource = sourceModel(t, nil)
@@ -486,7 +485,7 @@ func TestContainerAppUpdateAttachesASource(t *testing.T) {
 // spec generation.
 func TestContainerAppUpdateDetachesTheSource(t *testing.T) {
 	h := newHarness(t)
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 	plan := nullApp(h.f)
 	plan.ImageSource = sourceModel(t, nil)
 	created, d := h.create(plan)
@@ -519,7 +518,7 @@ func TestContainerAppUpdateDetachesTheSource(t *testing.T) {
 // stores is what the state gets, with the default alert left null.
 func TestContainerAppReadOfAnImportedGitApp(t *testing.T) {
 	h := newHarness(t)
-	h.f.status = resolved("ghcr.io/acme/orders-api", "1.4.2")
+	h.f.status = resolved()
 	plan := nullApp(h.f)
 	plan.ImageSource = sourceModel(t, func(m *gitSourceModel) { m.Branch = types.StringValue("main") })
 	created, d := h.create(plan)

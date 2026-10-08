@@ -72,7 +72,10 @@ data "hyperfluid_secret" "lookup" {
 // time, where the write-only value is visible in the config.
 func TestSecretScmCredentialValidation(t *testing.T) {
 	ctx := t.Context()
-	r := NewSecretResource().(*secretResource)
+	r, ok := NewSecretResource().(*secretResource)
+	if !ok {
+		t.Fatal("NewSecretResource is not a *secretResource")
+	}
 	s := resourceSchema(t, r).Schema
 
 	for _, tc := range []struct {
