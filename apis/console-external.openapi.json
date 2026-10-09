@@ -61094,18 +61094,8 @@
             "type": "string",
             "description": "Repository path on the provider, e.g. `acme/orders-api` (GitLab: the\nfull group path)."
           },
-          "syncAllowDowngrade": {
-            "type": "boolean",
-            "description": "Set together with `syncRequestedAt` when the user explicitly accepted\ndeploying a tag lower than the one running. Honoured for that one\nrequest only.",
-            "nullable": true
-          },
           "syncPolicy": {
             "$ref": "#/components/schemas/SyncPolicy",
-            "nullable": true
-          },
-          "syncRequestedAt": {
-            "type": "string",
-            "description": "Timestamp (RFC 3339) of the last \"Sync now\" request. Changing it\ntriggers an immediate check.",
             "nullable": true
           }
         }
@@ -63562,7 +63552,7 @@
           },
           "lastObservedSyncRequestedAt": {
             "type": "string",
-            "description": "`spec.imageSource.git.syncRequestedAt` the operator last acted on.",
+            "description": "`hyperfluid.nudibranches.tech/sync-requested-at` annotation the\noperator last acted on.",
             "nullable": true
           },
           "lastSyncedAt": {
@@ -75389,7 +75379,7 @@
           },
           "requested_at": {
             "type": "string",
-            "description": "The `syncRequestedAt` written into the spec."
+            "description": "The `hyperfluid.nudibranches.tech/sync-requested-at` annotation\nwritten on the ContainerApp."
           }
         }
       },
