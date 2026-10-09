@@ -7,6 +7,7 @@ description: |-
   Deploying from Git
   An image_source { git { ... } } block replaces the literal image_repository / image_tag: the platform polls a hyperfluid.toml file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless alert_on_sync_failure is false. The repository is read with an organization-wide hyperfluid_secret of type scm_credential, named in credential.
   Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, hyperfluid.toml, an entry named after the app, a check every 5 minutes). The image that runs is never written to image_repository / image_tag: read it from resolved_image, resolved_ref, revision and last_synced_at, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in sync_error.
+  sync_policy = "manual" stops the platform from rolling a change out on its own: it reports it and waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: use the console or hfctl apps check / hfctl apps sync.
   Removing the block detaches the source: the app keeps running the image it last resolved until the literal image_repository / image_tag you set in its place is applied.
   ~> Push access to the tracked branch, or to a tag matching tag_pattern, is deploy access. Protect them (GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).
 ---
@@ -20,6 +21,8 @@ A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a fo
 An `image_source { git { ... } }` block replaces the literal `image_repository` / `image_tag`: the platform polls a `hyperfluid.toml` file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless `alert_on_sync_failure` is `false`. The repository is read with an organization-wide `hyperfluid_secret` of type `scm_credential`, named in `credential`.
 
 Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, `hyperfluid.toml`, an entry named after the app, a check every 5 minutes). The image that runs is never written to `image_repository` / `image_tag`: read it from `resolved_image`, `resolved_ref`, `revision` and `last_synced_at`, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in `sync_error`.
+
+`sync_policy = "manual"` stops the platform from rolling a change out on its own: it reports it and waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: use the console or `hfctl apps check` / `hfctl apps sync`.
 
 Removing the block detaches the source: the app keeps running the image it last resolved until the literal `image_repository` / `image_tag` you set in its place is applied.
 
@@ -96,6 +99,7 @@ resource "hyperfluid_container_app" "orders" {
       # path        = "deploy/orders-api/hyperfluid.toml"
       # container   = "orders-api"
       # interval    = "15m"
+      # sync_policy = "manual"     # report changes and wait for Sync (default: auto)
       # alert_on_sync_failure = false
     }
   }
@@ -172,6 +176,7 @@ Optional:
 - `path` (String) Path of the file in the repository. Defaults to `hyperfluid.toml`.
 - `provider` (String) Git host: `github`, `gitlab` or `forgejo`. Required.
 - `repository` (String) Repository path on the provider, e.g. `acme/orders-api`. For GitLab, the full group path. Required.
+- `sync_policy` (String) `auto` rolls out every change found in Git. `manual` only reports it ("Out of sync") until someone clicks Sync in the console or runs `hfctl apps sync`; the first image of a new source still rolls out. Absent means `auto`. While the organization has automatic sync turned off, `auto` is refused (403) and an absent policy behaves as `manual`.
 - `tag_pattern` (String) Follow the highest tag matching this regular expression, which must capture the version in a group named `version`, e.g. `v?(?<version>\d+\.\d+\.\d+)`. It is matched against the whole tag, and the file is read at that tag. Conflicts with `branch`.
 
 

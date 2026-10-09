@@ -61099,6 +61099,10 @@
             "description": "Set together with `syncRequestedAt` when the user explicitly accepted\ndeploying a tag lower than the one running. Honoured for that one\nrequest only.",
             "nullable": true
           },
+          "syncPolicy": {
+            "$ref": "#/components/schemas/SyncPolicy",
+            "nullable": true
+          },
           "syncRequestedAt": {
             "type": "string",
             "description": "Timestamp (RFC 3339) of the last \"Sync now\" request. Changing it\ntriggers an immediate check.",
@@ -75388,6 +75392,14 @@
             "description": "The `syncRequestedAt` written into the spec."
           }
         }
+      },
+      "SyncPolicy": {
+        "type": "string",
+        "description": "Whether a check rolls a changed entry out on its own (Argo CD's automated\nvs manual sync).",
+        "enum": [
+          "auto",
+          "manual"
+        ]
       },
       "TableClassificationResponse": {
         "type": "object",

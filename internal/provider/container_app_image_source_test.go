@@ -165,8 +165,10 @@ func TestContainerAppImageSourceValidation(t *testing.T) {
 		{"a Git source following tags", map[string]tftypes.Value{"image_source": git(map[string]string{"tag_pattern": `v?(?<version>\d+\.\d+\.\d+)`})}, ""},
 		{"a Git source with every field", map[string]tftypes.Value{"image_source": git(map[string]string{
 			"base_url": "https://ghe.example.com", "credential": "production/git/acme", "branch": "main",
-			"path": "deploy/hyperfluid.toml", "container": "orders", "interval": "15m",
+			"path": "deploy/hyperfluid.toml", "container": "orders", "interval": "15m", "sync_policy": "manual",
 		})}, ""},
+		{"an automatic sync policy", map[string]tftypes.Value{"image_source": git(map[string]string{"sync_policy": "auto"})}, ""},
+		{"an unknown sync policy", map[string]tftypes.Value{"image_source": git(map[string]string{"sync_policy": "nightly"})}, "sync_policy"},
 		{"no image at all", nil, "image_repository is required"},
 		{"a repository without a tag", map[string]tftypes.Value{"image_repository": str("nginx")}, "image_tag is required"},
 		{"a source next to a literal image", with(literal, map[string]tftypes.Value{"image_source": git(nil)}), "image_source"},
@@ -312,7 +314,7 @@ func nullGitModel() gitSourceModel {
 		Provider: types.StringNull(), Repository: types.StringNull(), BaseURL: types.StringNull(),
 		Credential: types.StringNull(), Branch: types.StringNull(), TagPattern: types.StringNull(),
 		Path: types.StringNull(), Container: types.StringNull(), Interval: types.StringNull(),
-		AlertOnSyncFailure: types.BoolNull(),
+		SyncPolicy: types.StringNull(), AlertOnSyncFailure: types.BoolNull(),
 	}
 }
 
@@ -378,6 +380,7 @@ func TestImageSourceBodyCarriesWhatTheUserSet(t *testing.T) {
 	m.Path = types.StringValue("deploy/hyperfluid.toml")
 	m.Container = types.StringValue("orders")
 	m.Interval = types.StringValue("15m")
+	m.SyncPolicy = types.StringValue("manual")
 	m.AlertOnSyncFailure = types.BoolValue(false)
 
 	src, err := buildImageSource(m)
@@ -388,6 +391,7 @@ func TestImageSourceBodyCarriesWhatTheUserSet(t *testing.T) {
 	want := map[string]any{
 		"provider": "gitlab", "repository": "acme/platform/orders", "baseUrl": "https://gitlab.example.com",
 		"path": "deploy/hyperfluid.toml", "container": "orders", "intervalSeconds": float64(900),
+		"syncPolicy": "manual",
 		"credential": map[string]any{"name": "production/git/acme", "type": "controlplane"},
 		"ref":        map[string]any{"type": "Branch", "name": "release"},
 	}
@@ -585,5 +589,40 @@ func TestGitStatusFrom(t *testing.T) {
 	}
 	if got := gitStatusFrom(&console.ImageSourceStatus{Revision: &empty}); got.Revision != types.StringNull() {
 		t.Errorf("an empty string must read as null: %+v", got)
+	}
+}
+
+// TestImageSourceSyncPolicyIsNeverMaterialised: an omitted policy stays out of
+// the request and out of the state, so the platform keeps resolving it (auto,
+// or manual while the organization turned automatic sync off); a set one maps
+// through both ways.
+func TestImageSourceSyncPolicyIsNeverMaterialised(t *testing.T) {
+	base := nullGitModel()
+	base.Provider = types.StringValue("github")
+	base.Repository = types.StringValue("acme/orders-api")
+	base.Credential = types.StringValue("production/git/acme")
+
+	for _, policy := range []types.String{types.StringNull(), types.StringValue("auto"), types.StringValue("manual")} {
+		m := base
+		m.SyncPolicy = policy
+		src, err := buildImageSource(m)
+		if err != nil {
+			t.Fatalf("buildImageSource: %v", err)
+		}
+		sent, present := marshalSource(t, src)["git"]["syncPolicy"]
+		switch {
+		case policy.IsNull() && present:
+			t.Errorf("an omitted policy was sent as %v", sent)
+		case !policy.IsNull() && sent != policy.ValueString():
+			t.Errorf("syncPolicy = %v, want %s", sent, policy.ValueString())
+		}
+		obj, err := gitSourceToObject(&src, nil, &m)
+		if err != nil {
+			t.Fatalf("gitSourceToObject: %v", err)
+		}
+		got, _ := gitSourceFromObject(t.Context(), obj)
+		if got == nil || !got.SyncPolicy.Equal(policy) {
+			t.Errorf("sync_policy read back = %v, want %v", got, policy)
+		}
 	}
 }
