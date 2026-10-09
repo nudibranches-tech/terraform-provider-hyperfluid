@@ -65,8 +65,10 @@ variable "git_token" {
   sensitive = true
 }
 
-# A read-only token is enough. It must be an organization-wide secret, which is
-# what `hyperfluid_secret` creates.
+# Every Git source reads with a credential, public repositories included, so its
+# checks count against the token's own rate limit rather than the anonymous one
+# every app of the cluster shares. A read-only token is enough. It must be an
+# organization-wide secret, which is what `hyperfluid_secret` creates.
 resource "hyperfluid_secret" "git" {
   name             = "production/git/acme"
   secret_type      = "scm_credential"
@@ -165,7 +167,7 @@ Optional:
 - `base_url` (String) Origin of a self-hosted provider (GitHub Enterprise, self-managed GitLab, external Forgejo). Leave it out for the provider's public host, or for the organization's own Forgejo.
 - `branch` (String) Follow the head of this branch. Conflicts with `tag_pattern`. When neither is set, the repository's default branch is followed.
 - `container` (String) Key of the `[containers.<key>]` entry this app reads. Defaults to the app's name.
-- `credential` (String) Name of an organization-scoped `hyperfluid_secret` of type `scm_credential` the platform reads the repository with. A read-only token is enough (GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo `read:repository`). Leave it out for a public repository.
+- `credential` (String) Name of an organization-scoped `hyperfluid_secret` of type `scm_credential` the platform reads the repository with. Required, public repositories included: the checks then count against the token's own rate limit rather than the anonymous one every app of the cluster shares. A read-only token is enough (GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo `read:repository`).
 - `interval` (String) How often the repository is checked, as a duration such as `5m`, `15m`, `1h` or `24h`. At least `5m`, which is also the default.
 - `path` (String) Path of the file in the repository. Defaults to `hyperfluid.toml`.
 - `provider` (String) Git host: `github`, `gitlab` or `forgejo`. Required.

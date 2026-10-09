@@ -80,15 +80,30 @@ resource "hyperfluid_container_app" "test" {
 `
 }
 
-// TestAccContainerAppGitSource deploys from a public repository holding a
-// hyperfluid.toml with an entry named after the app. Skipped unless
-// HYPERFLUID_TEST_GIT_REPO (e.g. "acme/orders-api", on github.com) is set on top
-// of the credentials the other acceptance tests need.
+// TestAccContainerAppGitSource deploys from a GitHub repository holding a
+// hyperfluid.toml with an entry named after the app, read with a Git credential
+// as every source is. Skipped unless HYPERFLUID_TEST_GIT_REPO (e.g.
+// "acme/orders-api", on github.com) and HYPERFLUID_TEST_GIT_TOKEN (a token that
+// can read it) are set on top of the credentials the other acceptance tests need.
 func TestAccContainerAppGitSource(t *testing.T) {
 	repo := os.Getenv("HYPERFLUID_TEST_GIT_REPO")
+	token := os.Getenv("HYPERFLUID_TEST_GIT_TOKEN")
 	config := `
 data "hyperfluid_env" "default" {
   name = "default"
+}
+
+variable "git_token" {
+  type      = string
+  sensitive = true
+  default   = "` + token + `"
+}
+
+resource "hyperfluid_secret" "git" {
+  name             = "tf-acc-git-source"
+  secret_type      = "scm_credential"
+  value            = jsonencode({ provider = "github", token = var.git_token })
+  value_wo_version = "1"
 }
 
 resource "hyperfluid_container_app" "git" {
@@ -103,6 +118,7 @@ resource "hyperfluid_container_app" "git" {
     git {
       provider   = "github"
       repository = "` + repo + `"
+      credential = hyperfluid_secret.git.name
     }
   }
 }
@@ -110,8 +126,8 @@ resource "hyperfluid_container_app" "git" {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			if repo == "" {
-				t.Skip("HYPERFLUID_TEST_GIT_REPO not set; skipping Git source acceptance test")
+			if repo == "" || token == "" {
+				t.Skip("HYPERFLUID_TEST_GIT_REPO or HYPERFLUID_TEST_GIT_TOKEN not set; skipping Git source acceptance test")
 			}
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

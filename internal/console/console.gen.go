@@ -12968,7 +12968,7 @@ type GitImageSource struct {
 	Container *string `json:"container,omitempty"`
 
 	// Credential Reference to a secret stored in an external secret manager.
-	Credential *SecretManagerRef `json:"credential,omitempty"`
+	Credential SecretManagerRef `json:"credential"`
 
 	// IntervalSeconds Seconds between two checks, at least 300. Absent means 300.
 	IntervalSeconds *int32 `json:"intervalSeconds,omitempty"`

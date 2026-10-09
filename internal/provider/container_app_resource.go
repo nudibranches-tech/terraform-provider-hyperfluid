@@ -328,10 +328,14 @@ func validateImage(cfg containerAppModel, diags *diag.Diagnostics) {
 				"image_source needs a git block naming the repository that declares the image.")
 			return
 		}
-		for _, name := range []string{"provider", "repository"} {
+		for _, name := range []string{"provider", "repository", "credential"} {
 			if v, ok := git.Attributes()[name].(types.String); ok && v.IsNull() {
-				diags.AddAttributeError(path.Root("image_source").AtName("git").AtName(name), "Missing "+name,
-					"The git block requires "+name+".")
+				detail := "The git block requires " + name + "."
+				if name == "credential" {
+					detail = "The git block requires credential, the name of an scm_credential hyperfluid_secret, " +
+						"even for a public repository: every Git source reads its repository with a token."
+				}
+				diags.AddAttributeError(path.Root("image_source").AtName("git").AtName(name), "Missing "+name, detail)
 			}
 		}
 		return

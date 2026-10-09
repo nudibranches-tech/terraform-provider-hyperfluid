@@ -35,8 +35,10 @@ variable "git_token" {
   sensitive = true
 }
 
-# A read-only token is enough. It must be an organization-wide secret, which is
-# what `hyperfluid_secret` creates.
+# Every Git source reads with a credential, public repositories included, so its
+# checks count against the token's own rate limit rather than the anonymous one
+# every app of the cluster shares. A read-only token is enough. It must be an
+# organization-wide secret, which is what `hyperfluid_secret` creates.
 resource "hyperfluid_secret" "git" {
   name             = "production/git/acme"
   secret_type      = "scm_credential"

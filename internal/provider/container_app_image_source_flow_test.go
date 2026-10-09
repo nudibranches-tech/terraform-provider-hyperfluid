@@ -228,6 +228,7 @@ func sourceModel(t *testing.T, edit func(*gitSourceModel)) types.Object {
 	m := nullGitModel()
 	m.Provider = types.StringValue("github")
 	m.Repository = types.StringValue("acme/orders-api")
+	m.Credential = types.StringValue("production/git/acme")
 	if edit != nil {
 		edit(&m)
 	}
@@ -330,8 +331,10 @@ func TestContainerAppCreateWithGitSource(t *testing.T) {
 		}
 	}
 	git, _ := body["image_source"].(map[string]any)["git"].(map[string]any)
-	if len(git) != 2 || git["provider"] != "github" || git["repository"] != "acme/orders-api" {
-		t.Errorf("image_source.git = %v, want only provider and repository", git)
+	credential, _ := git["credential"].(map[string]any)
+	if len(git) != 3 || git["provider"] != "github" || git["repository"] != "acme/orders-api" ||
+		credential["name"] != "production/git/acme" {
+		t.Errorf("image_source.git = %v, want only provider, repository and credential", git)
 	}
 
 	if !got.ImageRepository.IsNull() || !got.ImageTag.IsNull() {
