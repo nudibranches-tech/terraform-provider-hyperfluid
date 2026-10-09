@@ -13009,18 +13009,9 @@ type GitImageSource struct {
 	// full group path).
 	Repository string `json:"repository"`
 
-	// SyncAllowDowngrade Set together with `syncRequestedAt` when the user explicitly accepted
-	// deploying a tag lower than the one running. Honoured for that one
-	// request only.
-	SyncAllowDowngrade *bool `json:"syncAllowDowngrade,omitempty"`
-
 	// SyncPolicy Whether a check rolls a changed entry out on its own (Argo CD's automated
 	// vs manual sync).
 	SyncPolicy *SyncPolicy `json:"syncPolicy,omitempty"`
-
-	// SyncRequestedAt Timestamp (RFC 3339) of the last "Sync now" request. Changing it
-	// triggers an immediate check.
-	SyncRequestedAt *string `json:"syncRequestedAt,omitempty"`
 }
 
 // GitProvider Git hosting provider of an image source.
@@ -14243,7 +14234,8 @@ type ImageSourceStatus struct {
 	// LastAttemptAt Last check attempt (RFC 3339), successful or not.
 	LastAttemptAt *string `json:"lastAttemptAt,omitempty"`
 
-	// LastObservedSyncRequestedAt `spec.imageSource.git.syncRequestedAt` the operator last acted on.
+	// LastObservedSyncRequestedAt `hyperfluid.nudibranches.tech/sync-requested-at` annotation the
+	// operator last acted on.
 	LastObservedSyncRequestedAt *string `json:"lastObservedSyncRequestedAt,omitempty"`
 
 	// LastSyncedAt Last successful check (RFC 3339), changed or not.
@@ -20323,7 +20315,8 @@ type SyncImageSourceResponse struct {
 	// DowngradeAvailable A lower tag than the running one, deployed only on an explicit request.
 	DowngradeAvailable *DowngradeOffer `json:"downgrade_available,omitempty"`
 
-	// RequestedAt The `syncRequestedAt` written into the spec.
+	// RequestedAt The `hyperfluid.nudibranches.tech/sync-requested-at` annotation
+	// written on the ContainerApp.
 	RequestedAt string `json:"requested_at"`
 }
 
