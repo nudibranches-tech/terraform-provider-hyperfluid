@@ -61054,7 +61054,8 @@
         "description": "A repository file (`hyperfluid.toml`) that declares the app's image.\n\nEvery optional field is a platform default when absent, resolved at\nreconcile and never written into the spec.",
         "required": [
           "provider",
-          "repository"
+          "repository",
+          "credential"
         ],
         "properties": {
           "baseUrl": {
@@ -61068,8 +61069,7 @@
             "nullable": true
           },
           "credential": {
-            "$ref": "#/components/schemas/SecretManagerRef",
-            "nullable": true
+            "$ref": "#/components/schemas/SecretManagerRef"
           },
           "intervalSeconds": {
             "type": "integer",

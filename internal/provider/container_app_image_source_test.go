@@ -56,15 +56,12 @@ func fillNulls(ty tftypes.Object, members map[string]tftypes.Value) tftypes.Valu
 
 // gitFields are the string members of a `git` block; "interval" etc. stay null
 // unless named.
-func gitBlockValue(t *testing.T, fields map[string]string, alert *bool) tftypes.Value {
+func gitBlockValue(t *testing.T, fields map[string]string) tftypes.Value {
 	t.Helper()
 	_, _, gitType := containerAppObjectType(t)
 	members := map[string]tftypes.Value{}
 	for k, v := range fields {
 		members[k] = tftypes.NewValue(tftypes.String, v)
-	}
-	if alert != nil {
-		members["alert_on_sync_failure"] = tftypes.NewValue(tftypes.Bool, *alert)
 	}
 	return fillNulls(gitType, members)
 }
@@ -92,7 +89,9 @@ func sourceBlockValue(t *testing.T, git tftypes.Value) tftypes.Value {
 
 func str(s string) tftypes.Value { return tftypes.NewValue(tftypes.String, s) }
 
-var minimalGit = map[string]string{"provider": "github", "repository": "acme/orders-api"}
+var minimalGit = map[string]string{
+	"provider": "github", "repository": "acme/orders-api", "credential": "production/git/acme",
+}
 
 // validateContainerApp runs the real provider server's ValidateResourceConfig,
 // so the schema validators, the block rules and ValidateConfig all apply.
@@ -152,7 +151,7 @@ func TestContainerAppImageSourceValidation(t *testing.T) {
 		for k, v := range extra {
 			fields[k] = v
 		}
-		return sourceBlockValue(t, gitBlockValue(t, fields, nil))
+		return sourceBlockValue(t, gitBlockValue(t, fields))
 	}
 
 	cases := []struct {
@@ -171,7 +170,8 @@ func TestContainerAppImageSourceValidation(t *testing.T) {
 		{"no image at all", nil, "image_repository is required"},
 		{"a repository without a tag", map[string]tftypes.Value{"image_repository": str("nginx")}, "image_tag is required"},
 		{"a source next to a literal image", with(literal, map[string]tftypes.Value{"image_source": git(nil)}), "image_source"},
-		{"a git block without a repository", map[string]tftypes.Value{"image_source": sourceBlockValue(t, gitBlockValue(t, map[string]string{"provider": "github"}, nil))}, "Missing repository"},
+		{"a git block without a repository", map[string]tftypes.Value{"image_source": sourceBlockValue(t, gitBlockValue(t, map[string]string{"provider": "github", "credential": "production/git/acme"}))}, "Missing repository"},
+		{"a git block without a credential", map[string]tftypes.Value{"image_source": sourceBlockValue(t, gitBlockValue(t, map[string]string{"provider": "github", "repository": "acme/orders-api"}))}, "Missing credential"},
 		{"an empty image_source block", map[string]tftypes.Value{"image_source": sourceBlockValue(t, tftypes.NewValue(mustGitType(t), nil))}, "git"},
 		{"a branch and a tag pattern", map[string]tftypes.Value{"image_source": git(map[string]string{"branch": "main", "tag_pattern": "v(?<version>1)"})}, "tag_pattern"},
 		{"an unknown provider", map[string]tftypes.Value{"image_source": git(map[string]string{"provider": "bitbucket"})}, "provider"},
@@ -260,7 +260,7 @@ func TestGitStatusIsOnlyPlannedUnknownWithASource(t *testing.T) {
 		wantUnknown bool
 	}{
 		{"no source", tftypes.NewValue(mustSourceType(t), nil), false},
-		{"a source", sourceBlockValue(t, gitBlockValue(t, minimalGit, nil)), true},
+		{"a source", sourceBlockValue(t, gitBlockValue(t, minimalGit)), true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -336,14 +336,16 @@ func TestImageSourceBodyOmitsPlatformDefaults(t *testing.T) {
 	m := nullGitModel()
 	m.Provider = types.StringValue("github")
 	m.Repository = types.StringValue("acme/orders-api")
+	m.Credential = types.StringValue("production/git/acme")
 
 	src, err := buildImageSource(m)
 	if err != nil {
 		t.Fatalf("buildImageSource: %v", err)
 	}
 	git := marshalSource(t, src)["git"]
-	if len(git) != 2 || git["provider"] != "github" || git["repository"] != "acme/orders-api" {
-		t.Errorf("git = %v, want only provider and repository", git)
+	if len(git) != 3 || git["provider"] != "github" || git["repository"] != "acme/orders-api" ||
+		git["credential"] == nil {
+		t.Errorf("git = %v, want only provider, repository and credential", git)
 	}
 
 	// And the API's answer for such an app goes back to a block with every
@@ -357,10 +359,10 @@ func TestImageSourceBodyOmitsPlatformDefaults(t *testing.T) {
 	if d.HasError() || got == nil {
 		t.Fatalf("read back: %v / %v", got, d)
 	}
-	if !got.Provider.Equal(m.Provider) || !got.Repository.Equal(m.Repository) {
+	if !got.Provider.Equal(m.Provider) || !got.Repository.Equal(m.Repository) || !got.Credential.Equal(m.Credential) {
 		t.Errorf("required fields changed on the way back: %+v", got)
 	}
-	got.Provider, got.Repository = types.StringNull(), types.StringNull()
+	got.Provider, got.Repository, got.Credential = types.StringNull(), types.StringNull(), types.StringNull()
 	if *got != nullGitModel() {
 		t.Errorf("optional fields were materialised: %+v", got)
 	}

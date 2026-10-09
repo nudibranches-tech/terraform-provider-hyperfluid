@@ -98,8 +98,8 @@ func imageSourceBlock() schema.Block {
 				MarkdownDescription: "A Git repository holding the `hyperfluid.toml` that declares the image. " +
 					"Required when `image_source` is set.",
 				Attributes: map[string]schema.Attribute{
-					// provider and repository are required, but only checked in
-					// ValidateConfig: the framework demands a Required attribute of a
+					// provider, repository and credential are required, but only checked
+					// in ValidateConfig: the framework demands a Required attribute of a
 					// single nested block even when the block itself is absent.
 					"provider": schema.StringAttribute{
 						Optional:            true,
@@ -122,9 +122,11 @@ func imageSourceBlock() schema.Block {
 					"credential": schema.StringAttribute{
 						Optional: true,
 						MarkdownDescription: "Name of an organization-scoped `hyperfluid_secret` of type " +
-							"`scm_credential` the platform reads the repository with. A read-only token is enough " +
+							"`scm_credential` the platform reads the repository with. Required, public repositories " +
+							"included: the checks then count against the token's own rate limit rather than the " +
+							"anonymous one every app of the cluster shares. A read-only token is enough " +
 							"(GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo " +
-							"`read:repository`). Leave it out for a public repository.",
+							"`read:repository`).",
 						Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"branch": schema.StringAttribute{
@@ -308,12 +310,10 @@ func buildImageSource(m gitSourceModel) (console.ImageSource, error) {
 		BaseUrl:    stringPtr(m.BaseURL),
 		Path:       stringPtr(m.Path),
 		Container:  stringPtr(m.Container),
-	}
-	if !m.Credential.IsNull() && !m.Credential.IsUnknown() {
-		git.Credential = &console.SecretManagerRef{
+		Credential: console.SecretManagerRef{
 			Name: m.Credential.ValueString(),
 			Type: console.SecretManagerTypeControlplane,
-		}
+		},
 	}
 	if !m.Interval.IsNull() && !m.Interval.IsUnknown() {
 		secs, err := parseInterval(m.Interval.ValueString())
@@ -369,10 +369,7 @@ func gitSourceToObject(src *console.ImageSource, alert *bool, prior *gitSourceMo
 		Branch:     types.StringNull(),
 		TagPattern: types.StringNull(),
 		Interval:   types.StringNull(),
-		Credential: types.StringNull(),
-	}
-	if git.Credential != nil {
-		m.Credential = types.StringValue(git.Credential.Name)
+		Credential: types.StringValue(git.Credential.Name),
 	}
 	if prior != nil && git.BaseUrl != nil && !prior.BaseURL.IsNull() &&
 		strings.EqualFold(strings.TrimRight(prior.BaseURL.ValueString(), "/"), strings.TrimRight(*git.BaseUrl, "/")) {
