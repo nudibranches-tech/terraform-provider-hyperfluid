@@ -166,6 +166,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"`resolved_ref`, `revision` and `last_synced_at`, which Terraform never plans a change for, so a release " +
 			"made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts " +
 			"that follow it; a check that fails or is slow is a warning, with the reason in `sync_error`.\n\n" +
+			"`sync_policy = \"manual\"` stops the platform from rolling a change out on its own: it reports it and " +
+			"waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: " +
+			"use the console or `hfctl apps check` / `hfctl apps sync`.\n\n" +
 			"Removing the block detaches the source: the app keeps running the image it last resolved until the " +
 			"literal `image_repository` / `image_tag` you set in its place is applied.\n\n" +
 			"~> Push access to the tracked branch, or to a tag matching `tag_pattern`, is deploy access. Protect them " +

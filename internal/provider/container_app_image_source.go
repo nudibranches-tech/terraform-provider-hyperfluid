@@ -48,6 +48,7 @@ type gitSourceModel struct {
 	Path               types.String `tfsdk:"path"`
 	Container          types.String `tfsdk:"container"`
 	Interval           types.String `tfsdk:"interval"`
+	SyncPolicy         types.String `tfsdk:"sync_policy"`
 	AlertOnSyncFailure types.Bool   `tfsdk:"alert_on_sync_failure"`
 }
 
@@ -62,6 +63,7 @@ func gitSourceAttrTypes() map[string]attr.Type {
 		"path":                  types.StringType,
 		"container":             types.StringType,
 		"interval":              types.StringType,
+		"sync_policy":           types.StringType,
 		"alert_on_sync_failure": types.BoolType,
 	}
 }
@@ -74,6 +76,12 @@ func imageSourceAttrTypes() map[string]attr.Type {
 
 func nullImageSource() types.Object {
 	return types.ObjectNull(imageSourceAttrTypes())
+}
+
+// syncPolicies are the values `sync_policy` accepts.
+var syncPolicies = []string{
+	string(console.SyncPolicyAuto),
+	string(console.SyncPolicyManual),
 }
 
 // gitProviders are the hosts the platform can read a repository from.
@@ -165,6 +173,15 @@ func imageSourceBlock() schema.Block {
 						MarkdownDescription: "How often the repository is checked, as a duration such as `5m`, " +
 							"`15m`, `1h` or `24h`. At least `5m`, which is also the default.",
 						Validators: []validator.String{intervalValidator{}},
+					},
+					"sync_policy": schema.StringAttribute{
+						Optional: true,
+						MarkdownDescription: "`auto` rolls out every change found in Git. `manual` only reports it " +
+							"(\"Out of sync\") until someone clicks Sync in the console or runs `hfctl apps sync`; " +
+							"the first image of a new source still rolls out. Absent means `auto`. While the " +
+							"organization has automatic sync turned off, `auto` is refused (403) and an absent " +
+							"policy behaves as `manual`.",
+						Validators: []validator.String{stringvalidator.OneOf(syncPolicies...)},
 					},
 					"alert_on_sync_failure": schema.BoolAttribute{
 						Optional: true,
@@ -322,6 +339,10 @@ func buildImageSource(m gitSourceModel) (console.ImageSource, error) {
 		}
 		git.IntervalSeconds = &secs
 	}
+	if !m.SyncPolicy.IsNull() && !m.SyncPolicy.IsUnknown() {
+		policy := console.SyncPolicy(m.SyncPolicy.ValueString())
+		git.SyncPolicy = &policy
+	}
 
 	var ref console.GitRef
 	switch {
@@ -369,7 +390,11 @@ func gitSourceToObject(src *console.ImageSource, alert *bool, prior *gitSourceMo
 		Branch:     types.StringNull(),
 		TagPattern: types.StringNull(),
 		Interval:   types.StringNull(),
+		SyncPolicy: types.StringNull(),
 		Credential: types.StringValue(git.Credential.Name),
+	}
+	if git.SyncPolicy != nil {
+		m.SyncPolicy = types.StringValue(string(*git.SyncPolicy))
 	}
 	if prior != nil && git.BaseUrl != nil && !prior.BaseURL.IsNull() &&
 		strings.EqualFold(strings.TrimRight(prior.BaseURL.ValueString(), "/"), strings.TrimRight(*git.BaseUrl, "/")) {

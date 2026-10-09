@@ -66,6 +66,7 @@ resource "hyperfluid_container_app" "orders" {
       # path        = "deploy/orders-api/hyperfluid.toml"
       # container   = "orders-api"
       # interval    = "15m"
+      # sync_policy = "manual"     # report changes and wait for Sync (default: auto)
       # alert_on_sync_failure = false
     }
   }

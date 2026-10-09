@@ -85,6 +85,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 							"path":                  cs("Path of the file in the repository, or null for `hyperfluid.toml`."),
 							"container":             cs("Key of the entry the app reads, or null for the app's name."),
 							"interval":              cs("How often the repository is checked, or null for the platform default."),
+							"sync_policy":           cs("`auto` or `manual`, or null for the platform default (`auto`)."),
 							"alert_on_sync_failure": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether a failing check raises an alert, or null for the platform default."},
 						},
 					},

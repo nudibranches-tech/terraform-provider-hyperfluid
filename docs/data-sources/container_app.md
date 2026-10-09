@@ -87,6 +87,7 @@ Read-Only:
 - `path` (String) Path of the file in the repository, or null for `hyperfluid.toml`.
 - `provider` (String) Git host: `github`, `gitlab` or `forgejo`.
 - `repository` (String) Repository path on the provider.
+- `sync_policy` (String) `auto` or `manual`, or null for the platform default (`auto`).
 - `tag_pattern` (String) The regular expression selecting the tag followed, or null.
 
 

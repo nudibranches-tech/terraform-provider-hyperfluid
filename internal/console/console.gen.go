@@ -4726,6 +4726,24 @@ func (e SpendWindow) Valid() bool {
 	}
 }
 
+// Defines values for SyncPolicy.
+const (
+	SyncPolicyAuto   SyncPolicy = "auto"
+	SyncPolicyManual SyncPolicy = "manual"
+)
+
+// Valid indicates whether the value is a known member of the SyncPolicy enum.
+func (e SyncPolicy) Valid() bool {
+	switch e {
+	case SyncPolicyAuto:
+		return true
+	case SyncPolicyManual:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TableHealthFindingKind.
 const (
 	TableHealthFindingKindDeleteDebt   TableHealthFindingKind = "delete_debt"
@@ -12996,6 +13014,10 @@ type GitImageSource struct {
 	// request only.
 	SyncAllowDowngrade *bool `json:"syncAllowDowngrade,omitempty"`
 
+	// SyncPolicy Whether a check rolls a changed entry out on its own (Argo CD's automated
+	// vs manual sync).
+	SyncPolicy *SyncPolicy `json:"syncPolicy,omitempty"`
+
 	// SyncRequestedAt Timestamp (RFC 3339) of the last "Sync now" request. Changing it
 	// triggers an immediate check.
 	SyncRequestedAt *string `json:"syncRequestedAt,omitempty"`
@@ -20304,6 +20326,10 @@ type SyncImageSourceResponse struct {
 	// RequestedAt The `syncRequestedAt` written into the spec.
 	RequestedAt string `json:"requested_at"`
 }
+
+// SyncPolicy Whether a check rolls a changed entry out on its own (Argo CD's automated
+// vs manual sync).
+type SyncPolicy string
 
 // TableClassificationResponse Response for a table classification.
 type TableClassificationResponse struct {
