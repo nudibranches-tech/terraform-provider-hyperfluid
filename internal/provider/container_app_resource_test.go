@@ -4,6 +4,7 @@
 package provider
 
 import (
+	"os"
 	"strconv"
 	"testing"
 
@@ -77,4 +78,78 @@ resource "hyperfluid_container_app" "test" {
   resource_tier    = "nano"
 }
 `
+}
+
+// TestAccContainerAppGitSource deploys from a GitHub repository holding a
+// hyperfluid.toml with an entry named after the app, read with a Git credential
+// as every source is. Skipped unless HYPERFLUID_TEST_GIT_REPO (e.g.
+// "acme/orders-api", on github.com) and HYPERFLUID_TEST_GIT_TOKEN (a token that
+// can read it) are set on top of the credentials the other acceptance tests need.
+func TestAccContainerAppGitSource(t *testing.T) {
+	repo := os.Getenv("HYPERFLUID_TEST_GIT_REPO")
+	token := os.Getenv("HYPERFLUID_TEST_GIT_TOKEN")
+	config := `
+data "hyperfluid_env" "default" {
+  name = "default"
+}
+
+variable "git_token" {
+  type      = string
+  sensitive = true
+  default   = "` + token + `"
+}
+
+resource "hyperfluid_secret" "git" {
+  name             = "tf-acc-git-source"
+  secret_type      = "scm_credential"
+  value            = jsonencode({ provider = "github", token = var.git_token })
+  value_wo_version = "1"
+}
+
+resource "hyperfluid_container_app" "git" {
+  env  = data.hyperfluid_env.default.id
+  name = "tf-acc-git-app"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
+  resource_tier = "nano"
+
+  image_source {
+    git {
+      provider   = "github"
+      repository = "` + repo + `"
+      credential = hyperfluid_secret.git.name
+    }
+  }
+}
+`
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			if repo == "" || token == "" {
+				t.Skip("HYPERFLUID_TEST_GIT_REPO or HYPERFLUID_TEST_GIT_TOKEN not set; skipping Git source acceptance test")
+			}
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "resolved_image"),
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "revision"),
+					resource.TestCheckResourceAttrSet("hyperfluid_container_app.git", "last_synced_at"),
+					// The resolved image never lands in the literal-image attributes.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_repository"),
+					// Nothing the config left out is written back.
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_source.git.branch"),
+					resource.TestCheckNoResourceAttr("hyperfluid_container_app.git", "image_source.git.interval"),
+				),
+			},
+			{
+				// A release made through Git is not drift: re-planning shows nothing.
+				Config:   config,
+				PlanOnly: true,
+			},
+		},
+	})
 }

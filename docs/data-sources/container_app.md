@@ -49,16 +49,48 @@ output "app_endpoint" {
 - `health_check_port` (Number) HTTP health check port.
 - `id` (String) App id.
 - `image_repository` (String) Container image repository.
+- `image_source` (Attributes) The Git source the app's image comes from, or null for an app with a literal image. `image_repository` and `image_tag` then report the image it resolved, when it has one. (see [below for nested schema](#nestedatt--image_source))
 - `image_tag` (String) Container image tag.
+- `last_synced_at` (String) When the repository was last checked successfully (RFC 3339).
 - `memory_limit` (String) Memory limit derived from resource_tier.
 - `memory_request` (String) Memory request derived from resource_tier.
 - `phase` (String) Current lifecycle phase.
 - `port` (Number) The app's single container port. Deprecated by the API in favour of `ports`; for an app publishing several, this reports the primary one.
 - `ports` (Attributes List) Every port the app publishes. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Desired replica count.
+- `resolved_image` (String) The image a Git source resolved and runs, as `repository:tag@digest`.
+- `resolved_ref` (String) The branch followed, or the tag a Git source's `tag_pattern` selected.
 - `resource_tier` (String) Resource tier — not returned by the API, so always null on a data source.
 - `resource_version` (String) Kubernetes resourceVersion.
+- `revision` (String) The commit the running image was read from.
 - `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
+- `sync_error` (String) Why the last check failed, or null.
+
+<a id="nestedatt--image_source"></a>
+### Nested Schema for `image_source`
+
+Read-Only:
+
+- `git` (Attributes) The repository holding the `hyperfluid.toml` that declares the image. (see [below for nested schema](#nestedatt--image_source--git))
+
+<a id="nestedatt--image_source--git"></a>
+### Nested Schema for `image_source.git`
+
+Read-Only:
+
+- `alert_on_sync_failure` (Boolean) Whether a failing check raises an alert, or null for the platform default.
+- `base_url` (String) Origin of a self-hosted provider, or null for the public host.
+- `branch` (String) The branch followed, or null.
+- `container` (String) Key of the entry the app reads, or null for the app's name.
+- `credential` (String) Name of the `scm_credential` secret used to read the repository, or null for a public one.
+- `interval` (String) How often the repository is checked, or null for the platform default.
+- `path` (String) Path of the file in the repository, or null for `hyperfluid.toml`.
+- `provider` (String) Git host: `github`, `gitlab` or `forgejo`.
+- `repository` (String) Repository path on the provider.
+- `sync_policy` (String) `auto` or `manual`, or null for the platform default (`auto`).
+- `tag_pattern` (String) The regular expression selecting the tag followed, or null.
+
+
 
 <a id="nestedatt--ports"></a>
 ### Nested Schema for `ports`
