@@ -1090,6 +1090,7 @@ const (
 	ConsoleConfigFeatureFlagModelServingEnabled             ConsoleConfigFeatureFlag = "model_serving_enabled"
 	ConsoleConfigFeatureFlagNextflowEnabled                 ConsoleConfigFeatureFlag = "nextflow_enabled"
 	ConsoleConfigFeatureFlagOntologyEnabled                 ConsoleConfigFeatureFlag = "ontology_enabled"
+	ConsoleConfigFeatureFlagRabbitmqEnabled                 ConsoleConfigFeatureFlag = "rabbitmq_enabled"
 	ConsoleConfigFeatureFlagSapienceAgentEnabled            ConsoleConfigFeatureFlag = "sapience_agent_enabled"
 	ConsoleConfigFeatureFlagSapienceResourcesEnabled        ConsoleConfigFeatureFlag = "sapience_resources_enabled"
 	ConsoleConfigFeatureFlagScheduledQueriesEnabled         ConsoleConfigFeatureFlag = "scheduled_queries_enabled"
@@ -1121,6 +1122,8 @@ func (e ConsoleConfigFeatureFlag) Valid() bool {
 	case ConsoleConfigFeatureFlagNextflowEnabled:
 		return true
 	case ConsoleConfigFeatureFlagOntologyEnabled:
+		return true
+	case ConsoleConfigFeatureFlagRabbitmqEnabled:
 		return true
 	case ConsoleConfigFeatureFlagSapienceAgentEnabled:
 		return true
@@ -2941,6 +2944,7 @@ const (
 	OrgFeatureModelServingEnabled             OrgFeature = "model_serving_enabled"
 	OrgFeatureNextflowEnabled                 OrgFeature = "nextflow_enabled"
 	OrgFeatureOntologyEnabled                 OrgFeature = "ontology_enabled"
+	OrgFeatureRabbitmqEnabled                 OrgFeature = "rabbitmq_enabled"
 	OrgFeatureSapienceAgentEnabled            OrgFeature = "sapience_agent_enabled"
 	OrgFeatureSapienceResourcesEnabled        OrgFeature = "sapience_resources_enabled"
 	OrgFeatureScheduledQueriesEnabled         OrgFeature = "scheduled_queries_enabled"
@@ -2969,6 +2973,8 @@ func (e OrgFeature) Valid() bool {
 	case OrgFeatureNextflowEnabled:
 		return true
 	case OrgFeatureOntologyEnabled:
+		return true
+	case OrgFeatureRabbitmqEnabled:
 		return true
 	case OrgFeatureSapienceAgentEnabled:
 		return true
@@ -3100,6 +3106,8 @@ const (
 	PermissionKeyHarborRead                      PermissionKey = "harbor:read"
 	PermissionKeyHfKeyValueCacheManage           PermissionKey = "hf_key_value_cache:manage"
 	PermissionKeyHfKeyValueCacheRead             PermissionKey = "hf_key_value_cache:read"
+	PermissionKeyHfRabbitmqManage                PermissionKey = "hf_rabbitmq:manage"
+	PermissionKeyHfRabbitmqRead                  PermissionKey = "hf_rabbitmq:read"
 	PermissionKeyInferenceServiceCreate          PermissionKey = "inference_service:create"
 	PermissionKeyInferenceServiceDelete          PermissionKey = "inference_service:delete"
 	PermissionKeyInferenceServiceInvoke          PermissionKey = "inference_service:invoke"
@@ -3372,6 +3380,10 @@ func (e PermissionKey) Valid() bool {
 	case PermissionKeyHfKeyValueCacheManage:
 		return true
 	case PermissionKeyHfKeyValueCacheRead:
+		return true
+	case PermissionKeyHfRabbitmqManage:
+		return true
+	case PermissionKeyHfRabbitmqRead:
 		return true
 	case PermissionKeyInferenceServiceCreate:
 		return true
@@ -4054,6 +4066,30 @@ func (e QuotaStatus) Valid() bool {
 	}
 }
 
+// Defines values for RabbitMqPlugin.
+const (
+	RabbitMqPluginFederation RabbitMqPlugin = "federation"
+	RabbitMqPluginMqtt       RabbitMqPlugin = "mqtt"
+	RabbitMqPluginShovel     RabbitMqPlugin = "shovel"
+	RabbitMqPluginStream     RabbitMqPlugin = "stream"
+)
+
+// Valid indicates whether the value is a known member of the RabbitMqPlugin enum.
+func (e RabbitMqPlugin) Valid() bool {
+	switch e {
+	case RabbitMqPluginFederation:
+		return true
+	case RabbitMqPluginMqtt:
+		return true
+	case RabbitMqPluginShovel:
+		return true
+	case RabbitMqPluginStream:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RefStatus.
 const (
 	RefStatusDone    RefStatus = "done"
@@ -4246,6 +4282,7 @@ const (
 	ResourceKindDevWorkstation   ResourceKind = "dev_workstation"
 	ResourceKindGithubRunnerPool ResourceKind = "github_runner_pool"
 	ResourceKindHfKeyValueCache  ResourceKind = "hf_key_value_cache"
+	ResourceKindHfRabbitmq       ResourceKind = "hf_rabbitmq"
 	ResourceKindKafka            ResourceKind = "kafka"
 	ResourceKindModel            ResourceKind = "model"
 	ResourceKindPostgres         ResourceKind = "postgres"
@@ -4263,6 +4300,8 @@ func (e ResourceKind) Valid() bool {
 	case ResourceKindGithubRunnerPool:
 		return true
 	case ResourceKindHfKeyValueCache:
+		return true
+	case ResourceKindHfRabbitmq:
 		return true
 	case ResourceKindKafka:
 		return true
@@ -4950,6 +4989,7 @@ const (
 	ServiceLinkKindAirflow           ServiceLinkKind = "Airflow"
 	ServiceLinkKindContainerApp      ServiceLinkKind = "ContainerApp"
 	ServiceLinkKindHfKeyValueCache   ServiceLinkKind = "HfKeyValueCache"
+	ServiceLinkKindHfRabbitMq        ServiceLinkKind = "HfRabbitMq"
 	ServiceLinkKindKafka             ServiceLinkKind = "Kafka"
 	ServiceLinkKindManagedPostgreSQL ServiceLinkKind = "ManagedPostgreSQL"
 	ServiceLinkKindPipeline          ServiceLinkKind = "Pipeline"
@@ -4964,6 +5004,8 @@ func (e ServiceLinkKind) Valid() bool {
 	case ServiceLinkKindContainerApp:
 		return true
 	case ServiceLinkKindHfKeyValueCache:
+		return true
+	case ServiceLinkKindHfRabbitMq:
 		return true
 	case ServiceLinkKindKafka:
 		return true
@@ -5533,6 +5575,7 @@ const (
 	WorkloadKindForgejoRunner     WorkloadKind = "ForgejoRunner"
 	WorkloadKindGithubRunner      WorkloadKind = "GithubRunner"
 	WorkloadKindHfKeyValueCache   WorkloadKind = "HfKeyValueCache"
+	WorkloadKindHfRabbitMq        WorkloadKind = "HfRabbitMq"
 	WorkloadKindKafka             WorkloadKind = "Kafka"
 	WorkloadKindManagedPostgreSQL WorkloadKind = "ManagedPostgreSQL"
 	WorkloadKindModelServing      WorkloadKind = "ModelServing"
@@ -5565,6 +5608,8 @@ func (e WorkloadKind) Valid() bool {
 	case WorkloadKindGithubRunner:
 		return true
 	case WorkloadKindHfKeyValueCache:
+		return true
+	case WorkloadKindHfRabbitMq:
 		return true
 	case WorkloadKindKafka:
 		return true
@@ -10603,6 +10648,43 @@ type CreateHfKeyValueCacheCrdRequestBody struct {
 	Tags *[]string `json:"tags,omitempty"`
 }
 
+// CreateHfRabbitMqCrdRequestBody defines model for CreateHfRabbitMqCrdRequestBody.
+type CreateHfRabbitMqCrdRequestBody struct {
+	// Description Optional description (DB-only).
+	Description *string `json:"description,omitempty"`
+
+	// Image RabbitMQ container image. Omit to track the platform default, which is
+	// resolved at reconcile time. Do NOT materialise it here, or the value is
+	// persisted into the CRD spec and frozen (see CLAUDE.md).
+	Image *string `json:"image,omitempty"`
+
+	// Name Must be a valid RFC 1035 label: lowercase, starts with a letter, ends
+	// with a letter or digit, only letters/digits/hyphens in between.
+	Name string `json:"name"`
+
+	// Plugins Optional plugins to enable, from the fixed allowlist.
+	Plugins *[]RabbitMqPlugin `json:"plugins,omitempty"`
+
+	// Replicas Number of broker nodes: 1, 3 or 5. Omit to track the platform default,
+	// which is resolved at reconcile time (never materialised here).
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Volume size per node, a whole Kubernetes quantity such as "20Gi". Omit
+	// to track the platform default.
+	Storage *string `json:"storage,omitempty"`
+
+	// Tags User-defined tags (DB-only).
+	Tags *[]string `json:"tags,omitempty"`
+}
+
 // CreateIcebergDataContainerRequestBody defines model for CreateIcebergDataContainerRequestBody.
 type CreateIcebergDataContainerRequestBody struct {
 	DataDockId openapi_types.UUID `json:"data_dock_id"`
@@ -14515,6 +14597,61 @@ type HfKeyValueCacheResponse struct {
 	UpdatedAt             time.Time          `json:"updated_at"`
 }
 
+// HfRabbitMqCrdSpecResponse defines model for HfRabbitMqCrdSpecResponse.
+type HfRabbitMqCrdSpecResponse struct {
+	// Image The image the broker runs: the operator's resolved image once it has
+	// reconciled, otherwise the pinned `spec.image`. Absent only before the
+	// first reconcile of a broker that pins none.
+	Image   *string          `json:"image,omitempty"`
+	Plugins []RabbitMqPlugin `json:"plugins"`
+
+	// ReadyReplicas Nodes that are ready, from the CR status.
+	ReadyReplicas *int32 `json:"ready_replicas,omitempty"`
+
+	// Replicas Pinned node count; absent when the broker tracks the platform default.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Pinned volume size; absent when the broker tracks the platform default.
+	Storage *string `json:"storage,omitempty"`
+}
+
+// HfRabbitMqResponse defines model for HfRabbitMqResponse.
+type HfRabbitMqResponse struct {
+	AmqpPort    *int32             `json:"amqp_port,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	Description *string            `json:"description,omitempty"`
+	HarborId    openapi_types.UUID `json:"harbor_id"`
+	Host        *string            `json:"host,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+
+	// Image Pinned image; absent when the broker tracks the platform default.
+	Image          *string            `json:"image,omitempty"`
+	ManagementPort *int32             `json:"management_port,omitempty"`
+	Message        *string            `json:"message,omitempty"`
+	Name           string             `json:"name"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+	Phase          *string            `json:"phase,omitempty"`
+	Plugins        []RabbitMqPlugin   `json:"plugins"`
+	ReadyReplicas  *int32             `json:"ready_replicas,omitempty"`
+
+	// Replicas Pinned node count; absent when the user did not set it.
+	Replicas *int32 `json:"replicas,omitempty"`
+	Slug     string `json:"slug"`
+
+	// Storage Pinned volume size; absent when the user did not set it.
+	Storage   *string   `json:"storage,omitempty"`
+	Tags      []string  `json:"tags"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // HfTable defines model for HfTable.
 type HfTable struct {
 	CatalogName string      `json:"catalog_name"`
@@ -17454,6 +17591,13 @@ type OrganizationOverviewResponse struct {
 	// card links into the currently selected harbor.
 	Pipelines ResourceOverviewResponse `json:"pipelines"`
 
+	// Rabbitmqs One line of the org overview: the total across the organization plus the
+	// slugs of the harbors that hold at least one. `harbors` is empty and
+	// `is_org_wide` is `true` for resources that are not harbor-scoped (pipelines,
+	// dashboards, model servings) — their list pages are org-wide, so the home
+	// card links into the currently selected harbor.
+	Rabbitmqs ResourceOverviewResponse `json:"rabbitmqs"`
+
 	// RegistryProjects One line of the org overview: the total across the organization plus the
 	// slugs of the harbors that hold at least one. `harbors` is empty and
 	// `is_org_wide` is `true` for resources that are not harbor-scoped (pipelines,
@@ -17950,6 +18094,37 @@ type PatchHfKeyValueCacheCrdRequestBody struct {
 	// hit their quota even when the node has spare capacity). Set it only when you
 	// need hard isolation guarantees.
 	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Tags User-defined tags (DB-only, not in CRD).
+	Tags *[]string `json:"tags,omitempty"`
+}
+
+// PatchHfRabbitMqCrdRequestBody defines model for PatchHfRabbitMqCrdRequestBody.
+type PatchHfRabbitMqCrdRequestBody struct {
+	// Description Optional description (DB-only, not in CRD).
+	Description *string `json:"description,omitempty"`
+
+	// Image RabbitMQ container image.
+	Image *string `json:"image,omitempty"`
+
+	// Plugins Plugins to enable, from the fixed allowlist. Replaces the current list.
+	Plugins *[]RabbitMqPlugin `json:"plugins,omitempty"`
+
+	// Replicas Number of broker nodes: 1, 3 or 5. Can only grow: a RabbitMQ cluster
+	// cannot be scaled down, and a lower value is rejected with a 400.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Volume size per node (e.g. "20Gi"). Can only grow: a smaller value is
+	// rejected with a 400.
+	Storage *string `json:"storage,omitempty"`
 
 	// Tags User-defined tags (DB-only, not in CRD).
 	Tags *[]string `json:"tags,omitempty"`
@@ -19157,6 +19332,12 @@ type QuotaUsageItemResponse struct {
 	ResourceType QuotaResourceType `json:"resource_type"`
 	Status       QuotaStatus       `json:"status"`
 }
+
+// RabbitMqPlugin Optional RabbitMQ plugins a user can opt into. The management, Prometheus
+// and Kubernetes peer-discovery plugins are always on and are not listed here.
+// This is an allowlist: anything else could break the cluster or escape the
+// tenant.
+type RabbitMqPlugin string
 
 // Ref A reference to a file in a storage bucket
 // This reference is created upon scanning a bucket and is used to track the
@@ -24538,6 +24719,58 @@ type GetHfKeyValueCacheMetricsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
 }
 
+// GetHfRabbitmqLogsParams defines parameters for GetHfRabbitmqLogs.
+type GetHfRabbitmqLogsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+
+	// Search Optional free-text search term, matched against the log message.
+	// Embedded as an escaped, case-insensitive LogsQL regex filter — never
+	// raw query syntax. Interpreted according to `search_mode`.
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+
+	// SearchMode How to interpret `search`: `text` (default, case-insensitive substring)
+	// or `regex` (a validated RE2 pattern). Ignored when `search` is empty.
+	SearchMode *SearchMode `form:"search_mode,omitempty" json:"search_mode,omitempty"`
+
+	// Pod Optional exact `kubernetes.pod_name` source filter (one entry from the
+	// `sources` facet). Validated as a plausible k8s name and embedded as an
+	// exact `:=` filter.
+	Pod *string `form:"pod,omitempty" json:"pod,omitempty"`
+
+	// Container Optional exact `kubernetes.container_name` source filter (one entry from
+	// the `sources` facet). Validated as a plausible k8s name and embedded as
+	// an exact `:=` filter.
+	Container *string `form:"container,omitempty" json:"container,omitempty"`
+
+	// Stream Optional CRI stream filter (`stdout` | `stderr`). Maps to a static exact
+	// `stream:="…"` LogsQL filter.
+	Stream *LogStream `form:"stream,omitempty" json:"stream,omitempty"`
+
+	// Level Optional severity filter. Maps to a static case-insensitive
+	// prefix-token LogsQL clause over the unstructured message text
+	// (heuristic — see ADR-0020; false positives accepted).
+	Level *LogLevel `form:"level,omitempty" json:"level,omitempty"`
+
+	// Start Optional custom window start (unix epoch SECONDS). When BOTH `start`
+	// and `end` are provided they define the query window and `range` is
+	// ignored; otherwise `range` applies. The effective (possibly
+	// org-retention-clamped) window is echoed back in the response
+	// `start`/`end` fields.
+	Start *int64 `form:"start,omitempty" json:"start,omitempty"`
+
+	// End Optional custom window end (unix epoch SECONDS). See `start`. May be
+	// slightly in the future (client clock slack); it is clamped to "now".
+	End *int64 `form:"end,omitempty" json:"end,omitempty"`
+
+	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetHfRabbitmqMetricsParams defines parameters for GetHfRabbitmqMetrics.
+type GetHfRabbitmqMetricsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+}
+
 // GetKafkaLogsParams defines parameters for GetKafkaLogs.
 type GetKafkaLogsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
@@ -25587,6 +25820,9 @@ type UpdateGithubRunnerJSONRequestBody = UpdateGithubRunnerRequest
 // CreateHfKeyValueCacheCrdJSONRequestBody defines body for CreateHfKeyValueCacheCrd for application/json ContentType.
 type CreateHfKeyValueCacheCrdJSONRequestBody = CreateHfKeyValueCacheCrdRequestBody
 
+// CreateHfRabbitmqCrdJSONRequestBody defines body for CreateHfRabbitmqCrd for application/json ContentType.
+type CreateHfRabbitmqCrdJSONRequestBody = CreateHfRabbitMqCrdRequestBody
+
 // CreateManagedPostgresqlCrdJSONRequestBody defines body for CreateManagedPostgresqlCrd for application/json ContentType.
 type CreateManagedPostgresqlCrdJSONRequestBody = CreateManagedPostgresqlCrdRequestBody
 
@@ -25604,6 +25840,9 @@ type CreateVirtualMachineCrdJSONRequestBody = CreateVirtualMachineCrdRequestBody
 
 // PatchHfKeyValueCacheCrdJSONRequestBody defines body for PatchHfKeyValueCacheCrd for application/json ContentType.
 type PatchHfKeyValueCacheCrdJSONRequestBody = PatchHfKeyValueCacheCrdRequestBody
+
+// PatchHfRabbitmqCrdJSONRequestBody defines body for PatchHfRabbitmqCrd for application/json ContentType.
+type PatchHfRabbitmqCrdJSONRequestBody = PatchHfRabbitMqCrdRequestBody
 
 // CreateIdentityProviderJSONRequestBody defines body for CreateIdentityProvider for application/json ContentType.
 type CreateIdentityProviderJSONRequestBody = CreateIdentityProviderRequest
@@ -30157,6 +30396,14 @@ type ClientInterface interface {
 
 	CreateHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListHfRabbitmqs request
+	ListHfRabbitmqs(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateHfRabbitmqCrdWithBody request with any body
+	CreateHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListManagedPostgresqls request
 	ListManagedPostgresqls(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30285,6 +30532,23 @@ type ClientInterface interface {
 	PatchHfKeyValueCacheCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmq request
+	GetHfRabbitmq(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteHfRabbitmqCrd request
+	DeleteHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqCrd request
+	GetHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchHfRabbitmqCrdWithBody request with any body
+	PatchHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateHfRabbitmqCredentials request
+	RotateHfRabbitmqCredentials(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListIdentityProviders request
 	ListIdentityProviders(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -30510,6 +30774,12 @@ type ClientInterface interface {
 
 	// GetHfKeyValueCacheMetrics request
 	GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqLogs request
+	GetHfRabbitmqLogs(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqMetrics request
+	GetHfRabbitmqMetrics(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetKafkaLogs request
 	GetKafkaLogs(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -36986,6 +37256,42 @@ func (c *Client) CreateHfKeyValueCacheCrd(ctx context.Context, organizationId op
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListHfRabbitmqs(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListHfRabbitmqsRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfRabbitmqCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfRabbitmqCrdRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListManagedPostgresqls(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListManagedPostgresqlsRequest(c.Server, organizationId, harborId)
 	if err != nil {
@@ -37516,6 +37822,78 @@ func (c *Client) PatchHfKeyValueCacheCrdWithBody(ctx context.Context, organizati
 
 func (c *Client) PatchHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchHfKeyValueCacheCrdRequest(c.Server, organizationId, cacheId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmq(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfRabbitmqCrdRequestWithBody(c.Server, organizationId, rabbitmqId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateHfRabbitmqCredentials(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateHfRabbitmqCredentialsRequest(c.Server, organizationId, rabbitmqId)
 	if err != nil {
 		return nil, err
 	}
@@ -38476,6 +38854,30 @@ func (c *Client) GetHfKeyValueCacheLogs(ctx context.Context, organizationId open
 
 func (c *Client) GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHfKeyValueCacheMetricsRequest(c.Server, organizationId, cacheId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqLogs(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqLogsRequest(c.Server, organizationId, rabbitmqId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqMetrics(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqMetricsRequest(c.Server, organizationId, rabbitmqId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -59221,6 +59623,101 @@ func NewCreateHfKeyValueCacheCrdRequestWithBody(server string, organizationId op
 	return req, nil
 }
 
+// NewListHfRabbitmqsRequest generates requests for ListHfRabbitmqs
+func NewListHfRabbitmqsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-rabbitmqs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateHfRabbitmqCrdRequest calls the generic CreateHfRabbitmqCrd builder with application/json body
+func NewCreateHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateHfRabbitmqCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateHfRabbitmqCrdRequestWithBody generates requests for CreateHfRabbitmqCrd with any type of body
+func NewCreateHfRabbitmqCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-rabbitmqs/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListManagedPostgresqlsRequest generates requests for ListManagedPostgresqls
 func NewListManagedPostgresqlsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -61145,6 +61642,224 @@ func NewPatchHfKeyValueCacheCrdRequestWithBody(server string, organizationId ope
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqRequest generates requests for GetHfRabbitmq
+func NewGetHfRabbitmqRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteHfRabbitmqCrdRequest generates requests for DeleteHfRabbitmqCrd
+func NewDeleteHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqCrdRequest generates requests for GetHfRabbitmqCrd
+func NewGetHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchHfRabbitmqCrdRequest calls the generic PatchHfRabbitmqCrd builder with application/json body
+func NewPatchHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchHfRabbitmqCrdRequestWithBody(server, organizationId, rabbitmqId, "application/json", bodyReader)
+}
+
+// NewPatchHfRabbitmqCrdRequestWithBody generates requests for PatchHfRabbitmqCrd with any type of body
+func NewPatchHfRabbitmqCrdRequestWithBody(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRotateHfRabbitmqCredentialsRequest generates requests for RotateHfRabbitmqCredentials
+func NewRotateHfRabbitmqCredentialsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/rotate-credentials", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -65499,6 +66214,250 @@ func NewGetHfKeyValueCacheMetricsRequest(server string, organizationId openapi_t
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-key-value-caches/%s/metrics", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqLogsRequest generates requests for GetHfRabbitmqLogs
+func NewGetHfRabbitmqLogsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-rabbitmqs/%s/logs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SearchMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search_mode", *params.SearchMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Pod != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "pod", *params.Pod, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Container != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "container", *params.Container, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Stream != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "stream", *params.Stream, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Level != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "level", *params.Level, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Start != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "start", *params.Start, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.End != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "end", *params.End, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqMetricsRequest generates requests for GetHfRabbitmqMetrics
+func NewGetHfRabbitmqMetricsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-rabbitmqs/%s/metrics", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -78293,6 +79252,14 @@ type ClientWithResponsesInterface interface {
 
 	CreateHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error)
 
+	// ListHfRabbitmqsWithResponse request
+	ListHfRabbitmqsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfRabbitmqsHTTPResp, error)
+
+	// CreateHfRabbitmqCrdWithBodyWithResponse request with any body
+	CreateHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error)
+
+	CreateHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error)
+
 	// ListManagedPostgresqlsWithResponse request
 	ListManagedPostgresqlsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListManagedPostgresqlsHTTPResp, error)
 
@@ -78421,6 +79388,23 @@ type ClientWithResponsesInterface interface {
 	PatchHfKeyValueCacheCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error)
 
 	PatchHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error)
+
+	// GetHfRabbitmqWithResponse request
+	GetHfRabbitmqWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqHTTPResp, error)
+
+	// DeleteHfRabbitmqCrdWithResponse request
+	DeleteHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfRabbitmqCrdHTTPResp, error)
+
+	// GetHfRabbitmqCrdWithResponse request
+	GetHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqCrdHTTPResp, error)
+
+	// PatchHfRabbitmqCrdWithBodyWithResponse request with any body
+	PatchHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error)
+
+	PatchHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error)
+
+	// RotateHfRabbitmqCredentialsWithResponse request
+	RotateHfRabbitmqCredentialsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateHfRabbitmqCredentialsHTTPResp, error)
 
 	// ListIdentityProvidersWithResponse request
 	ListIdentityProvidersWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListIdentityProvidersHTTPResp, error)
@@ -78646,6 +79630,12 @@ type ClientWithResponsesInterface interface {
 
 	// GetHfKeyValueCacheMetricsWithResponse request
 	GetHfKeyValueCacheMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheMetricsHTTPResp, error)
+
+	// GetHfRabbitmqLogsWithResponse request
+	GetHfRabbitmqLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqLogsHTTPResp, error)
+
+	// GetHfRabbitmqMetricsWithResponse request
+	GetHfRabbitmqMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqMetricsHTTPResp, error)
 
 	// GetKafkaLogsWithResponse request
 	GetKafkaLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaLogsParams, reqEditors ...RequestEditorFn) (*GetKafkaLogsHTTPResp, error)
@@ -91129,6 +92119,73 @@ func (r CreateHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListHfRabbitmqsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]HfRabbitMqResponse
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListHfRabbitmqsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListHfRabbitmqsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListHfRabbitmqsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *HfRabbitMqResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListManagedPostgresqlsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -92405,6 +93462,169 @@ func (r PatchHfKeyValueCacheCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchHfKeyValueCacheCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HfRabbitMqResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HfRabbitMqCrdSpecResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RotateHfRabbitmqCredentialsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateHfRabbitmqCredentialsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateHfRabbitmqCredentialsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RotateHfRabbitmqCredentialsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -94556,6 +95776,72 @@ func (r GetHfKeyValueCacheMetricsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetHfKeyValueCacheMetricsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqLogsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceLogsResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqLogsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqLogsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqLogsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqMetricsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceMetricsResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqMetricsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqMetricsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqMetricsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -105528,6 +106814,32 @@ func (c *ClientWithResponses) CreateHfKeyValueCacheCrdWithResponse(ctx context.C
 	return ParseCreateHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
+// ListHfRabbitmqsWithResponse request returning *ListHfRabbitmqsHTTPResp
+func (c *ClientWithResponses) ListHfRabbitmqsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfRabbitmqsHTTPResp, error) {
+	rsp, err := c.ListHfRabbitmqs(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListHfRabbitmqsHTTPResp(rsp)
+}
+
+// CreateHfRabbitmqCrdWithBodyWithResponse request with arbitrary body returning *CreateHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) CreateHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.CreateHfRabbitmqCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfRabbitmqCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.CreateHfRabbitmqCrd(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfRabbitmqCrdHTTPResp(rsp)
+}
+
 // ListManagedPostgresqlsWithResponse request returning *ListManagedPostgresqlsHTTPResp
 func (c *ClientWithResponses) ListManagedPostgresqlsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListManagedPostgresqlsHTTPResp, error) {
 	rsp, err := c.ListManagedPostgresqls(ctx, organizationId, harborId, reqEditors...)
@@ -105925,6 +107237,59 @@ func (c *ClientWithResponses) PatchHfKeyValueCacheCrdWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParsePatchHfKeyValueCacheCrdHTTPResp(rsp)
+}
+
+// GetHfRabbitmqWithResponse request returning *GetHfRabbitmqHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmq(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqHTTPResp(rsp)
+}
+
+// DeleteHfRabbitmqCrdWithResponse request returning *DeleteHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) DeleteHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.DeleteHfRabbitmqCrd(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// GetHfRabbitmqCrdWithResponse request returning *GetHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqCrd(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// PatchHfRabbitmqCrdWithBodyWithResponse request with arbitrary body returning *PatchHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) PatchHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.PatchHfRabbitmqCrdWithBody(ctx, organizationId, rabbitmqId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchHfRabbitmqCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PatchHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.PatchHfRabbitmqCrd(ctx, organizationId, rabbitmqId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// RotateHfRabbitmqCredentialsWithResponse request returning *RotateHfRabbitmqCredentialsHTTPResp
+func (c *ClientWithResponses) RotateHfRabbitmqCredentialsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateHfRabbitmqCredentialsHTTPResp, error) {
+	rsp, err := c.RotateHfRabbitmqCredentials(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateHfRabbitmqCredentialsHTTPResp(rsp)
 }
 
 // ListIdentityProvidersWithResponse request returning *ListIdentityProvidersHTTPResp
@@ -106630,6 +107995,24 @@ func (c *ClientWithResponses) GetHfKeyValueCacheMetricsWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseGetHfKeyValueCacheMetricsHTTPResp(rsp)
+}
+
+// GetHfRabbitmqLogsWithResponse request returning *GetHfRabbitmqLogsHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqLogsHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqLogs(ctx, organizationId, rabbitmqId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqLogsHTTPResp(rsp)
+}
+
+// GetHfRabbitmqMetricsWithResponse request returning *GetHfRabbitmqMetricsHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqMetricsHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqMetrics(ctx, organizationId, rabbitmqId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqMetricsHTTPResp(rsp)
 }
 
 // GetKafkaLogsWithResponse request returning *GetKafkaLogsHTTPResp
@@ -124695,6 +126078,107 @@ func ParseCreateHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*CreateHfKeyValu
 	return response, nil
 }
 
+// ParseListHfRabbitmqsHTTPResp parses an HTTP response from a ListHfRabbitmqsWithResponse call
+func ParseListHfRabbitmqsHTTPResp(rsp *http.Response) (*ListHfRabbitmqsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListHfRabbitmqsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateHfRabbitmqCrdHTTPResp parses an HTTP response from a CreateHfRabbitmqCrdWithResponse call
+func ParseCreateHfRabbitmqCrdHTTPResp(rsp *http.Response) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListManagedPostgresqlsHTTPResp parses an HTTP response from a ListManagedPostgresqlsWithResponse call
 func ParseListManagedPostgresqlsHTTPResp(rsp *http.Response) (*ListManagedPostgresqlsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -126467,6 +127951,227 @@ func ParsePatchHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*PatchHfKeyValueC
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqHTTPResp parses an HTTP response from a GetHfRabbitmqWithResponse call
+func ParseGetHfRabbitmqHTTPResp(rsp *http.Response) (*GetHfRabbitmqHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteHfRabbitmqCrdHTTPResp parses an HTTP response from a DeleteHfRabbitmqCrdWithResponse call
+func ParseDeleteHfRabbitmqCrdHTTPResp(rsp *http.Response) (*DeleteHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqCrdHTTPResp parses an HTTP response from a GetHfRabbitmqCrdWithResponse call
+func ParseGetHfRabbitmqCrdHTTPResp(rsp *http.Response) (*GetHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HfRabbitMqCrdSpecResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchHfRabbitmqCrdHTTPResp parses an HTTP response from a PatchHfRabbitmqCrdWithResponse call
+func ParsePatchHfRabbitmqCrdHTTPResp(rsp *http.Response) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateHfRabbitmqCredentialsHTTPResp parses an HTTP response from a RotateHfRabbitmqCredentialsWithResponse call
+func ParseRotateHfRabbitmqCredentialsHTTPResp(rsp *http.Response) (*RotateHfRabbitmqCredentialsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateHfRabbitmqCredentialsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -129552,6 +131257,100 @@ func ParseGetHfKeyValueCacheMetricsHTTPResp(rsp *http.Response) (*GetHfKeyValueC
 	}
 
 	response := &GetHfKeyValueCacheMetricsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceMetricsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqLogsHTTPResp parses an HTTP response from a GetHfRabbitmqLogsWithResponse call
+func ParseGetHfRabbitmqLogsHTTPResp(rsp *http.Response) (*GetHfRabbitmqLogsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqLogsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceLogsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqMetricsHTTPResp parses an HTTP response from a GetHfRabbitmqMetricsWithResponse call
+func ParseGetHfRabbitmqMetricsHTTPResp(rsp *http.Response) (*GetHfRabbitmqMetricsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqMetricsHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
