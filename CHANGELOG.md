@@ -1,5 +1,10 @@
 ## Unreleased
 
+FEATURES:
+
+* **New Resource:** `hyperfluid_rabbitmq` — a managed RabbitMQ broker. `replicas` (`1`, `3` or `5`) and `storage` change in place but can only grow, and a decrease is refused at plan time; `resources` (requests and limits) and `plugins` (from the allowlist `stream`, `shovel`, `federation`, `mqtt`) change in place; `name` and `env` force a new broker. An omitted `image`, `replicas`, `storage` or `resources` stays null and is never written into the broker, so the platform's defaults can change underneath it. The platform generates the credentials and keeps them in the secret manager: the resource reports their names (`username_secret_name`, `password_secret_name`, `amqp_uri_secret_name`, `management_uri_secret_name`), never their values, alongside `host`, `amqp_port`, `management_port` and `phase`.
+* **New Data Source:** `hyperfluid_rabbitmq` — look up an existing broker by name within an environment.
+
 ## 0.10.0 (October 20, 2026)
 
 DEPRECATIONS:
