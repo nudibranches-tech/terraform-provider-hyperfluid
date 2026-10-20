@@ -12,7 +12,7 @@ import (
 )
 
 // TestAccContainerAppResource exercises create → read → update (replicas) →
-// import → destroy against a live cluster. Skipped unless HYPERFLUID_CREDENTIALS
+// rename name to slug → metadata update → import → destroy against a live cluster. Skipped unless HYPERFLUID_CREDENTIALS
 // is set (testAccPreCheck), so it is a no-op in CI without cluster access.
 func TestAccContainerAppResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -20,9 +20,11 @@ func TestAccContainerAppResource(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerAppConfig(1),
+				Config: testAccContainerAppConfig(1, `name = "tf-acc-app"`),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "name", "tf-acc-app"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "slug", "tf-acc-app"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "display_name", "tf-acc-app"),
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "replicas", "1"),
 					// omitted from config above → asserts the default is false (private).
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "expose_to_internet", "false"),
@@ -40,13 +42,31 @@ func TestAccContainerAppResource(t *testing.T) {
 					// `port` is deprecated but still computed: the platform reports
 					// the primary port there.
 					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "port", "8080"),
-					resource.TestCheckResourceAttrSet("hyperfluid_container_app.test", "slug"),
 				),
 			},
 			{
 				// in-place update via the resource_version (H4) PATCH path.
-				Config: testAccContainerAppConfig(2),
+				Config: testAccContainerAppConfig(2, `name = "tf-acc-app"`),
 				Check:  resource.TestCheckResourceAttr("hyperfluid_container_app.test", "replicas", "2"),
+			},
+			{
+				// Moving off the deprecated name onto slug plans nothing.
+				Config:   testAccContainerAppConfig(2, `slug = "tf-acc-app"`),
+				PlanOnly: true,
+			},
+			{
+				// Display name, description and tags change in place.
+				Config: testAccContainerAppConfig(2, `slug         = "tf-acc-app"
+  display_name = "TF acceptance app"
+  description  = "Created by the provider's acceptance tests."
+  tags         = ["tf-acc", "nginx"]`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "slug", "tf-acc-app"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "name", "tf-acc-app"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "display_name", "TF acceptance app"),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "description", "Created by the provider's acceptance tests."),
+					resource.TestCheckResourceAttr("hyperfluid_container_app.test", "tags.#", "2"),
+				),
 			},
 			{
 				ResourceName:      "hyperfluid_container_app.test",
@@ -60,7 +80,7 @@ func TestAccContainerAppResource(t *testing.T) {
 	})
 }
 
-func testAccContainerAppConfig(replicas int) string {
+func testAccContainerAppConfig(replicas int, identity string) string {
 	return `
 data "hyperfluid_env" "default" {
   name = "default"
@@ -68,7 +88,7 @@ data "hyperfluid_env" "default" {
 
 resource "hyperfluid_container_app" "test" {
   env              = data.hyperfluid_env.default.id
-  name             = "tf-acc-app"
+  ` + identity + `
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
@@ -108,7 +128,7 @@ resource "hyperfluid_secret" "git" {
 
 resource "hyperfluid_container_app" "git" {
   env  = data.hyperfluid_env.default.id
-  name = "tf-acc-git-app"
+  slug = "tf-acc-git-app"
   ports = [
     { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]

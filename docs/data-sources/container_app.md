@@ -3,12 +3,12 @@
 page_title: "hyperfluid_container_app Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing container app by slug within an environment.
+  Look up an existing container app by its slug within an environment.
 ---
 
 # hyperfluid_container_app (Data Source)
 
-Look up an existing container app by slug within an environment.
+Look up an existing container app by its slug within an environment.
 
 ## Example Usage
 
@@ -20,7 +20,7 @@ data "hyperfluid_env" "default" {
 # Reference an existing container app to read its endpoint and status.
 data "hyperfluid_container_app" "web" {
   env  = data.hyperfluid_env.default.id
-  name = "web"
+  slug = "web"
 }
 
 output "app_endpoint" {
@@ -34,14 +34,20 @@ output "app_endpoint" {
 ### Required
 
 - `env` (String) Environment id the app runs in.
-- `name` (String) App slug. Display names are not unique, so an app is looked up by its slug.
+
+### Optional
+
+- `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead.
+- `slug` (String) Slug of the app to look up. Display names are not unique, so an app is looked up by its slug. This is the name a `hyperfluid_service_link` endpoint takes.
 
 ### Read-Only
 
 - `available_replicas` (Number) Available replicas reported by the platform.
 - `cpu_limit` (String) CPU limit derived from resource_tier.
 - `cpu_request` (String) CPU request derived from resource_tier.
+- `description` (String) Free-form description.
 - `desired_replicas` (Number) Desired replicas reported by the platform.
+- `display_name` (String) The app's name, shown in the console.
 - `enabled` (Boolean) Whether the app is running.
 - `endpoint` (String) Public endpoint, once provisioned.
 - `expose_to_internet` (Boolean) Whether internet-facing routes are created for the app.
@@ -63,8 +69,8 @@ output "app_endpoint" {
 - `resource_tier` (String) Resource tier — not returned by the API, so always null on a data source.
 - `resource_version` (String) Kubernetes resourceVersion.
 - `revision` (String) The commit the running image was read from.
-- `slug` (String) The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes.
 - `sync_error` (String) Why the last check failed, or null.
+- `tags` (List of String) User-defined tags.
 
 <a id="nestedatt--image_source"></a>
 ### Nested Schema for `image_source`

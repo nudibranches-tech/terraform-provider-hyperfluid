@@ -4,7 +4,10 @@ data "hyperfluid_env" "default" {
 
 resource "hyperfluid_container_app" "web" {
   env              = data.hyperfluid_env.default.id
-  name             = "web"
+  slug             = "web"
+  display_name     = "Web storefront"
+  description      = "Public storefront."
+  tags             = ["storefront", "public"]
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
@@ -48,7 +51,7 @@ resource "hyperfluid_secret" "git" {
 
 resource "hyperfluid_container_app" "orders" {
   env  = data.hyperfluid_env.default.id
-  name = "orders-api"
+  slug = "orders-api"
   ports = [
     { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]

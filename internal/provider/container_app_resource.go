@@ -7,12 +7,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -39,10 +41,11 @@ import (
 // cpu/mem, never resource_tier, so resource_tier is preserved from prior state).
 
 var (
-	_ resource.Resource                   = &containerAppResource{}
-	_ resource.ResourceWithValidateConfig = &containerAppResource{}
-	_ resource.ResourceWithConfigure      = &containerAppResource{}
-	_ resource.ResourceWithImportState    = &containerAppResource{}
+	_ resource.Resource                     = &containerAppResource{}
+	_ resource.ResourceWithValidateConfig   = &containerAppResource{}
+	_ resource.ResourceWithConfigValidators = &containerAppResource{}
+	_ resource.ResourceWithConfigure        = &containerAppResource{}
+	_ resource.ResourceWithImportState      = &containerAppResource{}
 )
 
 // maxPortEntries matches the CRD's cap.
@@ -62,6 +65,10 @@ type containerAppModel struct {
 	ID               types.String `tfsdk:"id"`
 	Env              types.String `tfsdk:"env"`
 	Name             types.String `tfsdk:"name"`
+	Slug             types.String `tfsdk:"slug"`
+	DisplayName      types.String `tfsdk:"display_name"`
+	Description      types.String `tfsdk:"description"`
+	Tags             types.List   `tfsdk:"tags"`
 	ImageRepository  types.String `tfsdk:"image_repository"`
 	ImageTag         types.String `tfsdk:"image_tag"`
 	Port             types.Int64  `tfsdk:"port"`
@@ -82,7 +89,6 @@ type containerAppModel struct {
 	Endpoint          types.String `tfsdk:"endpoint"`
 	DesiredReplicas   types.Int64  `tfsdk:"desired_replicas"`
 	AvailableReplicas types.Int64  `tfsdk:"available_replicas"`
-	Slug              types.String `tfsdk:"slug"`
 
 	// A framework type, not a Go slice: `ports` is Optional+Computed, so it is
 	// unknown in the plan whenever the config leaves it out, and only these types
@@ -184,9 +190,56 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "App name (slug). Changing this forces a new app.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Optional: true, Computed: true,
+				MarkdownDescription: "The app's slug, under its former name. Use `slug` instead. Changing this forces a new app.",
+				DeprecationMessage:  "Use slug instead. Renaming name to slug in the configuration plans no change.",
+				Validators:          []validator.String{stringvalidator.ConflictsWith(path.MatchRoot("slug"))},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"slug": schema.StringAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "The app's identifier, unique in its environment and used in its URL and Kubernetes " +
+					"resource names. This is the name a `hyperfluid_service_link` endpoint takes. Lowercase letters, " +
+					"digits and single hyphens, at most 49 characters. Derived from `display_name` when omitted. " +
+					"Changing this forces a new app.",
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 49),
+					stringvalidator.RegexMatches(regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`),
+						"must be lowercase letters, digits and single hyphens, not starting or ending with a hyphen"),
+				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"display_name": schema.StringAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "The app's name, shown in the console, at most 255 characters. Several apps may " +
+					"share one. Defaults to the slug.",
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 255),
+					stringvalidator.RegexMatches(untrimmed, "must not start or end with whitespace"),
+				},
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
+			"description": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Free-form description.",
+				Validators:          []validator.String{stringvalidator.LengthAtMost(1000)},
+			},
+			"tags": schema.ListAttribute{
+				ElementType: types.StringType, Optional: true, Computed: true,
+				MarkdownDescription: "User-defined tags: at most 20, each at most 64 characters.",
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(20),
+					listvalidator.ValueStringsAre(
+						stringvalidator.LengthBetween(1, 64),
+						stringvalidator.RegexMatches(untrimmed, "must not start or end with whitespace"),
+					),
+				},
 			},
 			"image_repository": schema.StringAttribute{
 				Optional:            true,
@@ -239,7 +292,6 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"endpoint":           computedString("Public endpoint, once provisioned."),
 			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired replicas reported by the platform."},
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
-			"slug":               computedString("The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes."),
 			"ports": schema.ListNestedAttribute{
 				Optional: true, Computed: true,
 				MarkdownDescription: "The ports the container listens on, replacing the deprecated single " +
@@ -303,6 +355,16 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 	}
 	for name, a := range gitStatusAttributes() {
 		resp.Schema.Attributes[name] = a
+	}
+}
+
+// untrimmed matches a value with no leading or trailing whitespace: the API
+// trims it, so a padded value would come back different from the config.
+var untrimmed = regexp.MustCompile(`^\S(.*\S)?$`)
+
+func (r *containerAppResource) ConfigValidators(context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.AtLeastOneOf(path.MatchRoot("slug"), path.MatchRoot("name"), path.MatchRoot("display_name")),
 	}
 }
 
@@ -427,9 +489,28 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	tags, d := listToStringSlice(ctx, plan.Tags)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// The config, not the plan: slug, name and display_name are Optional+Computed,
+	// so they are unknown in the plan whenever the config leaves them out.
+	slug := cfg.Slug
+	if slug.IsNull() {
+		slug = cfg.Name
+	}
+	displayName := cfg.DisplayName
+	if displayName.IsNull() {
+		displayName = slug
+	}
+
 	env := plan.Env.ValueString()
 	body := console.CreateContainerAppCrdRequestBody{
-		Name:             plan.Name.ValueString(),
+		Name:             displayName.ValueString(),
+		Slug:             stringPtr(slug),
+		Description:      stringPtr(plan.Description),
 		ImageRepository:  stringPtr(plan.ImageRepository),
 		ImageTag:         stringPtr(plan.ImageTag),
 		Enabled:          enabledOrDefault(plan.Enabled),
@@ -448,6 +529,9 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		body.Ports = &ports
 		body.Port = nil
 	}
+	if tags != nil {
+		body.Tags = &tags
+	}
 	if src != nil {
 		is, err := buildImageSource(*src)
 		if err != nil {
@@ -458,14 +542,9 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		body.AlertOnSyncFailure = boolPtr(src.AlertOnSyncFailure)
 	}
 
-	if err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body); err != nil {
-		resp.Diagnostics.AddError("Failed to create container app", err.Error())
-		return
-	}
-
-	appID, err := r.p.API.FindContainerAppIDBySlug(ctx, r.p.OrgID, env, plan.Name.ValueString())
+	appID, err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to resolve created container app id", err.Error())
+		resp.Diagnostics.AddError("Failed to create container app", err.Error())
 		return
 	}
 
@@ -479,6 +558,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		resp.Diagnostics.AddError("Failed to read container app after create", err.Error())
 		return
 	}
+	state.Description = keepUntrimmed(plan.Description, state.Description)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -498,6 +578,7 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Failed to read container app", err.Error())
 		return
 	}
+	state.Description = keepUntrimmed(prior.Description, state.Description)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -594,12 +675,66 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	meta, changed, d := metadataPatch(ctx, plan, state)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if changed {
+		if err := r.p.API.PatchContainerAppMetadata(ctx, r.p.OrgID, appID, meta); err != nil {
+			resp.Diagnostics.AddError("Failed to update container app metadata", err.Error())
+			return
+		}
+	}
+
 	newState, err := r.readState(ctx, appID, plan.ResourceTier, plan.ImageSource)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after update", err.Error())
 		return
 	}
+	newState.Description = keepUntrimmed(plan.Description, newState.Description)
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
+}
+
+// metadataPatch holds the display name, description and tags that differ from
+// state. A removed description is sent blank, which the API takes as clearing it.
+func metadataPatch(ctx context.Context, plan, state containerAppModel) (console.PatchContainerAppRequestBody, bool, diag.Diagnostics) {
+	var body console.PatchContainerAppRequestBody
+	changed := false
+	if !plan.DisplayName.IsUnknown() && !plan.DisplayName.Equal(state.DisplayName) {
+		body.Name = stringPtr(plan.DisplayName)
+		changed = true
+	}
+	if !plan.Description.Equal(state.Description) {
+		body.Description = ptr(plan.Description.ValueString())
+		changed = true
+	}
+	if !plan.Tags.IsUnknown() && !plan.Tags.Equal(state.Tags) {
+		tags, d := listToStringSlice(ctx, plan.Tags)
+		if d.HasError() {
+			return body, false, d
+		}
+		if tags == nil {
+			tags = []string{}
+		}
+		body.Tags = &tags
+		changed = true
+	}
+	return body, changed, nil
+}
+
+// keepUntrimmed returns the configured description when the API's copy is the
+// same text trimmed, as a heredoc's trailing newline comes back, so the config
+// never reads as drift.
+func keepUntrimmed(configured, read types.String) types.String {
+	if configured.IsNull() || configured.IsUnknown() {
+		return read
+	}
+	trimmed := strings.TrimSpace(configured.ValueString())
+	if (trimmed == "" && read.IsNull()) || trimmed == read.ValueString() {
+		return configured
+	}
+	return read
 }
 
 func (r *containerAppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -772,6 +907,10 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 	if d.HasError() {
 		return containerAppModel{}, errors.New("failed to convert container app ports")
 	}
+	tags, d := stringSliceToList(ctx, status.Tags)
+	if d.HasError() {
+		return containerAppModel{}, errors.New("failed to convert container app tags")
+	}
 
 	prior, d := gitSourceFromObject(ctx, priorSource)
 	if d.HasError() {
@@ -790,6 +929,10 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 		ID:                types.StringValue(appID),
 		Env:               types.StringValue(status.HarborId.String()),
 		Name:              types.StringValue(status.Slug),
+		Slug:              types.StringValue(status.Slug),
+		DisplayName:       types.StringValue(status.Name),
+		Description:       optString(status.Description),
+		Tags:              tags,
 		ImageRepository:   optNonEmpty(&spec.ImageRepository),
 		ImageTag:          optNonEmpty(&spec.ImageTag),
 		Port:              primaryPort(spec),
@@ -808,7 +951,6 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 		Endpoint:          optString(status.Endpoint),
 		DesiredReplicas:   types.Int64Value(int64(status.DesiredReplicas)),
 		AvailableReplicas: types.Int64Value(int64(status.AvailableReplicas)),
-		Slug:              types.StringValue(status.Slug),
 		Ports:             ports,
 		ImageSource:       imageSource,
 		ResolvedImage:     gs.ResolvedImage,

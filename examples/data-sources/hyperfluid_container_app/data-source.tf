@@ -5,7 +5,7 @@ data "hyperfluid_env" "default" {
 # Reference an existing container app to read its endpoint and status.
 data "hyperfluid_container_app" "web" {
   env  = data.hyperfluid_env.default.id
-  name = "web"
+  slug = "web"
 }
 
 output "app_endpoint" {
