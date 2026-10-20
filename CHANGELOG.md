@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.10.0 (October 20, 2026)
+
 DEPRECATIONS:
 
 * resource/hyperfluid_container_app, data-source/hyperfluid_container_app: `name` is deprecated in favour of `slug`; it is the same value. Renaming `name` to `slug` in a configuration plans no change, and `name` keeps reporting the slug for references that read it.
@@ -15,6 +17,7 @@ ENHANCEMENTS:
 
 * resource/hyperfluid_container_app: `slug` sets the app's identifier, and is derived from `display_name` when omitted. `display_name` (the app's name, shown in the console and not unique), `description` and `tags` are new and change in place.
 * data-source/hyperfluid_container_app: looks an app up by `slug`, and reports `display_name`, `description` and `tags`.
+* The `hyperfluid_airflow` and `hyperfluid_airflow_connection` descriptions call a harbor a Hyperfluid environment, as the product does, and errors from every resource read `invalid environment` and `list environments` instead of naming a harbor.
 
 BUG FIXES:
 
