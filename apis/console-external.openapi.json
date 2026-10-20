@@ -24854,6 +24854,169 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-rabbitmqs": {
+      "get": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "list_hf_rabbitmqs",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of HfRabbitMq instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HfRabbitMqResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/hf-rabbitmqs/crd": {
+      "post": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "create_hf_rabbitmq_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "harbor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHfRabbitMqCrdRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "HfRabbitMq CRD created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HfRabbitMqResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Organization or harbor not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HfRabbitMq already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/harbors/{harbor_id}/managed-postgresqls": {
       "get": {
         "tags": [
@@ -27819,6 +27982,353 @@
           },
           "404": {
             "description": "HfKeyValueCache not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/hf-rabbitmqs/{rabbitmq_id}": {
+      "get": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "get_hf_rabbitmq",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HfRabbitMq found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HfRabbitMqResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HfRabbitMq not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/hf-rabbitmqs/{rabbitmq_id}/crd": {
+      "get": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "get_hf_rabbitmq_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HfRabbitMq CRD spec",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HfRabbitMqCrdSpecResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HfRabbitMq not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "delete_hf_rabbitmq_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HfRabbitMq CRD deleted successfully"
+          },
+          "404": {
+            "description": "HfRabbitMq not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "operationId": "patch_hf_rabbitmq_crd",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchHfRabbitMqCrdRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "HfRabbitMq CRD patched successfully"
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HfRabbitMq not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/hf-rabbitmqs/{rabbitmq_id}/rotate-credentials": {
+      "post": {
+        "tags": [
+          "HfRabbitMqs"
+        ],
+        "summary": "Rotate the broker's admin password.",
+        "description": "The request is asynchronous: the operator changes the password on the\nrunning broker, then updates the connection secrets in place. The broker\nstays available; clients holding the old password must reconnect with the\nnew one.",
+        "operationId": "rotate_hf_rabbitmq_credentials",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rotation requested"
+          },
+          "404": {
+            "description": "HfRabbitMq not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -33614,6 +34124,258 @@
         "responses": {
           "200": {
             "description": "Valkey cache metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceMetricsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/monitoring/hf-rabbitmqs/{rabbitmq_id}/logs": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Get historical logs for a RabbitMQ broker (HfRabbitMq).",
+        "operationId": "get_hf_rabbitmq_logs",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsRange"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Optional free-text search term, matched against the log message.\nEmbedded as an escaped, case-insensitive LogsQL regex filter — never\nraw query syntax. Interpreted according to `search_mode`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "search_mode",
+            "in": "query",
+            "description": "How to interpret `search`: `text` (default, case-insensitive substring)\nor `regex` (a validated RE2 pattern). Ignored when `search` is empty.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SearchMode",
+              "nullable": true
+            }
+          },
+          {
+            "name": "pod",
+            "in": "query",
+            "description": "Optional exact `kubernetes.pod_name` source filter (one entry from the\n`sources` facet). Validated as a plausible k8s name and embedded as an\nexact `:=` filter.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "container",
+            "in": "query",
+            "description": "Optional exact `kubernetes.container_name` source filter (one entry from\nthe `sources` facet). Validated as a plausible k8s name and embedded as\nan exact `:=` filter.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "description": "Optional CRI stream filter (`stdout` | `stderr`). Maps to a static exact\n`stream:=\"…\"` LogsQL filter.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LogStream",
+              "nullable": true
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "Optional severity filter. Maps to a static case-insensitive\nprefix-token LogsQL clause over the unstructured message text\n(heuristic — see ADR-0020; false positives accepted).",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LogLevel",
+              "nullable": true
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Optional custom window start (unix epoch SECONDS). When BOTH `start`\nand `end` are provided they define the query window and `range` is\nignored; otherwise `range` applies. The effective (possibly\norg-retention-clamped) window is echoed back in the response\n`start`/`end` fields.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "Optional custom window end (unix epoch SECONDS). See `start`. May be\nslightly in the future (client clock slack); it is clamped to \"now\".",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of entries to return (clamped to 1..=1000, default 500).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RabbitMQ broker logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceLogsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/monitoring/hf-rabbitmqs/{rabbitmq_id}/metrics": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Get metrics for a RabbitMQ broker (HfRabbitMq).",
+        "operationId": "get_hf_rabbitmq_metrics",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "rabbitmq_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsRange"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RabbitMQ broker metrics",
             "content": {
               "application/json": {
                 "schema": {
@@ -54695,7 +55457,8 @@
           "nextflow_enabled",
           "model_catalog_enabled",
           "virtual_machines_enabled",
-          "container_command_override_enabled"
+          "container_command_override_enabled",
+          "rabbitmq_enabled"
         ]
       },
       "ConsoleSessionPhase": {
@@ -57431,6 +58194,58 @@
           },
           "resources": {
             "$ref": "#/components/schemas/ResourceRequirementsSpec",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags (DB-only)."
+          }
+        }
+      },
+      "CreateHfRabbitMqCrdRequestBody": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Optional description (DB-only).",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "description": "RabbitMQ container image. Omit to track the platform default, which is\nresolved at reconcile time. Do NOT materialise it here, or the value is\npersisted into the CRD spec and frozen (see CLAUDE.md).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Must be a valid RFC 1035 label: lowercase, starts with a letter, ends\nwith a letter or digit, only letters/digits/hyphens in between."
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RabbitMqPlugin"
+            },
+            "description": "Optional plugins to enable, from the fixed allowlist.",
+            "nullable": true
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of broker nodes: 1, 3 or 5. Omit to track the platform default,\nwhich is resolved at reconcile time (never materialised here).",
+            "nullable": true
+          },
+          "resources": {
+            "$ref": "#/components/schemas/ResourceRequirementsSpec",
+            "nullable": true
+          },
+          "storage": {
+            "type": "string",
+            "description": "Volume size per node, a whole Kubernetes quantity such as \"20Gi\". Omit\nto track the platform default.",
             "nullable": true
           },
           "tags": {
@@ -64276,6 +65091,147 @@
           }
         }
       },
+      "HfRabbitMqCrdSpecResponse": {
+        "type": "object",
+        "required": [
+          "plugins"
+        ],
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The image the broker runs: the operator's resolved image once it has\nreconciled, otherwise the pinned `spec.image`. Absent only before the\nfirst reconcile of a broker that pins none.",
+            "nullable": true
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RabbitMqPlugin"
+            }
+          },
+          "ready_replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Nodes that are ready, from the CR status.",
+            "nullable": true
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Pinned node count; absent when the broker tracks the platform default.",
+            "nullable": true
+          },
+          "resources": {
+            "$ref": "#/components/schemas/ResourceRequirementsSpec",
+            "nullable": true
+          },
+          "storage": {
+            "type": "string",
+            "description": "Pinned volume size; absent when the broker tracks the platform default.",
+            "nullable": true
+          }
+        }
+      },
+      "HfRabbitMqResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "harbor_id",
+          "name",
+          "slug",
+          "plugins",
+          "tags",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "amqp_port": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "harbor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "host": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "image": {
+            "type": "string",
+            "description": "Pinned image; absent when the broker tracks the platform default.",
+            "nullable": true
+          },
+          "management_port": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "phase": {
+            "type": "string",
+            "nullable": true
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RabbitMqPlugin"
+            }
+          },
+          "ready_replicas": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Pinned node count; absent when the user did not set it.",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "storage": {
+            "type": "string",
+            "description": "Pinned volume size; absent when the user did not set it.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "HfTable": {
         "type": "object",
         "required": [
@@ -70157,7 +71113,8 @@
           "model_catalog_enabled",
           "nextflow_enabled",
           "virtual_machines_enabled",
-          "container_command_override_enabled"
+          "container_command_override_enabled",
+          "rabbitmq_enabled"
         ]
       },
       "OrgFeatureState": {
@@ -70551,6 +71508,7 @@
           "databases",
           "message_queues",
           "key_value_caches",
+          "rabbitmqs",
           "container_apps",
           "nextflow",
           "app_instances",
@@ -70596,6 +71554,9 @@
             "$ref": "#/components/schemas/ResourceOverviewResponse"
           },
           "pipelines": {
+            "$ref": "#/components/schemas/ResourceOverviewResponse"
+          },
+          "rabbitmqs": {
             "$ref": "#/components/schemas/ResourceOverviewResponse"
           },
           "registry_projects": {
@@ -71279,6 +72240,52 @@
           }
         }
       },
+      "PatchHfRabbitMqCrdRequestBody": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Optional description (DB-only, not in CRD).",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "description": "RabbitMQ container image.",
+            "nullable": true
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RabbitMqPlugin"
+            },
+            "description": "Plugins to enable, from the fixed allowlist. Replaces the current list.",
+            "nullable": true
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of broker nodes: 1, 3 or 5. Can only grow: a RabbitMQ cluster\ncannot be scaled down, and a lower value is rejected with a 400.",
+            "nullable": true
+          },
+          "resources": {
+            "$ref": "#/components/schemas/ResourceRequirementsSpec",
+            "nullable": true
+          },
+          "storage": {
+            "type": "string",
+            "description": "Volume size per node (e.g. \"20Gi\"). Can only grow: a smaller value is\nrejected with a 400.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags (DB-only, not in CRD).",
+            "nullable": true
+          }
+        }
+      },
       "PatchManagedPostgresqlCrdRequestBody": {
         "type": "object",
         "properties": {
@@ -71768,6 +72775,8 @@
           "forgejo_runner:manage",
           "hf_key_value_cache:read",
           "hf_key_value_cache:manage",
+          "hf_rabbitmq:read",
+          "hf_rabbitmq:manage",
           "service_link:read",
           "service_link:manage",
           "dashboard:read",
@@ -73770,6 +74779,16 @@
           }
         }
       },
+      "RabbitMqPlugin": {
+        "type": "string",
+        "description": "Optional RabbitMQ plugins a user can opt into. The management, Prometheus\nand Kubernetes peer-discovery plugins are always on and are not listed here.\nThis is an allowlist: anything else could break the cluster or escape the\ntenant.",
+        "enum": [
+          "stream",
+          "shovel",
+          "federation",
+          "mqtt"
+        ]
+      },
       "Ref": {
         "type": "object",
         "description": "A reference to a file in a storage bucket\nThis reference is created upon scanning a bucket and is used to track the\nstatus of the file through the pipeline.",
@@ -74277,6 +75296,7 @@
           "trino",
           "kafka",
           "hf_key_value_cache",
+          "hf_rabbitmq",
           "dev_workstation",
           "github_runner_pool",
           "scheduled_query"
@@ -76523,6 +77543,7 @@
           "Airflow",
           "ContainerApp",
           "HfKeyValueCache",
+          "HfRabbitMq",
           "ManagedPostgreSQL",
           "Trino",
           "Kafka",
@@ -81213,6 +82234,7 @@
           "ModelServing",
           "ManagedPostgreSQL",
           "HfKeyValueCache",
+          "HfRabbitMq",
           "Kafka",
           "Trino",
           "Registry",
@@ -82006,6 +83028,10 @@
     {
       "name": "ServiceLinks",
       "description": "Service links between CaaS apps and data services"
+    },
+    {
+      "name": "HfRabbitMqs",
+      "description": "HfRabbitMq management"
     },
     {
       "name": "Airflows",
