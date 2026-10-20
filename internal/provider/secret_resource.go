@@ -26,12 +26,14 @@ import (
 // sent to the API but NEVER persisted to Terraform state. Because state holds no
 // value, Terraform can't detect value changes — rotate by bumping
 // `value_wo_version`. Read reconciles metadata only (never calls /value).
-// M1 supports plaintext + json secret types.
+// Supported secret types: plaintext, json and scm_credential (the Git
+// credential a container app's image_source reads its repository with).
 
 var (
-	_ resource.Resource                = &secretResource{}
-	_ resource.ResourceWithConfigure   = &secretResource{}
-	_ resource.ResourceWithImportState = &secretResource{}
+	_ resource.Resource                   = &secretResource{}
+	_ resource.ResourceWithConfigure      = &secretResource{}
+	_ resource.ResourceWithImportState    = &secretResource{}
+	_ resource.ResourceWithValidateConfig = &secretResource{}
 )
 
 const secretWaitTimeout = 2 * time.Minute
@@ -62,7 +64,10 @@ func (r *secretResource) Metadata(_ context.Context, req resource.MetadataReques
 func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "A managed secret. `value` is write-only — it is never stored in Terraform state. " +
-			"Requires Terraform >= 1.11. Rotate the value by changing `value` together with `value_wo_version`.",
+			"Requires Terraform >= 1.11. Rotate the value by changing `value` together with `value_wo_version`.\n\n" +
+			"A secret of type `scm_credential` is a Git credential: reference it by `name` from a " +
+			"`hyperfluid_container_app`'s `image_source.git.credential`. It is created organization-wide, " +
+			"which is what a Git source requires.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -74,16 +79,21 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"secret_type": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Secret type: plaintext or json. Changing this forces a new secret.",
-				Validators:          []validator.String{stringvalidator.OneOf("plaintext", "json")},
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Required: true,
+				MarkdownDescription: "Secret type: `plaintext`, `json` or `scm_credential` (a Git credential). " +
+					"Changing this forces a new secret.",
+				Validators:    []validator.String{stringvalidator.OneOf("plaintext", "json", "scm_credential")},
+				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"value": schema.StringAttribute{
-				Optional:            true,
-				WriteOnly:           true,
-				Sensitive:           true,
-				MarkdownDescription: "Secret material (write-only — never persisted to state). For `json`, a JSON-encoded string. Required on create.",
+				Optional:  true,
+				WriteOnly: true,
+				Sensitive: true,
+				MarkdownDescription: "Secret material (write-only — never persisted to state). For `json`, a JSON-encoded string. " +
+					"For `scm_credential`, a JSON object `{ \"provider\", \"username\"?, \"base_url\"?, \"token\" }`: " +
+					"`provider` is `github`, `gitlab` or `forgejo`, `base_url` names a self-hosted instance (leave it out " +
+					"for the public one), and `token` is the access token — read-only is enough for a Git source. " +
+					"Required on create.",
 			},
 			"value_wo_version": schema.StringAttribute{
 				Optional:            true,
@@ -99,6 +109,22 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"secret_path": schema.StringAttribute{Computed: true, MarkdownDescription: "Platform path of the secret."},
 		},
+	}
+}
+
+// ValidateConfig checks the shape of a Git credential at plan time, where the
+// write-only value is visible in the config, instead of at apply time on the
+// API. Nothing it reports quotes the value.
+func (r *secretResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var secretType, value types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("secret_type"), &secretType)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("value"), &value)...)
+	if resp.Diagnostics.HasError() || secretType.ValueString() != "scm_credential" ||
+		value.IsNull() || value.IsUnknown() {
+		return
+	}
+	if _, err := client.BuildSecretValue("scm_credential", value.ValueString()); err != nil {
+		resp.Diagnostics.AddAttributeError(path.Root("value"), "Invalid Git credential", err.Error())
 	}
 }
 

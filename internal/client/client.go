@@ -36,6 +36,19 @@ type Client struct {
 	api *console.ClientWithResponses
 }
 
+// New builds a Client for the API at endpoint, sending its requests through
+// httpClient (which carries the authentication).
+func New(endpoint string, httpClient *http.Client) (*Client, error) {
+	api, err := console.NewClientWithResponses(
+		strings.TrimRight(endpoint, "/"),
+		console.WithHTTPClient(withErrorBodyShim(httpClient)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("build console client: %w", err)
+	}
+	return &Client{api: api}, nil
+}
+
 func parseUUID(field, s string) (openapi_types.UUID, error) {
 	u, err := uuid.Parse(s)
 	if err != nil {
