@@ -266,7 +266,7 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"managed_postgresql_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same harbor to connect " +
+				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same Hyperfluid environment to connect " +
 					"to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a " +
 					"connection from one target to another is applied in place: the platform releases the " +
 					"credential it no longer needs before putting the new one in place.",
@@ -274,18 +274,18 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"bucket_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same harbor to connect to. Exactly " +
+				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same Hyperfluid environment to connect to. Exactly " +
 					"one of this, `managed_postgresql_ref` and `trino_ref` must be set.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
 			},
 			"trino_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a Trino Data Dock in the same harbor to connect to — the dock's " +
+				MarkdownDescription: "Name of a Trino Data Dock in the same Hyperfluid environment to connect to — the dock's " +
 					"own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of " +
 					"this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required " +
 					"beside this one.\n\n" +
 					"Data Docks are not managed by this provider; a Trino connection names one that already " +
-					"exists in the environment's harbor.\n\n" +
+					"exists in the Hyperfluid environment the Airflow environment runs in.\n\n" +
 					"~> **A Trino connection carries the environment's own service account** — the identity " +
 					"the platform's reserved `hyperfluid_default` connection already uses. Nothing is " +
 					"provisioned for it: no new service account, no scoped identity, no grant, and no " +
@@ -310,7 +310,7 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 					"Required rather than defaulted because Airflow's own `TrinoHook` falls back to a " +
 					"catalog called `hive`, which exists on no Hyperfluid dock: a connection without one " +
 					"would aim every query at something that is not there. The platform cannot pick for you " +
-					"either, since a dock carries as many catalogs as the harbor has data containers and " +
+					"either, since a dock carries as many catalogs as the Hyperfluid environment has data containers and " +
 					"which one a DAG wants is not derivable.\n\n" +
 					"ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan " +
 					"time because the value travels to the coordinator as an HTTP header and is validated by " +

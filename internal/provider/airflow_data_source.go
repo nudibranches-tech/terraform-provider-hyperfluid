@@ -43,13 +43,13 @@ func (d *airflowDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 		return schema.BoolAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing Airflow environment by name within a harbor — an " +
+		MarkdownDescription: "Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow " +
 			"environment created through the console, `hfctl`, or another Terraform configuration.\n\n" +
 			"Its `id` is what a `hyperfluid_airflow_connection`'s `airflow` takes, and `dag_bucket` names " +
 			"the bucket DAGs are delivered through, so this data source is the usual way to attach " +
 			"connections or a DAG-upload pipeline to an environment somebody else owns.",
 		Attributes: map[string]schema.Attribute{
-			"env":  schema.StringAttribute{Required: true, MarkdownDescription: "Environment (harbor) id the Airflow environment runs in."},
+			"env":  schema.StringAttribute{Required: true, MarkdownDescription: "Id of the Hyperfluid environment the Airflow environment runs in."},
 			"name": schema.StringAttribute{Required: true, MarkdownDescription: "Airflow environment name."},
 
 			"id":             cs("Environment id. This is the value a `hyperfluid_airflow_connection`'s `airflow` takes."),
@@ -75,17 +75,17 @@ func (d *airflowDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 					},
 					"in_cluster": schema.SetNestedAttribute{
 						Computed:            true,
-						MarkdownDescription: "Same-harbor services task pods may reach.",
+						MarkdownDescription: "Services in the same Hyperfluid environment that task pods may reach.",
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"kind": schema.StringAttribute{Computed: true, MarkdownDescription: "Kind of service."},
-								"name": schema.StringAttribute{Computed: true, MarkdownDescription: "The target's slug in the same harbor."},
+								"name": schema.StringAttribute{Computed: true, MarkdownDescription: "The target's slug in the same Hyperfluid environment."},
 							},
 						},
 					},
 					"allowlists": schema.SetAttribute{
 						ElementType: types.StringType, Computed: true,
-						MarkdownDescription: "Names of the harbor's shared egress allow-lists attached to the environment.",
+						MarkdownDescription: "Names of the Hyperfluid environment's shared egress allow-lists attached to the Airflow environment.",
 					},
 				},
 			},
@@ -105,7 +105,7 @@ func (d *airflowDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 			"managed_postgresql_name": cs("Name of the metadata PostgreSQL cluster, whether referenced or provisioned."),
 			"unresolved_allowlists": schema.ListAttribute{
 				ElementType: types.StringType, Computed: true,
-				MarkdownDescription: "Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this harbor.",
+				MarkdownDescription: "Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this Hyperfluid environment.",
 			},
 			"cpu_request":    cs("CPU request per component, resolved from the tier."),
 			"cpu_limit":      cs("CPU limit per component, resolved from the tier."),

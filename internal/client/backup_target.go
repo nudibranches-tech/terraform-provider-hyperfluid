@@ -31,7 +31,7 @@ func (c *Client) CreateExternalBackupTarget(ctx context.Context, orgID, harborID
 	if err != nil {
 		return nil, err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (c *Client) FindBackupTarget(ctx context.Context, orgID, harborID, name str
 	if err != nil {
 		return "", err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return "", err
 	}

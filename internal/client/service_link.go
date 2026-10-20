@@ -19,7 +19,7 @@ func (c *Client) CreateServiceLink(ctx context.Context, orgID, harborID string, 
 	if err != nil {
 		return nil, err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (c *Client) ListServiceLinks(ctx context.Context, orgID, harborID string) (
 	if err != nil {
 		return nil, err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (c *Client) DeleteServiceLink(ctx context.Context, orgID, harborID, name st
 	if err != nil {
 		return err
 	}
-	harbor, err := parseUUID("harbor", harborID)
+	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
 		return err
 	}

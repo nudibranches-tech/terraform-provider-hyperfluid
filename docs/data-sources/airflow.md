@@ -3,13 +3,13 @@
 page_title: "hyperfluid_airflow Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing Airflow environment by name within a harbor — an environment created through the console, hfctl, or another Terraform configuration.
+  Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow environment created through the console, hfctl, or another Terraform configuration.
   Its id is what a hyperfluid_airflow_connection's airflow takes, and dag_bucket names the bucket DAGs are delivered through, so this data source is the usual way to attach connections or a DAG-upload pipeline to an environment somebody else owns.
 ---
 
 # hyperfluid_airflow (Data Source)
 
-Look up an existing Airflow environment by name within a harbor — an environment created through the console, `hfctl`, or another Terraform configuration.
+Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow environment created through the console, `hfctl`, or another Terraform configuration.
 
 Its `id` is what a `hyperfluid_airflow_connection`'s `airflow` takes, and `dag_bucket` names the bucket DAGs are delivered through, so this data source is the usual way to attach connections or a DAG-upload pipeline to an environment somebody else owns.
 
@@ -43,7 +43,7 @@ output "airflow_url" {
 }
 
 # Anything listed here is an egress allow-list the last reconcile could not
-# resolve in this harbor — a grant that silently is not in force.
+# resolve in this Hyperfluid environment — a grant that silently is not in force.
 output "unresolved_allowlists" {
   value = data.hyperfluid_airflow.analytics.unresolved_allowlists
 }
@@ -54,7 +54,7 @@ output "unresolved_allowlists" {
 
 ### Required
 
-- `env` (String) Environment (harbor) id the Airflow environment runs in.
+- `env` (String) Id of the Hyperfluid environment the Airflow environment runs in.
 - `name` (String) Airflow environment name.
 
 ### Read-Only
@@ -83,7 +83,7 @@ output "unresolved_allowlists" {
 - `task_namespace` (String) Dedicated Kubernetes namespace the environment's task pods run in.
 - `task_quota_max_pods` (Number) Ceiling on concurrent task pods, or null when the platform default is in charge.
 - `triggerer_enabled` (Boolean) Whether the triggerer runs, which is what lets deferrable operators give their worker slot back while they wait.
-- `unresolved_allowlists` (List of String) Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this harbor.
+- `unresolved_allowlists` (List of String) Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this Hyperfluid environment.
 - `web_url` (String) Public HTTPS URL of the Airflow UI, once the route is serving.
 
 <a id="nestedatt--egress"></a>
@@ -91,9 +91,9 @@ output "unresolved_allowlists" {
 
 Read-Only:
 
-- `allowlists` (Set of String) Names of the harbor's shared egress allow-lists attached to the environment.
+- `allowlists` (Set of String) Names of the Hyperfluid environment's shared egress allow-lists attached to the Airflow environment.
 - `fqdns` (Set of String) Public hostnames task pods may reach on 443.
-- `in_cluster` (Attributes Set) Same-harbor services task pods may reach. (see [below for nested schema](#nestedatt--egress--in_cluster))
+- `in_cluster` (Attributes Set) Services in the same Hyperfluid environment that task pods may reach. (see [below for nested schema](#nestedatt--egress--in_cluster))
 
 <a id="nestedatt--egress--in_cluster"></a>
 ### Nested Schema for `egress.in_cluster`
@@ -101,4 +101,4 @@ Read-Only:
 Read-Only:
 
 - `kind` (String) Kind of service.
-- `name` (String) The target's slug in the same harbor.
+- `name` (String) The target's slug in the same Hyperfluid environment.
