@@ -156,7 +156,7 @@ func (c *Client) DetachImageSource(ctx context.Context, orgID, appID string) err
 	if err != nil {
 		return err
 	}
-	resp, err := c.api.DetachImageSourceWithResponse(ctx, org, app)
+	resp, err := c.api.DetachImageSourceWithResponse(ctx, org, app, console.DetachImageSourceJSONRequestBody{})
 	if err != nil {
 		return err
 	}
