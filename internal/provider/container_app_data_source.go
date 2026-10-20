@@ -15,7 +15,7 @@ import (
 )
 
 // hyperfluid_container_app data source — look up an existing container app by
-// name within an environment. Reuses the resource's containerAppModel + readInto
+// slug within an environment. Reuses the resource's containerAppModel + readInto
 // so spec/status mapping lives in one place.
 
 var (
@@ -43,10 +43,10 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 		return schema.Int64Attribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing container app by name within an environment.",
+		MarkdownDescription: "Look up an existing container app by slug within an environment.",
 		Attributes: map[string]schema.Attribute{
 			"env":                schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the app runs in."},
-			"name":               schema.StringAttribute{Required: true, MarkdownDescription: "App name."},
+			"name":               schema.StringAttribute{Required: true, MarkdownDescription: "App slug. Display names are not unique, so an app is looked up by its slug."},
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
@@ -66,7 +66,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
-			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
+			"slug":               cs("The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes."),
 			"ports": schema.ListNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Every port the app publishes.",
@@ -104,9 +104,9 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	env := cfg.Env.ValueString()
 	name := cfg.Name.ValueString()
-	appID, err := d.p.API.FindContainerAppID(ctx, d.p.OrgID, env, name)
+	appID, err := d.p.API.FindContainerAppIDBySlug(ctx, d.p.OrgID, env, name)
 	if errors.Is(err, client.ErrNotFound) {
-		resp.Diagnostics.AddError("Container app not found", "no container app named "+name+" in environment "+env)
+		resp.Diagnostics.AddError("Container app not found", "no container app with slug "+name+" in environment "+env)
 		return
 	}
 	if err != nil {

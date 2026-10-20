@@ -93,10 +93,8 @@ func (c *Client) DeleteServiceLink(ctx context.Context, orgID, harborID, name st
 // so a link's chosen target ports can be checked before the API rejects them
 // with a 400 whose body carries no usable message.
 //
-// The app is resolved by slug, not by display name like FindContainerAppID: a
-// ServiceRef.name travels to the API verbatim and is resolved there as a slug,
-// so matching a display name would validate one app's ports while the API links
-// another.
+// A ServiceRef.name travels to the API verbatim and is resolved there as a
+// slug, so the app is resolved by slug here too.
 func (c *Client) ContainerAppDeclaredPorts(ctx context.Context, orgID, harborID, slug string) ([]console.ServiceLinkPort, error) {
 	id, err := c.FindContainerAppIDBySlug(ctx, orgID, harborID, slug)
 	if err != nil {

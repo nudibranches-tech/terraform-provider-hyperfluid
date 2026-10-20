@@ -13,7 +13,7 @@ import (
 
 // Container apps are addressed by app id (uuid) for get/patch/delete, but
 // created under a harbor and the create call returns no body — so the id is
-// discovered by listing the harbor's apps and matching on name.
+// discovered by listing the harbor's apps and matching on slug.
 
 func (c *Client) CreateContainerApp(ctx context.Context, orgID, harborID string, body console.CreateContainerAppCrdRequestBody) error {
 	org, err := parseUUID("organization_id", orgID)
@@ -31,39 +31,9 @@ func (c *Client) CreateContainerApp(ctx context.Context, orgID, harborID string,
 	return statusErr("create container app", resp.StatusCode(), resp.Body)
 }
 
-// FindContainerAppID returns the id of the app named name in the given harbor,
-// or ErrNotFound if absent.
-func (c *Client) FindContainerAppID(ctx context.Context, orgID, harborID, name string) (string, error) {
-	org, err := parseUUID("organization_id", orgID)
-	if err != nil {
-		return "", err
-	}
-	harbor, err := parseUUID("environment", harborID)
-	if err != nil {
-		return "", err
-	}
-	resp, err := c.api.ListContainerAppsWithResponse(ctx, org, harbor)
-	if err != nil {
-		return "", err
-	}
-	if err := statusErr("list container apps", resp.StatusCode(), resp.Body); err != nil {
-		return "", err
-	}
-	if resp.JSON200 == nil {
-		return "", ErrNotFound
-	}
-	app, err := findByName(*resp.JSON200, name, func(a *console.ContainerAppResponse) string {
-		return a.Name
-	})
-	if err != nil {
-		return "", err
-	}
-	return app.Id.String(), nil
-}
-
-// FindContainerAppIDBySlug resolves an app's id by its slug, where
-// FindContainerAppID matches the display name. Callers that hand a name straight
-// to an API which resolves it as a slug need this one.
+// FindContainerAppIDBySlug returns the id of the app with the given slug in the
+// given harbor, or ErrNotFound if absent. The slug is an app's only unique key:
+// several apps in a harbor may share a display name.
 func (c *Client) FindContainerAppIDBySlug(ctx context.Context, orgID, harborID, slug string) (string, error) {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {

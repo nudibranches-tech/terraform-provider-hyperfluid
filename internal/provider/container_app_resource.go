@@ -206,7 +206,7 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"endpoint":           computedString("Public endpoint, once provisioned."),
 			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired replicas reported by the platform."},
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
-			"slug":               computedString("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot."),
+			"slug":               computedString("The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes."),
 			"ports": schema.ListNestedAttribute{
 				Optional: true, Computed: true,
 				MarkdownDescription: "The ports the container listens on, replacing the deprecated single " +
@@ -370,7 +370,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	appID, err := r.p.API.FindContainerAppID(ctx, r.p.OrgID, env, plan.Name.ValueString())
+	appID, err := r.p.API.FindContainerAppIDBySlug(ctx, r.p.OrgID, env, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to resolve created container app id", err.Error())
 		return
@@ -590,7 +590,7 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 	m := containerAppModel{
 		ID:                types.StringValue(appID),
 		Env:               types.StringValue(status.HarborId.String()),
-		Name:              types.StringValue(status.Name),
+		Name:              types.StringValue(status.Slug),
 		ImageRepository:   types.StringValue(spec.ImageRepository),
 		ImageTag:          types.StringValue(spec.ImageTag),
 		Port:              primaryPort(spec),

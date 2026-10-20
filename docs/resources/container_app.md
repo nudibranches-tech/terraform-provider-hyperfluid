@@ -75,7 +75,7 @@ Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads
 - `memory_request` (String) Memory request derived from resource_tier.
 - `phase` (String) Current lifecycle phase.
 - `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
-- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes — `name` is a display name and the two differ as soon as it contains anything a slug cannot.
+- `slug` (String) The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes.
 
 <a id="nestedatt--ports"></a>
 ### Nested Schema for `ports`

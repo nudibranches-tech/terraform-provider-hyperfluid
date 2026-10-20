@@ -1,5 +1,9 @@
 ## Unreleased
 
+BUG FIXES:
+
+* resource/hyperfluid_container_app, data-source/hyperfluid_container_app: apps are resolved by slug, their only unique key, instead of by display name. Since display names may repeat within an environment, matching one could bind a resource after create, or a data source lookup, to another app. `name` is the app's slug and the data source's `name` now only matches a slug.
+
 ## 0.9.0 (September 22, 2026)
 
 FEATURES:
