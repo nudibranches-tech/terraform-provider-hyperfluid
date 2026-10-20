@@ -3,12 +3,12 @@
 page_title: "hyperfluid_container_app Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing container app by name within an environment.
+  Look up an existing container app by slug within an environment.
 ---
 
 # hyperfluid_container_app (Data Source)
 
-Look up an existing container app by name within an environment.
+Look up an existing container app by slug within an environment.
 
 ## Example Usage
 
@@ -34,7 +34,7 @@ output "app_endpoint" {
 ### Required
 
 - `env` (String) Environment id the app runs in.
-- `name` (String) App name.
+- `name` (String) App slug. Display names are not unique, so an app is looked up by its slug.
 
 ### Read-Only
 
@@ -58,7 +58,7 @@ output "app_endpoint" {
 - `replicas` (Number) Desired replica count.
 - `resource_tier` (String) Resource tier — not returned by the API, so always null on a data source.
 - `resource_version` (String) Kubernetes resourceVersion.
-- `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
+- `slug` (String) The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes.
 
 <a id="nestedatt--ports"></a>
 ### Nested Schema for `ports`
