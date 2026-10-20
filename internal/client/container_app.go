@@ -5,6 +5,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -12,23 +13,39 @@ import (
 )
 
 // Container apps are addressed by app id (uuid) for get/patch/delete, but
-// created under a harbor and the create call returns no body — so the id is
-// discovered by listing the harbor's apps and matching on slug.
+// created under a harbor.
 
-func (c *Client) CreateContainerApp(ctx context.Context, orgID, harborID string, body console.CreateContainerAppCrdRequestBody) error {
+// CreateContainerApp creates an app and returns its id. The console answers the
+// create with the new app's id, which the spec does not declare; a console that
+// sends none is older than display names, so the slug it was sent as `name`
+// finds the app.
+func (c *Client) CreateContainerApp(ctx context.Context, orgID, harborID string, body console.CreateContainerAppCrdRequestBody) (string, error) {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {
-		return err
+		return "", err
 	}
 	harbor, err := parseUUID("environment", harborID)
 	if err != nil {
-		return err
+		return "", err
 	}
 	resp, err := c.api.CreateContainerAppCrdWithResponse(ctx, org, harbor, body)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return statusErr("create container app", resp.StatusCode(), resp.Body)
+	if err := statusErr("create container app", resp.StatusCode(), resp.Body); err != nil {
+		return "", err
+	}
+	var created struct {
+		ID string `json:"id"`
+	}
+	if json.Unmarshal(resp.Body, &created) == nil && created.ID != "" {
+		return created.ID, nil
+	}
+	slug := body.Name
+	if body.Slug != nil {
+		slug = *body.Slug
+	}
+	return c.FindContainerAppIDBySlug(ctx, orgID, harborID, slug)
 }
 
 // FindContainerAppIDBySlug returns the id of the app with the given slug in the
@@ -124,6 +141,24 @@ func (c *Client) PatchContainerApp(ctx context.Context, orgID, appID string, bod
 		return err
 	}
 	return statusErr("patch container app", resp.StatusCode(), resp.Body)
+}
+
+// PatchContainerAppMetadata updates an app's display name, description and
+// tags. They live outside the app's spec, so this takes no resource_version.
+func (c *Client) PatchContainerAppMetadata(ctx context.Context, orgID, appID string, body console.PatchContainerAppRequestBody) error {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return err
+	}
+	app, err := parseUUID("id", appID)
+	if err != nil {
+		return err
+	}
+	resp, err := c.api.PatchContainerAppWithResponse(ctx, org, app, body)
+	if err != nil {
+		return err
+	}
+	return statusErr("update container app metadata", resp.StatusCode(), resp.Body)
 }
 
 func (c *Client) DeleteContainerApp(ctx context.Context, orgID, appID string) error {

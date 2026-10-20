@@ -4,7 +4,7 @@ data "hyperfluid_env" "default" {
 
 resource "hyperfluid_container_app" "web" {
   env              = data.hyperfluid_env.default.id
-  name             = "web"
+  slug             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
@@ -42,7 +42,7 @@ resource "hyperfluid_service_link" "web_to_db" {
 # reachable in-cluster — which is exactly what a link opens.
 resource "hyperfluid_container_app" "api" {
   env              = data.hyperfluid_env.default.id
-  name             = "api"
+  slug             = "api"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   resource_tier    = "nano"

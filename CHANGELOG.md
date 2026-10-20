@@ -1,11 +1,20 @@
 ## Unreleased
 
+DEPRECATIONS:
+
+* resource/hyperfluid_container_app, data-source/hyperfluid_container_app: `name` is deprecated in favour of `slug`; it is the same value. Renaming `name` to `slug` in a configuration plans no change, and `name` keeps reporting the slug for references that read it.
+
 FEATURES:
 
 * resource/hyperfluid_container_app: `image_source { git { ... } }` deploys the image a Git repository declares in `hyperfluid.toml`, instead of a literal `image_repository` / `image_tag` (the blocks conflict). `provider`, `repository` and `credential` are required; `base_url`, `branch` or `tag_pattern`, `path`, `container`, `interval` and `alert_on_sync_failure` are optional, and an omitted one is never written into the app, so the platform's defaults can change underneath it. `credential` names a `scm_credential` secret and is required even for a public repository: unauthenticated provider API calls are rate-limited per source IP, which every app of the cluster shares, while a token gets its own budget. What the platform resolved is reported by the computed `resolved_image`, `resolved_ref`, `revision`, `last_synced_at` and `sync_error`, which Terraform never plans a change for: a release made through Git is not drift. `image_repository` and `image_tag` are no longer required when `image_source` is set. Removing the block detaches the source and applies the literal image.
 * resource/hyperfluid_container_app: `image_source.git.sync_policy` is `auto` (every change found in Git rolls out) or `manual` (a change is only reported until someone runs Sync in the console or `hfctl apps sync`; the first image of a new source still rolls out). Omitted, it is never written into the app and the platform treats it as `auto`, or as `manual` while the organization has automatic sync turned off, in which case an explicit `auto` is refused. Check now and Sync are actions and have no Terraform equivalent.
 * data-source/hyperfluid_container_app: `image_source` (with `git.sync_policy`), `resolved_image`, `resolved_ref`, `revision`, `last_synced_at` and `sync_error`; `image_repository` and `image_tag` report the resolved image of a Git-sourced app, or null before its first check.
 * resource/hyperfluid_secret: `secret_type = "scm_credential"` creates a Git credential, with a write-only `value` of `{ provider, username?, base_url?, token }` rotated through `value_wo_version` like any other secret. `provider` is `github`, `gitlab` or `forgejo`.
+
+ENHANCEMENTS:
+
+* resource/hyperfluid_container_app: `slug` sets the app's identifier, and is derived from `display_name` when omitted. `display_name` (the app's name, shown in the console and not unique), `description` and `tags` are new and change in place.
+* data-source/hyperfluid_container_app: looks an app up by `slug`, and reports `display_name`, `description` and `tags`.
 
 BUG FIXES:
 

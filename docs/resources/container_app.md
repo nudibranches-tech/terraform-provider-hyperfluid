@@ -37,7 +37,10 @@ data "hyperfluid_env" "default" {
 
 resource "hyperfluid_container_app" "web" {
   env              = data.hyperfluid_env.default.id
-  name             = "web"
+  slug             = "web"
+  display_name     = "Web storefront"
+  description      = "Public storefront."
+  tags             = ["storefront", "public"]
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
   ports = [
@@ -81,7 +84,7 @@ resource "hyperfluid_secret" "git" {
 
 resource "hyperfluid_container_app" "orders" {
   env  = data.hyperfluid_env.default.id
-  name = "orders-api"
+  slug = "orders-api"
   ports = [
     { name = "http", port = 8080, protocol = "HTTP", primary = true },
   ]
@@ -116,10 +119,11 @@ output "orders_image" {
 ### Required
 
 - `env` (String) Environment id the app runs in. Changing this forces a new app.
-- `name` (String) App name (slug). Changing this forces a new app.
 
 ### Optional
 
+- `description` (String) Free-form description.
+- `display_name` (String) The app's name, shown in the console, at most 255 characters. Several apps may share one. Defaults to the slug.
 - `enabled` (Boolean) Whether the app is running. Defaults to true.
 - `expose_to_internet` (Boolean) Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.
 - `health_check_path` (String) HTTP health check path.
@@ -127,6 +131,7 @@ output "orders_image" {
 - `image_repository` (String) Container image repository. Required unless `image_source` is set, and conflicts with it.
 - `image_source` (Block, Optional) Deploy the image a Git repository declares instead of a literal `image_repository` / `image_tag`, which it conflicts with. See "Deploying from Git" above. (see [below for nested schema](#nestedblock--image_source))
 - `image_tag` (String) Container image tag. Required unless `image_source` is set, and conflicts with it.
+- `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead. Changing this forces a new app.
 - `port` (Number) The app's single container port. **Deprecated — use `ports`**, which this conflicts with.
 
 ~> The platform ignores writes to this attribute once the app's spec carries a non-empty `ports`, so on such an app a change here applies cleanly in Terraform and does nothing. Move the app to `ports` rather than editing this.
@@ -135,6 +140,8 @@ output "orders_image" {
 Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Desired replica count.
 - `resource_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge. Maps to cpu/memory server-side.
+- `slug` (String) The app's identifier, unique in its environment and used in its URL and Kubernetes resource names. This is the name a `hyperfluid_service_link` endpoint takes. Lowercase letters, digits and single hyphens, at most 49 characters. Derived from `display_name` when omitted. Changing this forces a new app.
+- `tags` (List of String) User-defined tags: at most 20, each at most 64 characters.
 
 ### Read-Only
 
@@ -152,7 +159,6 @@ Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads
 - `resolved_ref` (String) The branch followed, or the tag `tag_pattern` selected.
 - `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
 - `revision` (String) The commit the running image was read from.
-- `slug` (String) The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes.
 - `sync_error` (String) Why the last check failed, or null. A failing check never stops the app: it keeps running the last good image.
 
 <a id="nestedblock--image_source"></a>

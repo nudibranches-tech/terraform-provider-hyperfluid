@@ -7,8 +7,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
@@ -19,8 +21,9 @@ import (
 // so spec/status mapping lives in one place.
 
 var (
-	_ datasource.DataSource              = &containerAppDataSource{}
-	_ datasource.DataSourceWithConfigure = &containerAppDataSource{}
+	_ datasource.DataSource                     = &containerAppDataSource{}
+	_ datasource.DataSourceWithConfigure        = &containerAppDataSource{}
+	_ datasource.DataSourceWithConfigValidators = &containerAppDataSource{}
 )
 
 func NewContainerAppDataSource() datasource.DataSource {
@@ -43,10 +46,22 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 		return schema.Int64Attribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing container app by slug within an environment.",
+		MarkdownDescription: "Look up an existing container app by its slug within an environment.",
 		Attributes: map[string]schema.Attribute{
-			"env":                schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the app runs in."},
-			"name":               schema.StringAttribute{Required: true, MarkdownDescription: "App slug. Display names are not unique, so an app is looked up by its slug."},
+			"env": schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the app runs in."},
+			"slug": schema.StringAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "Slug of the app to look up. Display names are not unique, so an app is looked up " +
+					"by its slug. This is the name a `hyperfluid_service_link` endpoint takes.",
+			},
+			"name": schema.StringAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "The app's slug, under its former name. Use `slug` instead.",
+				DeprecationMessage:  "Use slug instead.",
+			},
+			"display_name":       cs("The app's name, shown in the console."),
+			"description":        cs("Free-form description."),
+			"tags":               schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
@@ -66,7 +81,6 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
-			"slug":               cs("The app's slug, the same as `name`. This is the name a `hyperfluid_service_link` endpoint takes."),
 			"image_source": schema.SingleNestedAttribute{
 				Computed: true,
 				MarkdownDescription: "The Git source the app's image comes from, or null for an app with a literal " +
@@ -112,6 +126,12 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 	}
 }
 
+func (d *containerAppDataSource) ConfigValidators(context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(path.MatchRoot("slug"), path.MatchRoot("name")),
+	}
+}
+
 func (d *containerAppDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -132,10 +152,13 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	env := cfg.Env.ValueString()
-	name := cfg.Name.ValueString()
-	appID, err := d.p.API.FindContainerAppIDBySlug(ctx, d.p.OrgID, env, name)
+	slug := cfg.Slug.ValueString()
+	if cfg.Slug.IsNull() {
+		slug = cfg.Name.ValueString()
+	}
+	appID, err := d.p.API.FindContainerAppIDBySlug(ctx, d.p.OrgID, env, slug)
 	if errors.Is(err, client.ErrNotFound) {
-		resp.Diagnostics.AddError("Container app not found", "no container app with slug "+name+" in environment "+env)
+		resp.Diagnostics.AddError("Container app not found", "no container app with slug "+slug+" in environment "+env)
 		return
 	}
 	if err != nil {

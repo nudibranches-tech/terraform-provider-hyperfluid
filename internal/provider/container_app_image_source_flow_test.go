@@ -36,6 +36,8 @@ type fakeConsole struct {
 
 	mu       sync.Mutex
 	exists   bool
+	meta     console.ContainerAppResponse // display name, slug, description and tags
+	noBody   bool                         // answer a create without the app's id, like an older console
 	spec     console.ContainerAppCrdSpecResponse
 	version  int
 	status   *console.ImageSourceStatus // what a source resolves to; nil = not synced yet
@@ -50,6 +52,7 @@ type fakeRequest struct {
 func newFakeConsole(t *testing.T) (*fakeConsole, *providerData) {
 	t.Helper()
 	f := &fakeConsole{t: t, org: uuid.New(), harbor: uuid.New(), appID: uuid.New()}
+	f.meta = console.ContainerAppResponse{Name: "orders-api", Slug: "orders-api", Tags: []string{}}
 	srv := httptest.NewServer(http.HandlerFunc(f.serve))
 	t.Cleanup(srv.Close)
 	api, err := client.New(srv.URL, srv.Client())
@@ -110,6 +113,13 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		f.exists = true
+		f.meta = console.ContainerAppResponse{Name: req.Name, Slug: req.Name, Description: req.Description, Tags: []string{}}
+		if req.Slug != nil {
+			f.meta.Slug = *req.Slug
+		}
+		if req.Tags != nil {
+			f.meta.Tags = *req.Tags
+		}
 		f.spec = console.ContainerAppCrdSpecResponse{
 			Enabled: true, Replicas: 1,
 			BucketRefs: []console.BucketRefSpecResponse{}, CustomDomains: []console.CustomDomainResponse{},
@@ -125,7 +135,11 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		f.attach(req.ImageSource)
 		f.bump()
-		reply(201, nil)
+		if f.noBody {
+			reply(201, nil)
+			return
+		}
+		reply(201, map[string]string{"id": f.appID.String(), "name": f.meta.Name, "slug": f.meta.Slug})
 	case r.Method == http.MethodGet && strings.HasSuffix(p, "/container-apps"):
 		reply(200, []console.ContainerAppResponse{f.statusResponse()})
 	case r.Method == http.MethodGet && strings.HasSuffix(p, "/crd"):
@@ -160,6 +174,25 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		f.bump()
 		reply(204, nil)
+	case r.Method == http.MethodPatch:
+		var req console.PatchContainerAppRequestBody
+		if err := json.Unmarshal(body, &req); err != nil {
+			reply(400, map[string]string{"message": err.Error()})
+			return
+		}
+		if req.Name != nil {
+			f.meta.Name = *req.Name
+		}
+		if req.Description != nil {
+			f.meta.Description = req.Description
+			if strings.TrimSpace(*req.Description) == "" {
+				f.meta.Description = nil
+			}
+		}
+		if req.Tags != nil {
+			f.meta.Tags = *req.Tags
+		}
+		reply(200, f.statusResponse())
 	case r.Method == http.MethodPost && strings.HasSuffix(p, "/image-source/detach"):
 		if f.spec.ImageSource == nil {
 			reply(409, map[string]string{"message": "no Git source is attached"})
@@ -193,9 +226,10 @@ func (f *fakeConsole) attach(src *console.ImageSource) {
 
 func (f *fakeConsole) statusResponse() console.ContainerAppResponse {
 	return console.ContainerAppResponse{
-		Id: f.appID, HarborId: f.harbor, OrganizationId: f.org, Name: "orders-api", Slug: "orders-api",
+		Id: f.appID, HarborId: f.harbor, OrganizationId: f.org, Name: f.meta.Name, Slug: f.meta.Slug,
+		Description: f.meta.Description, Tags: f.meta.Tags,
 		DesiredReplicas: f.spec.Replicas, AvailableReplicas: f.spec.Replicas, UpdatedReadyReplicas: f.spec.Replicas,
-		Replicas: f.spec.Replicas, Tags: []string{},
+		Replicas: f.spec.Replicas,
 	}
 }
 
@@ -212,6 +246,7 @@ func resolved() *console.ImageSourceStatus {
 func nullApp(f *fakeConsole) containerAppModel {
 	return containerAppModel{
 		ID: types.StringNull(), Env: types.StringValue(f.harbor.String()), Name: types.StringValue("orders-api"),
+		DisplayName: types.StringNull(), Description: types.StringNull(), Tags: types.ListNull(types.StringType),
 		ImageRepository: types.StringNull(), ImageTag: types.StringNull(), Port: types.Int64Null(),
 		Replicas: types.Int64Null(), Enabled: types.BoolValue(true), ExposeToInternet: types.BoolValue(false),
 		ResourceTier: types.StringNull(), HealthCheckPath: types.StringNull(), HealthCheckPort: types.Int64Null(),
