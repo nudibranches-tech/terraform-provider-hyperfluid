@@ -1,9 +1,9 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 data "hyperfluid_key_value_cache" "sessions" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "sessions"
 }
 

@@ -3,26 +3,20 @@
 page_title: "hyperfluid_s3_access_key Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A long-lived S3 access key of an environment, valid at the environment's S3 gateway (not at the storage backend directly), for an existing service account: it reaches what the account's grants allow. Requires service_account:issue_s3_key, and service_account:read to read keys back. The S3 gateway must be enabled for the environment.
-  Terraform never creates service accounts, so a scoped key — one the console issues together with a dedicated service account holding only the chosen bucket grants — is created in the console. For the same result here, look up a service account made for the purpose with the hyperfluid_service_account data source and narrow it with hyperfluid_grant.
-  secret_access_key is returned only when the key is issued, and is stored in Terraform state: keep state in an encrypted backend with restricted access. It is null after import.
-  Revoking a key also revokes every older key of the same service account in the same zone (the gateway keeps one revocation floor per account), so give each consumer its own service account. A key revoked outside Terraform is removed from state and issued again on the next apply.
+  A long-lived S3 access key for a service account, valid at the environment's S3 gateway and reaching what the account's grants allow.
+  ~> Revoking a key also revokes every older key of the same service account in the same zone, so give each consumer its own service account.
 ---
 
 # hyperfluid_s3_access_key (Resource)
 
-A long-lived S3 access key of an environment, valid at the environment's S3 gateway (not at the storage backend directly), for an existing service account: it reaches what the account's grants allow. Requires `service_account:issue_s3_key`, and `service_account:read` to read keys back. The S3 gateway must be enabled for the environment.
+A long-lived S3 access key for a service account, valid at the environment's S3 gateway and reaching what the account's grants allow.
 
-Terraform never creates service accounts, so a scoped key — one the console issues together with a dedicated service account holding only the chosen bucket grants — is created in the console. For the same result here, look up a service account made for the purpose with the `hyperfluid_service_account` data source and narrow it with `hyperfluid_grant`.
-
-`secret_access_key` is returned only when the key is issued, and is stored in Terraform state: keep state in an encrypted backend with restricted access. It is null after import.
-
-Revoking a key also revokes every **older** key of the same service account in the same zone (the gateway keeps one revocation floor per account), so give each consumer its own service account. A key revoked outside Terraform is removed from state and issued again on the next apply.
+~> Revoking a key also revokes every older key of the same service account in the same zone, so give each consumer its own service account.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -33,15 +27,13 @@ data "hyperfluid_service_account" "etl" {
   client_id = "etl"
 }
 
-resource "hyperfluid_grant" "etl_read_exports" {
-  principal_type = "service_account"
-  principal_id   = data.hyperfluid_service_account.etl.id
-  permission     = "bucket:read_objects"
-  scope_path     = "default/exports"
+resource "hyperfluid_service_account_access" "etl" {
+  service_account_id = data.hyperfluid_service_account.etl.id
+  grants             = [{ permission = "bucket:read_objects", scope_path = "default/exports" }]
 }
 
 resource "hyperfluid_s3_access_key" "etl" {
-  env                = data.hyperfluid_env.default.id
+  env                = data.hyperfluid_environment.default.id
   service_account_id = data.hyperfluid_service_account.etl.id
   label              = "nightly export"
 }
@@ -59,12 +51,12 @@ output "etl_secret_access_key" {
 ### Required
 
 - `env` (String) Environment id. Changing this forces a new key.
-- `service_account_id` (String) Id of the service account the key authenticates as (the `hyperfluid_service_account` data source's `id`). Changing this forces a new key.
+- `service_account_id` (String) Id of the service account the key authenticates as. Changing this forces a new key.
 
 ### Optional
 
-- `label` (String) Free-form label shown in the key ledger, at most 255 characters. Changing this forces a new key.
-- `storage_zone_id` (String) Storage zone whose gateway issues the key; omit for the environment's default zone. Changing this forces a new key.
+- `label` (String) Free-form label, at most 255 characters. Changing this forces a new key.
+- `storage_zone_id` (String) Storage zone issuing the key; defaults to the environment's default zone. Changing this forces a new key.
 
 ### Read-Only
 
@@ -73,8 +65,8 @@ output "etl_secret_access_key" {
 - `id` (String) Key id (uuid).
 - `key_epoch` (Number) Generation of the key among the service account's keys.
 - `region` (String) SigV4 region to sign requests with.
-- `scopes` (List of String) Bucket scope paths (`<tenant>/<bucket>[/<prefix>]`) the key's service account holds grants at, as last read.
-- `secret_access_key` (String, Sensitive) The S3 secret access key, returned only at issue; null after import. It is stored in Terraform state: keep state in an encrypted backend with restricted access.
+- `scopes` (List of String) Bucket paths (`<tenant>/<bucket>[/<prefix>]`) the service account holds grants on.
+- `secret_access_key` (String, Sensitive) The S3 secret access key, null after import. Stored in Terraform state, so keep state encrypted.
 - `tenant` (String) Storage tenant the key belongs to.
 
 ## Import

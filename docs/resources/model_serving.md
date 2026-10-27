@@ -3,12 +3,12 @@
 page_title: "hyperfluid_model_serving Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A Sapience model serving — an OpenAI-compatible inference endpoint (vLLM/TGI). Almost every attribute is immutable: only replicas updates in place; changing the model, runtime, or resources forces a new serving.
+  A Sapience model serving: an OpenAI-compatible inference endpoint running on vLLM or TGI. Only replicas changes in place.
 ---
 
 # hyperfluid_model_serving (Resource)
 
-A Sapience model serving — an OpenAI-compatible inference endpoint (vLLM/TGI). Almost every attribute is immutable: only `replicas` updates in place; changing the model, runtime, or resources forces a new serving.
+A Sapience model serving: an OpenAI-compatible inference endpoint running on vLLM or TGI. Only `replicas` changes in place.
 
 ## Example Usage
 
@@ -36,25 +36,25 @@ output "endpoint" {
 ### Required
 
 - `display_name` (String) Human-readable display name. Changing this forces a new serving.
-- `model_id` (String) Model identifier, e.g. "meta-llama/Llama-3.1-8B-Instruct". Changing this forces a new serving.
+- `model_id` (String) Model identifier, such as `meta-llama/Llama-3.1-8B-Instruct`. Changing this forces a new serving.
 - `model_type` (String) Model type: `generation` or `embedding`. Changing this forces a new serving.
 - `runtime` (String) Serving runtime: `vllm` or `tgi`. Changing this forces a new serving.
 
 ### Optional
 
 - `gpu` (Number) GPU count. Changing this forces a new serving.
-- `max_model_len` (Number) Maximum model context length (generation models). Changing this forces a new serving.
-- `memory` (String) Memory request, e.g. "8Gi". Changing this forces a new serving.
-- `replicas` (Number) Desired replica count (at least 1). The one attribute that updates in place (scaling). Scale-to-zero is not supported.
+- `max_model_len` (Number) Maximum context length, for a generation model. Changing this forces a new serving.
+- `memory` (String) Memory request, such as `8Gi`. Changing this forces a new serving.
+- `replicas` (Number) Number of replicas, at least 1.
 
 ### Read-Only
 
 - `cpu` (String) CPU request resolved by the platform.
 - `endpoint` (String) OpenAI-compatible endpoint, once provisioned.
-- `id` (String) Resource identifier (the server-assigned serving name).
-- `name` (String) Server-assigned CRD resource name (derived from display_name). Used as the import id.
+- `id` (String) Serving id, the same as `name`.
+- `name` (String) Name the platform derives from `display_name`, also the import id.
 - `phase` (String) Current lifecycle phase.
-- `ready_replicas` (Number) Ready replica count reported by the platform.
+- `ready_replicas` (Number) Number of ready replicas.
 
 ## Import
 

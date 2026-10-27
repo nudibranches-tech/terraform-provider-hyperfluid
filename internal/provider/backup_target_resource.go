@@ -72,12 +72,8 @@ func (r *backupTargetResource) Metadata(_ context.Context, req resource.Metadata
 
 func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A backup target: where managed PostgreSQL databases ship base backups and write-ahead log.\n\n" +
-			"It writes either to a bucket of the environment, named by `bucket_name` (the platform resolves its endpoint " +
-			"and credentials, and reports the endpoint and path it resolved in `endpoint_url` and `destination_path`), " +
-			"or to an external S3-compatible endpoint, given by `endpoint_url`, `destination_path` and the two credential " +
-			"secret names, which are then all required. Credentials are referenced as secret names, never inline. " +
-			"Switching between the two forces a new target.",
+		MarkdownDescription: "Where managed PostgreSQL databases send their backups: a bucket of the environment " +
+			"(`bucket_name`) or an external S3-compatible endpoint.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -95,11 +91,8 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"bucket_name": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a bucket of this environment (a `hyperfluid_bucket`'s `name`) to back up " +
-					"into, on whichever storage backend it lives. The bucket must already exist. Conflicts with the " +
-					"external endpoint attributes. Changing this forces a new target.\n\n" +
-					"~> No API view reports it, so Terraform carries it from prior state. After `terraform import` of " +
-					"such a target, setting it in the configuration adopts the target instead of replacing it.",
+				MarkdownDescription: "Name of an existing bucket of the environment to back up into. Conflicts with the " +
+					"external endpoint attributes. Changing this forces a new target.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 253),
 					stringvalidator.ConflictsWith(
@@ -111,42 +104,36 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"endpoint_url": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "S3-compatible endpoint URL, e.g. https://s3.eu-west-3.amazonaws.com. Required " +
-					"without `bucket_name`; with it, the endpoint the platform resolved.",
+				MarkdownDescription: "S3-compatible endpoint URL, e.g. `https://s3.eu-west-3.amazonaws.com`. Required " +
+					"without `bucket_name`.",
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"destination_path": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Bucket + prefix, e.g. s3://backups/. Required without `bucket_name`; with it, " +
-					"the path the platform resolved.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Bucket and prefix, e.g. `s3://backups/`. Required without `bucket_name`.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"access_key_secret_name": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Name of the secret holding the S3 access key id. Required without `bucket_name`; " +
-					"null with it.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Name of the secret holding the S3 access key id. Required without `bucket_name`.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"secret_access_key_secret_name": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Name of the secret holding the S3 secret access key. Required without " +
-					"`bucket_name`; null with it.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Name of the secret holding the S3 secret access key. Required without `bucket_name`.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"insecure": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Skip TLS verification when probing the endpoint (dev only). Not available with " +
+				MarkdownDescription: "Skip TLS verification of the endpoint, for development only. Not available with " +
 					"`bucket_name`. Changing this forces a new target.",
 				Default:       booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
 			},
 			"retention_days": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "How long base backups and WAL archives are kept before they expire, " +
-					"in days (1-35). Left out, the platform resolves its own default of 7 days at every " +
-					"reconcile. A change is applied in place, and the value read back is the effective one " +
-					"the platform resolved, not the configured one.",
-				Validators: []validator.Int64{int64validator.Between(1, 35)},
+				MarkdownDescription: "How many days backups are kept, 1 to 35. Defaults to 7.",
+				Validators:          []validator.Int64{int64validator.Between(1, 35)},
 			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
 			"tags": schema.ListAttribute{

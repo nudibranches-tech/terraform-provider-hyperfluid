@@ -3,24 +3,24 @@
 page_title: "hyperfluid_service_link Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up a declared network path between two services by name within an environment. Whether the link is enforced depends on the environment's network isolation mode — see hyperfluid_service_link.
+  Look up a service link by name within an environment.
 ---
 
 # hyperfluid_service_link (Data Source)
 
-Look up a declared network path between two services by name within an environment. Whether the link is enforced depends on the environment's network isolation mode — see `hyperfluid_service_link`.
+Look up a service link by name within an environment.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reads a link declared anywhere — the console, hfctl, or another Terraform
 # workspace.
 data "hyperfluid_service_link" "web_to_db" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "web-main"
 }
 
@@ -39,16 +39,16 @@ output "link_ready" {
 ### Required
 
 - `env` (String) Environment id the link belongs to.
-- `name` (String) The link's name — `<consumer>-<target>`, as reported by the console, `hfctl service-links list`, or a `hyperfluid_service_link` resource's `name`.
+- `name` (String) The link's name, `<consumer>-<target>`.
 
 ### Read-Only
 
 - `consumer` (Attributes) The service permitted to reach the target. (see [below for nested schema](#nestedatt--consumer))
 - `id` (String) Composite identifier `env/name`.
-- `ports` (Attributes List) The ports opened for this link. Empty until it has been reconciled. (see [below for nested schema](#nestedatt--ports))
+- `ports` (Attributes List) Ports opened for this link. (see [below for nested schema](#nestedatt--ports))
 - `ready` (Boolean) Whether the platform has opened the ports.
 - `target` (Attributes) The service made reachable. (see [below for nested schema](#nestedatt--target))
-- `target_ports` (Attributes Set) Always null on a data source: the API reports the ports it opened (`ports`), not which of them were explicitly asked for. (see [below for nested schema](#nestedatt--target_ports))
+- `target_ports` (Attributes Set) Always null on a data source; read `ports`. (see [below for nested schema](#nestedatt--target_ports))
 
 <a id="nestedatt--consumer"></a>
 ### Nested Schema for `consumer`

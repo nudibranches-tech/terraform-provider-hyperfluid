@@ -3,12 +3,12 @@
 page_title: "hyperfluid_permissions Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  The platform's permission catalog: every <resource_type>:<action> key hyperfluid_grant and hyperfluid_role_permissions accept.
+  The permission keys (<resource_type>:<action>) that roles and grants take.
 ---
 
 # hyperfluid_permissions (Data Source)
 
-The platform's permission catalog: every `<resource_type>:<action>` key `hyperfluid_grant` and `hyperfluid_role_permissions` accept.
+The permission keys (`<resource_type>:<action>`) that roles and grants take.
 
 ## Example Usage
 
@@ -32,7 +32,7 @@ output "secret_permissions" {
 
 ### Read-Only
 
-- `ids` (Map of String) Permission id by key. Ids differ between installations; keys do not.
+- `ids` (Map of String) Permission id by key; ids differ between installations, keys do not.
 - `keys` (List of String) Permission keys, sorted.
 - `permissions` (Attributes List) The catalog entries, sorted by key. (see [below for nested schema](#nestedatt--permissions))
 

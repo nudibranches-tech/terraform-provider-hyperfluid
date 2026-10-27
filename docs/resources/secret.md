@@ -3,15 +3,12 @@
 page_title: "hyperfluid_secret Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A managed secret. value is write-only — it is never stored in Terraform state. Requires Terraform >= 1.11. Rotate the value by changing value together with value_wo_version.
-  A secret of type scm_credential is a Git credential: reference it by name from a hyperfluid_container_app's image_source.git.credential. It is created organization-wide, which is what a Git source requires.
+  An organization-wide secret. Its value is write-only and never stored in state, which requires Terraform 1.11 or later.
 ---
 
 # hyperfluid_secret (Resource)
 
-A managed secret. `value` is write-only — it is never stored in Terraform state. Requires Terraform >= 1.11. Rotate the value by changing `value` together with `value_wo_version`.
-
-A secret of type `scm_credential` is a Git credential: reference it by `name` from a `hyperfluid_container_app`'s `image_source.git.credential`. It is created organization-wide, which is what a Git source requires.
+An organization-wide secret. Its `value` is write-only and never stored in state, which requires Terraform 1.11 or later.
 
 ## Example Usage
 
@@ -62,7 +59,7 @@ resource "hyperfluid_secret" "git" {
 ### Required
 
 - `name` (String) Secret name. Changing this forces a new secret.
-- `secret_type` (String) Secret type: `plaintext`, `json` or `scm_credential` (a Git credential). Changing this forces a new secret.
+- `secret_type` (String) Secret type: `plaintext`, `json` or `scm_credential` (a Git credential for `image_source`). Changing this forces a new secret.
 
 ### Optional
 
@@ -70,8 +67,8 @@ resource "hyperfluid_secret" "git" {
 
 - `description` (String) Free-form description.
 - `tags` (List of String) User-defined tags.
-- `value` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Secret material (write-only — never persisted to state). For `json`, a JSON-encoded string. For `scm_credential`, a JSON object `{ "provider", "username"?, "base_url"?, "token" }`: `provider` is `github`, `gitlab` or `forgejo`, `base_url` names a self-hosted instance (leave it out for the public one), and `token` is the access token — read-only is enough for a Git source. Required on create.
-- `value_wo_version` (String) Arbitrary token; change it together with `value` to push a new value (rotation). Needed because the write-only `value` is not tracked in state.
+- `value` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Secret value, required on create; write-only. For `scm_credential`, a JSON object `{ provider, username?, base_url?, token }` where `provider` is `github`, `gitlab` or `forgejo`.
+- `value_wo_version` (String) Any value; change it together with `value` to rotate the secret.
 
 ### Read-Only
 

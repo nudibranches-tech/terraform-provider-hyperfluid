@@ -103,7 +103,6 @@ type containerAppModel struct {
 
 	// The workload lists (container_app_workload.go).
 	EnvVars          types.List `tfsdk:"env_vars"`
-	SecretRefs       types.List `tfsdk:"secret_refs"`
 	ImagePullSecrets types.List `tfsdk:"image_pull_secrets"`
 	Command          types.List `tfsdk:"command"`
 	Args             types.List `tfsdk:"args"`
@@ -176,36 +175,11 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A container app (CaaS): its image, ports, size, scaling, environment, command line, " +
-			"files, init containers, custom domains and metrics. Persistent volumes are not managed by this resource: " +
-			"an update leaves the ones an app has untouched.\n\n" +
-			"## Settings the platform may also manage\n\n" +
-			"`env_vars`, `secret_refs`, `image_pull_secrets`, `command`, `args`, `init_containers`, `file_mounts`, " +
-			"`custom_domains`, `autoscaling` and `metrics` can also be set in the console or by an app template. Left " +
-			"out of the configuration, such a setting is not managed: it " +
-			"reports what the app has and an update never sends it, so a template's init container survives an apply. " +
-			"Once Terraform has applied one, removing it from the configuration clears it on the app; `[]` clears it " +
-			"explicitly, which is also the way to clear a list Terraform has never applied, such as one an imported " +
-			"app carries.\n\n" +
-			"## Deploying from Git\n\n" +
-			"An `image_source { git { ... } }` block replaces the literal `image_repository` / `image_tag`: the platform " +
-			"polls a `hyperfluid.toml` file in the repository and rolls the app out when this app's entry changes. It " +
-			"keeps running the last good image when a check fails, and a failing check raises an alert unless " +
-			"`alert_on_sync_failure` is `false`. The repository is read with an organization-wide `hyperfluid_secret` " +
-			"of type `scm_credential`, named in `credential`.\n\n" +
-			"Every optional field of the block stays unset when omitted, and the platform resolves its default itself " +
-			"(the default branch, `hyperfluid.toml`, an entry named after the app, a check every 5 minutes). The image " +
-			"that runs is never written to `image_repository` / `image_tag`: read it from `resolved_image`, " +
-			"`resolved_ref`, `revision` and `last_synced_at`, which Terraform never plans a change for, so a release " +
-			"made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts " +
-			"that follow it; a check that fails or is slow is a warning, with the reason in `sync_error`.\n\n" +
-			"`sync_policy = \"manual\"` stops the platform from rolling a change out on its own: it reports it and " +
-			"waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: " +
-			"use the console or `hfctl apps check` / `hfctl apps sync`.\n\n" +
-			"Removing the block detaches the source: the app keeps running the image it last resolved until the " +
-			"literal `image_repository` / `image_tag` you set in its place is applied.\n\n" +
-			"~> Push access to the tracked branch, or to a tag matching `tag_pattern`, is deploy access. Protect them " +
-			"(GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).",
+		MarkdownDescription: "A container app: a container image run as a service in an environment. Settings " +
+			"you leave out keep whatever the app already has; removing one that Terraform set clears it.\n\n" +
+			"To deploy from Git, set an `image_source` block instead of `image_repository` and `image_tag`.\n\n" +
+			"~> Overriding `command` or `args`, on the app or an init container, needs the organization's container " +
+			"command override feature; without it the apply is refused.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -228,10 +202,8 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"slug": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "The app's identifier, unique in its environment and used in its URL and Kubernetes " +
-					"resource names. This is the name a `hyperfluid_service_link` endpoint takes. Lowercase letters, " +
-					"digits and single hyphens, at most 49 characters. Derived from `display_name` when omitted. " +
-					"Changing this forces a new app.",
+				MarkdownDescription: "Identifier of the app, unique in its environment: lowercase letters, digits and " +
+					"single hyphens, at most 49 characters. Defaults to one derived from `display_name`. Changing this forces a new app.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 49),
 					stringvalidator.RegexMatches(regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`),
@@ -244,8 +216,7 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"display_name": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "The app's name, shown in the console, at most 255 characters. Several apps may " +
-					"share one. Defaults to the slug.",
+				MarkdownDescription: "Name shown in the console, at most 255 characters. Defaults to the slug.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 255),
 					stringvalidator.RegexMatches(untrimmed, "must not start or end with whitespace"),
@@ -254,12 +225,12 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"description": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Free-form description.",
+				MarkdownDescription: "Free-form description, at most 1000 characters.",
 				Validators:          []validator.String{stringvalidator.LengthAtMost(1000)},
 			},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
-				MarkdownDescription: "User-defined tags: at most 20, each at most 64 characters.",
+				MarkdownDescription: "Tags, at most 20 of at most 64 characters each.",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(20),
 					listvalidator.ValueStringsAre(
@@ -270,24 +241,21 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"image_repository": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Container image repository. Required unless `image_source` is set, and conflicts with it.",
+				MarkdownDescription: "Image repository. Required unless `image_source` is set.",
 			},
 			"image_tag": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Container image tag. Required unless `image_source` is set, and conflicts with it.",
+				MarkdownDescription: "Image tag. Required unless `image_source` is set.",
 			},
 			"port": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "The app's single container port. **Deprecated — use `ports`**, which " +
-					"this conflicts with.\n\n" +
-					"~> The platform ignores writes to this attribute once the app's spec carries a " +
-					"non-empty `ports`, so on such an app a change here applies cleanly in Terraform and " +
-					"does nothing. Move the app to `ports` rather than editing this.",
+				MarkdownDescription: "**Deprecated — use `ports`.** Single container port; conflicts with `ports` and is " +
+					"ignored once the app has them.",
 				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Desired replica count.",
+				MarkdownDescription: "Number of replicas, at most 5. Conflicts with `autoscaling`.",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"enabled": schema.BoolAttribute{
@@ -297,43 +265,38 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"expose_to_internet": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.",
+				MarkdownDescription: "Whether the app gets public routes (its platform host and custom domains). Defaults to false: reachable in-cluster only.",
 				Default:             booldefault.StaticBool(false),
 			},
 			"resource_tier": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Resource tier: nano, micro, small, medium, large, xlarge. Maps to cpu/memory server-side.",
+				MarkdownDescription: "Size of each replica: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`. Conflicts with `custom_resources`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("nano", "micro", "small", "medium", "large", "xlarge"),
 				},
 			},
 			"health_check_path": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "HTTP health check path. Removing it removes the health check.",
+				MarkdownDescription: "HTTP path probed for health.",
 			},
 			"health_check_port": schema.Int64Attribute{
 				Optional:            true,
-				MarkdownDescription: "HTTP health check port. Requires `health_check_path`.",
+				MarkdownDescription: "Port probed for health. Requires `health_check_path`.",
 				Validators:          []validator.Int64{int64validator.AlsoRequires(path.MatchRoot("health_check_path"))},
 			},
 
-			"resource_version":   computedString("Kubernetes resourceVersion; used for optimistic concurrency on update."),
-			"cpu_request":        computedString("CPU request derived from resource_tier."),
-			"cpu_limit":          computedString("CPU limit derived from resource_tier."),
-			"memory_request":     computedString("Memory request derived from resource_tier."),
-			"memory_limit":       computedString("Memory limit derived from resource_tier."),
+			"resource_version":   computedString("Version of the app's spec, used to detect concurrent edits."),
+			"cpu_request":        computedString("CPU request of each replica."),
+			"cpu_limit":          computedString("CPU limit of each replica."),
+			"memory_request":     computedString("Memory request of each replica."),
+			"memory_limit":       computedString("Memory limit of each replica."),
 			"phase":              computedString("Current lifecycle phase."),
-			"endpoint":           computedString("Public endpoint, once provisioned."),
-			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired replicas reported by the platform."},
-			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Available replicas reported by the platform."},
+			"endpoint":           computedString("Public URL, once the app is exposed."),
+			"desired_replicas":   schema.Int64Attribute{Computed: true, MarkdownDescription: "Replicas the platform is aiming for."},
+			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Replicas currently available."},
 			"ports": schema.ListNestedAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "The ports the container listens on, replacing the deprecated single " +
-					"`port`. Only the port marked `primary` gets a public route; the rest are reachable " +
-					"in-cluster through the app's Service. Leave it out and the platform derives a single " +
-					"entry from `port`.\n\n" +
-					"Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the " +
-					"`port` and `protocol` of each entry.",
+				MarkdownDescription: "Ports the container listens on, at most 16. Only the `primary` port gets a public route.",
 				Validators: []validator.List{
 					listvalidator.ConflictsWith(path.MatchRoot("port")),
 					listvalidator.SizeAtMost(maxPortEntries),
@@ -342,9 +305,8 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							Required: true,
-							MarkdownDescription: "Port name, unique within the app, e.g. `http` or `metrics`. " +
-								"Lowercase letters, digits and hyphens, with at least one letter and no leading, " +
-								"trailing or consecutive hyphens; 15 characters at most.",
+							MarkdownDescription: "Port name, unique in the app, such as `http`: at most 15 lowercase letters, " +
+								"digits and single hyphens, with at least one letter.",
 							Validators: []validator.String{
 								stringvalidator.LengthBetween(1, 15),
 								// Kubernetes validates this as an IANA_SVC_NAME, stricter than a
@@ -366,18 +328,14 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 						},
 						"protocol": schema.StringAttribute{
 							Optional: true, Computed: true,
-							Default: stringdefault.StaticString("HTTP"),
-							MarkdownDescription: "One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an " +
-								"`HTTP` port can be published: the platform ingress terminates HTTP(S) and has no " +
-								"listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster " +
-								"through the app's Service only.",
-							Validators: []validator.String{stringvalidator.OneOf(portProtocols...)},
+							Default:             stringdefault.StaticString("HTTP"),
+							MarkdownDescription: "`HTTP`, `TCP` or `UDP`. Defaults to `HTTP`; `TCP` and `UDP` ports are reachable in-cluster only.",
+							Validators:          []validator.String{stringvalidator.OneOf(portProtocols...)},
 						},
 						"primary": schema.BoolAttribute{
 							Optional: true, Computed: true,
-							MarkdownDescription: "Marks the port that public routes and the default health probe " +
-								"target. Only an `HTTP` port can be primary, and at most one port may be. A single " +
-								"`HTTP` port becomes primary on its own.",
+							MarkdownDescription: "Whether public routes and the health probe use this port. Only one `HTTP` " +
+								"port can be primary; a lone `HTTP` port is primary by default.",
 						},
 					},
 				},
@@ -1012,8 +970,9 @@ func importedApp() containerAppModel {
 }
 
 // readInto builds the model from both views. From prior it carries
-// resource_tier and how image_source and custom_resources were written, which
-// the spec cannot tell apart from what the platform resolved.
+// resource_tier, the order of env_vars, and how image_source and
+// custom_resources were written, which the spec cannot tell apart from what
+// the platform resolved.
 func (r *containerAppResource) readInto(ctx context.Context, appID string, prior containerAppModel) (containerAppModel, error) {
 	spec, err := r.p.API.GetContainerAppSpec(ctx, r.p.OrgID, appID)
 	if err != nil {
@@ -1044,7 +1003,7 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 	if spec.ImageSource != nil {
 		gs = gitStatusFrom(spec.ImageSourceStatus)
 	}
-	workload, d := workloadFrom(ctx, spec)
+	workload, d := workloadFrom(ctx, spec, prior.EnvVars)
 	if d.HasError() {
 		return containerAppModel{}, errors.New("failed to convert the container app's workload")
 	}
@@ -1095,7 +1054,6 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 		LastSyncedAt:         gs.LastSyncedAt,
 		SyncError:            gs.SyncError,
 		EnvVars:              workload.EnvVars,
-		SecretRefs:           workload.SecretRefs,
 		ImagePullSecrets:     workload.ImagePullSecrets,
 		Command:              workload.Command,
 		Args:                 workload.Args,

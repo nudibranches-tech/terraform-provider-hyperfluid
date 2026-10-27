@@ -38,26 +38,30 @@ func obj(v any) map[string]any {
 	return m
 }
 
-func envVars(pairs ...string) types.List {
+func plainVar(name, value string) containerAppEnvVarModel {
+	return containerAppEnvVarModel{Name: types.StringValue(name), Value: types.StringValue(value), Secret: types.StringNull()}
+}
+
+func secretVar(name, secret string) containerAppEnvVarModel {
+	return containerAppEnvVarModel{Name: types.StringValue(name), Value: types.StringNull(), Secret: types.StringValue(secret)}
+}
+
+func envList(vars ...containerAppEnvVarModel) types.List {
 	elems := []attr.Value{}
-	for i := 0; i+1 < len(pairs); i += 2 {
-		elems = append(elems, types.ObjectValueMust(
-			attrTypes(containerAppEnvVarType()),
-			map[string]attr.Value{"name": types.StringValue(pairs[i]), "value": types.StringValue(pairs[i+1])},
-		))
+	for _, v := range vars {
+		elems = append(elems, types.ObjectValueMust(attrTypes(containerAppEnvVarType()),
+			map[string]attr.Value{"name": v.Name, "value": v.Value, "secret": v.Secret}))
 	}
 	return types.ListValueMust(containerAppEnvVarType(), elems)
 }
 
-func secretRefs(pairs ...string) types.List {
-	elems := []attr.Value{}
+// envVars is a list of plain variables, given as name, value pairs.
+func envVars(pairs ...string) types.List {
+	vars := []containerAppEnvVarModel{}
 	for i := 0; i+1 < len(pairs); i += 2 {
-		elems = append(elems, types.ObjectValueMust(
-			attrTypes(containerAppSecretRefType()),
-			map[string]attr.Value{"env_var_name": types.StringValue(pairs[i]), "secret_name": types.StringValue(pairs[i+1])},
-		))
+		vars = append(vars, plainVar(pairs[i], pairs[i+1]))
 	}
-	return types.ListValueMust(containerAppSecretRefType(), elems)
+	return envList(vars...)
 }
 
 // initContainer is an init container on the app's own image, inheriting
@@ -91,8 +95,8 @@ func TestContainerAppCreateSendsWorkload(t *testing.T) {
 	h := newHarness(t)
 	plan := literalApp(h.f)
 	plan.Slug = types.StringValue("orders-api")
-	plan.EnvVars = envVars("DB_HOST", "db", "DB_URL", "postgres://$(DB_HOST)")
-	plan.SecretRefs = secretRefs("DB_PASSWORD", "production/db")
+	plan.EnvVars = envList(plainVar("DB_HOST", "db"), secretVar("DB_PASSWORD", "production/db"),
+		plainVar("DB_URL", "postgres://$(DB_HOST)"))
 	plan.ImagePullSecrets = strList("production/registry")
 	plan.Command = strList("/app/server")
 	plan.Args = strList("--port", "8080")
@@ -111,9 +115,10 @@ func TestContainerAppCreateSendsWorkload(t *testing.T) {
 	body := h.f.calls("POST", "/container-apps/crd")[0].body
 	env, _ := body["env"].([]any)
 	if len(env) != 2 || obj(env[0])["name"] != "DB_HOST" || obj(env[1])["value"] != "postgres://$(DB_HOST)" {
-		t.Errorf("create body env = %v, want both variables in order", body["env"])
+		t.Errorf("create body env = %v, want both plain variables in order", body["env"])
 	}
-	if refs, _ := body["secret_refs"].([]any); len(refs) != 1 || obj(refs[0])["secret_name"] != "production/db" {
+	if refs, _ := body["secret_refs"].([]any); len(refs) != 1 ||
+		obj(refs[0])["env_var_name"] != "DB_PASSWORD" || obj(refs[0])["secret_name"] != "production/db" {
 		t.Errorf("create body secret_refs = %v", body["secret_refs"])
 	}
 	ics, _ := body["init_containers"].([]any)
@@ -172,6 +177,7 @@ func TestContainerAppUpdateKeepsAnUnmanagedList(t *testing.T) {
 	h.f.spec.InitContainers = &[]console.InitContainerResponse{{
 		Name: "bootstrap-oidc", Command: cmd, Args: []string{"echo bootstrap"}, InheritEnv: true, MountPersistence: true,
 	}}
+	h.f.spec.SecretRefs = []console.SecretRefSpecResponse{{EnvVarName: "OIDC_SECRET", SecretName: "production/oidc"}}
 	refreshed, err := h.r.readState(t.Context(), created.ID.ValueString(), importedApp())
 	if err != nil {
 		t.Fatalf("readState: %v", err)
@@ -179,9 +185,13 @@ func TestContainerAppUpdateKeepsAnUnmanagedList(t *testing.T) {
 	if n := len(refreshed.InitContainers.Elements()); n != 1 {
 		t.Fatalf("read init_containers = %v, want the template's entry", refreshed.InitContainers)
 	}
+	if want := envList(secretVar("OIDC_SECRET", "production/oidc")); !refreshed.EnvVars.Equal(want) {
+		t.Fatalf("read env_vars = %v, want the template's secret-backed variable", refreshed.EnvVars)
+	}
 
 	next := refreshed
 	next.InitContainers = plannedUnsetList(refreshed.InitContainers, false)
+	next.EnvVars = plannedUnsetList(refreshed.EnvVars, false)
 	next.Replicas = types.Int64Value(2)
 	got, d := h.update(next, h.stateOf(refreshed))
 	noErrors(t, d)
@@ -192,8 +202,8 @@ func TestContainerAppUpdateKeepsAnUnmanagedList(t *testing.T) {
 			t.Errorf("an update that changes no workload list sent %q: %v", key, patch)
 		}
 	}
-	if !got.InitContainers.Equal(refreshed.InitContainers) {
-		t.Errorf("init_containers = %v, want the template's entry kept", got.InitContainers)
+	if !got.InitContainers.Equal(refreshed.InitContainers) || !got.EnvVars.Equal(refreshed.EnvVars) {
+		t.Errorf("init_containers = %v, env_vars = %v, want the template's entries kept", got.InitContainers, got.EnvVars)
 	}
 }
 
@@ -202,7 +212,7 @@ func TestContainerAppUpdateKeepsAnUnmanagedList(t *testing.T) {
 func TestContainerAppUpdateClearsARemovedList(t *testing.T) {
 	h := newHarness(t)
 	plan := literalApp(h.f)
-	plan.EnvVars = envVars("LOG_LEVEL", "debug")
+	plan.EnvVars = envList(plainVar("LOG_LEVEL", "debug"), secretVar("TOKEN", "production/token"))
 	plan.InitContainers = initContainers(t, initContainer("migrate", nil))
 	created, d := h.create(plan)
 	noErrors(t, d)
@@ -214,7 +224,7 @@ func TestContainerAppUpdateClearsARemovedList(t *testing.T) {
 	noErrors(t, d)
 
 	patch := h.f.calls("PATCH", "/crd")[0].body
-	for _, key := range []string{"env", "init_containers"} {
+	for _, key := range []string{"env", "secret_refs", "init_containers"} {
 		if v, ok := patch[key].([]any); !ok || len(v) != 0 {
 			t.Errorf("PATCH %s = %v, want []", key, patch[key])
 		}
@@ -224,29 +234,75 @@ func TestContainerAppUpdateClearsARemovedList(t *testing.T) {
 	}
 }
 
-// Changing one variable sends the whole list, the others untouched lists stay out.
+// Changing one variable sends both halves of env_vars, since PATCH replaces
+// each on its own; the other untouched lists stay out.
 func TestContainerAppUpdateReplacesAChangedList(t *testing.T) {
 	h := newHarness(t)
 	plan := literalApp(h.f)
-	plan.EnvVars = envVars("LOG_LEVEL", "debug")
+	plan.EnvVars = envList(plainVar("LOG_LEVEL", "debug"), secretVar("TOKEN", "production/token"))
 	plan.Command = strList("/app/server")
 	created, d := h.create(plan)
 	noErrors(t, d)
 
 	next := created
-	next.EnvVars = envVars("LOG_LEVEL", "info", "REGION", "eu")
+	next.EnvVars = envList(plainVar("LOG_LEVEL", "info"), secretVar("TOKEN", "production/token"), plainVar("REGION", "eu"))
 	got, d := h.update(next, h.stateOf(created))
 	noErrors(t, d)
 
 	patch := h.f.calls("PATCH", "/crd")[0].body
 	if env, _ := patch["env"].([]any); len(env) != 2 {
-		t.Errorf("PATCH env = %v, want the 2 configured variables", patch["env"])
+		t.Errorf("PATCH env = %v, want the 2 plain variables", patch["env"])
+	}
+	if refs, _ := patch["secret_refs"].([]any); len(refs) != 1 || obj(refs[0])["env_var_name"] != "TOKEN" {
+		t.Errorf("PATCH secret_refs = %v, want the unchanged secret-backed variable", patch["secret_refs"])
 	}
 	if _, ok := patch["command"]; ok {
 		t.Errorf("an unchanged command was re-sent: %v", patch)
 	}
 	if !got.EnvVars.Equal(next.EnvVars) {
 		t.Errorf("env_vars = %v, want %v", got.EnvVars, next.EnvVars)
+	}
+}
+
+// The API lists plain variables before secret-backed ones. A read keeps the
+// order the configuration interleaved them in, and falls back to the API's
+// order once the variables differ, as on import.
+func TestContainerAppReadOrderOfEnvVars(t *testing.T) {
+	h := newHarness(t)
+	plan := literalApp(h.f)
+	interleaved := envList(secretVar("TOKEN", "production/token"), plainVar("A", "1"), plainVar("B", "2"))
+	plan.EnvVars = interleaved
+	created, d := h.create(plan)
+	noErrors(t, d)
+	if !created.EnvVars.Equal(interleaved) {
+		t.Fatalf("created env_vars = %v, want the configured order", created.EnvVars)
+	}
+
+	refreshed, err := h.r.readState(t.Context(), created.ID.ValueString(), created)
+	if err != nil {
+		t.Fatalf("readState: %v", err)
+	}
+	if !refreshed.EnvVars.Equal(interleaved) {
+		t.Errorf("refreshed env_vars = %v, want the prior order", refreshed.EnvVars)
+	}
+
+	apiOrder := envList(plainVar("A", "1"), plainVar("B", "2"), secretVar("TOKEN", "production/token"))
+	imported, err := h.r.readState(t.Context(), created.ID.ValueString(), importedApp())
+	if err != nil {
+		t.Fatalf("readState: %v", err)
+	}
+	if !imported.EnvVars.Equal(apiOrder) {
+		t.Errorf("imported env_vars = %v, want plain variables first", imported.EnvVars)
+	}
+
+	h.f.spec.Env[1].Value = "changed"
+	drifted, err := h.r.readState(t.Context(), created.ID.ValueString(), created)
+	if err != nil {
+		t.Fatalf("readState: %v", err)
+	}
+	want := envList(plainVar("A", "1"), plainVar("B", "changed"), secretVar("TOKEN", "production/token"))
+	if !drifted.EnvVars.Equal(want) {
+		t.Errorf("drifted env_vars = %v, want %v", drifted.EnvVars, want)
 	}
 }
 
@@ -412,14 +468,33 @@ func TestContainerAppWorkloadValidation(t *testing.T) {
 		},
 		"variable set twice": {
 			edit: func(t *testing.T, m *containerAppModel) {
-				m.EnvVars = envVars("TOKEN", "x")
-				m.SecretRefs = secretRefs("TOKEN", "production/token")
+				m.EnvVars = envList(plainVar("TOKEN", "x"), secretVar("TOKEN", "production/token"))
 			},
 			want: "Duplicate environment variable",
 		},
 		"private secret reference": {
-			edit: func(t *testing.T, m *containerAppModel) { m.SecretRefs = secretRefs("TOKEN", "users/alice/token") },
+			edit: func(t *testing.T, m *containerAppModel) { m.EnvVars = envList(secretVar("TOKEN", "users/alice/token")) },
 			want: "Private secret",
+		},
+		"variable with a value and a secret": {
+			edit: func(t *testing.T, m *containerAppModel) {
+				v := plainVar("TOKEN", "x")
+				v.Secret = types.StringValue("production/token")
+				m.EnvVars = envList(v)
+			},
+			want: "Invalid Attribute Combination",
+		},
+		"variable with neither a value nor a secret": {
+			edit: func(t *testing.T, m *containerAppModel) {
+				m.EnvVars = envList(containerAppEnvVarModel{Name: types.StringValue("TOKEN"), Value: types.StringNull(), Secret: types.StringNull()})
+			},
+			want: "Invalid Attribute Combination",
+		},
+		"value referencing a secret-backed variable": {
+			edit: func(t *testing.T, m *containerAppModel) {
+				m.EnvVars = envList(plainVar("DB_URL", "postgres://app:$(DB_PASSWORD)@db"), secretVar("DB_PASSWORD", "production/db"))
+			},
+			want: "Reference to a secret-backed variable",
 		},
 		"health check port without a path": {
 			edit: func(t *testing.T, m *containerAppModel) { m.HealthCheckPort = types.Int64Value(8081) },
@@ -453,8 +528,7 @@ func TestContainerAppWorkloadValidation(t *testing.T) {
 	h := newHarness(t)
 	cfg := literalApp(h.f)
 	cfg.Slug = types.StringValue("orders-api")
-	cfg.EnvVars = envVars("A", "1")
-	cfg.SecretRefs = secretRefs("B", "production/b")
+	cfg.EnvVars = envList(plainVar("A", "1"), secretVar("B", "production/b"), plainVar("C", "$(A) $$(B)"))
 	cfg.InitContainers = initContainers(t, initContainer("migrate", func(m *containerAppInitContainerModel) {
 		m.Command = strList("sh", "-c", "")
 	}))

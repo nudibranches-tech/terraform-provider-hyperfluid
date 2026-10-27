@@ -3,25 +3,22 @@
 page_title: "hyperfluid_airflow_connection Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up a managed Airflow connection by the conn_id a DAG asks for — a connection declared through the console, hfctl, or another Terraform configuration.
-  This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: phase, source_applied and collision say whether the credential reached the target, and resolved_permission_level says what access it granted — where the target is one the platform grants access on at all, which permission_level_applies reports. No credential is exposed: the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived and it is part of no read, and neither is the client secret a Trino connection's row carries.
+  Look up a managed Airflow connection by its conn_id. No credential is exposed.
 ---
 
 # hyperfluid_airflow_connection (Data Source)
 
-Look up a managed Airflow connection by the `conn_id` a DAG asks for — a connection declared through the console, `hfctl`, or another Terraform configuration.
-
-This is a read of the declaration and its status, which is what makes it useful for asserting that a connection a DAG depends on is actually in force: `phase`, `source_applied` and `collision` say whether the credential reached the target, and `resolved_permission_level` says what access it granted — where the target is one the platform grants access on at all, which `permission_level_applies` reports. No credential is exposed: the platform mints a bucket connection's object-store session fresh, in-cluster and short-lived and it is part of no read, and neither is the client secret a Trino connection's row carries.
+Look up a managed Airflow connection by its `conn_id`. No credential is exposed.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 data "hyperfluid_airflow" "analytics" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics"
 }
 
@@ -80,22 +77,22 @@ output "warehouse_conditions" {
 
 ### Read-Only
 
-- `bucket_ref` (String) Name of the bucket the connection targets, for a bucket connection.
-- `catalog` (String) The Trino catalog the connection opens against — the session default for unqualified table names, not a scope. Set for a Trino connection, where it is required, and null for every other type.
-- `collision` (Boolean) Whether an Airflow connection row the platform does not manage — a hand-written one, say — already owns this `conn_id`.
-- `collision_existing_connection_type` (String) Type of the connection already holding this `conn_id`, when there is a collision.
-- `conditions` (Attributes List) The platform's status conditions for this connection — the detail behind `phase`. (see [below for nested schema](#nestedatt--conditions))
-- `connection_type` (String) The Airflow `conn_type` of the row the platform wrote, derived from which target it names: `postgres`, `aws` for a bucket, or `hyperfluid_trino`.
-- `id` (String) Composite identifier `<airflow_id>/<conn_id>`, the same string the `hyperfluid_airflow_connection` resource exports as `id` and `terraform import` takes.
-- `managed_postgresql_ref` (String) Name of the PostgreSQL cluster the connection targets, for a database connection.
-- `name` (String) The connection object's own name, which is how the API addresses it. Not the same string as `conn_id`.
-- `permission_level` (String) The level pinned on the connection, or null when it follows the platform default.
-- `permission_level_applies` (Boolean) Whether `permission_level` means anything for this connection's type. False for a Trino connection, which carries the environment's own service account and is therefore granted no authority of its own for a level to scale.
-- `phase` (String) Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` means the environment is asleep.
-- `resolved_permission_level` (String) The level actually in force: the pinned value, or the platform's own default when nothing is pinned. Read `permission_level_applies` first — where the knob does not apply, this field describes nothing the platform granted.
-- `source_applied` (Boolean) Whether the credential has actually been applied to the target.
-- `spec_observed` (Boolean) Whether the platform has looked at the current declaration yet.
-- `trino_ref` (String) Name of the Trino Data Dock the connection targets, for a Trino connection.
+- `bucket_ref` (String) Bucket the connection targets, for a bucket connection.
+- `catalog` (String) Default Trino catalog of a Trino connection, null otherwise.
+- `collision` (Boolean) Whether a connection the platform does not manage already holds `conn_id`.
+- `collision_existing_connection_type` (String) Type of the connection already holding `conn_id`, on a collision.
+- `conditions` (Attributes List) Status conditions behind `phase`. (see [below for nested schema](#nestedatt--conditions))
+- `connection_type` (String) Airflow `conn_type`: `postgres`, `aws` for a bucket, or `hyperfluid_trino`.
+- `id` (String) Identifier `<airflow_id>/<conn_id>`.
+- `managed_postgresql_ref` (String) PostgreSQL cluster the connection targets, for a database connection.
+- `name` (String) Name the platform gave the connection object, different from `conn_id`.
+- `permission_level` (String) Pinned access level, or null when the platform default applies.
+- `permission_level_applies` (Boolean) Whether `permission_level` applies to this connection's type; false for Trino.
+- `phase` (String) Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, `Applying`, `Ready`, `Parked` (environment asleep), `Deleting` or `Failed`.
+- `resolved_permission_level` (String) Access level in force. Meaningless when `permission_level_applies` is false.
+- `source_applied` (Boolean) Whether the credential has been applied to the target.
+- `spec_observed` (Boolean) Whether the platform has processed the current configuration.
+- `trino_ref` (String) Trino Data Dock the connection targets, for a Trino connection.
 
 <a id="nestedatt--conditions"></a>
 ### Nested Schema for `conditions`

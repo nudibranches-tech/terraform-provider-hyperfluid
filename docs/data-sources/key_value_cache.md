@@ -13,12 +13,12 @@ Look up an existing key-value cache by name within an environment.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 data "hyperfluid_key_value_cache" "sessions" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "sessions"
 }
 
@@ -42,7 +42,7 @@ output "cache_host" {
 - `host` (String) Connection host.
 - `id` (String) Cache id.
 - `image` (String) Cache image.
-- `maxmemory` (String) Max memory (e.g. 256mb).
+- `maxmemory` (String) Valkey `maxmemory`, e.g. `256mb`.
 - `maxmemory_policy` (String) Eviction policy.
 - `phase` (String) Current lifecycle phase.
 - `port` (Number) Connection port.

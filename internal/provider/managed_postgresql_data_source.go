@@ -117,9 +117,9 @@ func (d *managedPostgresqlDataSource) Schema(_ context.Context, _ datasource.Sch
 			"node_tier":          cs("Node tier."),
 			"storage_capacity":   ci("Storage capacity in GB."),
 			"backup_policy":      cs("Backup policy."),
-			"backup_target_id":   cs("Backup target id. Always null: no API view reports which target a database ships to."),
+			"backup_target_id":   cs("Always null: the API does not report it."),
 			"configuration":      cs("Cluster configuration (e.g. standalone)."),
-			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the cluster is reachable from the internet via an external NodePort Service."},
+			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the cluster has an external endpoint."},
 			"description":        cs("Free-form description."),
 			"tags":               schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
 			"phase":              cs("Current lifecycle phase."),
@@ -129,15 +129,11 @@ func (d *managedPostgresqlDataSource) Schema(_ context.Context, _ datasource.Sch
 			"read_endpoint":      cs("Read endpoint."),
 			"external_endpoint":  cs("External endpoint, if exposed."),
 			"slug":               cs("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
-			"archive_interval_seconds": ci("Seconds between forced WAL segment switches on the running " +
-				"cluster. `0` means no forced switch, so nothing bounds the lag on an idle database; null " +
-				"means the database archives nowhere, or the platform has not reported on it yet."),
-			"first_recoverability_point": cs("Earliest point a restore can target, as the backup catalog " +
-				"reports it. Null on a database that archives nowhere, and on one that ships WAL but has " +
-				"never completed a base backup."),
-			"last_successful_backup_time": cs("When the last base backup completed. A continuous-archive " +
-				"restore needs one, because recovery replays forward from a base backup."),
-			"last_failed_backup_time": cs("When the last backup failed."),
+			"archive_interval_seconds": ci("Seconds between forced WAL switches on the running cluster. `0` " +
+				"means none; null means the database is not archived or not reported yet."),
+			"first_recoverability_point":  cs("Earliest time a restore can target, or null when no base backup has completed."),
+			"last_successful_backup_time": cs("When the last base backup completed."),
+			"last_failed_backup_time":     cs("When the last backup failed."),
 		},
 	}
 }

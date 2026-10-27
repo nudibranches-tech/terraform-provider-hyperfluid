@@ -51,11 +51,11 @@ func (d *bifrostDataSource) Metadata(_ context.Context, req datasource.MetadataR
 
 func (d *bifrostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "The cluster's query-layer (Bifrost) connection endpoints and feature configuration. Bifrost is a per-deployment singleton, so this data source takes no arguments.",
+		MarkdownDescription: "The connection endpoints and enabled features of Bifrost, the platform's query layer. Takes no arguments.",
 		Attributes: map[string]schema.Attribute{
 			"rest_url":             schema.StringAttribute{Computed: true, MarkdownDescription: "REST / OpenAPI base URL (e.g. `https://bifrost.example.com`)."},
 			"pgwire_endpoint":      schema.StringAttribute{Computed: true, MarkdownDescription: "PostgreSQL wire-protocol endpoint as `host:port`."},
-			"graphql_url_template": schema.StringAttribute{Computed: true, MarkdownDescription: "GraphQL URL template — substitute a Data Dock id for `{data_dock_id}`."},
+			"graphql_url_template": schema.StringAttribute{Computed: true, MarkdownDescription: "GraphQL URL template, with `{data_dock_id}` to replace by a Data Dock id."},
 			"features": schema.SingleNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Which Bifrost query features are enabled on this deployment.",

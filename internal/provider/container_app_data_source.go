@@ -51,8 +51,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"env": schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the app runs in."},
 			"slug": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Slug of the app to look up. Display names are not unique, so an app is looked up " +
-					"by its slug. This is the name a `hyperfluid_service_link` endpoint takes.",
+				MarkdownDescription: "Slug of the app to look up.",
 			},
 			"name": schema.StringAttribute{
 				Optional: true, Computed: true,
@@ -65,26 +64,25 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
-			"port":               ci("The app's single container port. Deprecated by the API in favour of `ports`; for an app publishing several, this reports the primary one."),
+			"port":               ci("**Deprecated — use `ports`.** The primary port of the app."),
 			"replicas":           ci("Desired replica count."),
 			"enabled":            schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app is running."},
 			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether internet-facing routes are created for the app."},
-			"resource_tier":      cs("Resource tier — not returned by the API, so always null on a data source."),
+			"resource_tier":      cs("Always null on a data source."),
 			"health_check_path":  cs("HTTP health check path."),
 			"health_check_port":  ci("HTTP health check port."),
-			"resource_version":   cs("Kubernetes resourceVersion."),
-			"cpu_request":        cs("CPU request derived from resource_tier."),
-			"cpu_limit":          cs("CPU limit derived from resource_tier."),
-			"memory_request":     cs("Memory request derived from resource_tier."),
-			"memory_limit":       cs("Memory limit derived from resource_tier."),
+			"resource_version":   cs("Version of the app's spec."),
+			"cpu_request":        cs("CPU request of each replica."),
+			"cpu_limit":          cs("CPU limit of each replica."),
+			"memory_request":     cs("Memory request of each replica."),
+			"memory_limit":       cs("Memory limit of each replica."),
 			"phase":              cs("Current lifecycle phase."),
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
 			"image_source": schema.SingleNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "The Git source the app's image comes from, or null for an app with a literal " +
-					"image. `image_repository` and `image_tag` then report the image it resolved, when it has one.",
+				Computed:            true,
+				MarkdownDescription: "Git source of the app's image, or null for a literal image.",
 				Attributes: map[string]schema.Attribute{
 					"git": schema.SingleNestedAttribute{
 						Computed:            true,
@@ -124,21 +122,12 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			},
 			"env_vars": schema.ListNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "Plain environment variables of the main container, in order.",
+				MarkdownDescription: "Environment variables of the main container: plain ones first, then secret-backed ones.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"name":  cs("Variable name."),
-						"value": cs("Variable value."),
-					},
-				},
-			},
-			"secret_refs": schema.ListNestedAttribute{
-				Computed:            true,
-				MarkdownDescription: "Environment variables read from an organization-wide secret when the app is deployed.",
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"env_var_name": cs("Variable name."),
-						"secret_name":  cs("Name of the secret holding the value."),
+						"name":   cs("Variable name."),
+						"value":  cs("Plain-text value, or null for a secret-backed variable."),
+						"secret": cs("Name of the secret holding the value, or null for a plain variable."),
 					},
 				},
 			},
@@ -173,15 +162,14 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 				},
 			},
 			"custom_resources": schema.SingleNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "Always null on a data source: a tier and a custom size cannot be told apart " +
-					"from the app. Read `cpu_request` and `memory_request` instead.",
+				Computed:            true,
+				MarkdownDescription: "Always null on a data source; read `cpu_request` and `memory_request` instead.",
 				Attributes: map[string]schema.Attribute{
 					"cpu_millis": ci("CPU sold, in millicores."),
 					"memory_mib": ci("Memory, in MiB."),
 				},
 			},
-			"resource_mode": cs("What the console does with the CPU rightsizing recommendation: `advisory`, `manual` or `managed`."),
+			"resource_mode": cs("Whether the console shows CPU rightsizing advice: `advisory`, `manual` or `managed`."),
 			"autoscaling": schema.SingleNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Horizontal autoscaling, or null when the app runs a fixed `replicas`.",

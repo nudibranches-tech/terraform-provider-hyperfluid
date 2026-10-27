@@ -3,8 +3,7 @@ data "hyperfluid_service_account" "backup_reader" {
   client_id = "backup-reader"
 }
 
-resource "hyperfluid_group_member" "backup_reader" {
-  group_id       = hyperfluid_group.auditors.id
-  principal_type = "service_account"
-  principal_id   = data.hyperfluid_service_account.backup_reader.id
+resource "hyperfluid_service_account_access" "backup_reader" {
+  service_account_id = data.hyperfluid_service_account.backup_reader.id
+  grants             = [{ permission = "bucket:read_objects", scope_path = "default/backups" }]
 }

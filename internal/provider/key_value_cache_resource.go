@@ -91,15 +91,15 @@ func (r *keyValueCacheResource) Schema(_ context.Context, _ resource.SchemaReque
 			},
 			"image": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Valkey container image (defaults to a platform-pinned image).",
+				MarkdownDescription: "Valkey container image. Defaults to the platform's pinned image.",
 			},
 			"maxmemory": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Valkey maxmemory, e.g. \"256mb\".",
+				MarkdownDescription: "Valkey `maxmemory`, e.g. `256mb`. Defaults to three quarters of `resources.limits.memory` when that is set.",
 			},
 			"maxmemory_policy": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Valkey eviction policy, e.g. \"allkeys-lru\".",
+				MarkdownDescription: "Valkey eviction policy, e.g. `allkeys-lru`.",
 			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
 			"tags": schema.ListAttribute{
@@ -108,10 +108,8 @@ func (r *keyValueCacheResource) Schema(_ context.Context, _ resource.SchemaReque
 			},
 			"resources": schema.SingleNestedAttribute{
 				Optional: true,
-				MarkdownDescription: "CPU and memory requests and limits of the cache's container, as Kubernetes " +
-					"quantities. Left out, the container runs without any. Without `maxmemory`, the platform sets " +
-					"Valkey's to three quarters of `limits.memory`. Leaving `limits.cpu` out is recommended: a CPU " +
-					"limit throttles the cache even on an idle node. Removing the attribute clears them.",
+				MarkdownDescription: "CPU and memory requests and limits of the cache, as Kubernetes quantities. " +
+					"Left out, none are set; a CPU limit is best avoided, as it throttles the cache.",
 				Attributes: map[string]schema.Attribute{
 					"requests": resourceQuantities("Resources guaranteed to the container.",
 						objectvalidator.AtLeastOneOf(path.MatchRelative().AtParent().AtName("limits"))),
@@ -121,7 +119,7 @@ func (r *keyValueCacheResource) Schema(_ context.Context, _ resource.SchemaReque
 
 			"host":                    computedStr("Cache host, once provisioned."),
 			"port":                    schema.Int64Attribute{Computed: true, MarkdownDescription: "Cache port, once provisioned."},
-			"credentials_secret_name": computedStr("Name of the secret holding the connection credentials (reference it with secret:<name>)."),
+			"credentials_secret_name": computedStr("Name of the secret holding the connection credentials."),
 			"phase":                   computedStr("Current lifecycle phase."),
 			"slug":                    computedStr("Derived slug."),
 		},

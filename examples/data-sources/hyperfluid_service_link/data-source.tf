@@ -1,11 +1,11 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reads a link declared anywhere — the console, hfctl, or another Terraform
 # workspace.
 data "hyperfluid_service_link" "web_to_db" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "web-main"
 }
 

@@ -3,31 +3,25 @@
 page_title: "hyperfluid_service_link Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A declared network path from one service to another within an environment.
-  ~> Whether a link is enforced depends on the environment. An environment's network isolation is lenient unless it has been set to strict, and under lenient any service in the environment can already reach any other — so a link changes nothing about reachability there, it only records the intent that survives a later switch to strict. Under strict the blanket allow is gone and a service is reachable only over its declared links. Even then, enforcement covers ContainerApp, HfKeyValueCache and ManagedPostgreSQL; Trino and Kafka links are recorded but not yet enforced. The mode is a property of the environment and is not manageable through this provider.
-  ~> Every configurable attribute forces replacement. A link is immutable — the API has no update endpoint and the underlying resource rejects any change to its endpoints or ports — so editing env, consumer, target or target_ports destroys the link and creates a new one. Reachability is therefore briefly interrupted on such a change.
-  Deleting either endpoint also removes the links that name it.
+  A network path that lets one service reach another in the same environment. It is enforced only when the environment's network isolation is strict, and not yet for Trino or Kafka endpoints.
+  ~> Every change replaces the link, which briefly interrupts traffic between the two services.
 ---
 
 # hyperfluid_service_link (Resource)
 
-A declared network path from one service to another within an environment.
+A network path that lets one service reach another in the same environment. It is enforced only when the environment's network isolation is `strict`, and not yet for `Trino` or `Kafka` endpoints.
 
-~> **Whether a link is enforced depends on the environment.** An environment's network isolation is `lenient` unless it has been set to `strict`, and under `lenient` any service in the environment can already reach any other — so a link changes nothing about reachability there, it only records the intent that survives a later switch to `strict`. Under `strict` the blanket allow is gone and a service is reachable only over its declared links. Even then, enforcement covers `ContainerApp`, `HfKeyValueCache` and `ManagedPostgreSQL`; `Trino` and `Kafka` links are recorded but not yet enforced. The mode is a property of the environment and is not manageable through this provider.
-
-~> **Every configurable attribute forces replacement.** A link is immutable — the API has no update endpoint and the underlying resource rejects any change to its endpoints or ports — so editing `env`, `consumer`, `target` or `target_ports` destroys the link and creates a new one. Reachability is therefore briefly interrupted on such a change.
-
-Deleting either endpoint also removes the links that name it.
+~> Every change replaces the link, which briefly interrupts traffic between the two services.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_container_app" "web" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "web"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
@@ -38,7 +32,7 @@ resource "hyperfluid_container_app" "web" {
 }
 
 resource "hyperfluid_managed_postgresql" "main" {
-  env           = data.hyperfluid_env.default.id
+  env           = data.hyperfluid_environment.default.id
   name          = "main"
   database_name = "app"
 }
@@ -49,7 +43,7 @@ resource "hyperfluid_managed_postgresql" "main" {
 #
 # Postgres publishes one known port, so the platform opens it — no target_ports.
 resource "hyperfluid_service_link" "web_to_db" {
-  env = data.hyperfluid_env.default.id
+  env = data.hyperfluid_environment.default.id
 
   consumer = {
     kind = "ContainerApp"
@@ -65,7 +59,7 @@ resource "hyperfluid_service_link" "web_to_db" {
 # A multi-port app: only the primary port gets a public route, the rest are
 # reachable in-cluster — which is exactly what a link opens.
 resource "hyperfluid_container_app" "api" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "api"
   image_repository = "nginxinc/nginx-unprivileged"
   image_tag        = "alpine"
@@ -89,7 +83,7 @@ resource "hyperfluid_container_app" "api" {
 # A container app is the one kind publishing several ports, so which of them to
 # open can be chosen. Each pair must already be published by the target app.
 resource "hyperfluid_service_link" "web_to_api" {
-  env = data.hyperfluid_env.default.id
+  env = data.hyperfluid_environment.default.id
 
   consumer = {
     kind = "ContainerApp"
@@ -111,7 +105,7 @@ resource "hyperfluid_service_link" "web_to_api" {
 # plan: while the app has a pending change its ports are unknown, and since every
 # attribute of a link is immutable, the link is then planned for replacement.
 resource "hyperfluid_service_link" "web_to_api_all_ports" {
-  env = data.hyperfluid_env.default.id
+  env = data.hyperfluid_environment.default.id
 
   consumer     = { kind = "ContainerApp", name = hyperfluid_container_app.web.slug }
   target       = { kind = "ContainerApp", name = hyperfluid_container_app.api.slug }
@@ -134,28 +128,28 @@ output "open_ports" {
 
 ### Required
 
-- `consumer` (Attributes) The service that gets permission to reach `target`. `Airflow` and `Pipeline` are valid here and nowhere else: both reach their targets and are never reached themselves. Note an Airflow environment can also declare its own egress inline, with `hyperfluid_airflow`'s `egress.in_cluster` block. Changing this forces a new link. (see [below for nested schema](#nestedatt--consumer))
+- `consumer` (Attributes) The service allowed to reach `target`. Changing this forces a new link. (see [below for nested schema](#nestedatt--consumer))
 - `env` (String) Environment id both services live in. Changing this forces a new link.
-- `target` (Attributes) The service that becomes reachable. `Airflow` and `Pipeline` are refused here — nothing connects to either. Changing this forces a new link. (see [below for nested schema](#nestedatt--target))
+- `target` (Attributes) The service made reachable; `Airflow` and `Pipeline` are not allowed here. Changing this forces a new link. (see [below for nested schema](#nestedatt--target))
 
 ### Optional
 
-- `target_ports` (Attributes Set) Which of the target's ports to open. Valid only when `target.kind` is `ContainerApp` — the one kind that publishes more than one port — and each port must already be declared by that app. Omit it to let the platform pick: a container app's primary port, or the known port of a fixed-port kind. Changing this forces a new link. (see [below for nested schema](#nestedatt--target_ports))
+- `target_ports` (Attributes Set) Ports of a `ContainerApp` target to open; omitted, the platform opens the target's primary port. Changing this forces a new link. (see [below for nested schema](#nestedatt--target_ports))
 
 ### Read-Only
 
 - `id` (String) Composite identifier `env/name`.
-- `name` (String) The link's name, derived by the platform from the linked pair (`<consumer>-<target>`, truncated to 63 characters). Also its identifier within the environment.
-- `ports` (Attributes List) The ports actually opened for this link, including the ones the platform picked when `target_ports` was omitted. Reported as the L4 protocol the platform opened, so an app's `HTTP` port reads back as `TCP` here. Empty until the link has been reconciled. (see [below for nested schema](#nestedatt--ports))
-- `ready` (Boolean) Whether the platform has reconciled this link and opened its ports. True regardless of the environment's isolation mode — it reports that the link exists, not that anything was blocked without it.
+- `name` (String) Name the platform gives the link, `<consumer>-<target>` cut to 63 characters.
+- `ports` (Attributes List) Ports opened for this link, with their L4 protocol (an `HTTP` port reads as `TCP`). (see [below for nested schema](#nestedatt--ports))
+- `ready` (Boolean) Whether the platform has opened the link's ports.
 
 <a id="nestedatt--consumer"></a>
 ### Nested Schema for `consumer`
 
 Required:
 
-- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`, `Airflow`, `Pipeline`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
-- `name` (String) The service's slug — the `slug` attribute of the resource, not its display name. Both endpoints must live in `env`. Changing this forces a new link.
+- `kind` (String) Kind of service: `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`, `Airflow`, `Pipeline`. Changing this forces a new link.
+- `name` (String) The service's `slug`, not its display name. Changing this forces a new link.
 
 
 <a id="nestedatt--target"></a>
@@ -163,8 +157,8 @@ Required:
 
 Required:
 
-- `kind` (String) Kind of service. One of `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict isolation. Changing this forces a new link.
-- `name` (String) The service's slug — the `slug` attribute of the resource, not its display name. Both endpoints must live in `env`. Changing this forces a new link.
+- `kind` (String) Kind of service: `ContainerApp`, `HfKeyValueCache`, `ManagedPostgreSQL`, `Trino`, `Kafka`. Changing this forces a new link.
+- `name` (String) The service's `slug`, not its display name. Changing this forces a new link.
 
 
 <a id="nestedatt--target_ports"></a>
@@ -176,7 +170,7 @@ Required:
 
 Optional:
 
-- `protocol` (String) The port's protocol, spelled as the target app declares it: `HTTP`, `TCP`, `UDP` or `SCTP`. An `HTTP` port is opened over TCP, which is why a container app's `ports` can be assigned to this attribute unchanged.
+- `protocol` (String) Protocol: `HTTP`, `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.
 
 
 <a id="nestedatt--ports"></a>

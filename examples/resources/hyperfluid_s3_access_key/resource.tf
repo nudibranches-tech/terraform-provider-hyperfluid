@@ -1,4 +1,4 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -9,15 +9,13 @@ data "hyperfluid_service_account" "etl" {
   client_id = "etl"
 }
 
-resource "hyperfluid_grant" "etl_read_exports" {
-  principal_type = "service_account"
-  principal_id   = data.hyperfluid_service_account.etl.id
-  permission     = "bucket:read_objects"
-  scope_path     = "default/exports"
+resource "hyperfluid_service_account_access" "etl" {
+  service_account_id = data.hyperfluid_service_account.etl.id
+  grants             = [{ permission = "bucket:read_objects", scope_path = "default/exports" }]
 }
 
 resource "hyperfluid_s3_access_key" "etl" {
-  env                = data.hyperfluid_env.default.id
+  env                = data.hyperfluid_environment.default.id
   service_account_id = data.hyperfluid_service_account.etl.id
   label              = "nightly export"
 }

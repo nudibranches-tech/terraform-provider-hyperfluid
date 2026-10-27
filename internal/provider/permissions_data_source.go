@@ -13,7 +13,7 @@ import (
 )
 
 // hyperfluid_permissions data source — the platform's permission catalog, the
-// keys hyperfluid_grant and hyperfluid_role_permissions take.
+// keys roles and grants take.
 
 var (
 	_ datasource.DataSource              = &permissionsDataSource{}
@@ -51,8 +51,7 @@ func (d *permissionsDataSource) Metadata(_ context.Context, req datasource.Metad
 
 func (d *permissionsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "The platform's permission catalog: every `<resource_type>:<action>` key " +
-			"`hyperfluid_grant` and `hyperfluid_role_permissions` accept.",
+		MarkdownDescription: "The permission keys (`<resource_type>:<action>`) that roles and grants take.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
 				Optional:            true,
@@ -66,7 +65,7 @@ func (d *permissionsDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 			"ids": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Computed:            true,
-				MarkdownDescription: "Permission id by key. Ids differ between installations; keys do not.",
+				MarkdownDescription: "Permission id by key; ids differ between installations, keys do not.",
 			},
 			"permissions": schema.ListNestedAttribute{
 				Computed:            true,

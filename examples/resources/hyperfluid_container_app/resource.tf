@@ -1,9 +1,9 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_container_app" "web" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "web"
   display_name     = "Web storefront"
   description      = "Public storefront."
@@ -25,10 +25,10 @@ output "endpoint" {
   value = hyperfluid_container_app.web.endpoint
 }
 
-# Environment variables, secrets and init containers. `env_vars` is ordered: a
-# value can reference a variable listed before it as `$(NAME)`. Its values are
-# plain text in the app's spec and in Terraform state, so a credential goes in
-# an organization-wide `hyperfluid_secret` read through `secret_refs`.
+# Environment variables, secrets and init containers. A plain `value` is stored
+# in Terraform state, so a credential goes in an organization-wide
+# `hyperfluid_secret` named by `secret`. A value can reference an earlier plain
+# variable as `$(NAME)`, but not a secret-backed one.
 #
 # Each of these lists, once applied, is managed by Terraform: removing it from
 # the configuration clears it on the app. Left out from the start, it is not
@@ -46,7 +46,7 @@ resource "hyperfluid_secret" "db" {
 }
 
 resource "hyperfluid_container_app" "api" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "orders"
   image_repository = "ghcr.io/acme/orders"
   image_tag        = "2.3.0"
@@ -58,9 +58,7 @@ resource "hyperfluid_container_app" "api" {
   env_vars = [
     { name = "DB_HOST", value = "orders-db" },
     { name = "DB_URL", value = "postgres://orders@$(DB_HOST):5432/orders" },
-  ]
-  secret_refs = [
-    { env_var_name = "DB_PASSWORD", secret_name = hyperfluid_secret.db.name },
+    { name = "DB_PASSWORD", secret = hyperfluid_secret.db.name },
   ]
 
   # Run to completion, in order, before the app starts. With no image of its
@@ -88,7 +86,7 @@ resource "hyperfluid_container_app" "api" {
 # `custom_domains`, `autoscaling` and `metrics` are managed once applied and left
 # to the app while they never were.
 resource "hyperfluid_container_app" "storefront" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "storefront"
   image_repository = "ghcr.io/acme/storefront"
   image_tag        = "4.1.0"
@@ -154,7 +152,7 @@ resource "hyperfluid_secret" "git" {
 }
 
 resource "hyperfluid_container_app" "orders" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   slug = "orders-api"
   ports = [
     { name = "http", port = 8080, protocol = "HTTP", primary = true },

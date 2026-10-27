@@ -124,11 +124,9 @@ func scalingAttributes() map[string]schema.Attribute {
 	}
 	return map[string]schema.Attribute{
 		"custom_resources": schema.SingleNestedAttribute{
-			Optional: true,
-			MarkdownDescription: "An explicit size between two tiers, instead of `resource_tier` (which this " +
-				"conflicts with). Like a tier, it sells `cpu_millis` and derives the CPU request and limit from it; " +
-				"memory gets no burst. Leaving both out keeps the app's size as it is.",
-			Validators: []validator.Object{objectvalidator.ConflictsWith(path.MatchRoot("resource_tier"))},
+			Optional:            true,
+			MarkdownDescription: "Custom size of each replica, between two tiers. Conflicts with `resource_tier`.",
+			Validators:          []validator.Object{objectvalidator.ConflictsWith(path.MatchRoot("resource_tier"))},
 			Attributes: map[string]schema.Attribute{
 				"cpu_millis": schema.Int64Attribute{
 					Required:            true,
@@ -144,22 +142,15 @@ func scalingAttributes() map[string]schema.Attribute {
 		},
 		"resource_mode": schema.StringAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "What the console does with the CPU rightsizing recommendation measured for the " +
-				"app: `advisory` (the platform's default) shows it, `manual` hides it. `managed` is accepted and " +
-				"currently behaves like `manual`. It changes nothing in the running workload. Left out, the app " +
-				"keeps its current mode.",
+			MarkdownDescription: "Whether the console shows CPU rightsizing advice: `advisory` (default) shows it, " +
+				"`manual` and `managed` hide it.",
 			Validators:    []validator.String{stringvalidator.OneOf("advisory", "manual", "managed")},
 			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
 		"autoscaling": schema.SingleNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Horizontal autoscaling between `min_replicas` and `max_replicas`, on CPU unless " +
-				"another target is set. It replaces `replicas`, which this conflicts with: the platform ignores " +
-				"`replicas` while autoscaling is on, and runs it again once autoscaling is removed. Scaling to zero " +
-				"(`min_replicas = 0`) or on `target_http_concurrency` wakes the app through its route, so it needs " +
-				"`expose_to_internet` and an HTTP port. An app with an exclusive persistent volume cannot autoscale.\n\n" +
-				"Left out of the configuration, it is not managed by Terraform: an update leaves the app's " +
-				"autoscaling alone. Once Terraform has applied it, removing it turns autoscaling off.",
+			MarkdownDescription: "Autoscaling between `min_replicas` and `max_replicas`, on CPU unless another " +
+				"target is set. Conflicts with `replicas`.",
 			PlanModifiers: []planmodifier.Object{unsetObject("autoscaling")},
 			Validators:    []validator.Object{objectvalidator.ConflictsWith(path.MatchRoot("replicas"))},
 			Attributes: map[string]schema.Attribute{
@@ -168,25 +159,24 @@ func scalingAttributes() map[string]schema.Attribute {
 					MarkdownDescription: fmt.Sprintf("Most replicas, 1 to %d.", maxAppReplicas),
 					Validators:          []validator.Int64{int64validator.Between(1, maxAppReplicas)},
 				},
-				"min_replicas": optInt("Fewest replicas, at most `max_replicas`; 0 lets the app sleep. Left out, the "+
-					"platform keeps 1.", int64validator.Between(0, maxAppReplicas)),
-				"target_cpu_utilization": optInt("Average CPU use to hold, in percent of the request (1 to 100). "+
-					"With no target set, the platform scales on CPU at its default.", int64validator.Between(1, 100)),
-				"target_memory_utilization": optInt("Average memory use to hold, in percent of the request (1 to 100).",
+				"min_replicas": optInt("Fewest replicas, defaults to 1. 0 lets the app sleep, which needs "+
+					"`expose_to_internet` and an HTTP port.", int64validator.Between(0, maxAppReplicas)),
+				"target_cpu_utilization": optInt("Target average CPU use, in percent of the request (1 to 100).",
 					int64validator.Between(1, 100)),
-				"target_http_concurrency": optInt("In-flight requests per replica to hold, at least 1.",
+				"target_memory_utilization": optInt("Target average memory use, in percent of the request (1 to 100).",
+					int64validator.Between(1, 100)),
+				"target_http_concurrency": optInt("Target in-flight requests per replica, at least 1. Needs "+
+					"`expose_to_internet` and an HTTP port.",
 					int64validator.AtLeast(1)),
-				"scale_to_zero_after_seconds": optInt("How long the app stays idle before sleeping when "+
-					"`min_replicas` is 0, 30 to 86400 seconds. Left out, the platform's default applies.",
+				"scale_to_zero_after_seconds": optInt("Idle seconds before the app sleeps when `min_replicas` is 0, "+
+					"30 to 86400.",
 					int64validator.Between(30, 86400)),
 			},
 		},
 		"metrics": schema.SingleNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Where the app serves Prometheus metrics, for the platform to scrape.\n\n" +
-				"Left out of the configuration, it is not managed by Terraform: an update leaves the app's " +
-				"declaration alone. Once Terraform has applied it, removing it removes the declaration.",
-			PlanModifiers: []planmodifier.Object{unsetObject("metrics")},
+			MarkdownDescription: "Where the app serves Prometheus metrics for the platform to scrape.",
+			PlanModifiers:       []planmodifier.Object{unsetObject("metrics")},
 			Attributes: map[string]schema.Attribute{
 				"port": schema.StringAttribute{
 					Required:            true,
@@ -195,7 +185,7 @@ func scalingAttributes() map[string]schema.Attribute {
 				},
 				"path": schema.StringAttribute{
 					Optional:            true,
-					MarkdownDescription: "Path to scrape, starting with `/`, at most 256 characters. Left out, the platform's default (`/metrics`).",
+					MarkdownDescription: "Path to scrape, starting with `/`. Defaults to `/metrics`.",
 					Validators: []validator.String{
 						stringvalidator.LengthAtMost(256),
 						stringvalidator.RegexMatches(metricsPathPattern, "must start with / and contain no whitespace"),
@@ -205,30 +195,27 @@ func scalingAttributes() map[string]schema.Attribute {
 		},
 		"custom_domains": schema.ListNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Domains of your own the app answers on, besides its platform host. The " +
-				"organization must have verified each domain, or a parent of it, and no other app may claim it; " +
-				"the platform refuses the apply otherwise. Routes exist only while `expose_to_internet` is true. " +
-				"How far each domain got is reported in `custom_domain_statuses`.\n\n" + unsetListSemantics,
+			MarkdownDescription: "Your own domains the app answers on, each verified by the organization " +
+				"beforehand. Needs `expose_to_internet`.",
 			PlanModifiers: []planmodifier.List{unsetList("custom_domains")},
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"fqdn": schema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: "The domain, lowercase and without a trailing dot, e.g. `app.acme.com`.",
+						MarkdownDescription: "Domain, lowercase and without a trailing dot, such as `app.acme.com`.",
 						Validators: []validator.String{
 							stringvalidator.LengthAtMost(253),
 							stringvalidator.RegexMatches(fqdnPattern, "must be a lowercase hostname of at least two labels, without a trailing dot"),
 						},
 					},
 					"tls_mode": schema.StringAttribute{
-						Required: true,
-						MarkdownDescription: "`acme` to have the platform obtain a certificate, or `secret` to serve the " +
-							"one in `tls_secret_name`.",
-						Validators: []validator.String{stringvalidator.OneOf("acme", "secret")},
+						Required:            true,
+						MarkdownDescription: "`acme` for a certificate the platform obtains, or `secret` for the one in `tls_secret_name`.",
+						Validators:          []validator.String{stringvalidator.OneOf("acme", "secret")},
 					},
 					"tls_secret_name": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "Name of the secret holding the certificate. Required with `tls_mode = \"secret\"`, refused otherwise.",
+						MarkdownDescription: "Secret holding the certificate. Required with `tls_mode = \"secret\"` only.",
 						Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 				},
@@ -236,13 +223,12 @@ func scalingAttributes() map[string]schema.Attribute {
 		},
 		"custom_domain_statuses": schema.ListNestedAttribute{
 			Computed:            true,
-			MarkdownDescription: "Where each of the app's custom domains stands, as the platform last reported it.",
+			MarkdownDescription: "Status of each custom domain.",
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"fqdn": schema.StringAttribute{Computed: true, MarkdownDescription: "The domain."},
 					"state": schema.StringAttribute{Computed: true, MarkdownDescription: "`pendingVerification`, " +
-						"`conflict`, `pendingDns`, `provisioning`, `ready` or `error`, or null before the platform " +
-						"first reports."},
+						"`conflict`, `pendingDns`, `provisioning`, `ready` or `error`."},
 					"message":                 schema.StringAttribute{Computed: true, MarkdownDescription: "Why the domain is not ready, when it is not."},
 					"target":                  schema.StringAttribute{Computed: true, MarkdownDescription: "Where the domain's DNS record must point."},
 					"observed_addresses":      schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Addresses the domain resolved to at the last check."},
@@ -255,9 +241,8 @@ func scalingAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Digest the main image is pinned to, when it is.",
 		},
 		"tag_is_floating": schema.BoolAttribute{
-			Computed: true,
-			MarkdownDescription: "Whether the image tag is one upstream can re-push (`latest`, or a bare major or " +
-				"major.minor such as `15` or `15.0`), so later builds, security fixes included, can land under it.",
+			Computed:            true,
+			MarkdownDescription: "Whether the image tag can be re-pushed upstream, such as `latest` or `15`.",
 		},
 	}
 }

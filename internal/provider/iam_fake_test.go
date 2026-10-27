@@ -294,6 +294,20 @@ func (f *fakeIAM) serveUserRoles(r *http.Request, user string, rest []string, re
 		return
 	}
 	scoped := r.URL.Query().Get("scope_path") != ""
+	if !scoped && r.Method == http.MethodDelete && f.roles[role].IsSystem && f.roles[role].Name == "owner" {
+		owners := 0
+		for _, ids := range f.userRoles {
+			for _, id := range ids {
+				if id == role {
+					owners++
+				}
+			}
+		}
+		if owners <= 1 {
+			reply(403, map[string]string{"message": "Cannot remove the organization's last owner"})
+			return
+		}
+	}
 	if !scoped {
 		kept := []string{}
 		for _, id := range f.userRoles[user] {
@@ -482,6 +496,14 @@ func (f *fakeIAM) accountByID(id string) *fakeAccount {
 		}
 	}
 	return nil
+}
+
+// addUser adds a member of the organization holding these org-wide roles, as
+// given at sign-up or by invitation: no grant mirrors them.
+func (f *fakeIAM) addUser(roleIDs ...string) string {
+	id := uuid.NewString()
+	f.userRoles[id] = append([]string{}, roleIDs...)
+	return id
 }
 
 // addAccount adds a confidential account, as created in the console.

@@ -3,12 +3,12 @@
 page_title: "hyperfluid_service_account Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing service account by client_id or by display name, to reference it from roles, grants, groups, attributes and S3 keys. Service accounts are created in the console or with hfctl, never by Terraform. The secret is never returned. Requires service_account:read. The API lists at most the 100 most recently updated accounts, so an older one may only be found by a name narrow enough to match it.
+  Look up an existing service account by client_id or name; its secret is never returned. Only the 100 most recently updated accounts are searched.
 ---
 
 # hyperfluid_service_account (Data Source)
 
-Look up an existing service account by `client_id` or by display `name`, to reference it from roles, grants, groups, attributes and S3 keys. Service accounts are created in the console or with hfctl, never by Terraform. The secret is never returned. Requires `service_account:read`. The API lists at most the 100 most recently updated accounts, so an older one may only be found by a `name` narrow enough to match it.
+Look up an existing service account by `client_id` or `name`; its secret is never returned. Only the 100 most recently updated accounts are searched.
 
 ## Example Usage
 
@@ -18,10 +18,9 @@ data "hyperfluid_service_account" "backup_reader" {
   client_id = "backup-reader"
 }
 
-resource "hyperfluid_group_member" "backup_reader" {
-  group_id       = hyperfluid_group.auditors.id
-  principal_type = "service_account"
-  principal_id   = data.hyperfluid_service_account.backup_reader.id
+resource "hyperfluid_service_account_access" "backup_reader" {
+  service_account_id = data.hyperfluid_service_account.backup_reader.id
+  grants             = [{ permission = "bucket:read_objects", scope_path = "default/backups" }]
 }
 ```
 
@@ -39,5 +38,5 @@ resource "hyperfluid_group_member" "backup_reader" {
 - `enabled` (Boolean) Whether the account can obtain new tokens.
 - `id` (String) Service account id (uuid).
 - `managed_by_resource_type` (String) Type of the resource owning a platform-managed account, e.g. `backup_target`.
-- `platform_managed` (Boolean) Whether the platform owns the account (a backup target's, a registry's…); such an account cannot be changed.
+- `platform_managed` (Boolean) Whether the platform owns the account (e.g. a backup target's); it cannot be changed.
 - `public_client` (Boolean) Whether it is a browser-flow client without a secret.

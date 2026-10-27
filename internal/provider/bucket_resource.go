@@ -79,9 +79,8 @@ func (r *bucketResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"storage_zone_id": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
-				MarkdownDescription: "Storage zone the bucket is placed in. Omit for the org's " +
-					"primary zone (`default`). Placement is fixed at creation, so changing " +
-					"this forces a new bucket. A non-default value must be a zone the org has enabled.",
+				MarkdownDescription: "Storage zone of the bucket, one the organization has enabled. Defaults to the " +
+					"primary zone, `default`. Changing this forces a new bucket.",
 				PlanModifiers: []planmodifier.String{
 					// Hold the resolved zone (the API fills "default" when omitted) so an
 					// unconfigured bucket keeps its stored value instead of planning unknown.

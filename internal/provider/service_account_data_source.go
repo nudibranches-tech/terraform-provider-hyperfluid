@@ -49,11 +49,8 @@ func (d *serviceAccountDataSource) Metadata(_ context.Context, req datasource.Me
 
 func (d *serviceAccountDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing service account by `client_id` or by display `name`, to reference it " +
-			"from roles, grants, groups, attributes and S3 keys. Service accounts are created in the console or with " +
-			"hfctl, never by Terraform. The secret is " +
-			"never returned. Requires `service_account:read`. The API lists at most the 100 most recently updated " +
-			"accounts, so an older one may only be found by a `name` narrow enough to match it.",
+		MarkdownDescription: "Look up an existing service account by `client_id` or `name`; its secret is never " +
+			"returned. Only the 100 most recently updated accounts are searched.",
 		Attributes: map[string]schema.Attribute{
 			"client_id": schema.StringAttribute{
 				Optional: true, Computed: true,
@@ -69,7 +66,7 @@ func (d *serviceAccountDataSource) Schema(_ context.Context, _ datasource.Schema
 			"public_client": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether it is a browser-flow client without a secret."},
 			"platform_managed": schema.BoolAttribute{
 				Computed:            true,
-				MarkdownDescription: "Whether the platform owns the account (a backup target's, a registry's…); such an account cannot be changed.",
+				MarkdownDescription: "Whether the platform owns the account (e.g. a backup target's); it cannot be changed.",
 			},
 			"managed_by_resource_type": schema.StringAttribute{
 				Computed:            true,

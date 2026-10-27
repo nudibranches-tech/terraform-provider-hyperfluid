@@ -51,7 +51,8 @@ func (d *bucketCredentialsDataSource) Metadata(_ context.Context, req datasource
 
 func (d *bucketCredentialsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Derived S3 credentials for an existing bucket. **The `secret_key` is written to Terraform state — treat state as sensitive** (use an encrypted remote backend).",
+		MarkdownDescription: "S3 credentials for an existing bucket.\n\n" +
+			"~> The `secret_key` is stored in Terraform state: keep the state in an encrypted backend.",
 		Attributes: map[string]schema.Attribute{
 			"env":         schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the bucket lives in."},
 			"bucket_name": schema.StringAttribute{Required: true, MarkdownDescription: "Bucket name to mint credentials for."},

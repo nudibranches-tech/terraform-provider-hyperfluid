@@ -35,6 +35,6 @@ provider "hyperfluid" {}
 
 ### Optional
 
-- `credentials_file` (String) Path to the service-account JSON (the same file hfctl consumes). When unset, falls back to the `HYPERFLUID_CREDENTIALS` environment variable, then to the file `hfctl tf auth` writes at `<user-config-dir>/hyperfluid/terraform/credentials.json` (so `hfctl auth login` + `hfctl tf auth` is all that's needed). The secret is never written to state.
+- `credentials_file` (String) Path to the service-account JSON file. Falls back to `HYPERFLUID_CREDENTIALS`, then to the file `hfctl tf auth` writes.
 - `endpoint` (String) Console API base URL. Falls back to `HYPERFLUID_ENDPOINT`, then `console_url` in the credentials file.
 - `organization_id` (String) Organization ID. Falls back to `HYPERFLUID_ORGANIZATION_ID`, then the credentials file.

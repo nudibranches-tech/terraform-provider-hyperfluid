@@ -14,21 +14,25 @@ import (
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 )
 
-// env is ambient context (created out-of-band), so it is a data source, not
-// a resource. It resolves a env name/slug to the `id` that nearly every
-// resource needs as a path scope.
+// hyperfluid_environment resolves an environment's slug or name to the `id`
+// nearly every resource takes as `env`. hyperfluid_env is its deprecated alias.
 
 var (
 	_ datasource.DataSource              = &envDataSource{}
 	_ datasource.DataSourceWithConfigure = &envDataSource{}
 )
 
-func NewEnvDataSource() datasource.DataSource {
+func NewEnvironmentDataSource() datasource.DataSource {
 	return &envDataSource{}
 }
 
+func NewEnvDataSource() datasource.DataSource {
+	return &envDataSource{deprecated: true}
+}
+
 type envDataSource struct {
-	p *providerData
+	p          *providerData
+	deprecated bool
 }
 
 type envModel struct {
@@ -37,22 +41,29 @@ type envModel struct {
 }
 
 func (d *envDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_env"
+	if d.deprecated {
+		resp.TypeName = req.ProviderTypeName + "_env"
+		return
+	}
+	resp.TypeName = req.ProviderTypeName + "_environment"
 }
 
 func (d *envDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing environment by name. Envs are created out-of-band; this data source resolves the id used to scope resources.",
+		MarkdownDescription: "Look up an existing environment by name, to get the id other resources take as `env`.",
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Env name (slug) to look up.",
+				MarkdownDescription: "Environment name (slug).",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Resolved env id.",
+				MarkdownDescription: "Environment id.",
 			},
 		},
+	}
+	if d.deprecated {
+		resp.Schema.DeprecationMessage = "Use the hyperfluid_environment data source instead; it takes the same arguments."
 	}
 }
 
@@ -78,11 +89,11 @@ func (d *envDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	want := cfg.Name.ValueString()
 	env, err := d.p.API.FindEnv(ctx, d.p.OrgID, want)
 	if errors.Is(err, client.ErrNotFound) {
-		resp.Diagnostics.AddError("Env not found", "no env named "+want+" in this organization")
+		resp.Diagnostics.AddError("Environment not found", "no environment named "+want+" in this organization")
 		return
 	}
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to look up env", err.Error())
+		resp.Diagnostics.AddError("Failed to look up environment", err.Error())
 		return
 	}
 	cfg.ID = types.StringValue(env.Id.String())

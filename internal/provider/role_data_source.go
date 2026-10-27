@@ -42,9 +42,7 @@ func (d *roleDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 
 func (d *roleDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up a role by name, including the system roles `owner`, `editor` and `viewer`, " +
-			"to bind it with `hyperfluid_user_role`, `hyperfluid_group_role` or `hyperfluid_service_account_role`. " +
-			"Requires `role:read`.",
+		MarkdownDescription: "Look up a role by name, including the system roles `owner`, `editor` and `viewer`.",
 		Attributes: map[string]schema.Attribute{
 			"name":        schema.StringAttribute{Required: true, MarkdownDescription: "Role name, unique within the organization."},
 			"id":          schema.StringAttribute{Computed: true, MarkdownDescription: "Role id."},

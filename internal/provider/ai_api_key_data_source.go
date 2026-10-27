@@ -43,9 +43,7 @@ func (d *aiApiKeyDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 		return schema.Int64Attribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing API key's metadata by name. The secret key itself is never returned. " +
-			"API key names are not guaranteed unique; if more than one key shares the name this errors rather than " +
-			"resolving an arbitrary match — look such keys up by id instead.",
+		MarkdownDescription: "Look up an API key's metadata by name; the secret key is never returned.",
 		Attributes: map[string]schema.Attribute{
 			"name":                  schema.StringAttribute{Required: true, MarkdownDescription: "API key name. Must match exactly one key."},
 			"id":                    cs("API key id (uuid)."),
@@ -54,12 +52,12 @@ func (d *aiApiKeyDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			"created_at":            cs("Creation timestamp (RFC3339)."),
 			"expires_at":            cs("Expiry timestamp (RFC3339), if the key expires."),
 			"last_used_at":          cs("Last-used timestamp (RFC3339), if ever used."),
-			"max_llm_rpm":           ci("The organization's ceiling on the key's LLM requests per minute, or null."),
-			"max_llm_tpm":           ci("The organization's ceiling on the key's LLM tokens per minute, or null."),
-			"platform_max_llm_rpm":  ci("The platform administrators' cap on the key's requests per minute, or null."),
-			"platform_max_llm_tpm":  ci("The platform administrators' cap on the key's tokens per minute, or null."),
-			"effective_max_llm_rpm": ci("The requests-per-minute ceiling the gateway enforces, or null."),
-			"effective_max_llm_tpm": ci("The tokens-per-minute ceiling the gateway enforces, or null."),
+			"max_llm_rpm":           ci("Most LLM requests per minute for this key, or null."),
+			"max_llm_tpm":           ci("Most LLM tokens per minute for this key, or null."),
+			"platform_max_llm_rpm":  ci("Requests-per-minute cap set by platform administrators, or null."),
+			"platform_max_llm_tpm":  ci("Tokens-per-minute cap set by platform administrators, or null."),
+			"effective_max_llm_rpm": ci("Requests-per-minute ceiling enforced, or null."),
+			"effective_max_llm_tpm": ci("Tokens-per-minute ceiling enforced, or null."),
 		},
 	}
 }

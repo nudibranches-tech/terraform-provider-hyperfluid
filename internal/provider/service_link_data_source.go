@@ -47,23 +47,19 @@ func (d *serviceLinkDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 		}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up a declared network path between two services by name within an " +
-			"environment. Whether the link is enforced depends on the environment's network isolation mode — " +
-			"see `hyperfluid_service_link`.",
+		MarkdownDescription: "Look up a service link by name within an environment.",
 		Attributes: map[string]schema.Attribute{
 			"env": schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the link belongs to."},
 			"name": schema.StringAttribute{
-				Required: true,
-				MarkdownDescription: "The link's name — `<consumer>-<target>`, as reported by the console, " +
-					"`hfctl service-links list`, or a `hyperfluid_service_link` resource's `name`.",
+				Required:            true,
+				MarkdownDescription: "The link's name, `<consumer>-<target>`.",
 			},
 			"id":       schema.StringAttribute{Computed: true, MarkdownDescription: "Composite identifier `env/name`."},
 			"consumer": endpoint("The service permitted to reach the target."),
 			"target":   endpoint("The service made reachable."),
 			"target_ports": schema.SetNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "Always null on a data source: the API reports the ports it opened " +
-					"(`ports`), not which of them were explicitly asked for.",
+				Computed:            true,
+				MarkdownDescription: "Always null on a data source; read `ports`.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},
@@ -73,7 +69,7 @@ func (d *serviceLinkDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 			},
 			"ports": schema.ListNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "The ports opened for this link. Empty until it has been reconciled.",
+				MarkdownDescription: "Ports opened for this link.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},

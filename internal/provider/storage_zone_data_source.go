@@ -48,15 +48,15 @@ func (d *storageZoneDataSource) Metadata(_ context.Context, req datasource.Metad
 
 func (d *storageZoneDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up one of the organization's object-storage zones by id. Use the resolved `zone_id` to place a bucket (`hyperfluid_bucket.storage_zone_id`).",
+		MarkdownDescription: "Look up one of the organization's object-storage zones by id, to place a `hyperfluid_bucket` in it.",
 		Attributes: map[string]schema.Attribute{
-			"zone_id":           schema.StringAttribute{Required: true, MarkdownDescription: "Zone id to look up (the `cephZones` catalog key, e.g. `default`)."},
+			"zone_id":           schema.StringAttribute{Required: true, MarkdownDescription: "Zone id, e.g. `default`."},
 			"name":              schema.StringAttribute{Computed: true, MarkdownDescription: "Human-readable zone name."},
 			"description":       schema.StringAttribute{Computed: true, MarkdownDescription: "Free-form description (null if unset)."},
-			"primary":           schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether this is the org's primary zone (always enabled, never removable)."},
-			"enabled":           schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the org has enabled storage in this zone."},
-			"ready":             schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the zone's storage is provisioned and ready (only meaningful when enabled)."},
-			"external_endpoint": schema.StringAttribute{Computed: true, MarkdownDescription: "External S3 endpoint of the zone, once provisioned (null otherwise)."},
+			"primary":           schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether this is the organization's primary zone, which is always enabled."},
+			"enabled":           schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the organization has enabled storage in this zone."},
+			"ready":             schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the zone's storage is ready."},
+			"external_endpoint": schema.StringAttribute{Computed: true, MarkdownDescription: "External S3 endpoint of the zone, once provisioned."},
 		},
 	}
 }

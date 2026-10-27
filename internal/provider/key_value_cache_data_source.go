@@ -45,7 +45,7 @@ func (d *keyValueCacheDataSource) Schema(_ context.Context, _ datasource.SchemaR
 			"name":             schema.StringAttribute{Required: true, MarkdownDescription: "Cache name."},
 			"id":               cs("Cache id."),
 			"image":            cs("Cache image."),
-			"maxmemory":        cs("Max memory (e.g. 256mb)."),
+			"maxmemory":        cs("Valkey `maxmemory`, e.g. `256mb`."),
 			"maxmemory_policy": cs("Eviction policy."),
 			"description":      cs("Free-form description."),
 			"tags":             schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},

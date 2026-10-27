@@ -3,20 +3,17 @@
 page_title: "hyperfluid_backup_target Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A backup target: where managed PostgreSQL databases ship base backups and write-ahead log.
-  It writes either to a bucket of the environment, named by bucket_name (the platform resolves its endpoint and credentials, and reports the endpoint and path it resolved in endpoint_url and destination_path), or to an external S3-compatible endpoint, given by endpoint_url, destination_path and the two credential secret names, which are then all required. Credentials are referenced as secret names, never inline. Switching between the two forces a new target.
+  Where managed PostgreSQL databases send their backups: a bucket of the environment (bucket_name) or an external S3-compatible endpoint.
 ---
 
 # hyperfluid_backup_target (Resource)
 
-A backup target: where managed PostgreSQL databases ship base backups and write-ahead log.
-
-It writes either to a bucket of the environment, named by `bucket_name` (the platform resolves its endpoint and credentials, and reports the endpoint and path it resolved in `endpoint_url` and `destination_path`), or to an external S3-compatible endpoint, given by `endpoint_url`, `destination_path` and the two credential secret names, which are then all required. Credentials are referenced as secret names, never inline. Switching between the two forces a new target.
+Where managed PostgreSQL databases send their backups: a bucket of the environment (`bucket_name`) or an external S3-compatible endpoint.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -53,7 +50,7 @@ resource "hyperfluid_secret" "backup_secret_key" {
 # Note: insecure = true is not supported with an https:// endpoint — use http://
 # or a trusted TLS cert.
 resource "hyperfluid_backup_target" "offsite" {
-  env          = data.hyperfluid_env.default.id
+  env          = data.hyperfluid_environment.default.id
   name         = "offsite"
   endpoint_url = "https://s3.eu-west-3.amazonaws.com"
   # Bucket + an arbitrary prefix to store backups under (NOT a database name);
@@ -71,12 +68,12 @@ resource "hyperfluid_backup_target" "offsite" {
 # destination_path. Moving a target between a bucket and an external endpoint
 # replaces it.
 resource "hyperfluid_bucket" "pg_backups" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "pg-backups"
 }
 
 resource "hyperfluid_backup_target" "in_environment" {
-  env         = data.hyperfluid_env.default.id
+  env         = data.hyperfluid_environment.default.id
   name        = "in-environment"
   bucket_name = hyperfluid_bucket.pg_backups.name
 }
@@ -92,16 +89,14 @@ resource "hyperfluid_backup_target" "in_environment" {
 
 ### Optional
 
-- `access_key_secret_name` (String) Name of the secret holding the S3 access key id. Required without `bucket_name`; null with it.
-- `bucket_name` (String) Name of a bucket of this environment (a `hyperfluid_bucket`'s `name`) to back up into, on whichever storage backend it lives. The bucket must already exist. Conflicts with the external endpoint attributes. Changing this forces a new target.
-
-~> No API view reports it, so Terraform carries it from prior state. After `terraform import` of such a target, setting it in the configuration adopts the target instead of replacing it.
+- `access_key_secret_name` (String) Name of the secret holding the S3 access key id. Required without `bucket_name`.
+- `bucket_name` (String) Name of an existing bucket of the environment to back up into. Conflicts with the external endpoint attributes. Changing this forces a new target.
 - `description` (String) Free-form description.
-- `destination_path` (String) Bucket + prefix, e.g. s3://backups/. Required without `bucket_name`; with it, the path the platform resolved.
-- `endpoint_url` (String) S3-compatible endpoint URL, e.g. https://s3.eu-west-3.amazonaws.com. Required without `bucket_name`; with it, the endpoint the platform resolved.
-- `insecure` (Boolean) Skip TLS verification when probing the endpoint (dev only). Not available with `bucket_name`. Changing this forces a new target.
-- `retention_days` (Number) How long base backups and WAL archives are kept before they expire, in days (1-35). Left out, the platform resolves its own default of 7 days at every reconcile. A change is applied in place, and the value read back is the effective one the platform resolved, not the configured one.
-- `secret_access_key_secret_name` (String) Name of the secret holding the S3 secret access key. Required without `bucket_name`; null with it.
+- `destination_path` (String) Bucket and prefix, e.g. `s3://backups/`. Required without `bucket_name`.
+- `endpoint_url` (String) S3-compatible endpoint URL, e.g. `https://s3.eu-west-3.amazonaws.com`. Required without `bucket_name`.
+- `insecure` (Boolean) Skip TLS verification of the endpoint, for development only. Not available with `bucket_name`. Changing this forces a new target.
+- `retention_days` (Number) How many days backups are kept, 1 to 35. Defaults to 7.
+- `secret_access_key_secret_name` (String) Name of the secret holding the S3 secret access key. Required without `bucket_name`.
 - `tags` (List of String) User-defined tags.
 
 ### Read-Only

@@ -51,17 +51,17 @@ func (d *sharedModelDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up a platform shared model — a model the organization can consume — by name.",
+		MarkdownDescription: "Look up by name a model the platform shares with the organization.",
 		Attributes: map[string]schema.Attribute{
 			"name":              schema.StringAttribute{Required: true, MarkdownDescription: "Shared model name."},
-			"model_type":        cs("Model type (generation or embedding)."),
-			"runtime":           cs("Serving runtime (vllm or tgi)."),
+			"model_type":        cs("Model type: `generation` or `embedding`."),
+			"runtime":           cs("Serving runtime: `vllm` or `tgi`."),
 			"cpu":               cs("CPU request."),
 			"gpu":               schema.Int64Attribute{Computed: true, MarkdownDescription: "GPU count."},
 			"memory":            cs("Memory request."),
 			"phase":             cs("Current lifecycle phase."),
 			"endpoint":          cs("OpenAI-compatible endpoint."),
-			"served_model_name": cs("Served model name override, if any."),
+			"served_model_name": cs("Model name to request, when it differs from `name`."),
 		},
 	}
 }

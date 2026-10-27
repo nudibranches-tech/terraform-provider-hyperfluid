@@ -3,12 +3,12 @@
 page_title: "hyperfluid_group Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing group by name. Requires group:read.
+  Look up an existing group by name.
 ---
 
 # hyperfluid_group (Data Source)
 
-Look up an existing group by name. Requires `group:read`.
+Look up an existing group by name.
 
 ## Example Usage
 
@@ -17,10 +17,8 @@ data "hyperfluid_group" "auditors" {
   name = "auditors"
 }
 
-resource "hyperfluid_grant" "auditors_read_grants" {
-  principal_type = "group"
-  principal_id   = data.hyperfluid_group.auditors.id
-  permission     = "grant:read"
+output "auditor_ids" {
+  value = [for m in data.hyperfluid_group.auditors.members : m.id]
 }
 ```
 
@@ -36,3 +34,12 @@ resource "hyperfluid_grant" "auditors_read_grants" {
 - `description` (String) Description.
 - `id` (String) Group id.
 - `member_count` (Number) Number of users and service accounts in the group.
+- `members` (Attributes Set) Users and service accounts in the group. (see [below for nested schema](#nestedatt--members))
+
+<a id="nestedatt--members"></a>
+### Nested Schema for `members`
+
+Read-Only:
+
+- `id` (String) User or service account id.
+- `type` (String) `user` or `service_account`.

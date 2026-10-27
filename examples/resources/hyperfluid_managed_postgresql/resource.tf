@@ -1,16 +1,16 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Where the write-ahead log and the base backups ship. A recovery policy needs
 # one, so the database below depends on it explicitly.
 data "hyperfluid_backup_target" "offsite" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "offsite"
 }
 
 resource "hyperfluid_managed_postgresql" "db" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   name             = "appdb"
   database_name    = "appdb"
   engine           = "postgresql"
@@ -46,7 +46,7 @@ resource "hyperfluid_managed_postgresql" "db" {
 # chosen moment. restore is read when the database is created and never again:
 # the platform cannot rewind a database in place.
 resource "hyperfluid_managed_postgresql" "db_recovered" {
-  env           = data.hyperfluid_env.default.id
+  env           = data.hyperfluid_environment.default.id
   name          = "appdb-recovered"
   database_name = "appdb"
 

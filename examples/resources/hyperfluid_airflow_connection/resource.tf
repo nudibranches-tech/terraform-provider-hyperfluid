@@ -1,9 +1,9 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_bucket" "dags" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics-dags"
 }
 
@@ -11,18 +11,18 @@ resource "hyperfluid_bucket" "dags" {
 # Neither is Airflow's metadata database — the platform provisions that one for
 # the environment itself.
 resource "hyperfluid_managed_postgresql" "warehouse" {
-  env           = data.hyperfluid_env.default.id
+  env           = data.hyperfluid_environment.default.id
   name          = "warehouse"
   database_name = "warehouse"
 }
 
 resource "hyperfluid_bucket" "exports" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "reporting-exports"
 }
 
 resource "hyperfluid_airflow" "analytics" {
-  env            = data.hyperfluid_env.default.id
+  env            = data.hyperfluid_environment.default.id
   name           = "analytics"
   dag_bucket_ref = hyperfluid_bucket.dags.name
 }

@@ -91,8 +91,8 @@ var gitProviders = []string{
 	string(console.GitProviderForgejo),
 }
 
-const gitSourceDescription = "Deploy the image a Git repository declares instead of a literal `image_repository` / " +
-	"`image_tag`, which it conflicts with. See \"Deploying from Git\" above."
+const gitSourceDescription = "Deploys the image declared in a `hyperfluid.toml` of a Git repository, instead of " +
+	"`image_repository` and `image_tag`. Anyone who can push to the tracked branch or tag can deploy, so protect it."
 
 // imageSourceBlock is the schema of `image_source`, with its single `git` block.
 func imageSourceBlock() schema.Block {
@@ -103,8 +103,7 @@ func imageSourceBlock() schema.Block {
 		},
 		Blocks: map[string]schema.Block{
 			"git": schema.SingleNestedBlock{
-				MarkdownDescription: "A Git repository holding the `hyperfluid.toml` that declares the image. " +
-					"Required when `image_source` is set.",
+				MarkdownDescription: "The repository holding `hyperfluid.toml`. Required in `image_source`.",
 				Attributes: map[string]schema.Attribute{
 					// provider, repository and credential are required, but only checked
 					// in ValidateConfig: the framework demands a Required attribute of a
@@ -115,32 +114,24 @@ func imageSourceBlock() schema.Block {
 						Validators:          []validator.String{stringvalidator.OneOf(gitProviders...)},
 					},
 					"repository": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Repository path on the provider, e.g. `acme/orders-api`. " +
-							"For GitLab, the full group path. Required.",
-						Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
+						Optional:            true,
+						MarkdownDescription: "Repository path, such as `acme/orders-api` (the full group path on GitLab). Required.",
+						Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"base_url": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Origin of a self-hosted provider (GitHub Enterprise, self-managed GitLab, " +
-							"external Forgejo). Leave it out for the provider's public host, or for the " +
-							"organization's own Forgejo.",
-						Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
+						Optional:            true,
+						MarkdownDescription: "URL of a self-hosted Git server. Defaults to the provider's public host.",
+						Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"credential": schema.StringAttribute{
 						Optional: true,
-						MarkdownDescription: "Name of an organization-scoped `hyperfluid_secret` of type " +
-							"`scm_credential` the platform reads the repository with. Required, public repositories " +
-							"included: the checks then count against the token's own rate limit rather than the " +
-							"anonymous one every app of the cluster shares. A read-only token is enough " +
-							"(GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo " +
-							"`read:repository`).",
+						MarkdownDescription: "Name of an organization-wide `scm_credential` secret used to read the " +
+							"repository, even a public one. Required; a read-only token is enough.",
 						Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"branch": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Follow the head of this branch. Conflicts with `tag_pattern`. When " +
-							"neither is set, the repository's default branch is followed.",
+						Optional:            true,
+						MarkdownDescription: "Branch to follow. Defaults to the repository's default branch; conflicts with `tag_pattern`.",
 						Validators: []validator.String{
 							stringvalidator.LengthAtLeast(1),
 							stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("tag_pattern")),
@@ -148,10 +139,8 @@ func imageSourceBlock() schema.Block {
 					},
 					"tag_pattern": schema.StringAttribute{
 						Optional: true,
-						MarkdownDescription: "Follow the highest tag matching this regular expression, which must " +
-							"capture the version in a group named `version`, e.g. `v?(?<version>\\d+\\.\\d+\\.\\d+)`. " +
-							"It is matched against the whole tag, and the file is read at that tag. Conflicts with " +
-							"`branch`.",
+						MarkdownDescription: "Follow the highest tag matching this regular expression, with a `version` " +
+							"group such as `v?(?<version>\\d+\\.\\d+\\.\\d+)`. Conflicts with `branch`.",
 						Validators: []validator.String{
 							stringvalidator.LengthBetween(1, 256),
 							stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("branch")),
@@ -163,30 +152,24 @@ func imageSourceBlock() schema.Block {
 						Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"container": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Key of the `[containers.<key>]` entry this app reads. Defaults to the " +
-							"app's name.",
-						Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
+						Optional:            true,
+						MarkdownDescription: "Key of the `[containers.<key>]` entry to read. Defaults to the app's name.",
+						Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 					},
 					"interval": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "How often the repository is checked, as a duration such as `5m`, " +
-							"`15m`, `1h` or `24h`. At least `5m`, which is also the default.",
-						Validators: []validator.String{intervalValidator{}},
+						Optional:            true,
+						MarkdownDescription: "How often the repository is checked, such as `15m` or `1h`. At least and by default `5m`.",
+						Validators:          []validator.String{intervalValidator{}},
 					},
 					"sync_policy": schema.StringAttribute{
 						Optional: true,
-						MarkdownDescription: "`auto` rolls out every change found in Git. `manual` only reports it " +
-							"(\"Out of sync\") until someone clicks Sync in the console or runs `hfctl apps sync`; " +
-							"the first image of a new source still rolls out. Absent means `auto`. While the " +
-							"organization has automatic sync turned off, `auto` is refused (403) and an absent " +
-							"policy behaves as `manual`.",
+						MarkdownDescription: "`auto` (default) rolls out every change; `manual` waits for a Sync in the " +
+							"console or `hfctl apps sync`.",
 						Validators: []validator.String{stringvalidator.OneOf(syncPolicies...)},
 					},
 					"alert_on_sync_failure": schema.BoolAttribute{
-						Optional: true,
-						MarkdownDescription: "Whether a failing check raises the default \"Git sync failed\" alert. " +
-							"The platform raises it unless this is `false`.",
+						Optional:            true,
+						MarkdownDescription: "Whether a failing check raises an alert. Defaults to true.",
 					},
 				},
 			},
@@ -202,8 +185,7 @@ func gitStatusAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"resolved_image": schema.StringAttribute{
 			Computed: true, PlanModifiers: mod,
-			MarkdownDescription: "The image a Git `image_source` resolved and runs, as `repository:tag@digest`. " +
-				"Null until the first successful check, and for an app without a Git source.",
+			MarkdownDescription: "Image the Git source resolved, as `repository:tag@digest`.",
 		},
 		"resolved_ref": schema.StringAttribute{
 			Computed: true, PlanModifiers: mod,
@@ -215,13 +197,11 @@ func gitStatusAttributes() map[string]schema.Attribute {
 		},
 		"last_synced_at": schema.StringAttribute{
 			Computed: true, PlanModifiers: mod,
-			MarkdownDescription: "When the repository was last checked successfully (RFC 3339), whether or not " +
-				"anything changed.",
+			MarkdownDescription: "When the repository was last checked successfully (RFC 3339).",
 		},
 		"sync_error": schema.StringAttribute{
 			Computed: true, PlanModifiers: mod,
-			MarkdownDescription: "Why the last check failed, or null. A failing check never stops the app: it keeps " +
-				"running the last good image.",
+			MarkdownDescription: "Why the last check failed; the app keeps running its last good image.",
 		},
 	}
 }

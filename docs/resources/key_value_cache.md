@@ -13,12 +13,12 @@ A managed Valkey key-value cache.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_key_value_cache" "sessions" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   name             = "sessions"
   maxmemory        = "256mb"
   maxmemory_policy = "allkeys-lru"
@@ -49,15 +49,15 @@ output "credentials_secret" {
 ### Optional
 
 - `description` (String) Free-form description.
-- `image` (String) Valkey container image (defaults to a platform-pinned image).
-- `maxmemory` (String) Valkey maxmemory, e.g. "256mb".
-- `maxmemory_policy` (String) Valkey eviction policy, e.g. "allkeys-lru".
-- `resources` (Attributes) CPU and memory requests and limits of the cache's container, as Kubernetes quantities. Left out, the container runs without any. Without `maxmemory`, the platform sets Valkey's to three quarters of `limits.memory`. Leaving `limits.cpu` out is recommended: a CPU limit throttles the cache even on an idle node. Removing the attribute clears them. (see [below for nested schema](#nestedatt--resources))
+- `image` (String) Valkey container image. Defaults to the platform's pinned image.
+- `maxmemory` (String) Valkey `maxmemory`, e.g. `256mb`. Defaults to three quarters of `resources.limits.memory` when that is set.
+- `maxmemory_policy` (String) Valkey eviction policy, e.g. `allkeys-lru`.
+- `resources` (Attributes) CPU and memory requests and limits of the cache, as Kubernetes quantities. Left out, none are set; a CPU limit is best avoided, as it throttles the cache. (see [below for nested schema](#nestedatt--resources))
 - `tags` (List of String) User-defined tags.
 
 ### Read-Only
 
-- `credentials_secret_name` (String) Name of the secret holding the connection credentials (reference it with secret:<name>).
+- `credentials_secret_name` (String) Name of the secret holding the connection credentials.
 - `host` (String) Cache host, once provisioned.
 - `id` (String) The ID of this resource.
 - `phase` (String) Current lifecycle phase.

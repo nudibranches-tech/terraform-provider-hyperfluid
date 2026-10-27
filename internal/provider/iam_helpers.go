@@ -34,7 +34,7 @@ func uuidFromString(s string) (openapi_types.UUID, error) {
 
 // iamStateNote is appended to the description of every attribute that stores a
 // credential in Terraform state.
-const iamStateNote = " It is stored in Terraform state: keep state in an encrypted backend with restricted access."
+const iamStateNote = " Stored in Terraform state, so keep state encrypted."
 
 // permissionCatalog indexes the platform's permission catalog both ways. Keys
 // (`secret:read`) are the same on every installation, ids are not, which is
@@ -99,21 +99,6 @@ func quoteAll(ss []string) []string {
 		out[i] = fmt.Sprintf("%q", s)
 	}
 	return out
-}
-
-// splitN splits a composite import id into exactly n non-empty parts; the last
-// part keeps any further separators, so it may be a path.
-func splitN(id string, n int, form string) ([]string, error) {
-	parts := strings.SplitN(id, "/", n)
-	if len(parts) != n {
-		return nil, fmt.Errorf("expected import id in the form %q, got %q", form, id)
-	}
-	for _, p := range parts {
-		if p == "" {
-			return nil, fmt.Errorf("expected import id in the form %q, got %q", form, id)
-		}
-	}
-	return parts, nil
 }
 
 // nonNil turns a missing list into an empty one, so it converts to an empty

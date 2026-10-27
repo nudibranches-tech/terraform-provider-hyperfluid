@@ -73,9 +73,9 @@ func (r *aiApiKeyResource) Metadata(_ context.Context, req resource.MetadataRequ
 
 func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "An LLM-gateway API key. The secret `key` is shown only at creation and stored " +
-			"(sensitive) in state — it cannot be re-read. Changing `name`, `scopes` or `expires_in_days` " +
-			"replaces the key with a new secret; the rate ceilings `max_llm_rpm` and `max_llm_tpm` change in place.",
+		MarkdownDescription: "An API key for the LLM gateway.\n\n" +
+			"~> The secret `key` is stored in Terraform state, and changing `name`, `scopes` or `expires_in_days` " +
+			"replaces it with a new one.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -90,8 +90,8 @@ func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"scopes": schema.SetAttribute{
 				ElementType: types.StringType,
 				Optional:    true, Computed: true,
-				MarkdownDescription: "Scopes granted to the key, e.g. `model:*` (all models) or `model:<model_id>`. " +
-					"Changing this forces a new key. Modelled as a set, so ordering never causes a diff.",
+				MarkdownDescription: "Scopes granted to the key, such as `model:*` (all models) or `model:<model_id>`. " +
+					"Changing this forces a new key.",
 				PlanModifiers: []planmodifier.Set{
 					// Hold the resolved scopes (the API may default them) so an omitted
 					// set keeps its stored value instead of re-planning every apply.
@@ -101,50 +101,48 @@ func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			},
 			"expires_in_days": schema.Int64Attribute{
 				Optional:            true,
-				MarkdownDescription: "Lifetime in days. Omit for a non-expiring key. Changing this forces a new key. Not echoed by the API, so it cannot be recovered on import.",
+				MarkdownDescription: "Lifetime in days; omitted, the key never expires. Not recovered on import. Changing this forces a new key.",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.RequiresReplace()},
 			},
 			"key": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "The secret API key. Returned only at creation and stored in state; null after import.",
+				MarkdownDescription: "The secret API key, available only from the creation and null after import.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 
 			"max_llm_rpm": schema.Int64Attribute{
 				Optional: true,
-				MarkdownDescription: "The organization's ceiling on this key's LLM requests per minute, at least 1. " +
-					"Unset means no key-level ceiling; the organization's own rate and the platform's cap still apply. " +
-					"Terraform owns the key's ceilings: one set in the console is cleared on the next apply unless the " +
-					"configuration sets it too.",
+				MarkdownDescription: "Most LLM requests per minute for this key, at least 1; omitted, the key has " +
+					"no ceiling of its own.",
 				Validators: []validator.Int64{int64validator.Between(1, math.MaxInt32)},
 			},
 			"max_llm_tpm": schema.Int64Attribute{
 				Optional: true,
-				MarkdownDescription: "The organization's ceiling on this key's LLM tokens per minute, at least 1. " +
-					"Same rules as `max_llm_rpm`.",
+				MarkdownDescription: "Most LLM tokens per minute for this key, at least 1; omitted, the key has " +
+					"no ceiling of its own.",
 				Validators: []validator.Int64{int64validator.AtLeast(1)},
 			},
 			"platform_max_llm_rpm": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "The platform administrators' cap on the key's requests per minute, or null. Read-only for the organization.",
+				MarkdownDescription: "Requests-per-minute cap set by platform administrators, or null.",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"platform_max_llm_tpm": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "The platform administrators' cap on the key's tokens per minute, or null. Read-only for the organization.",
+				MarkdownDescription: "Tokens-per-minute cap set by platform administrators, or null.",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"effective_max_llm_rpm": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "The requests-per-minute ceiling the gateway enforces: the tighter of `max_llm_rpm` and `platform_max_llm_rpm`.",
+				MarkdownDescription: "Requests-per-minute ceiling enforced, the lower of `max_llm_rpm` and `platform_max_llm_rpm`.",
 			},
 			"effective_max_llm_tpm": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "The tokens-per-minute ceiling the gateway enforces: the tighter of `max_llm_tpm` and `platform_max_llm_tpm`.",
+				MarkdownDescription: "Tokens-per-minute ceiling enforced, the lower of `max_llm_tpm` and `platform_max_llm_tpm`.",
 			},
 
-			"key_prefix":   schema.StringAttribute{Computed: true, MarkdownDescription: "Non-secret key prefix (identifies the key in listings)."},
+			"key_prefix":   schema.StringAttribute{Computed: true, MarkdownDescription: "Non-secret prefix identifying the key in listings."},
 			"created_at":   schema.StringAttribute{Computed: true, MarkdownDescription: "Creation timestamp (RFC3339)."},
 			"expires_at":   schema.StringAttribute{Computed: true, MarkdownDescription: "Expiry timestamp (RFC3339), if the key expires."},
 			"last_used_at": schema.StringAttribute{Computed: true, MarkdownDescription: "Last-used timestamp (RFC3339), if ever used."},

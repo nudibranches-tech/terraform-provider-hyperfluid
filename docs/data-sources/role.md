@@ -3,12 +3,12 @@
 page_title: "hyperfluid_role Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up a role by name, including the system roles owner, editor and viewer, to bind it with hyperfluid_user_role, hyperfluid_group_role or hyperfluid_service_account_role. Requires role:read.
+  Look up a role by name, including the system roles owner, editor and viewer.
 ---
 
 # hyperfluid_role (Data Source)
 
-Look up a role by name, including the system roles `owner`, `editor` and `viewer`, to bind it with `hyperfluid_user_role`, `hyperfluid_group_role` or `hyperfluid_service_account_role`. Requires `role:read`.
+Look up a role by name, including the system roles `owner`, `editor` and `viewer`.
 
 ## Example Usage
 
@@ -16,11 +16,6 @@ Look up a role by name, including the system roles `owner`, `editor` and `viewer
 # System roles (owner, editor, viewer) exist in every organization.
 data "hyperfluid_role" "viewer" {
   name = "viewer"
-}
-
-resource "hyperfluid_group_role" "auditors_viewer" {
-  group_id = hyperfluid_group.auditors.id
-  role_id  = data.hyperfluid_role.viewer.id
 }
 
 output "viewer_permissions" {

@@ -3,24 +3,27 @@
 page_title: "hyperfluid_bucket_credentials Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Derived S3 credentials for an existing bucket. The secret_key is written to Terraform state — treat state as sensitive (use an encrypted remote backend).
+  S3 credentials for an existing bucket.
+  ~> The secret_key is stored in Terraform state: keep the state in an encrypted backend.
 ---
 
 # hyperfluid_bucket_credentials (Data Source)
 
-Derived S3 credentials for an existing bucket. **The `secret_key` is written to Terraform state — treat state as sensitive** (use an encrypted remote backend).
+S3 credentials for an existing bucket.
+
+~> The `secret_key` is stored in Terraform state: keep the state in an encrypted backend.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Mint the derived S3 credentials for an existing bucket. The secret_key is
 # stored in Terraform state, so use an encrypted remote backend.
 data "hyperfluid_bucket_credentials" "lake" {
-  env         = data.hyperfluid_env.default.id
+  env         = data.hyperfluid_environment.default.id
   bucket_name = "data-lake"
 }
 

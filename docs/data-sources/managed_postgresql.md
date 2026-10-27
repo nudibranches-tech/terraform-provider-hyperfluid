@@ -13,13 +13,13 @@ Look up an existing managed PostgreSQL cluster by name within an environment.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reference an existing managed PostgreSQL cluster (created via console, CLI, or another config).
 data "hyperfluid_managed_postgresql" "db" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "appdb"
 }
 
@@ -38,20 +38,20 @@ output "write_endpoint" {
 
 ### Read-Only
 
-- `archive_interval_seconds` (Number) Seconds between forced WAL segment switches on the running cluster. `0` means no forced switch, so nothing bounds the lag on an idle database; null means the database archives nowhere, or the platform has not reported on it yet.
+- `archive_interval_seconds` (Number) Seconds between forced WAL switches on the running cluster. `0` means none; null means the database is not archived or not reported yet.
 - `backup_policy` (String) Backup policy.
-- `backup_target_id` (String) Backup target id. Always null: no API view reports which target a database ships to.
+- `backup_target_id` (String) Always null: the API does not report it.
 - `configuration` (String) Cluster configuration (e.g. standalone).
 - `database_name` (String) Application database name.
 - `description` (String) Free-form description.
 - `engine` (String) Database engine.
-- `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service.
+- `expose_to_internet` (Boolean) Whether the cluster has an external endpoint.
 - `external_endpoint` (String) External endpoint, if exposed.
-- `first_recoverability_point` (String) Earliest point a restore can target, as the backup catalog reports it. Null on a database that archives nowhere, and on one that ships WAL but has never completed a base backup.
+- `first_recoverability_point` (String) Earliest time a restore can target, or null when no base backup has completed.
 - `id` (String) Cluster id.
 - `instances` (Number) Configured instance count.
 - `last_failed_backup_time` (String) When the last backup failed.
-- `last_successful_backup_time` (String) When the last base backup completed. A continuous-archive restore needs one, because recovery replays forward from a base backup.
+- `last_successful_backup_time` (String) When the last base backup completed.
 - `node_tier` (String) Node tier.
 - `phase` (String) Current lifecycle phase.
 - `read_endpoint` (String) Read endpoint.

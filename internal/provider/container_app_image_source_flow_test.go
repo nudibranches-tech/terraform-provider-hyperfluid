@@ -412,7 +412,7 @@ func nullApp(f *fakeConsole) containerAppModel {
 		Slug: types.StringNull(), Ports: types.ListNull(containerAppPortType()),
 		ImageSource: nullImageSource(), ResolvedImage: types.StringNull(), ResolvedRef: types.StringNull(),
 		Revision: types.StringNull(), LastSyncedAt: types.StringNull(), SyncError: types.StringNull(),
-		EnvVars: types.ListNull(containerAppEnvVarType()), SecretRefs: types.ListNull(containerAppSecretRefType()),
+		EnvVars:          types.ListNull(containerAppEnvVarType()),
 		ImagePullSecrets: types.ListNull(types.StringType), Command: types.ListNull(types.StringType),
 		Args: types.ListNull(types.StringType), InitContainers: types.ListNull(containerAppInitContainerType()),
 		FileMounts:      types.ListNull(containerAppFileMountType()),

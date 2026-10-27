@@ -216,24 +216,14 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A managed Apache Airflow 3 environment: an api-server, a scheduler, a " +
-			"dag-processor and (unless disabled) a triggerer, with a metadata PostgreSQL cluster and a " +
-			"DAG bucket of their own, and a dedicated task namespace the KubernetesExecutor runs task " +
-			"pods in.\n\n" +
-			"DAGs are delivered through the bucket: upload them under the bucket's `dags/` prefix and " +
-			"the platform mirrors them into the dag-processor. Nothing outside that prefix is picked " +
-			"up.\n\n" +
-			"~> **`postgres_ref` and `dag_bucket_ref` are create-only.** Both are references the " +
-			"platform resolves once, at creation; leave either out and the environment provisions its " +
-			"own. Changing or adding one afterwards forces a new environment, which means a new " +
-			"metadata database — the run history in the old one does not come along.\n\n" +
-			"Task-pod egress is denied by default except for a fixed platform baseline (the Airflow " +
-			"execution API, object storage, Bifrost and DNS). The `egress` block grants what a DAG " +
-			"needs on top of that baseline; the baseline itself is not editable and never appears here.",
+		MarkdownDescription: "A managed Apache Airflow 3 environment. Upload DAGs under the `dags/` prefix of its " +
+			"DAG bucket.\n\n" +
+			"~> Changing `postgres_ref` or `dag_bucket_ref` forces a new environment with a new metadata " +
+			"database, so the run history is lost.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Environment id. This is the value a `hyperfluid_airflow_connection`'s `airflow` takes.",
+				MarkdownDescription: "Airflow environment id, used as `airflow` by `hyperfluid_airflow_connection`.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"env": schema.StringAttribute{
@@ -243,10 +233,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"name": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "Environment name. Must be a slug: lowercase letters, digits and hyphens, " +
-					"not starting or ending with a hyphen. It has to be unique across the organization's " +
-					"workload namespace, not merely within the Hyperfluid environment, because every per-environment child " +
-					"object is named after it. Changing this forces a new environment.",
+				MarkdownDescription: "Name, unique in the organization: lowercase letters, digits and hyphens, " +
+					"at most 63 characters. Changing this forces a new environment.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 63),
 					stringvalidator.RegexMatches(airflowDNSLabelPattern,
@@ -256,29 +244,22 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"postgres_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of an existing `hyperfluid_managed_postgresql` in the same Hyperfluid environment to " +
-					"host Airflow's metadata database. Omit it and the platform provisions a dedicated cluster " +
-					"for the environment. Create-only: changing it forces a new environment.",
+				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same environment for the " +
+					"metadata database; omitted, the platform provisions one. Changing this forces a new environment.",
 				Validators:    []validator.String{stringvalidator.LengthBetween(1, 63)},
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"dag_bucket_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of an existing `hyperfluid_bucket` in the same Hyperfluid environment to deliver DAGs " +
-					"through. Omit it and the platform provisions `<name>-airflow`; either way the bucket " +
-					"actually in use is reported as `dag_bucket`. Create-only: changing it forces a new " +
-					"environment.",
+				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same environment to deliver DAGs " +
+					"through; omitted, the platform provisions `<name>-airflow`. Changing this forces a new environment.",
 				Validators:    []validator.String{stringvalidator.LengthBetween(1, 63)},
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"node_tier": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Size of the four Airflow components. One of `" +
-					strings.Join(airflowNodeTiers, "`, `") + "` (defaults to `small`); memory request and " +
-					"limit are always equal, and the resolved values are reported as `cpu_request`, " +
-					"`cpu_limit`, `memory_request` and `memory_limit`. There is no `nano` tier: 512Mi " +
-					"cannot hold the triggerer, so the catalogue starts one tier up. Changing the tier " +
-					"restarts the components.",
+				MarkdownDescription: "Size of each Airflow component: `" +
+					strings.Join(airflowNodeTiers, "`, `") + "`. Defaults to `small`; changing it restarts the components.",
 				Validators: []validator.String{stringvalidator.OneOf(airflowNodeTiers...)},
 			},
 			"triggerer_enabled": schema.BoolAttribute{
@@ -292,10 +273,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				// is not Computed at all. Here the documented default is a real
 				// platform default, so declaring it is the honest fix.
 				Default: booldefault.StaticBool(true),
-				MarkdownDescription: "Whether the triggerer runs (defaults to `true`). The triggerer is what " +
-					"makes deferrable operators and sensors give their worker slot back while they wait; " +
-					"without it a deferring task stays deferred forever. Turn it off only for an " +
-					"environment whose DAGs use neither.",
+				MarkdownDescription: "Whether the triggerer runs, which deferrable operators and sensors need. " +
+					"Defaults to `true`.",
 			},
 			"sleep_mode": schema.BoolAttribute{
 				Optional: true, Computed: true,
@@ -303,10 +282,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				// `sleep_mode = true` from a configuration plans no change and
 				// the environment never wakes up again.
 				Default: booldefault.StaticBool(false),
-				MarkdownDescription: "Scale every component to zero (defaults to `false`). A sleeping " +
-					"environment fires no schedules and serves no UI, but keeps its metadata database, its " +
-					"DAG bucket and its connections, so waking it up resumes where it left off. Reported " +
-					"as phase `Sleeping`.",
+				MarkdownDescription: "Scale every component to zero, keeping its data: no schedules run and the UI " +
+					"is down. Defaults to `false`.",
 			},
 			"runtime_image": schema.StringAttribute{
 				// Optional and deliberately NOT Computed. The pin has to be
@@ -315,24 +292,18 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				// would silently hold the environment on the old image forever
 				// instead of handing it back to the platform default.
 				Optional: true,
-				MarkdownDescription: "Pin the Airflow runtime image, e.g. to one built with extra Python " +
-					"dependencies. Omit it — or remove it from a configuration that had it — and the " +
-					"environment tracks the platform's own image, which is what picks up security updates; " +
-					"removing the attribute clears the pin rather than keeping the last value.",
+				MarkdownDescription: "Airflow runtime image to run, e.g. one with extra Python dependencies. " +
+					"Omitted, the environment follows the platform's image and its security updates.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, airflowMaxRuntimeImageLen)},
 			},
 			"task_quota_max_pods": schema.Int64Attribute{
-				Optional: true,
-				MarkdownDescription: "Ceiling on how many task pods the environment's task namespace may run " +
-					"at once. Omit it to leave the platform default in charge; removing it hands the ceiling " +
-					"back to that default. Zero is not a value — it is how the API spells \"no ceiling of " +
-					"your own\" — so use omission for that and this attribute for a real limit.",
-				Validators: []validator.Int64{int64validator.Between(1, airflowMaxTaskQuotaPods)},
+				Optional:            true,
+				MarkdownDescription: "Most task pods that may run at once, at least 1. Omitted, the platform default applies.",
+				Validators:          []validator.Int64{int64validator.Between(1, airflowMaxTaskQuotaPods)},
 			},
 			"description": schema.StringAttribute{
-				Optional: true,
-				MarkdownDescription: "Free-form description. Stored by the console, not in the environment " +
-					"itself. Omit it for no description — the empty string is not a value here.",
+				Optional:            true,
+				MarkdownDescription: "Free-form description, 1 to 500 characters.",
 				// LengthBetween, not LengthAtMost: the console's column is NOT
 				// NULL, so it stores "" verbatim and the read maps "" back to
 				// null. An explicit `description = ""` would therefore fail
@@ -343,24 +314,18 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"tags": schema.ListAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
-				MarkdownDescription: "User-defined tags. Stored by the console, not in the environment itself.",
+				MarkdownDescription: "User-defined tags.",
 			},
 
 			"egress": schema.SingleNestedAttribute{
 				Optional: true,
-				MarkdownDescription: "Network egress the environment's task pods are granted **on top of** the " +
-					"platform baseline (execution API, object storage, Bifrost, DNS). The baseline is not " +
-					"editable and is never reported here.\n\n" +
-					"~> **The block is replaced wholesale, not merged.** Whatever it contains is the complete " +
-					"set of extra grants; removing the block revokes all of them and leaves the environment " +
-					"on the baseline alone.",
+				MarkdownDescription: "Extra network egress for task pods, beyond the platform baseline. It is the " +
+					"complete set of extra grants: removing it revokes them all.",
 				Attributes: map[string]schema.Attribute{
 					"fqdns": schema.SetAttribute{
 						ElementType: types.StringType, Optional: true,
-						MarkdownDescription: "Public hostnames task pods may reach on 443, e.g. " +
-							"`api.example.com` or `*.example.org`. Lowercase, at least two labels, and a " +
-							"leading `*.` must still leave two labels behind it — no bare wildcards and no " +
-							"IP literals. A few platform-reserved suffixes are refused by the API.",
+						MarkdownDescription: "Public hostnames task pods may reach on port 443, such as `api.example.com` " +
+							"or `*.example.org`: lowercase, at least two labels besides `*.`, no IP addresses.",
 						Validators: []validator.Set{
 							setvalidator.SizeBetween(1, airflowMaxEgressFqdns),
 							setvalidator.ValueStringsAre(stringvalidator.RegexMatches(airflowFqdnPattern,
@@ -368,11 +333,9 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 					},
 					"in_cluster": schema.SetNestedAttribute{
-						Optional: true,
-						MarkdownDescription: "Services in the same Hyperfluid environment that task pods may reach, by kind " +
-							"and name. This is the Airflow equivalent of a `hyperfluid_service_link`, " +
-							"declared on the environment rather than as its own resource.",
-						Validators: []validator.Set{setvalidator.SizeBetween(1, airflowMaxInClusterLinks)},
+						Optional:            true,
+						MarkdownDescription: "Services in the same environment that task pods may reach.",
+						Validators:          []validator.Set{setvalidator.SizeBetween(1, airflowMaxInClusterLinks)},
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"kind": schema.StringAttribute{
@@ -382,9 +345,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 									Validators: []validator.String{stringvalidator.OneOf(airflowLinkKinds...)},
 								},
 								"name": schema.StringAttribute{
-									Required: true,
-									MarkdownDescription: "The target's slug in the same Hyperfluid environment — the `slug` " +
-										"attribute of the resource, not its display name.",
+									Required:            true,
+									MarkdownDescription: "The target's `slug`, not its display name.",
 									Validators: []validator.String{
 										stringvalidator.RegexMatches(airflowDNSLabelPattern,
 											"must be a DNS-1123 label: lowercase letters, digits and hyphens, 1-63 characters"),
@@ -395,10 +357,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 					"allowlists": schema.SetAttribute{
 						ElementType: types.StringType, Optional: true,
-						MarkdownDescription: "Names of the Hyperfluid environment's shared egress allow-lists to attach — the " +
-							"same named lists dev workstations and CI runners attach. A name that does not " +
-							"resolve to an allow-list of this Hyperfluid environment reaches the task policy as nothing at " +
-							"all, and is reported back in `unresolved_allowlists`.",
+						MarkdownDescription: "Names of the environment's shared egress allow-lists to attach. Names " +
+							"that match none are reported in `unresolved_allowlists`.",
 						Validators: []validator.Set{
 							setvalidator.SizeBetween(1, airflowMaxEgressAllowlist),
 							setvalidator.ValueStringsAre(stringvalidator.RegexMatches(airflowDNSLabelPattern,
@@ -409,15 +369,8 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"config": schema.MapAttribute{
 				ElementType: types.StringType, Optional: true,
-				MarkdownDescription: "`airflow.cfg` overrides, keyed `section.key` — for example " +
-					"`{ \"core.parallelism\" = \"64\" }`, which the platform renders as " +
-					"`AIRFLOW__CORE__PARALLELISM`. Keys are lowercase letters, digits and underscores on " +
-					"both sides of a single dot.\n\n" +
-					"~> **The map is replaced wholesale, not merged**, and removing it restores every " +
-					"default. Settings the platform owns — the executor, the auth manager, the execution " +
-					"API, the metadata database, remote logging and the secrets backend — are refused with " +
-					"a 400 naming them, because overriding one would either leak a platform secret or " +
-					"detach the environment from the platform that runs it.",
+				MarkdownDescription: "`airflow.cfg` overrides keyed `section.key`, such as `{ \"core.parallelism\" = \"64\" }`. " +
+					"Settings the platform owns (executor, auth, database, logging, secrets) are refused.",
 				Validators: []validator.Map{
 					mapvalidator.SizeBetween(1, airflowMaxConfigEntries),
 					mapvalidator.KeysAre(stringvalidator.RegexMatches(airflowConfigKeyPattern,
@@ -426,27 +379,23 @@ func (r *airflowResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 
-			"slug":  computedStr("Derived slug. This is the name an `egress.in_cluster` entry elsewhere would target."),
-			"phase": computedStr("Live lifecycle phase: `Pending`, `Provisioning`, `Running`, `Sleeping`, `Error` or `Unknown`."),
-			"web_url": computedStr("Public HTTPS URL of the Airflow UI. Absent until the route is actually " +
-				"serving, and for a sleeping environment."),
-			"public_host":    computedStr("Public hostname the UI is published under, identical in both network modes."),
-			"network_mode":   computedStr("How the UI is exposed: `ingress` or `httproute`. A property of the platform, not of this resource."),
-			"task_namespace": computedStr("Dedicated Kubernetes namespace the environment's task pods run in."),
-			"dag_bucket": computedStr("Bucket DAGs are delivered through — the one named by `dag_bucket_ref`, " +
-				"or the one the platform provisioned. Upload DAGs under its `dags/` prefix."),
+			"slug":                    computedStr("Slug, the name an `egress.in_cluster` entry targets."),
+			"phase":                   computedStr("Live lifecycle phase: `Pending`, `Provisioning`, `Running`, `Sleeping`, `Error` or `Unknown`."),
+			"web_url":                 computedStr("URL of the Airflow UI, null until it is serving and while asleep."),
+			"public_host":             computedStr("Public hostname of the UI."),
+			"network_mode":            computedStr("How the platform exposes the UI: `ingress` or `httproute`."),
+			"task_namespace":          computedStr("Dedicated Kubernetes namespace the environment's task pods run in."),
+			"dag_bucket":              computedStr("Bucket to upload DAGs to, under its `dags/` prefix."),
 			"service_account":         computedStr("Data-plane service account every task pod runs as."),
-			"managed_postgresql_name": computedStr("Name of the metadata PostgreSQL cluster, whether referenced or provisioned."),
+			"managed_postgresql_name": computedStr("Name of the metadata PostgreSQL cluster."),
 			"unresolved_allowlists": schema.ListAttribute{
 				ElementType: types.StringType, Computed: true,
-				MarkdownDescription: "Names from `egress.allowlists` the last reconcile could not resolve to " +
-					"an allow-list of this Hyperfluid environment. Empty is the healthy case; anything listed here is a " +
-					"grant that silently is not in force.",
+				MarkdownDescription: "Names in `egress.allowlists` that match no allow-list, so grant nothing.",
 			},
 			"cpu_request":    computedStr("CPU request per component, resolved from `node_tier`."),
 			"cpu_limit":      computedStr("CPU limit per component, resolved from `node_tier`."),
 			"memory_request": computedStr("Memory request per component, resolved from `node_tier`."),
-			"memory_limit":   computedStr("Memory limit per component, resolved from `node_tier` (equal to the request)."),
+			"memory_limit":   computedStr("Memory limit per component, resolved from `node_tier`."),
 		},
 	}
 }

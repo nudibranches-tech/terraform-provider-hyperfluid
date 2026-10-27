@@ -34,14 +34,12 @@ import (
 // maxInitContainers matches the CRD's cap.
 const maxInitContainers = 4
 
+// containerAppEnvVarModel is one environment variable, set from exactly one of
+// a plain value and an organization-wide secret.
 type containerAppEnvVarModel struct {
-	Name  types.String `tfsdk:"name"`
-	Value types.String `tfsdk:"value"`
-}
-
-type containerAppSecretRefModel struct {
-	EnvVarName types.String `tfsdk:"env_var_name"`
-	SecretName types.String `tfsdk:"secret_name"`
+	Name   types.String `tfsdk:"name"`
+	Value  types.String `tfsdk:"value"`
+	Secret types.String `tfsdk:"secret"`
 }
 
 type containerAppInitContainerModel struct {
@@ -78,15 +76,9 @@ const (
 
 func containerAppEnvVarType() attr.Type {
 	return types.ObjectType{AttrTypes: map[string]attr.Type{
-		"name":  types.StringType,
-		"value": types.StringType,
-	}}
-}
-
-func containerAppSecretRefType() attr.Type {
-	return types.ObjectType{AttrTypes: map[string]attr.Type{
-		"env_var_name": types.StringType,
-		"secret_name":  types.StringType,
+		"name":   types.StringType,
+		"value":  types.StringType,
+		"secret": types.StringType,
 	}}
 }
 
@@ -106,7 +98,6 @@ func containerAppInitContainerType() attr.Type {
 func (m containerAppModel) workloadLists() map[string]types.List {
 	return map[string]types.List{
 		"env_vars":           m.EnvVars,
-		"secret_refs":        m.SecretRefs,
 		"image_pull_secrets": m.ImagePullSecrets,
 		"command":            m.Command,
 		"args":               m.Args,
@@ -129,13 +120,6 @@ func (m containerAppModel) unmanagedUnlessSet() map[string]attr.Value {
 	return out
 }
 
-// unsetListSemantics is the paragraph every workload list carries in its
-// description.
-const unsetListSemantics = "Left out of the configuration, it is not managed by Terraform: it reports what the app " +
-	"has, which an update leaves alone, so entries set in the console or by an app template survive. Once Terraform " +
-	"has applied it, removing it from the configuration clears it; `[]` clears it explicitly, which is also how to " +
-	"clear what an imported app carries."
-
 var (
 	initContainerName = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 	notBlank          = regexp.MustCompile(`\S`)
@@ -146,11 +130,8 @@ func workloadAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"env_vars": schema.ListNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Plain environment variables of the main container, in order: a value can " +
-				"reference a variable listed before it as `$(NAME)`. Init containers inherit them unless they set " +
-				"`inherit_env = false`.\n\n" +
-				"~> Values are stored in plain text in the app's spec and in Terraform state. Put a credential in a " +
-				"`hyperfluid_secret` and reference it through `secret_refs` instead.\n\n" + unsetListSemantics,
+			MarkdownDescription: "Environment variables of the main container, each set from exactly one of `value` and `secret`. " +
+				"A value may reference an earlier plain variable as `$(NAME)`, but not a secret-backed one: those are set after every plain variable.",
 			PlanModifiers: []planmodifier.List{unsetList("env_vars")},
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
@@ -162,115 +143,85 @@ func workloadAttributes() map[string]schema.Attribute {
 							stringvalidator.RegexMatches(regexp.MustCompile(`^[^=]+$`), "must not contain '='"),
 						},
 					},
-					"value": schema.StringAttribute{Required: true, MarkdownDescription: "Variable value."},
-				},
-			},
-		},
-		"secret_refs": schema.ListNestedAttribute{
-			Optional: true, Computed: true,
-			MarkdownDescription: "Environment variables of the main container whose value is read from an " +
-				"organization-wide `hyperfluid_secret` when the app is deployed, so it never reaches the app's spec " +
-				"or Terraform state. They come after `env_vars` in the container, so a plain value cannot " +
-				"reference them.\n\n" + unsetListSemantics,
-			PlanModifiers: []planmodifier.List{unsetList("secret_refs")},
-			NestedObject: schema.NestedAttributeObject{
-				Attributes: map[string]schema.Attribute{
-					"env_var_name": schema.StringAttribute{
-						Required:            true,
-						MarkdownDescription: "Variable name.",
+					"value": schema.StringAttribute{
+						Optional:            true,
+						MarkdownDescription: "Plain-text value, stored in state.",
 						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-							stringvalidator.RegexMatches(regexp.MustCompile(`^[^=]+$`), "must not contain '='"),
+							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("secret")),
 						},
 					},
-					"secret_name": schema.StringAttribute{
-						Required: true,
-						MarkdownDescription: "Name of the organization-wide secret holding the value. A private " +
-							"secret (under `users/`) is refused: the platform resolves the name when it deploys the " +
-							"app, where only organization-wide secrets are visible.",
-						Validators: []validator.String{stringvalidator.LengthAtLeast(1), orgSecretName{}},
+					"secret": schema.StringAttribute{
+						Optional:            true,
+						MarkdownDescription: "Name of the organization-wide `hyperfluid_secret` holding the value, which never lands in state.",
+						Validators:          []validator.String{stringvalidator.LengthAtLeast(1), orgSecretName{}},
 					},
 				},
 			},
 		},
 		"image_pull_secrets": schema.ListAttribute{
 			ElementType: types.StringType, Optional: true, Computed: true,
-			MarkdownDescription: "Names of organization-wide secrets holding registry credentials, used to pull " +
-				"the app's images. Private secrets (under `users/`) are refused.\n\n" + unsetListSemantics,
-			PlanModifiers: []planmodifier.List{unsetList("image_pull_secrets")},
+			MarkdownDescription: "Names of organization-wide secrets holding registry credentials for pulling the app's images.",
+			PlanModifiers:       []planmodifier.List{unsetList("image_pull_secrets")},
 			Validators: []validator.List{
 				listvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1), orgSecretName{}),
 			},
 		},
 		"command": schema.ListAttribute{
 			ElementType: types.StringType, Optional: true, Computed: true,
-			MarkdownDescription: "Entrypoint of the main container, replacing the image's `ENTRYPOINT`; empty " +
-				"keeps the image's.\n\n" + commandOverrideNote + "\n\n" + unsetListSemantics,
-			PlanModifiers: []planmodifier.List{unsetList("command")},
+			MarkdownDescription: "Entrypoint, replacing the image's `ENTRYPOINT`; `[]` keeps the image's. " + commandOverrideNote,
+			PlanModifiers:       []planmodifier.List{unsetList("command")},
 		},
 		"args": schema.ListAttribute{
 			ElementType: types.StringType, Optional: true, Computed: true,
-			MarkdownDescription: "Arguments of the main container, replacing the image's `CMD`; empty keeps the " +
-				"image's.\n\n" + commandOverrideNote + "\n\n" + unsetListSemantics,
-			PlanModifiers: []planmodifier.List{unsetList("args")},
+			MarkdownDescription: "Arguments, replacing the image's `CMD`; `[]` keeps the image's. " + commandOverrideNote,
+			PlanModifiers:       []planmodifier.List{unsetList("args")},
 		},
 		"file_mounts": schema.ListNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Files written into the main container before it starts, each either `content` " +
-				"given inline or the value of an organization-wide secret named in `secret_name`. Inline content is " +
-				"capped at 8 KiB per file and 32 KiB in all, and is stored in plain text in the app's spec and in " +
-				"Terraform state: put anything sensitive in a `hyperfluid_secret`.\n\n" + unsetListSemantics,
+			MarkdownDescription: "Files mounted into the container. Inline content is limited to 8 KiB per file and " +
+				"32 KiB in all, and is stored in plain text in state.",
 			PlanModifiers: []planmodifier.List{unsetList("file_mounts")},
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"mount_path": schema.StringAttribute{
-						Required: true,
-						MarkdownDescription: "Absolute path of the file, unique within the app, e.g. " +
-							"`/etc/nginx/conf.d/site.conf`. Not `/`, not under `/proc`, `/sys` or `/dev`, and without " +
-							"`//` or `..` segments.",
-						Validators: []validator.String{mountPath{}},
+						Required:            true,
+						MarkdownDescription: "Absolute path of the file, unique in the app; not under `/proc`, `/sys` or `/dev`.",
+						Validators:          []validator.String{mountPath{}},
 					},
 					"mode": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Octal file mode such as `0644`. Left out, the platform uses `0644` for " +
-							"inline content and `0400` for a secret.",
+						Optional:            true,
+						MarkdownDescription: "Octal file mode. Defaults to `0644` for `content` and `0400` for `secret_name`.",
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(regexp.MustCompile(`^0*[0-7]{1,3}$`), "must be an octal file mode of at most 0777, such as 0644"),
 						},
 					},
 					"content": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "The file's content. Conflicts with `secret_name`.",
+						MarkdownDescription: "Content of the file. Exactly one of `content` and `secret_name` is required.",
 						Validators: []validator.String{
 							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("secret_name")),
 						},
 					},
 					"secret_name": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Name of the organization-wide secret whose value is the file. A private " +
-							"secret (under `users/`) is refused.",
-						Validators: []validator.String{stringvalidator.LengthAtLeast(1), orgSecretName{}},
+						Optional:            true,
+						MarkdownDescription: "Name of the organization-wide secret whose value is the file.",
+						Validators:          []validator.String{stringvalidator.LengthAtLeast(1), orgSecretName{}},
 					},
 				},
 			},
 		},
 		"init_containers": schema.ListNestedAttribute{
 			Optional: true, Computed: true,
-			MarkdownDescription: "Containers run to completion, in order, before the main container starts, at " +
-				"most 4. Each runs the app's own image unless it names one, and inherits the app's environment and " +
-				"persistent volumes unless told otherwise.\n\n" +
-				"An app template may provision init containers of its own (Forgejo's `bootstrap-oidc`, for " +
-				"instance). Setting this attribute replaces the whole list, theirs included, so either leave it out " +
-				"or copy them in.\n\n" + unsetListSemantics,
+			MarkdownDescription: "Containers run in order before the app starts, at most 4. Setting this replaces " +
+				"any init containers an app template added.",
 			PlanModifiers: []planmodifier.List{unsetList("init_containers")},
 			Validators:    []validator.List{listvalidator.SizeAtMost(maxInitContainers)},
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
-						MarkdownDescription: "Container name, unique within the app and different from the app's " +
-							"slug, which names its main container. Lowercase letters, digits and hyphens, at most 63 " +
-							"characters, not starting or ending with a hyphen.",
+						MarkdownDescription: "Name, unique in the app and different from its slug: at most 63 lowercase " +
+							"letters, digits and hyphens.",
 						Validators: []validator.String{
 							stringvalidator.LengthBetween(1, 63),
 							stringvalidator.RegexMatches(initContainerName,
@@ -278,9 +229,8 @@ func workloadAttributes() map[string]schema.Attribute {
 						},
 					},
 					"image_repository": schema.StringAttribute{
-						Optional: true,
-						MarkdownDescription: "Image repository, set together with `image_tag`. Leave both out to run " +
-							"the app's own image, which then follows every change of the app's image.",
+						Optional:            true,
+						MarkdownDescription: "Image repository, set with `image_tag`. Defaults to the app's own image.",
 						Validators: []validator.String{
 							nonBlank,
 							stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("image_tag")),
@@ -288,7 +238,7 @@ func workloadAttributes() map[string]schema.Attribute {
 					},
 					"image_tag": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "Image tag, set together with `image_repository`.",
+						MarkdownDescription: "Image tag, set with `image_repository`.",
 						Validators: []validator.String{
 							nonBlank,
 							stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("image_repository")),
@@ -296,23 +246,21 @@ func workloadAttributes() map[string]schema.Attribute {
 					},
 					"command": schema.ListAttribute{
 						ElementType: types.StringType, Optional: true,
-						MarkdownDescription: "Entrypoint, replacing the image's `ENTRYPOINT`. " + initCommandOverrideNote,
+						MarkdownDescription: "Entrypoint, replacing the image's `ENTRYPOINT`. " + commandOverrideNote,
 						Validators:          []validator.List{listvalidator.SizeAtLeast(1)},
 					},
 					"args": schema.ListAttribute{
 						ElementType: types.StringType, Optional: true,
-						MarkdownDescription: "Arguments, replacing the image's `CMD`. " + initCommandOverrideNote,
+						MarkdownDescription: "Arguments, replacing the image's `CMD`. " + commandOverrideNote,
 						Validators:          []validator.List{listvalidator.SizeAtLeast(1)},
 					},
 					"inherit_env": schema.BoolAttribute{
 						Optional: true, Computed: true, Default: booldefault.StaticBool(true),
-						MarkdownDescription: "Whether the container gets the app's `env_vars` and `secret_refs`. " +
-							"Defaults to true.",
+						MarkdownDescription: "Whether the container gets the app's environment variables. Defaults to true.",
 					},
 					"mount_persistence": schema.BoolAttribute{
 						Optional: true, Computed: true, Default: booldefault.StaticBool(true),
-						MarkdownDescription: "Whether the app's persistent volumes are mounted at their paths. " +
-							"Defaults to true.",
+						MarkdownDescription: "Whether the app's persistent volumes are mounted. Defaults to true.",
 					},
 				},
 			},
@@ -320,13 +268,7 @@ func workloadAttributes() map[string]schema.Attribute {
 	}
 }
 
-const commandOverrideNote = "Overriding a command is a per-organization feature (`container command override`): " +
-	"with it off, the platform refuses a non-empty value with a 403, while clearing one is always allowed."
-
-// initCommandOverrideNote is commandOverrideNote for an init container, whose
-// unchanged command the platform accepts again with the feature off.
-const initCommandOverrideNote = commandOverrideNote + " With the feature off, an init container that keeps its " +
-	"name, command and args is accepted as it is; a new one, or a changed command or args, is refused."
+const commandOverrideNote = "Needs the organization's container command override feature."
 
 // ── organization-wide secret names ────────────────────────────────────────
 
@@ -393,8 +335,13 @@ func managedAttributes(ctx context.Context, p privateGetter) (map[string]bool, d
 // recordManagedAttributes stores which of those attributes cfg sets, for the
 // next plan.
 func recordManagedAttributes(ctx context.Context, p privateSetter, cfg containerAppModel) diag.Diagnostics {
+	return recordManaged(ctx, p, cfg.unmanagedUnlessSet())
+}
+
+// recordManaged stores which of these configured values are set.
+func recordManaged(ctx context.Context, p privateSetter, values map[string]attr.Value) diag.Diagnostics {
 	names := []string{}
-	for name, v := range cfg.unmanagedUnlessSet() {
+	for name, v := range values {
 		if !v.IsNull() {
 			names = append(names, name)
 		}
@@ -506,23 +453,21 @@ func workloadInputsFor(ctx context.Context, plan containerAppModel, prior *conta
 		priorLists = prior.workloadLists()
 	}
 
+	// The API keeps plain and secret-backed variables in separate lists, each
+	// replaced on its own, so a change to env_vars sends both.
 	if send(plan.EnvVars, priorLists["env_vars"]) {
 		var models []containerAppEnvVarModel
 		diags.Append(plan.EnvVars.ElementsAs(ctx, &models, false)...)
 		env := make([]console.EnvVarInput, 0, len(models))
-		for _, m := range models {
-			env = append(env, console.EnvVarInput{Name: m.Name.ValueString(), Value: m.Value.ValueString()})
-		}
-		in.Env = &env
-	}
-	if send(plan.SecretRefs, priorLists["secret_refs"]) {
-		var models []containerAppSecretRefModel
-		diags.Append(plan.SecretRefs.ElementsAs(ctx, &models, false)...)
 		refs := make([]console.SecretRefInput, 0, len(models))
 		for _, m := range models {
-			refs = append(refs, console.SecretRefInput{EnvVarName: m.EnvVarName.ValueString(), SecretName: m.SecretName.ValueString()})
+			if m.Secret.IsNull() {
+				env = append(env, console.EnvVarInput{Name: m.Name.ValueString(), Value: m.Value.ValueString()})
+			} else {
+				refs = append(refs, console.SecretRefInput{EnvVarName: m.Name.ValueString(), SecretName: m.Secret.ValueString()})
+			}
 		}
-		in.SecretRefs = &refs
+		in.Env, in.SecretRefs = &env, &refs
 	}
 	stringsOf := func(l types.List) *[]string {
 		out := []string{}
@@ -622,29 +567,29 @@ func addWriteError(diags *diag.Diagnostics, summary string, in workloadInputs, e
 // ── reading back ──────────────────────────────────────────────────────────
 
 type workloadState struct {
-	EnvVars, SecretRefs, ImagePullSecrets, Command, Args, InitContainers, FileMounts types.List
+	EnvVars, ImagePullSecrets, Command, Args, InitContainers, FileMounts types.List
 }
 
 // workloadFrom maps the spec's workload onto known lists, empty when the app
-// has none.
-func workloadFrom(ctx context.Context, spec *console.ContainerAppCrdSpecResponse) (workloadState, diag.Diagnostics) {
+// has none. priorEnv is the env_vars the read follows.
+func workloadFrom(ctx context.Context, spec *console.ContainerAppCrdSpecResponse, priorEnv types.List) (workloadState, diag.Diagnostics) {
 	var (
 		w     workloadState
 		diags diag.Diagnostics
 		d     diag.Diagnostics
 	)
-	env := make([]containerAppEnvVarModel, 0, len(spec.Env))
+	env := make([]containerAppEnvVarModel, 0, len(spec.Env)+len(spec.SecretRefs))
 	for _, e := range spec.Env {
-		env = append(env, containerAppEnvVarModel{Name: types.StringValue(e.Name), Value: types.StringValue(e.Value)})
+		env = append(env, containerAppEnvVarModel{
+			Name: types.StringValue(e.Name), Value: types.StringValue(e.Value), Secret: types.StringNull(),
+		})
 	}
-	w.EnvVars, d = types.ListValueFrom(ctx, containerAppEnvVarType(), env)
-	diags.Append(d...)
-
-	refs := make([]containerAppSecretRefModel, 0, len(spec.SecretRefs))
 	for _, s := range spec.SecretRefs {
-		refs = append(refs, containerAppSecretRefModel{EnvVarName: types.StringValue(s.EnvVarName), SecretName: types.StringValue(s.SecretName)})
+		env = append(env, containerAppEnvVarModel{
+			Name: types.StringValue(s.EnvVarName), Value: types.StringNull(), Secret: types.StringValue(s.SecretName),
+		})
 	}
-	w.SecretRefs, d = types.ListValueFrom(ctx, containerAppSecretRefType(), refs)
+	w.EnvVars, d = types.ListValueFrom(ctx, containerAppEnvVarType(), inPriorOrder(ctx, env, priorEnv))
 	diags.Append(d...)
 
 	w.ImagePullSecrets = stringsList(ctx, spec.ImagePullSecrets, &diags)
@@ -686,6 +631,33 @@ func workloadFrom(ctx context.Context, spec *console.ContainerAppCrdSpecResponse
 	return w, diags
 }
 
+// inPriorOrder returns read in the order of prior when both hold the same
+// variables. The API lists plain variables before secret-backed ones, which
+// would otherwise show a diff for a configuration that interleaves them.
+func inPriorOrder(ctx context.Context, read []containerAppEnvVarModel, prior types.List) []containerAppEnvVarModel {
+	if prior.IsNull() || prior.IsUnknown() || len(prior.Elements()) != len(read) {
+		return read
+	}
+	var priorModels []containerAppEnvVarModel
+	if d := prior.ElementsAs(ctx, &priorModels, false); d.HasError() {
+		return read
+	}
+	byName := make(map[string]containerAppEnvVarModel, len(read))
+	for _, e := range read {
+		byName[e.Name.ValueString()] = e
+	}
+	out := make([]containerAppEnvVarModel, 0, len(read))
+	for _, p := range priorModels {
+		e, ok := byName[p.Name.ValueString()]
+		if !ok || !e.Value.Equal(p.Value) || !e.Secret.Equal(p.Secret) {
+			return read
+		}
+		delete(byName, p.Name.ValueString())
+		out = append(out, e)
+	}
+	return out
+}
+
 func deref[T any](s *[]T) []T {
 	if s == nil {
 		return nil
@@ -718,34 +690,7 @@ func nullIfEmpty(ctx context.Context, s []string, diags *diag.Diagnostics) types
 // names, an app slug no init container may take, and a non-blank executable.
 func validateWorkload(ctx context.Context, cfg containerAppModel, diags *diag.Diagnostics) {
 	validateCommand(ctx, cfg.Command, path.Root("command"), diags)
-
-	seen := map[string]string{}
-	claim := func(name types.String, at path.Path, kind string) {
-		if name.IsNull() || name.IsUnknown() {
-			return
-		}
-		if prev, ok := seen[name.ValueString()]; ok {
-			diags.AddAttributeError(at, "Duplicate environment variable",
-				fmt.Sprintf("%q is already set by %s. Each variable may be set once, by env_vars or by secret_refs.", name.ValueString(), prev))
-			return
-		}
-		seen[name.ValueString()] = kind
-	}
-	if !cfg.EnvVars.IsNull() && !cfg.EnvVars.IsUnknown() {
-		var env []containerAppEnvVarModel
-		diags.Append(cfg.EnvVars.ElementsAs(ctx, &env, false)...)
-		for i, e := range env {
-			claim(e.Name, path.Root("env_vars").AtListIndex(i).AtName("name"), "env_vars")
-		}
-	}
-	if !cfg.SecretRefs.IsNull() && !cfg.SecretRefs.IsUnknown() {
-		var refs []containerAppSecretRefModel
-		diags.Append(cfg.SecretRefs.ElementsAs(ctx, &refs, false)...)
-		for i, r := range refs {
-			claim(r.EnvVarName, path.Root("secret_refs").AtListIndex(i).AtName("env_var_name"), "secret_refs")
-		}
-	}
-
+	validateEnvVars(ctx, cfg.EnvVars, diags)
 	validateFileMounts(ctx, cfg.FileMounts, diags)
 
 	if cfg.InitContainers.IsNull() || cfg.InitContainers.IsUnknown() {
@@ -775,6 +720,69 @@ func validateWorkload(ctx context.Context, cfg containerAppModel, diags *diag.Di
 		}
 		names[name] = true
 	}
+}
+
+// validateEnvVars refuses a variable set twice, and a plain value referencing a
+// secret-backed variable: the platform sets those after every plain variable,
+// so Kubernetes would leave the reference unexpanded.
+func validateEnvVars(ctx context.Context, l types.List, diags *diag.Diagnostics) {
+	if l.IsNull() || l.IsUnknown() {
+		return
+	}
+	var env []containerAppEnvVarModel
+	diags.Append(l.ElementsAs(ctx, &env, false)...)
+	seen, secretBacked := map[string]bool{}, map[string]bool{}
+	for i, e := range env {
+		if e.Name.IsNull() || e.Name.IsUnknown() {
+			continue
+		}
+		name := e.Name.ValueString()
+		if seen[name] {
+			diags.AddAttributeError(path.Root("env_vars").AtListIndex(i).AtName("name"), "Duplicate environment variable",
+				fmt.Sprintf("Another entry already sets %q.", name))
+		}
+		seen[name] = true
+		if !e.Secret.IsNull() {
+			secretBacked[name] = true
+		}
+	}
+	for i, e := range env {
+		if e.Value.IsNull() || e.Value.IsUnknown() {
+			continue
+		}
+		for _, ref := range envReferences(e.Value.ValueString()) {
+			if secretBacked[ref] {
+				diags.AddAttributeError(path.Root("env_vars").AtListIndex(i).AtName("value"), "Reference to a secret-backed variable",
+					fmt.Sprintf("$(%s) names a variable set from a secret. Secret-backed variables are set after every plain "+
+						"one, so the reference would stay unexpanded.", ref))
+			}
+		}
+	}
+}
+
+// envReferences lists the variables a value references as $(NAME), skipping
+// the escaped form $$(NAME).
+func envReferences(value string) []string {
+	var refs []string
+	for i := 0; i+1 < len(value); i++ {
+		if value[i] != '$' {
+			continue
+		}
+		if value[i+1] == '$' {
+			i++
+			continue
+		}
+		if value[i+1] != '(' {
+			continue
+		}
+		end := strings.IndexByte(value[i+2:], ')')
+		if end < 0 {
+			break
+		}
+		refs = append(refs, value[i+2:i+2+end])
+		i += 2 + end
+	}
+	return refs
 }
 
 // validateCommand refuses a blank executable, which would only fail once the

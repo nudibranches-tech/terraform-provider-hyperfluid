@@ -13,13 +13,13 @@ Look up an existing object-storage bucket by name within an environment.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reference an existing bucket (created via the console, CLI, or another config).
 data "hyperfluid_bucket" "lake" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "data-lake"
 }
 

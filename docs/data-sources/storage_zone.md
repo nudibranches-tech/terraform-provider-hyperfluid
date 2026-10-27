@@ -3,12 +3,12 @@
 page_title: "hyperfluid_storage_zone Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up one of the organization's object-storage zones by id. Use the resolved zone_id to place a bucket (hyperfluid_bucket.storage_zone_id).
+  Look up one of the organization's object-storage zones by id, to place a hyperfluid_bucket in it.
 ---
 
 # hyperfluid_storage_zone (Data Source)
 
-Look up one of the organization's object-storage zones by id. Use the resolved `zone_id` to place a bucket (`hyperfluid_bucket.storage_zone_id`).
+Look up one of the organization's object-storage zones by id, to place a `hyperfluid_bucket` in it.
 
 ## Example Usage
 
@@ -33,13 +33,13 @@ output "zone_endpoint" {
 
 ### Required
 
-- `zone_id` (String) Zone id to look up (the `cephZones` catalog key, e.g. `default`).
+- `zone_id` (String) Zone id, e.g. `default`.
 
 ### Read-Only
 
 - `description` (String) Free-form description (null if unset).
-- `enabled` (Boolean) Whether the org has enabled storage in this zone.
-- `external_endpoint` (String) External S3 endpoint of the zone, once provisioned (null otherwise).
+- `enabled` (Boolean) Whether the organization has enabled storage in this zone.
+- `external_endpoint` (String) External S3 endpoint of the zone, once provisioned.
 - `name` (String) Human-readable zone name.
-- `primary` (Boolean) Whether this is the org's primary zone (always enabled, never removable).
-- `ready` (Boolean) Whether the zone's storage is provisioned and ready (only meaningful when enabled).
+- `primary` (Boolean) Whether this is the organization's primary zone, which is always enabled.
+- `ready` (Boolean) Whether the zone's storage is ready.

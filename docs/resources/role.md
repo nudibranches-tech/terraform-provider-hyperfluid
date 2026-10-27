@@ -3,34 +3,21 @@
 page_title: "hyperfluid_role Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A custom role of the organization: a named permission bundle to bind to users (hyperfluid_user_role), groups (hyperfluid_group_role) and service accounts (hyperfluid_service_account_role). Set its permissions with hyperfluid_role_permissions, which owns the bundle.
-  The system roles (owner, editor, viewer) cannot be created, changed, deleted or imported here; look them up with the hyperfluid_role data source. Deleting a role removes every binding of it. Requires role:create, role:read, role:update and role:delete.
+  A custom role: a named set of permissions. Deleting it removes every binding of it.
 ---
 
 # hyperfluid_role (Resource)
 
-A custom role of the organization: a named permission bundle to bind to users (`hyperfluid_user_role`), groups (`hyperfluid_group_role`) and service accounts (`hyperfluid_service_account_role`). Set its permissions with `hyperfluid_role_permissions`, which owns the bundle.
-
-The system roles (`owner`, `editor`, `viewer`) cannot be created, changed, deleted or imported here; look them up with the `hyperfluid_role` data source. Deleting a role removes every binding of it. Requires `role:create`, `role:read`, `role:update` and `role:delete`.
+A custom role: a named set of permissions. Deleting it removes every binding of it.
 
 ## Example Usage
 
 ```terraform
-# A custom role; its permissions are set by hyperfluid_role_permissions, the
-# only resource that manages the bundle.
 resource "hyperfluid_role" "auditor" {
   name        = "auditor"
   description = "Read-only access to IAM and secrets metadata"
   color       = "#0f766e"
-}
-
-resource "hyperfluid_role_permissions" "auditor" {
-  role_id = hyperfluid_role.auditor.id
-  permissions = [
-    "secret:list",
-    "grant:read",
-    "group:read",
-  ]
+  permissions = ["secret:list", "grant:read", "group:read"]
 }
 ```
 
@@ -39,12 +26,13 @@ resource "hyperfluid_role_permissions" "auditor" {
 
 ### Required
 
-- `name` (String) Role name, unique within the organization. `owner`, `editor` and `viewer` are reserved. Changes in place.
+- `name` (String) Role name, unique within the organization. `owner`, `editor` and `viewer` are reserved.
 
 ### Optional
 
 - `color` (String) Color the console shows the role with, e.g. `#0f766e`.
 - `description` (String) Free-form description.
+- `permissions` (Set of String) Permission keys, e.g. `secret:read`. Left out, it is not managed; once set, it is authoritative and removing it clears it.
 
 ### Read-Only
 
@@ -57,7 +45,6 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-# Role import id is the role id (uuid). System roles (owner, editor, viewer)
-# cannot be imported: reference them with the hyperfluid_role data source.
+# Import id is the role id. System roles (owner, editor, viewer) cannot be imported.
 terraform import hyperfluid_role.auditor 00000000-0000-0000-0000-000000000000
 ```

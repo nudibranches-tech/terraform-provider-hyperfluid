@@ -66,19 +66,10 @@ func (r *s3AccessKeyResource) Schema(_ context.Context, _ resource.SchemaRequest
 	replace := []planmodifier.String{stringplanmodifier.RequiresReplace()}
 	keep := []planmodifier.String{stringplanmodifier.UseStateForUnknown()}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A long-lived S3 access key of an environment, valid at the environment's S3 gateway " +
-			"(not at the storage backend directly), for an existing service account: it reaches what the account's " +
-			"grants allow. Requires `service_account:issue_s3_key`, and `service_account:read` to read keys back. " +
-			"The S3 gateway must be enabled for the environment.\n\n" +
-			"Terraform never creates service accounts, so a scoped key — one the console issues together with a " +
-			"dedicated service account holding only the chosen bucket grants — is created in the console. For the " +
-			"same result here, look up a service account made for the purpose with the `hyperfluid_service_account` " +
-			"data source and narrow it with `hyperfluid_grant`.\n\n" +
-			"`secret_access_key` is returned only when the key is issued, and is stored in Terraform state: keep " +
-			"state in an encrypted backend with restricted access. It is null after import.\n\n" +
-			"Revoking a key also revokes every **older** key of the same service account in the same zone (the " +
-			"gateway keeps one revocation floor per account), so give each consumer its own service account. A " +
-			"key revoked outside Terraform is removed from state and issued again on the next apply.",
+		MarkdownDescription: "A long-lived S3 access key for a service account, valid at the environment's S3 " +
+			"gateway and reaching what the account's grants allow.\n\n" +
+			"~> Revoking a key also revokes every older key of the same service account in the same zone, so give " +
+			"each consumer its own service account.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -93,22 +84,21 @@ func (r *s3AccessKeyResource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 			"storage_zone_id": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Storage zone whose gateway issues the key; omit for the environment's default zone. " +
+				MarkdownDescription: "Storage zone issuing the key; defaults to the environment's default zone. " +
 					"Changing this forces a new key.",
 				PlanModifiers: replace,
 			},
 			"label": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Free-form label shown in the key ledger, at most 255 characters. Changing this forces a new key.",
+				MarkdownDescription: "Free-form label, at most 255 characters. Changing this forces a new key.",
 				Validators:          []validator.String{stringvalidator.LengthAtMost(255)},
 				PlanModifiers:       replace,
 			},
 			"service_account_id": schema.StringAttribute{
-				Required: true,
-				MarkdownDescription: "Id of the service account the key authenticates as (the `hyperfluid_service_account` " +
-					"data source's `id`). Changing this forces a new key.",
-				Validators:    []validator.String{isUUID()},
-				PlanModifiers: replace,
+				Required:            true,
+				MarkdownDescription: "Id of the service account the key authenticates as. Changing this forces a new key.",
+				Validators:          []validator.String{isUUID()},
+				PlanModifiers:       replace,
 			},
 			"access_key_id": schema.StringAttribute{
 				Computed:            true,
@@ -118,7 +108,7 @@ func (r *s3AccessKeyResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"secret_access_key": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "The S3 secret access key, returned only at issue; null after import." + iamStateNote,
+				MarkdownDescription: "The S3 secret access key, null after import." + iamStateNote,
 				PlanModifiers:       keep,
 			},
 			"endpoint": schema.StringAttribute{
@@ -142,10 +132,9 @@ func (r *s3AccessKeyResource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"scopes": schema.ListAttribute{
-				ElementType: types.StringType,
-				Computed:    true,
-				MarkdownDescription: "Bucket scope paths (`<tenant>/<bucket>[/<prefix>]`) the key's service account " +
-					"holds grants at, as last read.",
+				ElementType:         types.StringType,
+				Computed:            true,
+				MarkdownDescription: "Bucket paths (`<tenant>/<bucket>[/<prefix>]`) the service account holds grants on.",
 			},
 		},
 	}

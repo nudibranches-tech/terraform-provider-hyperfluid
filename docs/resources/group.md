@@ -3,22 +3,36 @@
 page_title: "hyperfluid_group Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A group of users and service accounts. Grants and role bindings made to the group apply to every member. Add members with hyperfluid_group_member, bind roles with hyperfluid_group_role and grant permissions with hyperfluid_grant.
-  Requires group:create, group:read, group:update and group:delete. Deleting a group also deletes every grant bound to it.
+  A group of users and service accounts; its roles and grants apply to every member.
 ---
 
 # hyperfluid_group (Resource)
 
-A group of users and service accounts. Grants and role bindings made to the group apply to every member. Add members with `hyperfluid_group_member`, bind roles with `hyperfluid_group_role` and grant permissions with `hyperfluid_grant`.
-
-Requires `group:create`, `group:read`, `group:update` and `group:delete`. Deleting a group also deletes every grant bound to it.
+A group of users and service accounts; its roles and grants apply to every member.
 
 ## Example Usage
 
 ```terraform
+data "hyperfluid_service_account" "etl" {
+  client_id = "etl"
+}
+
 resource "hyperfluid_group" "data_eng" {
   name        = "data-engineering"
   description = "Builds and runs the pipelines"
+
+  members = [
+    { type = "user", id = var.alice_user_id },
+    { type = "service_account", id = data.hyperfluid_service_account.etl.id },
+  ]
+
+  roles = [{ role_id = hyperfluid_role.auditor.id, scope_path = "analytics" }]
+
+  # The first grant is pinned to one secret, so it follows a rename.
+  grants = [
+    { permission = "secret:read", scope_path = hyperfluid_secret.db.name, resource_uuid = hyperfluid_secret.db.id },
+    { permission = "secret:update", scope_path = "prod/*", effect = "deny" },
+  ]
 }
 ```
 
@@ -27,16 +41,54 @@ resource "hyperfluid_group" "data_eng" {
 
 ### Required
 
-- `name` (String) Group name, unique within the organization. Changes in place.
+- `name` (String) Group name, unique within the organization.
 
 ### Optional
 
 - `description` (String) Free-form description.
+- `grants` (Attributes Set) Permissions granted directly to this principal. Left out, it is not managed; once set, it is authoritative and removing it clears it. (see [below for nested schema](#nestedatt--grants))
+- `members` (Attributes Set) Users and service accounts in the group. Left out, it is not managed; once set, it is authoritative and removing it clears it. (see [below for nested schema](#nestedatt--members))
+- `roles` (Attributes Set) Roles bound to this principal. Left out, it is not managed; once set, it is authoritative and removing it clears it. (see [below for nested schema](#nestedatt--roles))
 
 ### Read-Only
 
-- `id` (String) Group id (uuid).
-- `member_count` (Number) Number of users and service accounts in the group.
+- `id` (String) Group id.
+
+<a id="nestedatt--grants"></a>
+### Nested Schema for `grants`
+
+Required:
+
+- `permission` (String) Permission key, e.g. `secret:read`.
+
+Optional:
+
+- `effect` (String) `allow` (default) or `deny`.
+- `resource_uuid` (String) Id of the resource an exact `scope_path` names, e.g. `hyperfluid_secret.x.id`.
+- `scope_path` (String) Resource path, exact or a wildcard such as `prod/*`. Omit for organization-wide.
+
+
+<a id="nestedatt--members"></a>
+### Nested Schema for `members`
+
+Required:
+
+- `id` (String) User or service account id.
+- `type` (String) `user` or `service_account`.
+
+
+<a id="nestedatt--roles"></a>
+### Nested Schema for `roles`
+
+Required:
+
+- `role_id` (String) Role id.
+
+Optional:
+
+- `resource_type` (String) Limits the role to its permissions on this resource type; needs an exact `scope_path`.
+- `resource_uuid` (String) Id of the resource an exact `scope_path` names, e.g. `hyperfluid_secret.x.id`.
+- `scope_path` (String) Resource path, exact or a wildcard such as `prod/*`. Omit for organization-wide.
 
 ## Import
 
@@ -45,6 +97,6 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-# Group import id is the group id (uuid).
+# Import id is the group id. No list is managed until the configuration sets it.
 terraform import hyperfluid_group.data_eng 00000000-0000-0000-0000-000000000000
 ```
