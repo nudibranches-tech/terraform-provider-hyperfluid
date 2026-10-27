@@ -6,8 +6,10 @@ package provider
 import (
 	"context"
 	"errors"
+	"math"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -16,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
@@ -24,9 +27,9 @@ import (
 
 // ai_api_key_resource.go — an LLM-gateway API key. The secret `key` is returned
 // only once (by create) and is stored — sensitive — in state, since it cannot be
-// re-fetched (the list/read endpoint exposes only key_prefix). There is no PATCH:
-// name, scopes and expires_in_days are all immutable, so any change replaces the
-// key (a fresh secret). On import the secret is unrecoverable and stays null.
+// re-fetched (the list/read endpoint exposes only key_prefix). Name, scopes and
+// expires_in_days are immutable, so changing them replaces the key; the rate
+// ceilings change in place. On import the secret is unrecoverable and stays null.
 
 var (
 	_ resource.Resource                = &aiApiKeyResource{}
@@ -50,12 +53,18 @@ type aiApiKeyModel struct {
 	Scopes        types.Set    `tfsdk:"scopes"`          // ForceNew, opt+computed (order-insensitive)
 	ExpiresInDays types.Int64  `tfsdk:"expires_in_days"` // ForceNew, not echoed by the API
 	Key           types.String `tfsdk:"key"`             // write-once secret, kept sensitive
+	MaxLlmRpm     types.Int64  `tfsdk:"max_llm_rpm"`     // in place
+	MaxLlmTpm     types.Int64  `tfsdk:"max_llm_tpm"`     // in place
 
 	// computed
-	KeyPrefix  types.String `tfsdk:"key_prefix"`
-	CreatedAt  types.String `tfsdk:"created_at"`
-	ExpiresAt  types.String `tfsdk:"expires_at"`
-	LastUsedAt types.String `tfsdk:"last_used_at"`
+	KeyPrefix          types.String `tfsdk:"key_prefix"`
+	CreatedAt          types.String `tfsdk:"created_at"`
+	ExpiresAt          types.String `tfsdk:"expires_at"`
+	LastUsedAt         types.String `tfsdk:"last_used_at"`
+	PlatformMaxLlmRpm  types.Int64  `tfsdk:"platform_max_llm_rpm"`
+	PlatformMaxLlmTpm  types.Int64  `tfsdk:"platform_max_llm_tpm"`
+	EffectiveMaxLlmRpm types.Int64  `tfsdk:"effective_max_llm_rpm"`
+	EffectiveMaxLlmTpm types.Int64  `tfsdk:"effective_max_llm_tpm"`
 }
 
 func (r *aiApiKeyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -65,8 +74,8 @@ func (r *aiApiKeyResource) Metadata(_ context.Context, req resource.MetadataRequ
 func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "An LLM-gateway API key. The secret `key` is shown only at creation and stored " +
-			"(sensitive) in state — it cannot be re-read. The key is immutable: changing any attribute " +
-			"replaces it with a new secret.",
+			"(sensitive) in state — it cannot be re-read. Changing `name`, `scopes` or `expires_in_days` " +
+			"replaces the key with a new secret; the rate ceilings `max_llm_rpm` and `max_llm_tpm` change in place.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -100,6 +109,39 @@ func (r *aiApiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				Sensitive:           true,
 				MarkdownDescription: "The secret API key. Returned only at creation and stored in state; null after import.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
+
+			"max_llm_rpm": schema.Int64Attribute{
+				Optional: true,
+				MarkdownDescription: "The organization's ceiling on this key's LLM requests per minute, at least 1. " +
+					"Unset means no key-level ceiling; the organization's own rate and the platform's cap still apply. " +
+					"Terraform owns the key's ceilings: one set in the console is cleared on the next apply unless the " +
+					"configuration sets it too.",
+				Validators: []validator.Int64{int64validator.Between(1, math.MaxInt32)},
+			},
+			"max_llm_tpm": schema.Int64Attribute{
+				Optional: true,
+				MarkdownDescription: "The organization's ceiling on this key's LLM tokens per minute, at least 1. " +
+					"Same rules as `max_llm_rpm`.",
+				Validators: []validator.Int64{int64validator.AtLeast(1)},
+			},
+			"platform_max_llm_rpm": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The platform administrators' cap on the key's requests per minute, or null. Read-only for the organization.",
+				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+			},
+			"platform_max_llm_tpm": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The platform administrators' cap on the key's tokens per minute, or null. Read-only for the organization.",
+				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+			},
+			"effective_max_llm_rpm": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The requests-per-minute ceiling the gateway enforces: the tighter of `max_llm_rpm` and `platform_max_llm_rpm`.",
+			},
+			"effective_max_llm_tpm": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The tokens-per-minute ceiling the gateway enforces: the tighter of `max_llm_tpm` and `platform_max_llm_tpm`.",
 			},
 
 			"key_prefix":   schema.StringAttribute{Computed: true, MarkdownDescription: "Non-secret key prefix (identifies the key in listings)."},
@@ -138,6 +180,8 @@ func (r *aiApiKeyResource) Create(ctx context.Context, req resource.CreateReques
 	body := console.CreateApiKeyRequest{
 		Name:          plan.Name.ValueString(),
 		ExpiresInDays: int32PtrFromInt64(plan.ExpiresInDays),
+		MaxLlmRpm:     int32PtrFromInt64(plan.MaxLlmRpm),
+		MaxLlmTpm:     int64Ptr(plan.MaxLlmTpm),
 	}
 	if scopes != nil {
 		body.Scopes = &scopes
@@ -165,7 +209,44 @@ func (r *aiApiKeyResource) Create(ctx context.Context, req resource.CreateReques
 		ExpiresAt:     optTimeString(created.ExpiresAt),
 		LastUsedAt:    types.StringNull(),
 	}
-	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+	// The create response carries no rate ceilings; the key's listing does.
+	k, err := r.p.API.GetApiKey(ctx, r.p.OrgID, state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.Append(resp.State.Set(ctx, withCeilings(state, nil))...)
+		resp.Diagnostics.AddError("Failed to read API key after create", err.Error())
+		return
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, withCeilings(state, k))...)
+}
+
+// withCeilings fills the rate ceilings from the key's listing, or nulls them
+// when there is none to read.
+func withCeilings(m aiApiKeyModel, k *console.ApiKeyResponse) aiApiKeyModel {
+	if k == nil {
+		m.MaxLlmRpm, m.MaxLlmTpm = types.Int64Null(), types.Int64Null()
+		m.PlatformMaxLlmRpm, m.PlatformMaxLlmTpm = types.Int64Null(), types.Int64Null()
+		m.EffectiveMaxLlmRpm, m.EffectiveMaxLlmTpm = types.Int64Null(), types.Int64Null()
+		return m
+	}
+	m.MaxLlmRpm, m.MaxLlmTpm = optInt64FromInt32(k.MaxLlmRpm), optInt64(k.MaxLlmTpm)
+	m.PlatformMaxLlmRpm, m.PlatformMaxLlmTpm = optInt64FromInt32(k.PlatformMaxLlmRpm), optInt64(k.PlatformMaxLlmTpm)
+	m.EffectiveMaxLlmRpm, m.EffectiveMaxLlmTpm = optInt64FromInt32(k.EffectiveMaxLlmRpm), optInt64(k.EffectiveMaxLlmTpm)
+	return m
+}
+
+func int64Ptr(v types.Int64) *int64 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	n := v.ValueInt64()
+	return &n
+}
+
+func optInt64(n *int64) types.Int64 {
+	if n == nil {
+		return types.Int64Null()
+	}
+	return types.Int64Value(*n)
 }
 
 func (r *aiApiKeyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -196,8 +277,9 @@ func (r *aiApiKeyResource) Read(ctx context.Context, req resource.ReadRequest, r
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-// Update is unreachable — every attribute forces replacement — but re-reads to
-// keep state consistent if it is ever called.
+// Update changes only the rate ceilings; every other attribute forces
+// replacement. The ceilings are replaced whole, so both are always sent and a
+// null one clears that ceiling.
 func (r *aiApiKeyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, prior aiApiKeyModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -206,9 +288,21 @@ func (r *aiApiKeyResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	k, err := r.p.API.GetApiKey(ctx, r.p.OrgID, prior.ID.ValueString())
+	id := prior.ID.ValueString()
+	var (
+		k   *console.ApiKeyResponse
+		err error
+	)
+	if plan.MaxLlmRpm.Equal(prior.MaxLlmRpm) && plan.MaxLlmTpm.Equal(prior.MaxLlmTpm) {
+		k, err = r.p.API.GetApiKey(ctx, r.p.OrgID, id)
+	} else {
+		k, err = r.p.API.SetApiKeyRateLimits(ctx, r.p.OrgID, id, console.SetApiKeyRateLimitsRequest{
+			MaxLlmRpm: int32PtrFromInt64(plan.MaxLlmRpm),
+			MaxLlmTpm: int64Ptr(plan.MaxLlmTpm),
+		})
+	}
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to read API key after update", err.Error())
+		resp.Diagnostics.AddError("Failed to update API key rate ceilings", err.Error())
 		return
 	}
 	state, d := r.toModel(ctx, k)
@@ -248,7 +342,7 @@ func (r *aiApiKeyResource) ImportState(ctx context.Context, req resource.ImportS
 // expires_in_days, which the API never echoes.
 func (r *aiApiKeyResource) toModel(ctx context.Context, k *console.ApiKeyResponse) (aiApiKeyModel, diag.Diagnostics) {
 	scopes, d := stringSliceToSet(ctx, k.Scopes)
-	return aiApiKeyModel{
+	return withCeilings(aiApiKeyModel{
 		ID:         types.StringValue(k.Id.String()),
 		Name:       types.StringValue(k.Name),
 		Scopes:     scopes,
@@ -256,5 +350,5 @@ func (r *aiApiKeyResource) toModel(ctx context.Context, k *console.ApiKeyRespons
 		CreatedAt:  timeString(k.CreatedAt),
 		ExpiresAt:  optTimeString(k.ExpiresAt),
 		LastUsedAt: optTimeString(k.LastUsedAt),
-	}, d
+	}, k), d
 }

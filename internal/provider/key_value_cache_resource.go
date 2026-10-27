@@ -8,12 +8,18 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -21,8 +27,7 @@ import (
 
 // key_value_cache_resource.go — managed Valkey key-value cache. Connection is
 // surfaced via host/port + a credentials secret reference (never plaintext).
-// The `resources` (cpu/memory requests/limits) nested block is deferred to a
-// follow-up; this PR covers the scalar config.
+// `resources` is read from the /crd view, the only one that carries it.
 
 var (
 	_ resource.Resource                = &keyValueCacheResource{}
@@ -49,6 +54,7 @@ type keyValueCacheModel struct {
 	MaxmemoryPolicy types.String `tfsdk:"maxmemory_policy"`
 	Description     types.String `tfsdk:"description"`
 	Tags            types.List   `tfsdk:"tags"`
+	Resources       types.Object `tfsdk:"resources"`
 
 	// computed
 	Host                  types.String `tfsdk:"host"`
@@ -100,6 +106,18 @@ func (r *keyValueCacheResource) Schema(_ context.Context, _ resource.SchemaReque
 				ElementType: types.StringType, Optional: true, Computed: true,
 				MarkdownDescription: "User-defined tags.",
 			},
+			"resources": schema.SingleNestedAttribute{
+				Optional: true,
+				MarkdownDescription: "CPU and memory requests and limits of the cache's container, as Kubernetes " +
+					"quantities. Left out, the container runs without any. Without `maxmemory`, the platform sets " +
+					"Valkey's to three quarters of `limits.memory`. Leaving `limits.cpu` out is recommended: a CPU " +
+					"limit throttles the cache even on an idle node. Removing the attribute clears them.",
+				Attributes: map[string]schema.Attribute{
+					"requests": resourceQuantities("Resources guaranteed to the container.",
+						objectvalidator.AtLeastOneOf(path.MatchRelative().AtParent().AtName("limits"))),
+					"limits": resourceQuantities("The most the container may use."),
+				},
+			},
 
 			"host":                    computedStr("Cache host, once provisioned."),
 			"port":                    schema.Int64Attribute{Computed: true, MarkdownDescription: "Cache port, once provisioned."},
@@ -108,6 +126,92 @@ func (r *keyValueCacheResource) Schema(_ context.Context, _ resource.SchemaReque
 			"slug":                    computedStr("Derived slug."),
 		},
 	}
+}
+
+func resourceQuantities(desc string, extra ...validator.Object) schema.SingleNestedAttribute {
+	quantity := func(other, d string) schema.StringAttribute {
+		return schema.StringAttribute{
+			Optional: true, MarkdownDescription: d,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AtLeastOneOf(path.MatchRelative().AtParent().AtName(other)),
+			},
+		}
+	}
+	return schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: desc,
+		Validators:          extra,
+		Attributes: map[string]schema.Attribute{
+			"cpu":    quantity("memory", "CPU quantity, e.g. `250m` or `1`."),
+			"memory": quantity("cpu", "Memory quantity, e.g. `256Mi` or `1Gi`."),
+		},
+	}
+}
+
+var (
+	resourceQuantitiesType = types.ObjectType{AttrTypes: map[string]attr.Type{
+		"cpu": types.StringType, "memory": types.StringType,
+	}}
+	cacheResourcesType = types.ObjectType{AttrTypes: map[string]attr.Type{
+		"requests": resourceQuantitiesType, "limits": resourceQuantitiesType,
+	}}
+)
+
+type cacheResourcesModel struct {
+	Requests types.Object `tfsdk:"requests"`
+	Limits   types.Object `tfsdk:"limits"`
+}
+
+type resourceQuantitiesModel struct {
+	CPU    types.String `tfsdk:"cpu"`
+	Memory types.String `tfsdk:"memory"`
+}
+
+// cacheResourcesInput converts a configured `resources` into the API input,
+// nil when the config leaves it out.
+func cacheResourcesInput(ctx context.Context, obj types.Object) (*console.ResourceRequirementsSpec, diag.Diagnostics) {
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil, nil
+	}
+	var m cacheResourcesModel
+	d := obj.As(ctx, &m, basetypes.ObjectAsOptions{})
+	if d.HasError() {
+		return nil, d
+	}
+	spec := &console.ResourceRequirementsSpec{}
+	for _, side := range []struct {
+		obj types.Object
+		out **console.ResourceSpec
+	}{{m.Requests, &spec.Requests}, {m.Limits, &spec.Limits}} {
+		if side.obj.IsNull() || side.obj.IsUnknown() {
+			continue
+		}
+		var q resourceQuantitiesModel
+		d.Append(side.obj.As(ctx, &q, basetypes.ObjectAsOptions{})...)
+		*side.out = &console.ResourceSpec{Cpu: stringPtr(q.CPU), Memory: stringPtr(q.Memory)}
+	}
+	return spec, d
+}
+
+// cacheResourcesObject maps the spec's resources, null when it sets none.
+func cacheResourcesObject(r *console.ResourceRequirementsSpec) types.Object {
+	side := func(q *console.ResourceSpec) types.Object {
+		if q == nil || (q.Cpu == nil && q.Memory == nil) {
+			return types.ObjectNull(resourceQuantitiesType.AttrTypes)
+		}
+		return types.ObjectValueMust(resourceQuantitiesType.AttrTypes, map[string]attr.Value{
+			"cpu": optString(q.Cpu), "memory": optString(q.Memory),
+		})
+	}
+	if r == nil {
+		return types.ObjectNull(cacheResourcesType.AttrTypes)
+	}
+	requests, limits := side(r.Requests), side(r.Limits)
+	if requests.IsNull() && limits.IsNull() {
+		return types.ObjectNull(cacheResourcesType.AttrTypes)
+	}
+	return types.ObjectValueMust(cacheResourcesType.AttrTypes, map[string]attr.Value{"requests": requests, "limits": limits})
 }
 
 func (r *keyValueCacheResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -144,6 +248,11 @@ func (r *keyValueCacheResource) Create(ctx context.Context, req resource.CreateR
 	}
 	if tags != nil {
 		body.Tags = &tags
+	}
+	body.Resources, d = cacheResourcesInput(ctx, plan.Resources)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	created, err := r.p.API.CreateKeyValueCache(ctx, r.p.OrgID, plan.Env.ValueString(), body)
@@ -205,6 +314,18 @@ func (r *keyValueCacheResource) Update(ctx context.Context, req resource.UpdateR
 	}
 	if tags != nil {
 		body.Tags = &tags
+	}
+	// An omitted `resources` keeps the cache's, so a removed one is sent empty,
+	// which clears it.
+	if !plan.Resources.Equal(state.Resources) {
+		body.Resources, d = cacheResourcesInput(ctx, plan.Resources)
+		resp.Diagnostics.Append(d...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if body.Resources == nil {
+			body.Resources = &console.ResourceRequirementsSpec{}
+		}
 	}
 
 	id := state.ID.ValueString()
@@ -281,6 +402,10 @@ func (r *keyValueCacheResource) readInto(ctx context.Context, id string) (keyVal
 	if d.HasError() {
 		return keyValueCacheModel{}, errors.New("failed to convert tags")
 	}
+	spec, err := r.p.API.GetKeyValueCacheSpec(ctx, r.p.OrgID, id)
+	if err != nil {
+		return keyValueCacheModel{}, err
+	}
 
 	return keyValueCacheModel{
 		ID:                    types.StringValue(id),
@@ -291,6 +416,7 @@ func (r *keyValueCacheResource) readInto(ctx context.Context, id string) (keyVal
 		MaxmemoryPolicy:       optString(c.MaxmemoryPolicy),
 		Description:           optString(c.Description),
 		Tags:                  tags,
+		Resources:             cacheResourcesObject(spec.Resources),
 		Host:                  optString(c.Host),
 		Port:                  optInt64FromInt32(c.Port),
 		CredentialsSecretName: optString(c.CredentialsSecretName),

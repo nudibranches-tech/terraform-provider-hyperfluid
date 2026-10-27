@@ -37,14 +37,15 @@ output "backup_endpoint" {
 
 ### Read-Only
 
-- `access_key_secret_name` (String) Secret holding the S3 access key id.
+- `access_key_secret_name` (String) Secret holding the S3 access key id, or null for a target writing to a bucket of the environment.
+- `bucket_name` (String) Bucket of the environment the target writes to. Always null: no API view reports it.
 - `description` (String) Free-form description.
-- `destination_path` (String) Bucket + prefix backups are stored under.
-- `endpoint_url` (String) S3-compatible endpoint URL.
+- `destination_path` (String) Bucket + prefix backups are stored under; for a target writing to a bucket of the environment, the one the platform resolved.
+- `endpoint_url` (String) S3-compatible endpoint URL; for a target writing to a bucket of the environment, the one the platform resolved.
 - `id` (String) Backup target id.
 - `insecure` (Boolean) Whether TLS verification is skipped.
 - `phase` (String) Current lifecycle phase.
 - `retention_days` (Number) Effective retention window in days — the configured value, or the platform default of 7.
-- `secret_access_key_secret_name` (String) Secret holding the S3 secret access key.
+- `secret_access_key_secret_name` (String) Secret holding the S3 secret access key, or null for a target writing to a bucket of the environment.
 - `slug` (String) Derived slug.
 - `tags` (List of String) User-defined tags.

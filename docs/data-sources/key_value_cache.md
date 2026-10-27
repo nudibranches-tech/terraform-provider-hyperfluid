@@ -46,5 +46,31 @@ output "cache_host" {
 - `maxmemory_policy` (String) Eviction policy.
 - `phase` (String) Current lifecycle phase.
 - `port` (Number) Connection port.
+- `resources` (Attributes) CPU and memory requests and limits of the cache's container, or null when it sets none. (see [below for nested schema](#nestedatt--resources))
 - `slug` (String) Derived slug.
 - `tags` (List of String) User-defined tags.
+
+<a id="nestedatt--resources"></a>
+### Nested Schema for `resources`
+
+Read-Only:
+
+- `limits` (Attributes) The most the container may use. (see [below for nested schema](#nestedatt--resources--limits))
+- `requests` (Attributes) Resources guaranteed to the container. (see [below for nested schema](#nestedatt--resources--requests))
+
+<a id="nestedatt--resources--limits"></a>
+### Nested Schema for `resources.limits`
+
+Read-Only:
+
+- `cpu` (String) CPU quantity.
+- `memory` (String) Memory quantity.
+
+
+<a id="nestedatt--resources--requests"></a>
+### Nested Schema for `resources.requests`
+
+Read-Only:
+
+- `cpu` (String) CPU quantity.
+- `memory` (String) Memory quantity.

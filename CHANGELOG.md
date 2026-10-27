@@ -1,5 +1,36 @@
 ## Unreleased
 
+FEATURES:
+
+* **New Resource:** `hyperfluid_service_account_attributes` — the row-level-security attributes (`namespace::value`) of a service account, managed as a whole.
+* **New Resource:** `hyperfluid_s3_access_key` — a long-lived S3 key of an environment for an existing service account (`service_account_id`, referenced through the `hyperfluid_service_account` data source). The secret is returned once and stored, sensitive, in state. Revoking a key also revokes the older keys of the same service account, which is reported as a warning. Scoped keys, which the console issues together with a dedicated service account, are created in the console: Terraform never creates service accounts.
+* **New Resource:** `hyperfluid_group` and `hyperfluid_group_member` — groups of users and service accounts.
+* **New Resource:** `hyperfluid_group_role` and `hyperfluid_service_account_role` — a role bound to a group or a service account, organization-wide or at a `scope_path`. A binding's id is its import id, `<principal_id>/<role_id>[/<scope_path>]`.
+* **New Resource:** `hyperfluid_grant` — a fine-grained permission granted to (or, with `effect = "deny"`, withdrawn from) a user, a service account or a group. Permissions are named by key (`secret:read`), which is the same on every installation.
+* **New Resource:** `hyperfluid_role` — a custom role (`name`, `description`, `color`, changed in place). Its permissions are managed by `hyperfluid_role_permissions` alone. The system roles `owner`, `editor` and `viewer` cannot be created, changed or imported; look them up with the `hyperfluid_role` data source.
+* **New Resource:** `hyperfluid_role_permissions` — the permission bundle of a custom role, managed authoritatively; destroying it empties the bundle.
+* **New Resource:** `hyperfluid_user_role` — a role bound to a user, organization-wide or at a `scope_path`. A role assigned at sign-up or by invitation reads back and imports like one Terraform bound.
+* **New Data Source:** `hyperfluid_permissions` — the permission catalog, optionally narrowed to one `resource_type`.
+* **New Data Source:** `hyperfluid_group` — look up a group by name.
+* **New Data Source:** `hyperfluid_service_account` — look up a service account by `client_id` or display `name`, to reference it from roles, grants, groups, attributes and S3 keys; its secret is never returned. Users and service accounts are created in the console or with `hfctl`: Terraform creates roles and groups, and references existing users and service accounts by id.
+* **New Data Source:** `hyperfluid_role` — look up a role by name, system roles included, with the permission keys it holds.
+* resource/hyperfluid_container_app: `env_vars` (an ordered list of `{ name, value }`, so a value can reference an earlier variable as `$(NAME)`), `secret_refs` (variables read from an organization-wide `hyperfluid_secret` when the app is deployed), `image_pull_secrets`, `command`, `args` and `init_containers` (at most 4; each runs the app's own image unless it sets `image_repository` and `image_tag`, and inherits the app's environment and volumes unless `inherit_env` or `mount_persistence` is false). A list left out of the configuration is not managed: it reports what the app has and an update never sends it, so an init container provisioned by an app template survives an apply. Once applied, removing a list from the configuration clears it; `[]` clears it explicitly. Init container names, image pairs, blank executables, duplicate variables and private secret references (under `users/`) are refused at plan time. `env_vars` values are plain text in the app's spec and in state: put credentials in `secret_refs`.
+* resource/hyperfluid_container_app: a non-empty `command` or `args`, on the app or on an init container, needs the organization's container command override feature; the platform refuses it otherwise, and the provider reports that by name. An app keeps updating after the feature is turned off: an unchanged main command is never re-sent, and the platform accepts an init container that keeps its name, command and args. Clearing a command is always allowed.
+* resource/hyperfluid_container_app: `file_mounts` (inline `content` or an organization-wide `secret_name`; 8 KiB per file, 32 KiB in all), `custom_domains` (`fqdn`, `tls_mode`, `tls_secret_name`) with the computed `custom_domain_statuses`, `autoscaling` (conflicts with `replicas`; scaling to zero or on HTTP concurrency needs `expose_to_internet` and an HTTP port), `metrics` (`port` names an entry of `ports`), `custom_resources` (an explicit `cpu_millis` / `memory_mib`, conflicting with `resource_tier`) and `resource_mode`. `file_mounts`, `custom_domains`, `autoscaling` and `metrics` follow the same rule as the lists above: left out they are not managed, and once applied, removing one clears it (`autoscaling` and `metrics` through `clear_autoscaling` / `clear_metrics`). The computed `image_digest` and `tag_is_floating` report the pinned digest and whether the tag can be re-pushed upstream. Terraform now waits for an autoscaled app to converge on the count its autoscaler chose.
+* data-source/hyperfluid_container_app: `env_vars`, `secret_refs`, `image_pull_secrets`, `command`, `args`, `init_containers`, `file_mounts`, `custom_domains`, `custom_domain_statuses`, `autoscaling`, `metrics`, `resource_mode`, `image_digest` and `tag_is_floating`.
+
+ENHANCEMENTS:
+
+* resource/hyperfluid_ai_api_key: `max_llm_rpm` and `max_llm_tpm`, applied in place; removing one clears it. `platform_max_llm_rpm/_tpm` and `effective_max_llm_rpm/_tpm` report the platform's cap and what the gateway enforces.
+* data-source/hyperfluid_ai_api_key: the same six ceilings.
+* resource/hyperfluid_managed_postgresql: `backup_placement = "platform"` leaves the backup target to the platform; it conflicts with `backup_target_id` and applies in place. No view reports it, so it is carried from state.
+* resource/hyperfluid_backup_target: `bucket_name` backs up into a bucket of the environment, and the external endpoint attributes are then computed from what the platform resolved. Switching between the two replaces the target.
+* resource/hyperfluid_key_value_cache, data-source/hyperfluid_key_value_cache: `resources` (`requests`/`limits` `cpu`/`memory`); removing it clears them.
+
+BUG FIXES:
+
+* resource/hyperfluid_container_app: removing `health_check_path` removes the app's health check. The update used to leave it in place, so the apply ended in an inconsistent result. `health_check_port` now requires `health_check_path`, since the platform ignores a port alone.
+
 ## 0.10.0 (October 20, 2026)
 
 DEPRECATIONS:

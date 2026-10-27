@@ -61,6 +61,7 @@ type managedPostgresqlModel struct {
 	StorageCapacity  types.Int64  `tfsdk:"storage_capacity"`
 	BackupPolicy     types.String `tfsdk:"backup_policy"`
 	BackupTargetID   types.String `tfsdk:"backup_target_id"`
+	BackupPlacement  types.String `tfsdk:"backup_placement"`
 	Configuration    types.String `tfsdk:"configuration"`
 	ExposeToInternet types.Bool   `tfsdk:"expose_to_internet"`
 	Description      types.String `tfsdk:"description"`
@@ -119,11 +120,12 @@ func restoreType() basetypes.ObjectType {
 
 // managedPostgresqlKeep carries the attributes no read echoes back, so a
 // refresh keeps what the configuration asked for instead of nulling it: the
-// status view reports neither the backup target a database ships to nor its
-// recovery policy, and the CRD spec view exposes neither either.
+// status view reports neither the backup target or placement a database ships
+// to nor its recovery policy, and the CRD spec view exposes none of them either.
 type managedPostgresqlKeep struct {
 	Pitr             types.Object
 	BackupTargetID   types.String
+	BackupPlacement  types.String
 	RestoreWoVersion types.String
 }
 
@@ -190,12 +192,26 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			"backup_target_id": schema.StringAttribute{
 				Optional: true,
 				MarkdownDescription: "Backup target id — where base backups and, with `pitr`, the " +
-					"write-ahead log ship. Required when `backup_policy` is `automated` and whenever " +
-					"`pitr` is set. Changing this forces a new cluster.\n\n" +
+					"write-ahead log ship. `backup_policy = \"automated\"` and `pitr` need it or " +
+					"`backup_placement`. Changing this forces a new cluster.\n\n" +
 					"~> No API view reports it, so Terraform carries it from prior state. " +
 					"`terraform import` cannot recover it, and a target attached elsewhere is invisible " +
 					"to `terraform plan`.",
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Validators:    []validator.String{stringvalidator.ConflictsWith(path.MatchRoot("backup_placement"))},
+			},
+			"backup_placement": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "`platform` leaves the backup target to the platform, which resolves it at every " +
+					"reconcile: the environment's external target while one is offered, else its in-cluster one. " +
+					"Conflicts with `backup_target_id`. Set on an existing database, it applies in place and " +
+					"detaches any backup target the database had.\n\n" +
+					"Left out on a new database with neither `backup_target_id` nor `backup_policy`, the platform may " +
+					"choose `platform` itself where external backup is enabled; that choice is not reported here.\n\n" +
+					"~> No API view reports it, so Terraform carries it from prior state, and `terraform import` " +
+					"cannot recover it. Removing it from the configuration leaves the database's placement as it " +
+					"is: the platform has no way to unset one except by attaching a backup target.",
+				Validators: []validator.String{stringvalidator.OneOf(string(console.BackupPlacementPlatform))},
 			},
 			"configuration": schema.StringAttribute{
 				Optional: true, Computed: true,
@@ -215,7 +231,7 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"pitr": schema.SingleNestedAttribute{
 				Optional: true,
-				MarkdownDescription: "Point-in-time recovery policy. Needs a `backup_target_id`, because the " +
+				MarkdownDescription: "Point-in-time recovery policy. Needs a `backup_target_id` or `backup_placement`, because the " +
 					"write-ahead log has to ship somewhere; the platform refuses the policy otherwise, " +
 					"and refuses it at apply time rather than at plan time.\n\n" +
 					"~> No API view echoes this policy back, so Terraform carries it from prior state. " +
@@ -395,6 +411,10 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		}
 		body.BackupTargetId = &bt
 	}
+	if !plan.BackupPlacement.IsNull() && !plan.BackupPlacement.IsUnknown() {
+		bp := console.BackupPlacement(plan.BackupPlacement.ValueString())
+		body.BackupPlacement = &bp
+	}
 
 	pitr, d := pitrRequestFrom(ctx, plan.Pitr)
 	resp.Diagnostics.Append(d...)
@@ -431,6 +451,7 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
+		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
 	})
 	if err != nil {
@@ -449,6 +470,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 	state, err := r.readInto(ctx, prior.ID.ValueString(), managedPostgresqlKeep{
 		Pitr:             prior.Pitr,
 		BackupTargetID:   prior.BackupTargetID,
+		BackupPlacement:  prior.BackupPlacement,
 		RestoreWoVersion: prior.RestoreWoVersion,
 	})
 	if errors.Is(err, client.ErrNotFound) {
@@ -498,6 +520,12 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 	body.Pitr = pitr
+	// Sent only when it changes: a placement cannot be unset through the API, so
+	// one removed from the configuration is left as it is.
+	if !plan.BackupPlacement.IsNull() && !plan.BackupPlacement.IsUnknown() && !plan.BackupPlacement.Equal(state.BackupPlacement) {
+		bp := console.BackupPlacement(plan.BackupPlacement.ValueString())
+		body.BackupPlacement = &bp
+	}
 
 	id := state.ID.ValueString()
 	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body); err != nil {
@@ -511,6 +539,7 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	newState, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
+		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
 	})
 	if err != nil {
@@ -625,6 +654,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 		Slug:             types.StringValue(c.Slug),
 
 		BackupTargetID:           keep.BackupTargetID,
+		BackupPlacement:          keep.BackupPlacement,
 		Pitr:                     keep.Pitr,
 		Restore:                  types.ObjectNull(restoreType().AttrTypes),
 		RestoreWoVersion:         keep.RestoreWoVersion,

@@ -150,6 +150,16 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewAiApiKeyResource,
 		NewAirflowResource,
 		NewAirflowConnectionResource,
+		NewServiceAccountAttributesResource,
+		NewServiceAccountRoleResource,
+		NewS3AccessKeyResource,
+		NewGroupResource,
+		NewGroupMemberResource,
+		NewGroupRoleResource,
+		NewGrantResource,
+		NewRolePermissionsResource,
+		NewRoleResource,
+		NewUserRoleResource,
 		// app_instance deferred (Marketplace).
 	}
 }
@@ -173,6 +183,10 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewAiApiKeyDataSource,
 		NewAirflowDataSource,
 		NewAirflowConnectionDataSource,
+		NewPermissionsDataSource,
+		NewGroupDataSource,
+		NewServiceAccountDataSource,
+		NewRoleDataSource,
 	}
 }
 

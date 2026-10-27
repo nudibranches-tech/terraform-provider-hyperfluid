@@ -11,3 +11,8 @@ data "hyperfluid_container_app" "web" {
 output "app_endpoint" {
   value = data.hyperfluid_container_app.web.endpoint
 }
+
+# The app's plain environment variables, as a name => value map.
+output "app_env" {
+  value = { for e in data.hyperfluid_container_app.web.env_vars : e.name => e.value }
+}

@@ -33,8 +33,14 @@ output "key_prefix" {
 ### Read-Only
 
 - `created_at` (String) Creation timestamp (RFC3339).
+- `effective_max_llm_rpm` (Number) The requests-per-minute ceiling the gateway enforces, or null.
+- `effective_max_llm_tpm` (Number) The tokens-per-minute ceiling the gateway enforces, or null.
 - `expires_at` (String) Expiry timestamp (RFC3339), if the key expires.
 - `id` (String) API key id (uuid).
 - `key_prefix` (String) Non-secret key prefix.
 - `last_used_at` (String) Last-used timestamp (RFC3339), if ever used.
+- `max_llm_rpm` (Number) The organization's ceiling on the key's LLM requests per minute, or null.
+- `max_llm_tpm` (Number) The organization's ceiling on the key's LLM tokens per minute, or null.
+- `platform_max_llm_rpm` (Number) The platform administrators' cap on the key's requests per minute, or null.
+- `platform_max_llm_tpm` (Number) The platform administrators' cap on the key's tokens per minute, or null.
 - `scopes` (Set of String) Scopes granted to the key.

@@ -47,3 +47,18 @@ resource "hyperfluid_backup_target" "offsite" {
   # platform keeps 7.
   retention_days = 14
 }
+
+# Or back up into a bucket of the environment: the platform resolves its
+# endpoint and credentials, and reports what it resolved in endpoint_url and
+# destination_path. Moving a target between a bucket and an external endpoint
+# replaces it.
+resource "hyperfluid_bucket" "pg_backups" {
+  env  = data.hyperfluid_env.default.id
+  name = "pg-backups"
+}
+
+resource "hyperfluid_backup_target" "in_environment" {
+  env         = data.hyperfluid_env.default.id
+  name        = "in-environment"
+  bucket_name = hyperfluid_bucket.pg_backups.name
+}

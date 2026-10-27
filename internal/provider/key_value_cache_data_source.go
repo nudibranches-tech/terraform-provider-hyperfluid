@@ -41,14 +41,28 @@ func (d *keyValueCacheDataSource) Schema(_ context.Context, _ datasource.SchemaR
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Look up an existing key-value cache by name within an environment.",
 		Attributes: map[string]schema.Attribute{
-			"env":                     schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the cache runs in."},
-			"name":                    schema.StringAttribute{Required: true, MarkdownDescription: "Cache name."},
-			"id":                      cs("Cache id."),
-			"image":                   cs("Cache image."),
-			"maxmemory":               cs("Max memory (e.g. 256mb)."),
-			"maxmemory_policy":        cs("Eviction policy."),
-			"description":             cs("Free-form description."),
-			"tags":                    schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
+			"env":              schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the cache runs in."},
+			"name":             schema.StringAttribute{Required: true, MarkdownDescription: "Cache name."},
+			"id":               cs("Cache id."),
+			"image":            cs("Cache image."),
+			"maxmemory":        cs("Max memory (e.g. 256mb)."),
+			"maxmemory_policy": cs("Eviction policy."),
+			"description":      cs("Free-form description."),
+			"tags":             schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
+			"resources": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "CPU and memory requests and limits of the cache's container, or null when it sets none.",
+				Attributes: map[string]schema.Attribute{
+					"requests": schema.SingleNestedAttribute{
+						Computed: true, MarkdownDescription: "Resources guaranteed to the container.",
+						Attributes: map[string]schema.Attribute{"cpu": cs("CPU quantity."), "memory": cs("Memory quantity.")},
+					},
+					"limits": schema.SingleNestedAttribute{
+						Computed: true, MarkdownDescription: "The most the container may use.",
+						Attributes: map[string]schema.Attribute{"cpu": cs("CPU quantity."), "memory": cs("Memory quantity.")},
+					},
+				},
+			},
 			"host":                    cs("Connection host."),
 			"port":                    schema.Int64Attribute{Computed: true, MarkdownDescription: "Connection port."},
 			"credentials_secret_name": cs("Secret holding the connection credentials."),

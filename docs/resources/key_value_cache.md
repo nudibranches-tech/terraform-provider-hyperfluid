@@ -18,10 +18,18 @@ data "hyperfluid_env" "default" {
 }
 
 resource "hyperfluid_key_value_cache" "sessions" {
-  env           = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_env.default.id
   name             = "sessions"
   maxmemory        = "256mb"
   maxmemory_policy = "allkeys-lru"
+
+  # Container requests and limits. Leave limits.cpu out: a CPU limit throttles
+  # the cache even on an idle node. Without maxmemory, Valkey's is derived as
+  # three quarters of limits.memory.
+  resources = {
+    requests = { cpu = "100m", memory = "256Mi" }
+    limits   = { memory = "384Mi" }
+  }
 }
 
 # Connection credentials are exposed as a secret reference, not plaintext.
@@ -44,6 +52,7 @@ output "credentials_secret" {
 - `image` (String) Valkey container image (defaults to a platform-pinned image).
 - `maxmemory` (String) Valkey maxmemory, e.g. "256mb".
 - `maxmemory_policy` (String) Valkey eviction policy, e.g. "allkeys-lru".
+- `resources` (Attributes) CPU and memory requests and limits of the cache's container, as Kubernetes quantities. Left out, the container runs without any. Without `maxmemory`, the platform sets Valkey's to three quarters of `limits.memory`. Leaving `limits.cpu` out is recommended: a CPU limit throttles the cache even on an idle node. Removing the attribute clears them. (see [below for nested schema](#nestedatt--resources))
 - `tags` (List of String) User-defined tags.
 
 ### Read-Only
@@ -54,6 +63,31 @@ output "credentials_secret" {
 - `phase` (String) Current lifecycle phase.
 - `port` (Number) Cache port, once provisioned.
 - `slug` (String) Derived slug.
+
+<a id="nestedatt--resources"></a>
+### Nested Schema for `resources`
+
+Optional:
+
+- `limits` (Attributes) The most the container may use. (see [below for nested schema](#nestedatt--resources--limits))
+- `requests` (Attributes) Resources guaranteed to the container. (see [below for nested schema](#nestedatt--resources--requests))
+
+<a id="nestedatt--resources--limits"></a>
+### Nested Schema for `resources.limits`
+
+Optional:
+
+- `cpu` (String) CPU quantity, e.g. `250m` or `1`.
+- `memory` (String) Memory quantity, e.g. `256Mi` or `1Gi`.
+
+
+<a id="nestedatt--resources--requests"></a>
+### Nested Schema for `resources.requests`
+
+Optional:
+
+- `cpu` (String) CPU quantity, e.g. `250m` or `1`.
+- `memory` (String) Memory quantity, e.g. `256Mi` or `1Gi`.
 
 ## Import
 

@@ -6,9 +6,11 @@ package provider
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -23,15 +25,16 @@ import (
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
-// backup_target_resource.go — external (BYO-S3) backup target. The create API
-// takes a discriminated `source` union, but patch + the read view are flat, so
-// the schema is flat too (the client builds the union at create). The internal
-// (org Ceph bucket) source variant is a follow-up.
+// backup_target_resource.go — a backup target writing to a bucket of the
+// environment (`bucket_name`) or to an external S3 endpoint. The create API takes
+// a discriminated `source` union, but patch and the read view are flat, so the
+// schema is flat too and the client builds the union at create.
 
 var (
-	_ resource.Resource                = &backupTargetResource{}
-	_ resource.ResourceWithConfigure   = &backupTargetResource{}
-	_ resource.ResourceWithImportState = &backupTargetResource{}
+	_ resource.Resource                   = &backupTargetResource{}
+	_ resource.ResourceWithConfigure      = &backupTargetResource{}
+	_ resource.ResourceWithImportState    = &backupTargetResource{}
+	_ resource.ResourceWithValidateConfig = &backupTargetResource{}
 )
 
 const backupTargetWaitTimeout = 5 * time.Minute
@@ -48,6 +51,7 @@ type backupTargetModel struct {
 	ID                        types.String `tfsdk:"id"`
 	Env                       types.String `tfsdk:"env"`
 	Name                      types.String `tfsdk:"name"`
+	BucketName                types.String `tfsdk:"bucket_name"`
 	EndpointURL               types.String `tfsdk:"endpoint_url"`
 	DestinationPath           types.String `tfsdk:"destination_path"`
 	AccessKeySecretName       types.String `tfsdk:"access_key_secret_name"`
@@ -68,7 +72,12 @@ func (r *backupTargetResource) Metadata(_ context.Context, req resource.Metadata
 
 func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "An external (S3-compatible) backup target. Credentials are referenced as secret names, never inline.",
+		MarkdownDescription: "A backup target: where managed PostgreSQL databases ship base backups and write-ahead log.\n\n" +
+			"It writes either to a bucket of the environment, named by `bucket_name` (the platform resolves its endpoint " +
+			"and credentials, and reports the endpoint and path it resolved in `endpoint_url` and `destination_path`), " +
+			"or to an external S3-compatible endpoint, given by `endpoint_url`, `destination_path` and the two credential " +
+			"secret names, which are then all required. Credentials are referenced as secret names, never inline. " +
+			"Switching between the two forces a new target.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -84,27 +93,52 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 				MarkdownDescription: "Backup target name (slug). Changing this forces a new target.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
+			"bucket_name": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "Name of a bucket of this environment (a `hyperfluid_bucket`'s `name`) to back up " +
+					"into, on whichever storage backend it lives. The bucket must already exist. Conflicts with the " +
+					"external endpoint attributes. Changing this forces a new target.\n\n" +
+					"~> No API view reports it, so Terraform carries it from prior state. After `terraform import` of " +
+					"such a target, setting it in the configuration adopts the target instead of replacing it.",
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 253),
+					stringvalidator.ConflictsWith(
+						path.MatchRoot("endpoint_url"), path.MatchRoot("destination_path"),
+						path.MatchRoot("access_key_secret_name"), path.MatchRoot("secret_access_key_secret_name"),
+					),
+				},
+				PlanModifiers: []planmodifier.String{bucketNameReplace()},
+			},
 			"endpoint_url": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "S3-compatible endpoint URL, e.g. https://s3.eu-west-3.amazonaws.com.",
+				Optional: true, Computed: true,
+				MarkdownDescription: "S3-compatible endpoint URL, e.g. https://s3.eu-west-3.amazonaws.com. Required " +
+					"without `bucket_name`; with it, the endpoint the platform resolved.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"destination_path": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Bucket + prefix, e.g. s3://backups/.",
+				Optional: true, Computed: true,
+				MarkdownDescription: "Bucket + prefix, e.g. s3://backups/. Required without `bucket_name`; with it, " +
+					"the path the platform resolved.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"access_key_secret_name": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Name of the secret holding the S3 access key id.",
+				Optional: true, Computed: true,
+				MarkdownDescription: "Name of the secret holding the S3 access key id. Required without `bucket_name`; " +
+					"null with it.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"secret_access_key_secret_name": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Name of the secret holding the S3 secret access key.",
+				Optional: true, Computed: true,
+				MarkdownDescription: "Name of the secret holding the S3 secret access key. Required without " +
+					"`bucket_name`; null with it.",
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"insecure": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Skip TLS verification when probing the endpoint (dev only). Changing this forces a new target.",
-				Default:             booldefault.StaticBool(false),
-				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
+				MarkdownDescription: "Skip TLS verification when probing the endpoint (dev only). Not available with " +
+					"`bucket_name`. Changing this forces a new target.",
+				Default:       booldefault.StaticBool(false),
+				PlanModifiers: []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
 			},
 			"retention_days": schema.Int64Attribute{
 				Optional: true, Computed: true,
@@ -124,6 +158,55 @@ func (r *backupTargetResource) Schema(_ context.Context, _ resource.SchemaReques
 			"slug":  schema.StringAttribute{Computed: true, MarkdownDescription: "Derived slug."},
 		},
 	}
+}
+
+// externalFields are the attributes an external target requires.
+var externalFields = []string{"endpoint_url", "destination_path", "access_key_secret_name", "secret_access_key_secret_name"}
+
+// ValidateConfig requires the external endpoint when no bucket is named; the
+// schema already refuses the two together.
+func (r *backupTargetResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var cfg backupTargetModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() || cfg.BucketName.IsUnknown() {
+		return
+	}
+	if !cfg.BucketName.IsNull() {
+		if cfg.Insecure.ValueBool() {
+			resp.Diagnostics.AddAttributeError(path.Root("insecure"), "insecure needs an external endpoint",
+				"A target writing to a bucket of the environment reaches it through the platform, which always verifies TLS.")
+		}
+		return
+	}
+	for name, v := range map[string]types.String{
+		"endpoint_url": cfg.EndpointURL, "destination_path": cfg.DestinationPath,
+		"access_key_secret_name": cfg.AccessKeySecretName, "secret_access_key_secret_name": cfg.SecretAccessKeySecretName,
+	} {
+		if v.IsNull() {
+			resp.Diagnostics.AddAttributeError(path.Root(name), "Missing "+name,
+				"A backup target needs either bucket_name or an external endpoint: "+strings.Join(externalFields, ", ")+".")
+		}
+	}
+}
+
+// bucketNameReplace forces a new target when bucket_name changes, which moves
+// it to another bucket or between a bucket and an external endpoint. A bucket
+// named for a target whose state has none and no external credentials is an
+// imported bucket target being adopted, not a switch.
+func bucketNameReplace() planmodifier.String {
+	return stringplanmodifier.RequiresReplaceIf(
+		func(ctx context.Context, req planmodifier.StringRequest, resp *stringplanmodifier.RequiresReplaceIfFuncResponse) {
+			if !req.StateValue.IsNull() {
+				resp.RequiresReplace = true
+				return
+			}
+			var accessKey types.String
+			resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("access_key_secret_name"), &accessKey)...)
+			resp.RequiresReplace = !accessKey.IsNull()
+		},
+		"Changing the bucket, or switching between a bucket and an external endpoint, forces a new target.",
+		"Changing the bucket, or switching between a bucket and an external endpoint, forces a new target.",
+	)
 }
 
 func (r *backupTargetResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -151,8 +234,9 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	created, err := r.p.API.CreateExternalBackupTarget(ctx, r.p.OrgID, plan.Env.ValueString(), client.ExternalBackupTargetInput{
+	created, err := r.p.API.CreateBackupTarget(ctx, r.p.OrgID, plan.Env.ValueString(), client.BackupTargetInput{
 		Name:                      plan.Name.ValueString(),
+		BucketName:                plan.BucketName.ValueString(),
 		EndpointURL:               plan.EndpointURL.ValueString(),
 		DestinationPath:           plan.DestinationPath.ValueString(),
 		AccessKeySecretName:       plan.AccessKeySecretName.ValueString(),
@@ -172,7 +256,7 @@ func (r *backupTargetResource) Create(ctx context.Context, req resource.CreateRe
 		resp.Diagnostics.AddError("Backup target did not become ready", err.Error())
 		return
 	}
-	state, err := r.readInto(ctx, id)
+	state, err := r.readInto(ctx, id, plan.BucketName)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after create", err.Error())
 		return
@@ -186,7 +270,7 @@ func (r *backupTargetResource) Read(ctx context.Context, req resource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state, err := r.readInto(ctx, prior.ID.ValueString())
+	state, err := r.readInto(ctx, prior.ID.ValueString(), prior.BucketName)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -223,12 +307,16 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	body := console.PatchBackupTargetCrdRequestBody{
-		EndpointUrl:               stringPtr(plan.EndpointURL),
-		DestinationPath:           stringPtr(plan.DestinationPath),
-		AccessKeySecretName:       stringPtr(plan.AccessKeySecretName),
-		SecretAccessKeySecretName: stringPtr(plan.SecretAccessKeySecretName),
-		RetentionDays:             int32PtrFromInt64(retentionCfg),
-		Description:               stringPtr(plan.Description),
+		RetentionDays: int32PtrFromInt64(retentionCfg),
+		Description:   stringPtr(plan.Description),
+	}
+	// A bucket target's endpoint and credentials are the platform's: the API
+	// refuses them.
+	if plan.BucketName.IsNull() {
+		body.EndpointUrl = stringPtr(plan.EndpointURL)
+		body.DestinationPath = stringPtr(plan.DestinationPath)
+		body.AccessKeySecretName = stringPtr(plan.AccessKeySecretName)
+		body.SecretAccessKeySecretName = stringPtr(plan.SecretAccessKeySecretName)
 	}
 	if tags != nil {
 		body.Tags = &tags
@@ -239,7 +327,7 @@ func (r *backupTargetResource) Update(ctx context.Context, req resource.UpdateRe
 		resp.Diagnostics.AddError("Failed to update backup target", err.Error())
 		return
 	}
-	newState, err := r.readInto(ctx, id)
+	newState, err := r.readInto(ctx, id, plan.BucketName)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target after update", err.Error())
 		return
@@ -312,7 +400,8 @@ func (r *backupTargetResource) waitReady(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *backupTargetResource) readInto(ctx context.Context, id string) (backupTargetModel, error) {
+// readInto maps the read view; bucketName is carried because no view reports it.
+func (r *backupTargetResource) readInto(ctx context.Context, id string, bucketName types.String) (backupTargetModel, error) {
 	bt, err := r.p.API.GetBackupTarget(ctx, r.p.OrgID, id)
 	if err != nil {
 		return backupTargetModel{}, err
@@ -325,6 +414,7 @@ func (r *backupTargetResource) readInto(ctx context.Context, id string) (backupT
 		ID:                        types.StringValue(id),
 		Env:                       types.StringValue(bt.HarborId.String()),
 		Name:                      types.StringValue(bt.Name),
+		BucketName:                bucketName,
 		EndpointURL:               types.StringValue(bt.EndpointUrl),
 		DestinationPath:           types.StringValue(bt.DestinationPath),
 		AccessKeySecretName:       optString(bt.AccessKeySecretName),

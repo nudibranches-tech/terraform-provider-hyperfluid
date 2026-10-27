@@ -39,6 +39,10 @@ resource "hyperfluid_managed_postgresql" "db" {
   expose_to_internet = true
 
   backup_target_id = data.hyperfluid_backup_target.offsite.id
+  # Or leave the choice of target to the platform (conflicts with
+  # backup_target_id): the environment's external target while one is offered,
+  # else its in-cluster one.
+  # backup_placement = "platform"
 
   # A daily base backup. Recovery replays the write-ahead log forward from one,
   # so a database that only archives WAL has nothing to restore from.
@@ -107,8 +111,13 @@ output "recovery_window" {
 
 > **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
 
+- `backup_placement` (String) `platform` leaves the backup target to the platform, which resolves it at every reconcile: the environment's external target while one is offered, else its in-cluster one. Conflicts with `backup_target_id`. Set on an existing database, it applies in place and detaches any backup target the database had.
+
+Left out on a new database with neither `backup_target_id` nor `backup_policy`, the platform may choose `platform` itself where external backup is enabled; that choice is not reported here.
+
+~> No API view reports it, so Terraform carries it from prior state, and `terraform import` cannot recover it. Removing it from the configuration leaves the database's placement as it is: the platform has no way to unset one except by attaching a backup target.
 - `backup_policy` (String) Backup policy: automated or manual (defaults to manual). Changing this forces a new cluster.
-- `backup_target_id` (String) Backup target id — where base backups and, with `pitr`, the write-ahead log ship. Required when `backup_policy` is `automated` and whenever `pitr` is set. Changing this forces a new cluster.
+- `backup_target_id` (String) Backup target id — where base backups and, with `pitr`, the write-ahead log ship. `backup_policy = "automated"` and `pitr` need it or `backup_placement`. Changing this forces a new cluster.
 
 ~> No API view reports it, so Terraform carries it from prior state. `terraform import` cannot recover it, and a target attached elsewhere is invisible to `terraform plan`.
 - `configuration` (String) Topology: standalone or high-availability.
@@ -116,7 +125,7 @@ output "recovery_window" {
 - `engine` (String) Engine: postgresql, postgis, timescaledb.
 - `expose_to_internet` (Boolean) Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish an external endpoint.
 - `node_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge.
-- `pitr` (Attributes) Point-in-time recovery policy. Needs a `backup_target_id`, because the write-ahead log has to ship somewhere; the platform refuses the policy otherwise, and refuses it at apply time rather than at plan time.
+- `pitr` (Attributes) Point-in-time recovery policy. Needs a `backup_target_id` or `backup_placement`, because the write-ahead log has to ship somewhere; the platform refuses the policy otherwise, and refuses it at apply time rather than at plan time.
 
 ~> No API view echoes this policy back, so Terraform carries it from prior state. `terraform import` therefore cannot recover it, and a policy changed in the console or through `hfctl` is invisible to `terraform plan`.
 

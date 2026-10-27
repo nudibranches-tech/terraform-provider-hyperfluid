@@ -24,6 +24,10 @@ resource "hyperfluid_managed_postgresql" "db" {
   expose_to_internet = true
 
   backup_target_id = data.hyperfluid_backup_target.offsite.id
+  # Or leave the choice of target to the platform (conflicts with
+  # backup_target_id): the environment's external target while one is offered,
+  # else its in-cluster one.
+  # backup_placement = "platform"
 
   # A daily base backup. Recovery replays the write-ahead log forward from one,
   # so a database that only archives WAL has nothing to restore from.

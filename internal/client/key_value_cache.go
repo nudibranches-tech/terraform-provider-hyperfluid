@@ -119,3 +119,27 @@ func (c *Client) DeleteKeyValueCache(ctx context.Context, orgID, cacheID string)
 	}
 	return statusErr("delete key-value cache", resp.StatusCode(), resp.Body)
 }
+
+// GetKeyValueCacheSpec returns the cache's desired spec, the only view that
+// carries its resources.
+func (c *Client) GetKeyValueCacheSpec(ctx context.Context, orgID, cacheID string) (*console.HfKeyValueCacheCrdSpecResponse, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	id, err := parseUUID("id", cacheID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.GetHfKeyValueCacheCrdWithResponse(ctx, org, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("get key-value cache spec", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: get key-value cache spec: empty response")
+	}
+	return resp.JSON200, nil
+}

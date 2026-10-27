@@ -33,12 +33,10 @@ import (
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
-// container_app_resource.go — scalar core of the CaaS resource. The nested
-// blocks (env, secret_refs, image_pull_secrets, file_mounts, persistence,
-// custom_domains) are deliberately deferred to a follow-up PR. This PR
-// establishes the two hard patterns: resource_version optimistic concurrency
-// (H4) and the resource_tier→cpu/mem read-mapping (M2: the /crd GET returns
-// cpu/mem, never resource_tier, so resource_tier is preserved from prior state).
+// container_app_resource.go — the CaaS resource. Updates carry the spec's
+// resource_version for optimistic concurrency. resource_tier is kept from prior
+// state: the /crd GET infers a tier from the size sold, which a custom size can
+// match too.
 
 var (
 	_ resource.Resource                     = &containerAppResource{}
@@ -102,6 +100,25 @@ type containerAppModel struct {
 	Revision      types.String `tfsdk:"revision"`
 	LastSyncedAt  types.String `tfsdk:"last_synced_at"`
 	SyncError     types.String `tfsdk:"sync_error"`
+
+	// The workload lists (container_app_workload.go).
+	EnvVars          types.List `tfsdk:"env_vars"`
+	SecretRefs       types.List `tfsdk:"secret_refs"`
+	ImagePullSecrets types.List `tfsdk:"image_pull_secrets"`
+	Command          types.List `tfsdk:"command"`
+	Args             types.List `tfsdk:"args"`
+	InitContainers   types.List `tfsdk:"init_containers"`
+	FileMounts       types.List `tfsdk:"file_mounts"`
+
+	// Sizing, scaling, domains and metrics (container_app_scaling.go).
+	CustomResources      types.Object `tfsdk:"custom_resources"`
+	ResourceMode         types.String `tfsdk:"resource_mode"`
+	Autoscaling          types.Object `tfsdk:"autoscaling"`
+	Metrics              types.Object `tfsdk:"metrics"`
+	CustomDomains        types.List   `tfsdk:"custom_domains"`
+	CustomDomainStatuses types.List   `tfsdk:"custom_domain_statuses"`
+	ImageDigest          types.String `tfsdk:"image_digest"`
+	TagIsFloating        types.Bool   `tfsdk:"tag_is_floating"`
 }
 
 // containerAppPortModel is one published port.
@@ -159,7 +176,17 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a follow-up.\n\n" +
+		MarkdownDescription: "A container app (CaaS): its image, ports, size, scaling, environment, command line, " +
+			"files, init containers, custom domains and metrics. Persistent volumes are not managed by this resource: " +
+			"an update leaves the ones an app has untouched.\n\n" +
+			"## Settings the platform may also manage\n\n" +
+			"`env_vars`, `secret_refs`, `image_pull_secrets`, `command`, `args`, `init_containers`, `file_mounts`, " +
+			"`custom_domains`, `autoscaling` and `metrics` can also be set in the console or by an app template. Left " +
+			"out of the configuration, such a setting is not managed: it " +
+			"reports what the app has and an update never sends it, so a template's init container survives an apply. " +
+			"Once Terraform has applied one, removing it from the configuration clears it on the app; `[]` clears it " +
+			"explicitly, which is also the way to clear a list Terraform has never applied, such as one an imported " +
+			"app carries.\n\n" +
 			"## Deploying from Git\n\n" +
 			"An `image_source { git { ... } }` block replaces the literal `image_repository` / `image_tag`: the platform " +
 			"polls a `hyperfluid.toml` file in the repository and rolls the app out when this app's entry changes. It " +
@@ -280,8 +307,15 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 					stringvalidator.OneOf("nano", "micro", "small", "medium", "large", "xlarge"),
 				},
 			},
-			"health_check_path": schema.StringAttribute{Optional: true, MarkdownDescription: "HTTP health check path."},
-			"health_check_port": schema.Int64Attribute{Optional: true, MarkdownDescription: "HTTP health check port."},
+			"health_check_path": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "HTTP health check path. Removing it removes the health check.",
+			},
+			"health_check_port": schema.Int64Attribute{
+				Optional:            true,
+				MarkdownDescription: "HTTP health check port. Requires `health_check_path`.",
+				Validators:          []validator.Int64{int64validator.AlsoRequires(path.MatchRoot("health_check_path"))},
+			},
 
 			"resource_version":   computedString("Kubernetes resourceVersion; used for optimistic concurrency on update."),
 			"cpu_request":        computedString("CPU request derived from resource_tier."),
@@ -356,6 +390,12 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 	for name, a := range gitStatusAttributes() {
 		resp.Schema.Attributes[name] = a
 	}
+	for name, a := range workloadAttributes() {
+		resp.Schema.Attributes[name] = a
+	}
+	for name, a := range scalingAttributes() {
+		resp.Schema.Attributes[name] = a
+	}
 }
 
 // untrimmed matches a value with no leading or trailing whitespace: the API
@@ -426,6 +466,8 @@ func (r *containerAppResource) ValidateConfig(ctx context.Context, req resource.
 		return
 	}
 	validateImage(cfg, &resp.Diagnostics)
+	validateWorkload(ctx, cfg, &resp.Diagnostics)
+	validateScaling(ctx, cfg, &resp.Diagnostics)
 	if cfg.Ports.IsNull() || cfg.Ports.IsUnknown() {
 		return
 	}
@@ -495,6 +537,14 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	workload, d := workloadInputsFor(ctx, plan, nil)
+	resp.Diagnostics.Append(d...)
+	scaling, d := scalingInputsFor(ctx, plan, nil)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// The config, not the plan: slug, name and display_name are Optional+Computed,
 	// so they are unknown in the plan whenever the config leaves them out.
 	slug := cfg.Slug
@@ -519,6 +569,18 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		Replicas:         int32PtrFromInt64(plan.Replicas),
 		HealthCheckPath:  stringPtr(plan.HealthCheckPath),
 		HealthCheckPort:  int32PtrFromInt64(plan.HealthCheckPort),
+		Env:              workload.Env,
+		SecretRefs:       workload.SecretRefs,
+		ImagePullSecrets: workload.ImagePullSecrets,
+		Command:          workload.Command,
+		Args:             workload.Args,
+		InitContainers:   workload.InitContainers,
+		FileMounts:       workload.FileMounts,
+		CustomResources:  scaling.CustomResources,
+		ResourceMode:     scaling.ResourceMode,
+		Autoscaling:      scaling.Autoscaling,
+		Metrics:          scaling.Metrics,
+		CustomDomains:    scaling.CustomDomains,
 	}
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
@@ -544,8 +606,11 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 
 	appID, err := r.p.API.CreateContainerApp(ctx, r.p.OrgID, env, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to create container app", err.Error())
+		addWriteError(&resp.Diagnostics, "Failed to create container app", workload, err)
 		return
+	}
+	if resp.Private != nil {
+		resp.Diagnostics.Append(recordManagedAttributes(ctx, resp.Private, cfg)...)
 	}
 
 	if err := r.waitDeployed(ctx, appID, src != nil, &resp.Diagnostics); err != nil {
@@ -553,7 +618,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	state, err := r.readState(ctx, appID, plan.ResourceTier, plan.ImageSource)
+	state, err := r.readState(ctx, appID, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after create", err.Error())
 		return
@@ -569,7 +634,7 @@ func (r *containerAppResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	state, err := r.readState(ctx, prior.ID.ValueString(), prior.ResourceTier, prior.ImageSource)
+	state, err := r.readState(ctx, prior.ID.ValueString(), prior)
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -601,6 +666,16 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	// A workload list missing from the config is planned by unsetList: as state
+	// when Terraform never set it, so it is not sent, or empty, which clears it.
+	workload, d := workloadInputsFor(ctx, plan, &state)
+	resp.Diagnostics.Append(d...)
+	scaling, d := scalingInputsFor(ctx, plan, &state)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	appID := state.ID.ValueString()
 	resourceVersion := state.ResourceVersion
 	body := console.PatchContainerAppCrdRequestBody{
@@ -610,6 +685,20 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		Replicas:         int32PtrFromInt64(plan.Replicas),
 		HealthCheckPath:  stringPtr(plan.HealthCheckPath),
 		HealthCheckPort:  int32PtrFromInt64(plan.HealthCheckPort),
+		Env:              workload.Env,
+		SecretRefs:       workload.SecretRefs,
+		ImagePullSecrets: workload.ImagePullSecrets,
+		Command:          workload.Command,
+		Args:             workload.Args,
+		InitContainers:   workload.InitContainers,
+		FileMounts:       workload.FileMounts,
+		CustomResources:  scaling.CustomResources,
+		ResourceMode:     scaling.ResourceMode,
+		Autoscaling:      scaling.Autoscaling,
+		ClearAutoscaling: scaling.ClearAutoscaling,
+		Metrics:          scaling.Metrics,
+		ClearMetrics:     scaling.ClearMetrics,
+		CustomDomains:    scaling.CustomDomains,
 	}
 	if !plan.ResourceTier.IsNull() {
 		tier := console.ResourceTier(plan.ResourceTier.ValueString())
@@ -618,6 +707,11 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 	if ports != nil {
 		body.Ports = &ports
 		body.Port = nil
+	}
+	// An omitted path leaves the health check alone, so removing one is explicit.
+	if plan.HealthCheckPath.IsNull() && !state.HealthCheckPath.IsNull() {
+		body.ClearHealthCheck = ptr(true)
+		body.HealthCheckPort = nil
 	}
 
 	srcPlan, d := gitSourceFromObject(ctx, plan.ImageSource)
@@ -667,8 +761,11 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 	body.ResourceVersion = stringPtr(resourceVersion) // H4 optimistic concurrency
 
 	if err := r.p.API.PatchContainerApp(ctx, r.p.OrgID, appID, body); err != nil {
-		resp.Diagnostics.AddError("Failed to update container app", err.Error())
+		addWriteError(&resp.Diagnostics, "Failed to update container app", workload, err)
 		return
+	}
+	if resp.Private != nil {
+		resp.Diagnostics.Append(recordManagedAttributes(ctx, resp.Private, cfg)...)
 	}
 	if err := r.waitDeployed(ctx, appID, srcPlan != nil, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError("Container app did not become ready after update", err.Error())
@@ -687,7 +784,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 
-	newState, err := r.readState(ctx, appID, plan.ResourceTier, plan.ImageSource)
+	newState, err := r.readState(ctx, appID, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app after update", err.Error())
 		return
@@ -778,6 +875,18 @@ func (r *containerAppResource) waitReady(ctx context.Context, appID string) erro
 		if spec.Enabled {
 			want = spec.Replicas
 		}
+		// An autoscaler picks the count itself: any converged count it may
+		// choose will do.
+		if a := spec.Autoscaling; spec.Enabled && a != nil {
+			lowest := int32(1)
+			if a.MinReplicas != nil {
+				lowest = *a.MinReplicas
+			}
+			want = st.DesiredReplicas
+			if want < lowest {
+				return st, false, nil
+			}
+		}
 		ready := st.DesiredReplicas == want &&
 			st.AvailableReplicas == want &&
 			st.UpdatedReadyReplicas == want
@@ -823,8 +932,8 @@ func (r *containerAppResource) waitDeployed(ctx context.Context, appID string, g
 // readState is readInto for the resource: the image the platform resolved from
 // a Git source lives in the computed attributes, so image_repository and
 // image_tag stay null and never disagree with a config that leaves them out.
-func (r *containerAppResource) readState(ctx context.Context, appID string, priorTier types.String, priorSource types.Object) (containerAppModel, error) {
-	m, err := r.readInto(ctx, appID, priorTier, priorSource)
+func (r *containerAppResource) readState(ctx context.Context, appID string, prior containerAppModel) (containerAppModel, error) {
+	m, err := r.readInto(ctx, appID, prior)
 	if err != nil {
 		return m, err
 	}
@@ -892,9 +1001,20 @@ func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
 	return types.Int64Null()
 }
 
-// readInto builds the model from both views. priorTier is carried through
-// because the /crd spec response does not echo resource_tier (M2).
-func (r *containerAppResource) readInto(ctx context.Context, appID string, priorTier types.String, priorSource types.Object) (containerAppModel, error) {
+// importedApp is the prior model of an app read with nothing to carry over, as
+// on import or from the data source.
+func importedApp() containerAppModel {
+	return containerAppModel{
+		ResourceTier:    types.StringNull(),
+		ImageSource:     nullImageSource(),
+		CustomResources: types.ObjectNull(containerAppCustomResourcesTypes()),
+	}
+}
+
+// readInto builds the model from both views. From prior it carries
+// resource_tier and how image_source and custom_resources were written, which
+// the spec cannot tell apart from what the platform resolved.
+func (r *containerAppResource) readInto(ctx context.Context, appID string, prior containerAppModel) (containerAppModel, error) {
 	spec, err := r.p.API.GetContainerAppSpec(ctx, r.p.OrgID, appID)
 	if err != nil {
 		return containerAppModel{}, err
@@ -912,11 +1032,11 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 		return containerAppModel{}, errors.New("failed to convert container app tags")
 	}
 
-	prior, d := gitSourceFromObject(ctx, priorSource)
+	priorSource, d := gitSourceFromObject(ctx, prior.ImageSource)
 	if d.HasError() {
 		return containerAppModel{}, errors.New("failed to read the prior image_source block")
 	}
-	imageSource, err := gitSourceToObject(spec.ImageSource, spec.AlertOnSyncFailure, prior)
+	imageSource, err := gitSourceToObject(spec.ImageSource, spec.AlertOnSyncFailure, priorSource)
 	if err != nil {
 		return containerAppModel{}, err
 	}
@@ -924,40 +1044,71 @@ func (r *containerAppResource) readInto(ctx context.Context, appID string, prior
 	if spec.ImageSource != nil {
 		gs = gitStatusFrom(spec.ImageSourceStatus)
 	}
+	workload, d := workloadFrom(ctx, spec)
+	if d.HasError() {
+		return containerAppModel{}, errors.New("failed to convert the container app's workload")
+	}
+	priorCustom := prior.CustomResources
+	if priorCustom.IsNull() || priorCustom.IsUnknown() {
+		priorCustom = types.ObjectNull(containerAppCustomResourcesTypes())
+	}
+	scaling, d := scalingFrom(ctx, spec, priorCustom)
+	if d.HasError() {
+		return containerAppModel{}, errors.New("failed to convert the container app's sizing, scaling and domains")
+	}
+	priorTier := prior.ResourceTier
+	if priorTier.IsUnknown() {
+		priorTier = types.StringNull()
+	}
 
 	m := containerAppModel{
-		ID:                types.StringValue(appID),
-		Env:               types.StringValue(status.HarborId.String()),
-		Name:              types.StringValue(status.Slug),
-		Slug:              types.StringValue(status.Slug),
-		DisplayName:       types.StringValue(status.Name),
-		Description:       optString(status.Description),
-		Tags:              tags,
-		ImageRepository:   optNonEmpty(&spec.ImageRepository),
-		ImageTag:          optNonEmpty(&spec.ImageTag),
-		Port:              primaryPort(spec),
-		Replicas:          types.Int64Value(int64(spec.Replicas)),
-		Enabled:           types.BoolValue(spec.Enabled),
-		ExposeToInternet:  types.BoolValue(spec.ExposeToInternet),
-		ResourceTier:      priorTier, // preserved; not returned by the API
-		HealthCheckPath:   optString(spec.HealthCheckPath),
-		HealthCheckPort:   optInt64FromInt32(spec.HealthCheckPort),
-		ResourceVersion:   types.StringValue(spec.ResourceVersion),
-		CPURequest:        optString(spec.CpuRequest),
-		CPULimit:          optString(spec.CpuLimit),
-		MemoryRequest:     optString(spec.MemoryRequest),
-		MemoryLimit:       optString(spec.MemoryLimit),
-		Phase:             optString(status.Phase),
-		Endpoint:          optString(status.Endpoint),
-		DesiredReplicas:   types.Int64Value(int64(status.DesiredReplicas)),
-		AvailableReplicas: types.Int64Value(int64(status.AvailableReplicas)),
-		Ports:             ports,
-		ImageSource:       imageSource,
-		ResolvedImage:     gs.ResolvedImage,
-		ResolvedRef:       gs.ResolvedRef,
-		Revision:          gs.Revision,
-		LastSyncedAt:      gs.LastSyncedAt,
-		SyncError:         gs.SyncError,
+		ID:                   types.StringValue(appID),
+		Env:                  types.StringValue(status.HarborId.String()),
+		Name:                 types.StringValue(status.Slug),
+		Slug:                 types.StringValue(status.Slug),
+		DisplayName:          types.StringValue(status.Name),
+		Description:          optString(status.Description),
+		Tags:                 tags,
+		ImageRepository:      optNonEmpty(&spec.ImageRepository),
+		ImageTag:             optNonEmpty(&spec.ImageTag),
+		Port:                 primaryPort(spec),
+		Replicas:             types.Int64Value(int64(spec.Replicas)),
+		Enabled:              types.BoolValue(spec.Enabled),
+		ExposeToInternet:     types.BoolValue(spec.ExposeToInternet),
+		ResourceTier:         priorTier,
+		HealthCheckPath:      optString(spec.HealthCheckPath),
+		HealthCheckPort:      optInt64FromInt32(spec.HealthCheckPort),
+		ResourceVersion:      types.StringValue(spec.ResourceVersion),
+		CPURequest:           optString(spec.CpuRequest),
+		CPULimit:             optString(spec.CpuLimit),
+		MemoryRequest:        optString(spec.MemoryRequest),
+		MemoryLimit:          optString(spec.MemoryLimit),
+		Phase:                optString(status.Phase),
+		Endpoint:             optString(status.Endpoint),
+		DesiredReplicas:      types.Int64Value(int64(status.DesiredReplicas)),
+		AvailableReplicas:    types.Int64Value(int64(status.AvailableReplicas)),
+		Ports:                ports,
+		ImageSource:          imageSource,
+		ResolvedImage:        gs.ResolvedImage,
+		ResolvedRef:          gs.ResolvedRef,
+		Revision:             gs.Revision,
+		LastSyncedAt:         gs.LastSyncedAt,
+		SyncError:            gs.SyncError,
+		EnvVars:              workload.EnvVars,
+		SecretRefs:           workload.SecretRefs,
+		ImagePullSecrets:     workload.ImagePullSecrets,
+		Command:              workload.Command,
+		Args:                 workload.Args,
+		InitContainers:       workload.InitContainers,
+		FileMounts:           workload.FileMounts,
+		CustomResources:      scaling.CustomResources,
+		ResourceMode:         scaling.ResourceMode,
+		Autoscaling:          scaling.Autoscaling,
+		Metrics:              scaling.Metrics,
+		CustomDomains:        scaling.CustomDomains,
+		CustomDomainStatuses: scaling.CustomDomainStatuses,
+		ImageDigest:          scaling.ImageDigest,
+		TagIsFloating:        scaling.TagIsFloating,
 	}
 	return m, nil
 }
