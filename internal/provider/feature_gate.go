@@ -24,6 +24,7 @@ var (
 	featureNextflow     = orgFeature{key: "nextflow_enabled", display: "Nextflow"}
 	featureComputeDocks = orgFeature{key: "compute_docks_enabled", display: "Compute Docks"}
 	featureAiAgents     = orgFeature{key: "sapience_agent_enabled", display: "AI agents"}
+	featureVMs          = orgFeature{key: "virtual_machines_enabled", display: "Virtual machines"}
 )
 
 // addGatedError reports a failed call, naming the feature when the platform

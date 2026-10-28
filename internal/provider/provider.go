@@ -163,6 +163,8 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewNextflowResource,
 		NewComputeDockResource,
 		NewAgentResource,
+		NewVirtualMachineResource,
+		NewVirtualMachineUserResource,
 		// app_instance deferred (Marketplace).
 	}
 }
@@ -196,6 +198,8 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewNextflowDataSource,
 		NewComputeDockDataSource,
 		NewAgentDataSource,
+		NewVirtualMachineDataSource,
+		NewVirtualMachineImagesDataSource,
 	}
 }
 

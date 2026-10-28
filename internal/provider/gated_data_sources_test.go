@@ -22,7 +22,7 @@ func TestGatedTypesAreRegistered(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetProviderSchema: %v", err)
 	}
-	for _, name := range []string{"hyperfluid_nextflow", "hyperfluid_compute_dock", "hyperfluid_agent"} {
+	for _, name := range []string{"hyperfluid_nextflow", "hyperfluid_compute_dock", "hyperfluid_agent", "hyperfluid_virtual_machine"} {
 		if _, ok := resp.ResourceSchemas[name]; !ok {
 			t.Errorf("resource %q is not registered", name)
 		}

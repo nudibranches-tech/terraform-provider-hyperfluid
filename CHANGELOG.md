@@ -35,6 +35,10 @@ FEATURES:
 * **New Resource:** `hyperfluid_compute_dock` — a Slurm cluster in an environment, with its `partitions`, `/home` volume, login and REST nodes, and `auto_suspend_idle_minutes`. Partitions, `enabled`, `version`, `home_size` and auto-suspend change in place. Needs the `compute_docks_enabled` feature.
 * **New Resource:** `hyperfluid_agent` — a Sapience AI agent: its `inference`, prompts, `tools`, `data_sources`, `service_account_id`, `interfaces`, `mail` and `desired_state`. A capability is an agent with a `speciality` and a `subagent_of`. Needs the `sapience_agent_enabled` feature.
 * **New Data Source:** `hyperfluid_nextflow`, `hyperfluid_compute_dock` and `hyperfluid_agent` — look one up by name within an environment.
+* **New Resource:** `hyperfluid_virtual_machine` — a virtual machine in an environment, booted from a catalog image (`image_source_ref`, `image_key`) with its `cpu`, `memory`, `disk` and an optional cloud-init `user_data_secret_name`. `running`, `description` and `tags` change in place, and `install_media_removed` detaches an installer's media once the guest is installed; any other change replaces the machine. Terraform waits for `Running` (or `Stopped`). Imported by id. Needs the `virtual_machines_enabled` feature.
+* **New Resource:** `hyperfluid_virtual_machine_user` — a guest OS account with a generated password, an SSH public key read from a `hyperfluid_secret` (`ssh_public_key_secret_name`), or both. No credential lands in state. Terraform waits for the guest agent to connect and apply it. Every change replaces the account. Imported as `<vm_id>/<user_id>`.
+* **New Data Source:** `hyperfluid_virtual_machine` — look up a virtual machine by name within an environment.
+* **New Data Source:** `hyperfluid_virtual_machine_images` — the images an environment can boot, to pick `image_source_ref` and `image_key` from.
 * When the organization does not have the feature a resource needs, the error names it.
 
 ENHANCEMENTS:
