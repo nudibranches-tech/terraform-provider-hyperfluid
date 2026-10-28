@@ -1,10 +1,10 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Look up the cluster by name, then a user within it.
 data "hyperfluid_managed_postgresql" "db" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "appdb"
 }
 

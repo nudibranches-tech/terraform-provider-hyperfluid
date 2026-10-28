@@ -44,12 +44,13 @@ func (d *backupTargetDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"env":                           schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the target belongs to."},
 			"name":                          schema.StringAttribute{Required: true, MarkdownDescription: "Backup target name."},
 			"id":                            cs("Backup target id."),
+			"bucket_name":                   cs("Always null: the API does not report it."),
 			"endpoint_url":                  cs("S3-compatible endpoint URL."),
-			"destination_path":              cs("Bucket + prefix backups are stored under."),
-			"access_key_secret_name":        cs("Secret holding the S3 access key id."),
-			"secret_access_key_secret_name": cs("Secret holding the S3 secret access key."),
+			"destination_path":              cs("Bucket and prefix backups are stored under."),
+			"access_key_secret_name":        cs("Secret holding the S3 access key id, or null for a bucket of the environment."),
+			"secret_access_key_secret_name": cs("Secret holding the S3 secret access key, or null for a bucket of the environment."),
 			"insecure":                      schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether TLS verification is skipped."},
-			"retention_days":                schema.Int64Attribute{Computed: true, MarkdownDescription: "Effective retention window in days — the configured value, or the platform default of 7."},
+			"retention_days":                schema.Int64Attribute{Computed: true, MarkdownDescription: "Days backups are kept."},
 			"description":                   cs("Free-form description."),
 			"tags":                          schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
 			"phase":                         cs("Current lifecycle phase."),
@@ -91,7 +92,7 @@ func (d *backupTargetDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	// Reuse the resource's mapper (it only needs the API client) so the model
 	// mapping lives in one place.
-	state, err := (&backupTargetResource{p: d.p}).readInto(ctx, id)
+	state, err := (&backupTargetResource{p: d.p}).readInto(ctx, id, types.StringNull())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read backup target", err.Error())
 		return

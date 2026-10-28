@@ -42,6 +42,9 @@ type fakeConsole struct {
 	version  int
 	status   *console.ImageSourceStatus // what a source resolves to; nil = not synced yet
 	requests []fakeRequest
+
+	noCommandOverride bool  // the organization lacks the command override feature
+	autoscaledTo      int32 // replicas an autoscaler runs; 0 = what the spec asks
 }
 
 type fakeRequest struct {
@@ -133,6 +136,16 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		if req.ImageTag != nil {
 			f.spec.ImageTag = *req.ImageTag
 		}
+		if f.refuseCommandOverride(req.Command, req.Args, req.InitContainers) {
+			reply(403, map[string]string{"message": commandOverrideRefusal})
+			return
+		}
+		f.applyWorkload(req.Env, req.SecretRefs, req.ImagePullSecrets, req.Command, req.Args, req.InitContainers)
+		f.spec.ResourceMode = console.ResourceModeAdvisory
+		f.applyScaling(req.FileMounts, req.CustomDomains, req.CustomResources, req.ResourceMode, req.Autoscaling, nil, req.Metrics, nil)
+		if req.HealthCheckPath != nil {
+			f.spec.HealthCheckPath, f.spec.HealthCheckPort = req.HealthCheckPath, req.HealthCheckPort
+		}
 		f.attach(req.ImageSource)
 		f.bump()
 		if f.noBody {
@@ -159,6 +172,30 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		if req.ResourceVersion != nil && *req.ResourceVersion != f.spec.ResourceVersion {
 			reply(409, map[string]string{"message": "stale resource_version"})
 			return
+		}
+		if f.refuseCommandOverride(req.Command, req.Args, req.InitContainers) {
+			reply(403, map[string]string{"message": commandOverrideRefusal})
+			return
+		}
+		f.applyWorkload(req.Env, req.SecretRefs, req.ImagePullSecrets, req.Command, req.Args, req.InitContainers)
+		if (req.Autoscaling != nil && req.ClearAutoscaling != nil) || (req.Metrics != nil && req.ClearMetrics != nil) {
+			reply(400, map[string]string{"message": "clear_* cannot be combined with the value it clears"})
+			return
+		}
+		f.applyScaling(req.FileMounts, req.CustomDomains, req.CustomResources, req.ResourceMode, req.Autoscaling,
+			req.ClearAutoscaling, req.Metrics, req.ClearMetrics)
+		if req.ClearHealthCheck != nil && *req.ClearHealthCheck {
+			if req.HealthCheckPath != nil || req.HealthCheckPort != nil {
+				reply(400, map[string]string{"message": "clear_health_check cannot be combined with health_check_path or health_check_port"})
+				return
+			}
+			f.spec.HealthCheckPath, f.spec.HealthCheckPort = nil, nil
+		}
+		if req.HealthCheckPath != nil {
+			f.spec.HealthCheckPath = req.HealthCheckPath
+			if req.HealthCheckPort != nil {
+				f.spec.HealthCheckPort = req.HealthCheckPort
+			}
 		}
 		if req.ImageRepository != nil {
 			f.spec.ImageRepository = *req.ImageRepository
@@ -224,11 +261,130 @@ func (f *fakeConsole) attach(src *console.ImageSource) {
 	f.spec.AlertOnSyncFailure = &yes
 }
 
+// commandOverrideRefusal is the console's answer to a command override the
+// organization may not set.
+const commandOverrideRefusal = "Your organization does not have access to the container command override feature"
+
+func (f *fakeConsole) refuseCommandOverride(command, args *[]string, ics *[]console.InitContainerInput) bool {
+	if !f.noCommandOverride {
+		return false
+	}
+	set := func(s *[]string) bool { return s != nil && len(*s) > 0 }
+	if set(command) || set(args) {
+		return true
+	}
+	for _, ic := range deref(ics) {
+		if set(ic.Command) || set(ic.Args) {
+			return true
+		}
+	}
+	return false
+}
+
+// applyWorkload follows the PATCH semantics of the workload lists: an absent
+// one is kept, any other replaces what is there.
+func (f *fakeConsole) applyWorkload(
+	env *[]console.EnvVarInput, refs *[]console.SecretRefInput, pull, command, args *[]string,
+	ics *[]console.InitContainerInput,
+) {
+	if env != nil {
+		f.spec.Env = []console.EnvVarSpecResponse{}
+		for _, e := range *env {
+			f.spec.Env = append(f.spec.Env, console.EnvVarSpecResponse(e))
+		}
+	}
+	if refs != nil {
+		f.spec.SecretRefs = []console.SecretRefSpecResponse{}
+		for _, r := range *refs {
+			f.spec.SecretRefs = append(f.spec.SecretRefs, console.SecretRefSpecResponse(r))
+		}
+	}
+	if pull != nil {
+		f.spec.ImagePullSecrets = *pull
+	}
+	if command != nil {
+		f.spec.Command = command
+	}
+	if args != nil {
+		f.spec.Args = args
+	}
+	if ics != nil {
+		out := []console.InitContainerResponse{}
+		for _, ic := range *ics {
+			out = append(out, console.InitContainerResponse{
+				Name: ic.Name, ImageRepository: ic.ImageRepository, ImageTag: ic.ImageTag,
+				Command: orEmpty(ic.Command), Args: orEmpty(ic.Args),
+				InheritEnv: ic.InheritEnv == nil || *ic.InheritEnv, MountPersistence: ic.MountPersistence == nil || *ic.MountPersistence,
+			})
+		}
+		f.spec.InitContainers = &out
+	}
+}
+
+func orEmpty(s *[]string) []string {
+	if s == nil {
+		return []string{}
+	}
+	return *s
+}
+
+// applyScaling follows the PATCH semantics of sizing, scaling, domains and
+// file mounts: absent keeps, a clear_* flag removes.
+func (f *fakeConsole) applyScaling(
+	mounts *[]console.FileMountInput, domains *[]console.CustomDomainInput, custom *console.CustomResourceInput,
+	mode *console.ResourceMode, autoscaling *console.AutoscalingSpec, clearAutoscaling *bool,
+	metrics *console.ContainerAppMetrics, clearMetrics *bool,
+) {
+	if mounts != nil {
+		f.spec.FileMounts = []console.FileMountResponse{}
+		for _, m := range *mounts {
+			raw, _ := json.Marshal(m.Source)
+			var src console.FileMountSourceResponse
+			if err := json.Unmarshal(raw, &src); err != nil {
+				f.t.Errorf("file mount source: %v", err)
+			}
+			f.spec.FileMounts = append(f.spec.FileMounts, console.FileMountResponse{MountPath: m.MountPath, Mode: m.Mode, Source: src})
+		}
+	}
+	if domains != nil {
+		pending := "pendingVerification"
+		f.spec.CustomDomains = []console.CustomDomainResponse{}
+		for _, d := range *domains {
+			f.spec.CustomDomains = append(f.spec.CustomDomains, console.CustomDomainResponse{
+				Fqdn: d.Fqdn, TlsMode: string(d.TlsMode), TlsSecretName: d.TlsSecretName, State: &pending,
+			})
+		}
+	}
+	if custom != nil {
+		bytes := custom.MemoryMib * 1024 * 1024
+		f.spec.EntitlementCpuMillis, f.spec.MemoryRequestBytes = &custom.CpuMillis, &bytes
+	}
+	if mode != nil {
+		f.spec.ResourceMode = *mode
+	}
+	if clearAutoscaling != nil && *clearAutoscaling {
+		f.spec.Autoscaling = nil
+	}
+	if autoscaling != nil {
+		f.spec.Autoscaling = autoscaling
+	}
+	if clearMetrics != nil && *clearMetrics {
+		f.spec.Metrics = nil
+	}
+	if metrics != nil {
+		f.spec.Metrics = metrics
+	}
+}
+
 func (f *fakeConsole) statusResponse() console.ContainerAppResponse {
+	running := f.spec.Replicas
+	if f.autoscaledTo != 0 && f.spec.Autoscaling != nil {
+		running = f.autoscaledTo
+	}
 	return console.ContainerAppResponse{
 		Id: f.appID, HarborId: f.harbor, OrganizationId: f.org, Name: f.meta.Name, Slug: f.meta.Slug,
 		Description: f.meta.Description, Tags: f.meta.Tags,
-		DesiredReplicas: f.spec.Replicas, AvailableReplicas: f.spec.Replicas, UpdatedReadyReplicas: f.spec.Replicas,
+		DesiredReplicas: running, AvailableReplicas: running, UpdatedReadyReplicas: running,
 		Replicas: f.spec.Replicas,
 	}
 }
@@ -256,6 +412,15 @@ func nullApp(f *fakeConsole) containerAppModel {
 		Slug: types.StringNull(), Ports: types.ListNull(containerAppPortType()),
 		ImageSource: nullImageSource(), ResolvedImage: types.StringNull(), ResolvedRef: types.StringNull(),
 		Revision: types.StringNull(), LastSyncedAt: types.StringNull(), SyncError: types.StringNull(),
+		EnvVars:          types.ListNull(containerAppEnvVarType()),
+		ImagePullSecrets: types.ListNull(types.StringType), Command: types.ListNull(types.StringType),
+		Args: types.ListNull(types.StringType), InitContainers: types.ListNull(containerAppInitContainerType()),
+		FileMounts:      types.ListNull(containerAppFileMountType()),
+		CustomResources: types.ObjectNull(containerAppCustomResourcesTypes()), ResourceMode: types.StringNull(),
+		Autoscaling: types.ObjectNull(containerAppAutoscalingTypes()), Metrics: types.ObjectNull(containerAppMetricsTypes()),
+		CustomDomains:        types.ListNull(containerAppCustomDomainType()),
+		CustomDomainStatuses: types.ListNull(containerAppCustomDomainStatusType()),
+		ImageDigest:          types.StringNull(), TagIsFloating: types.BoolNull(),
 	}
 }
 
@@ -562,7 +727,7 @@ func TestContainerAppReadOfAnImportedGitApp(t *testing.T) {
 	created, d := h.create(plan)
 	noErrors(t, d)
 
-	imported, err := h.r.readState(t.Context(), created.ID.ValueString(), types.StringNull(), nullImageSource())
+	imported, err := h.r.readState(t.Context(), created.ID.ValueString(), importedApp())
 	if err != nil {
 		t.Fatalf("readState: %v", err)
 	}

@@ -87,18 +87,17 @@ func (r *modelServingResource) Schema(_ context.Context, _ resource.SchemaReques
 		}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A Sapience model serving — an OpenAI-compatible inference endpoint (vLLM/TGI). " +
-			"Almost every attribute is immutable: only `replicas` updates in place; changing the model, " +
-			"runtime, or resources forces a new serving.",
+		MarkdownDescription: "A Sapience model serving: an OpenAI-compatible inference endpoint running on vLLM " +
+			"or TGI. Only `replicas` changes in place.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Resource identifier (the server-assigned serving name).",
+				MarkdownDescription: "Serving id, the same as `name`.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"name": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Server-assigned CRD resource name (derived from display_name). Used as the import id.",
+				MarkdownDescription: "Name the platform derives from `display_name`, also the import id.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"display_name": schema.StringAttribute{
@@ -108,7 +107,7 @@ func (r *modelServingResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"model_id": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Model identifier, e.g. \"meta-llama/Llama-3.1-8B-Instruct\". Changing this forces a new serving.",
+				MarkdownDescription: "Model identifier, such as `meta-llama/Llama-3.1-8B-Instruct`. Changing this forces a new serving.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"model_type": schema.StringAttribute{
@@ -124,10 +123,10 @@ func (r *modelServingResource) Schema(_ context.Context, _ resource.SchemaReques
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"gpu":           forceNewInt("GPU count. Changing this forces a new serving."),
-			"max_model_len": forceNewInt("Maximum model context length (generation models). Changing this forces a new serving."),
+			"max_model_len": forceNewInt("Maximum context length, for a generation model. Changing this forces a new serving."),
 			"memory": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Memory request, e.g. \"8Gi\". Changing this forces a new serving.",
+				MarkdownDescription: "Memory request, such as `8Gi`. Changing this forces a new serving.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplaceIfConfigured(),
@@ -135,16 +134,15 @@ func (r *modelServingResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Desired replica count (at least 1). The one attribute that updates in place (scaling). " +
-					"Scale-to-zero is not supported.",
-				Validators:    []validator.Int64{int64validator.AtLeast(1)},
-				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Number of replicas, at least 1.",
+				Validators:          []validator.Int64{int64validator.AtLeast(1)},
+				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 
 			"cpu":            schema.StringAttribute{Computed: true, MarkdownDescription: "CPU request resolved by the platform."},
 			"endpoint":       schema.StringAttribute{Computed: true, MarkdownDescription: "OpenAI-compatible endpoint, once provisioned."},
 			"phase":          schema.StringAttribute{Computed: true, MarkdownDescription: "Current lifecycle phase."},
-			"ready_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Ready replica count reported by the platform."},
+			"ready_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Number of ready replicas."},
 		},
 	}
 }

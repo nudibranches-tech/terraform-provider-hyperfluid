@@ -3,12 +3,15 @@
 page_title: "hyperfluid_ai_api_key Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  An LLM-gateway API key. The secret key is shown only at creation and stored (sensitive) in state — it cannot be re-read. The key is immutable: changing any attribute replaces it with a new secret.
+  An API key for the LLM gateway.
+  ~> The secret key is stored in Terraform state, and changing name, scopes or expires_in_days replaces it with a new one.
 ---
 
 # hyperfluid_ai_api_key (Resource)
 
-An LLM-gateway API key. The secret `key` is shown only at creation and stored (sensitive) in state — it cannot be re-read. The key is immutable: changing any attribute replaces it with a new secret.
+An API key for the LLM gateway.
+
+~> The secret `key` is stored in Terraform state, and changing `name`, `scopes` or `expires_in_days` replaces it with a new one.
 
 ## Example Usage
 
@@ -22,6 +25,12 @@ resource "hyperfluid_ai_api_key" "gateway" {
 
   # Optional lifetime; omit for a non-expiring key.
   expires_in_days = 90
+
+  # Optional ceilings on how much of the organization's LLM rate this key may
+  # use. They change in place; removing one clears it. The gateway enforces the
+  # tighter of these and the platform's cap (see effective_max_llm_rpm/_tpm).
+  max_llm_rpm = 120
+  max_llm_tpm = 200000
 }
 
 # The secret is only available here (and in state) — capture it on create.
@@ -40,17 +49,23 @@ output "api_key" {
 
 ### Optional
 
-- `expires_in_days` (Number) Lifetime in days. Omit for a non-expiring key. Changing this forces a new key. Not echoed by the API, so it cannot be recovered on import.
-- `scopes` (Set of String) Scopes granted to the key, e.g. `model:*` (all models) or `model:<model_id>`. Changing this forces a new key. Modelled as a set, so ordering never causes a diff.
+- `expires_in_days` (Number) Lifetime in days; omitted, the key never expires. Not recovered on import. Changing this forces a new key.
+- `max_llm_rpm` (Number) Most LLM requests per minute for this key, at least 1; omitted, the key has no ceiling of its own.
+- `max_llm_tpm` (Number) Most LLM tokens per minute for this key, at least 1; omitted, the key has no ceiling of its own.
+- `scopes` (Set of String) Scopes granted to the key, such as `model:*` (all models) or `model:<model_id>`. Changing this forces a new key.
 
 ### Read-Only
 
 - `created_at` (String) Creation timestamp (RFC3339).
+- `effective_max_llm_rpm` (Number) Requests-per-minute ceiling enforced, the lower of `max_llm_rpm` and `platform_max_llm_rpm`.
+- `effective_max_llm_tpm` (Number) Tokens-per-minute ceiling enforced, the lower of `max_llm_tpm` and `platform_max_llm_tpm`.
 - `expires_at` (String) Expiry timestamp (RFC3339), if the key expires.
 - `id` (String) API key id (uuid).
-- `key` (String, Sensitive) The secret API key. Returned only at creation and stored in state; null after import.
-- `key_prefix` (String) Non-secret key prefix (identifies the key in listings).
+- `key` (String, Sensitive) The secret API key, available only from the creation and null after import.
+- `key_prefix` (String) Non-secret prefix identifying the key in listings.
 - `last_used_at` (String) Last-used timestamp (RFC3339), if ever used.
+- `platform_max_llm_rpm` (Number) Requests-per-minute cap set by platform administrators, or null.
+- `platform_max_llm_tpm` (Number) Tokens-per-minute cap set by platform administrators, or null.
 
 ## Import
 

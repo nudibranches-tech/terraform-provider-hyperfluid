@@ -39,18 +39,25 @@ func (d *aiApiKeyDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 	cs := func(desc string) schema.StringAttribute {
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
+	ci := func(desc string) schema.Int64Attribute {
+		return schema.Int64Attribute{Computed: true, MarkdownDescription: desc}
+	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing API key's metadata by name. The secret key itself is never returned. " +
-			"API key names are not guaranteed unique; if more than one key shares the name this errors rather than " +
-			"resolving an arbitrary match — look such keys up by id instead.",
+		MarkdownDescription: "Look up an API key's metadata by name; the secret key is never returned.",
 		Attributes: map[string]schema.Attribute{
-			"name":         schema.StringAttribute{Required: true, MarkdownDescription: "API key name. Must match exactly one key."},
-			"id":           cs("API key id (uuid)."),
-			"key_prefix":   cs("Non-secret key prefix."),
-			"scopes":       schema.SetAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Scopes granted to the key."},
-			"created_at":   cs("Creation timestamp (RFC3339)."),
-			"expires_at":   cs("Expiry timestamp (RFC3339), if the key expires."),
-			"last_used_at": cs("Last-used timestamp (RFC3339), if ever used."),
+			"name":                  schema.StringAttribute{Required: true, MarkdownDescription: "API key name. Must match exactly one key."},
+			"id":                    cs("API key id (uuid)."),
+			"key_prefix":            cs("Non-secret key prefix."),
+			"scopes":                schema.SetAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Scopes granted to the key."},
+			"created_at":            cs("Creation timestamp (RFC3339)."),
+			"expires_at":            cs("Expiry timestamp (RFC3339), if the key expires."),
+			"last_used_at":          cs("Last-used timestamp (RFC3339), if ever used."),
+			"max_llm_rpm":           ci("Most LLM requests per minute for this key, or null."),
+			"max_llm_tpm":           ci("Most LLM tokens per minute for this key, or null."),
+			"platform_max_llm_rpm":  ci("Requests-per-minute cap set by platform administrators, or null."),
+			"platform_max_llm_tpm":  ci("Tokens-per-minute cap set by platform administrators, or null."),
+			"effective_max_llm_rpm": ci("Requests-per-minute ceiling enforced, or null."),
+			"effective_max_llm_tpm": ci("Tokens-per-minute ceiling enforced, or null."),
 		},
 	}
 }
@@ -76,6 +83,13 @@ type aiApiKeyDataModel struct {
 	CreatedAt  types.String `tfsdk:"created_at"`
 	ExpiresAt  types.String `tfsdk:"expires_at"`
 	LastUsedAt types.String `tfsdk:"last_used_at"`
+
+	MaxLlmRpm          types.Int64 `tfsdk:"max_llm_rpm"`
+	MaxLlmTpm          types.Int64 `tfsdk:"max_llm_tpm"`
+	PlatformMaxLlmRpm  types.Int64 `tfsdk:"platform_max_llm_rpm"`
+	PlatformMaxLlmTpm  types.Int64 `tfsdk:"platform_max_llm_tpm"`
+	EffectiveMaxLlmRpm types.Int64 `tfsdk:"effective_max_llm_rpm"`
+	EffectiveMaxLlmTpm types.Int64 `tfsdk:"effective_max_llm_tpm"`
 }
 
 func (d *aiApiKeyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -109,6 +123,13 @@ func (d *aiApiKeyDataSource) Read(ctx context.Context, req datasource.ReadReques
 		CreatedAt:  timeString(k.CreatedAt),
 		ExpiresAt:  optTimeString(k.ExpiresAt),
 		LastUsedAt: optTimeString(k.LastUsedAt),
+
+		MaxLlmRpm:          optInt64FromInt32(k.MaxLlmRpm),
+		MaxLlmTpm:          optInt64(k.MaxLlmTpm),
+		PlatformMaxLlmRpm:  optInt64FromInt32(k.PlatformMaxLlmRpm),
+		PlatformMaxLlmTpm:  optInt64(k.PlatformMaxLlmTpm),
+		EffectiveMaxLlmRpm: optInt64FromInt32(k.EffectiveMaxLlmRpm),
+		EffectiveMaxLlmTpm: optInt64(k.EffectiveMaxLlmTpm),
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

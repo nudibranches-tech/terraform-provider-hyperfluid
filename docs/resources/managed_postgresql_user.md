@@ -3,12 +3,12 @@
 page_title: "hyperfluid_managed_postgresql_user Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A PostgreSQL role within a managed cluster. Import id is "<cluster_id>/<user_id>".
+  A PostgreSQL user of a hyperfluid_managed_postgresql cluster. Import it as <cluster_id>/<user_id>.
 ---
 
 # hyperfluid_managed_postgresql_user (Resource)
 
-A PostgreSQL role within a managed cluster. Import id is "<cluster_id>/<user_id>".
+A PostgreSQL user of a `hyperfluid_managed_postgresql` cluster. Import it as `<cluster_id>/<user_id>`.
 
 ## Example Usage
 
@@ -26,12 +26,12 @@ resource "hyperfluid_managed_postgresql_user" "editor" {
 ### Required
 
 - `managed_postgresql` (String) Cluster id this user belongs to. Changing this forces a new user.
-- `username` (String) Postgres role name. Changing this forces a new user.
+- `username` (String) PostgreSQL role name. Changing this forces a new user.
 
 ### Optional
 
 - `description` (String) Free-form description.
-- `permission_level` (String) Permission level: editor or viewer.
+- `permission_level` (String) Permission level: `editor` or `viewer`.
 - `tags` (List of String) User-defined tags.
 
 ### Read-Only

@@ -63,11 +63,8 @@ func (r *secretResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A managed secret. `value` is write-only — it is never stored in Terraform state. " +
-			"Requires Terraform >= 1.11. Rotate the value by changing `value` together with `value_wo_version`.\n\n" +
-			"A secret of type `scm_credential` is a Git credential: reference it by `name` from a " +
-			"`hyperfluid_container_app`'s `image_source.git.credential`. It is created organization-wide, " +
-			"which is what a Git source requires.",
+		MarkdownDescription: "An organization-wide secret. Its `value` is write-only and never stored in state, " +
+			"which requires Terraform 1.11 or later.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -80,8 +77,8 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"secret_type": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "Secret type: `plaintext`, `json` or `scm_credential` (a Git credential). " +
-					"Changing this forces a new secret.",
+				MarkdownDescription: "Secret type: `plaintext`, `json` or `scm_credential` (a Git credential for " +
+					"`image_source`). Changing this forces a new secret.",
 				Validators:    []validator.String{stringvalidator.OneOf("plaintext", "json", "scm_credential")},
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
@@ -89,15 +86,12 @@ func (r *secretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:  true,
 				WriteOnly: true,
 				Sensitive: true,
-				MarkdownDescription: "Secret material (write-only — never persisted to state). For `json`, a JSON-encoded string. " +
-					"For `scm_credential`, a JSON object `{ \"provider\", \"username\"?, \"base_url\"?, \"token\" }`: " +
-					"`provider` is `github`, `gitlab` or `forgejo`, `base_url` names a self-hosted instance (leave it out " +
-					"for the public one), and `token` is the access token — read-only is enough for a Git source. " +
-					"Required on create.",
+				MarkdownDescription: "Secret value, required on create; write-only. For `scm_credential`, a JSON object " +
+					"`{ provider, username?, base_url?, token }` where `provider` is `github`, `gitlab` or `forgejo`.",
 			},
 			"value_wo_version": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Arbitrary token; change it together with `value` to push a new value (rotation). Needed because the write-only `value` is not tracked in state.",
+				MarkdownDescription: "Any value; change it together with `value` to rotate the secret.",
 			},
 			"description": schema.StringAttribute{
 				Optional: true, Computed: true,

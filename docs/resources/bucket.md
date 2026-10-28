@@ -13,12 +13,12 @@ An object-storage bucket within an environment.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_bucket" "lake" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "data-lake"
 }
 
@@ -30,7 +30,7 @@ data "hyperfluid_storage_zone" "default" {
 }
 
 resource "hyperfluid_bucket" "lake_pinned" {
-  env             = data.hyperfluid_env.default.id
+  env             = data.hyperfluid_environment.default.id
   name            = "data-lake-pinned"
   storage_zone_id = data.hyperfluid_storage_zone.default.zone_id
 }
@@ -46,7 +46,7 @@ resource "hyperfluid_bucket" "lake_pinned" {
 
 ### Optional
 
-- `storage_zone_id` (String) Storage zone the bucket is placed in. Omit for the org's primary zone (`default`). Placement is fixed at creation, so changing this forces a new bucket. A non-default value must be a zone the org has enabled.
+- `storage_zone_id` (String) Storage zone of the bucket, one the organization has enabled. Defaults to the primary zone, `default`. Changing this forces a new bucket.
 
 ### Read-Only
 

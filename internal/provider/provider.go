@@ -58,10 +58,8 @@ func (p *HyperfluidProvider) Schema(_ context.Context, _ provider.SchemaRequest,
 			},
 			"credentials_file": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Path to the service-account JSON (the same file hfctl consumes). " +
-					"When unset, falls back to the `HYPERFLUID_CREDENTIALS` environment variable, then to " +
-					"the file `hfctl tf auth` writes at `<user-config-dir>/hyperfluid/terraform/credentials.json` " +
-					"(so `hfctl auth login` + `hfctl tf auth` is all that's needed). The secret is never written to state.",
+				MarkdownDescription: "Path to the service-account JSON file. Falls back to `HYPERFLUID_CREDENTIALS`, " +
+					"then to the file `hfctl tf auth` writes.",
 			},
 		},
 	}
@@ -150,12 +148,30 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewAiApiKeyResource,
 		NewAirflowResource,
 		NewAirflowConnectionResource,
+		NewServiceAccountAccessResource,
+		NewS3AccessKeyResource,
+		NewGroupResource,
+		NewRoleResource,
+		NewUserAccessResource,
+		NewAlertChannelResource,
+		NewAlertRuleResource,
+		NewAlertThresholdResource,
+		NewEnvironmentResource,
+		NewSqlEngineClusterResource,
+		NewSqlEngineCatalogResource,
+		NewPipelineResource,
+		NewNextflowResource,
+		NewComputeDockResource,
+		NewAgentResource,
+		NewVirtualMachineResource,
+		NewVirtualMachineUserResource,
 		// app_instance deferred (Marketplace).
 	}
 }
 
 func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewEnvironmentDataSource,
 		NewEnvDataSource,
 		NewSecretDataSource,
 		NewBucketDataSource,
@@ -173,6 +189,18 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewAiApiKeyDataSource,
 		NewAirflowDataSource,
 		NewAirflowConnectionDataSource,
+		NewPermissionsDataSource,
+		NewGroupDataSource,
+		NewServiceAccountDataSource,
+		NewUserDataSource,
+		NewRoleDataSource,
+		NewAlertChannelDataSource,
+		NewSqlEngineClusterDataSource,
+		NewNextflowDataSource,
+		NewComputeDockDataSource,
+		NewAgentDataSource,
+		NewVirtualMachineDataSource,
+		NewVirtualMachineImagesDataSource,
 	}
 }
 

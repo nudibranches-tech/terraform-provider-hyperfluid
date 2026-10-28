@@ -276,6 +276,21 @@ func conditionMessage(conditions interface{}, condType string) string {
 	return ""
 }
 
+// falseConditionMessage returns the message of the first condition whose
+// status is False, or "": why a resource failed, whichever condition says so.
+func falseConditionMessage(conditions interface{}) string {
+	arr, _ := conditions.([]interface{})
+	for _, c := range arr {
+		m, _ := c.(map[string]interface{})
+		if s, _ := m["status"].(string); s == "False" {
+			if msg, _ := m["message"].(string); msg != "" {
+				return msg
+			}
+		}
+	}
+	return ""
+}
+
 // pollGoneOn404 polls get until it returns client.ErrNotFound, confirming a
 // delete actually converged (M3: the API may 204 before the resource is gone).
 func pollGoneOn404(ctx context.Context, timeout time.Duration, get func() error) error {

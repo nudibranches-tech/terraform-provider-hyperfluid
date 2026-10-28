@@ -60,7 +60,7 @@ func (r *managedPostgresqlUserResource) Metadata(_ context.Context, req resource
 
 func (r *managedPostgresqlUserResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A PostgreSQL role within a managed cluster. Import id is \"<cluster_id>/<user_id>\".",
+		MarkdownDescription: "A PostgreSQL user of a `hyperfluid_managed_postgresql` cluster. Import it as `<cluster_id>/<user_id>`.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -73,12 +73,12 @@ func (r *managedPostgresqlUserResource) Schema(_ context.Context, _ resource.Sch
 			},
 			"username": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Postgres role name. Changing this forces a new user.",
+				MarkdownDescription: "PostgreSQL role name. Changing this forces a new user.",
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"permission_level": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Permission level: editor or viewer.",
+				MarkdownDescription: "Permission level: `editor` or `viewer`.",
 				Validators:          []validator.String{stringvalidator.OneOf("editor", "viewer")},
 			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},

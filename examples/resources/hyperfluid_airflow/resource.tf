@@ -1,4 +1,4 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -7,19 +7,19 @@ data "hyperfluid_env" "default" {
 # Naming the bucket keeps it in Terraform's hands — omit dag_bucket_ref and the
 # platform provisions "<name>-airflow" instead.
 resource "hyperfluid_bucket" "dags" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics-dags"
 }
 
 # A cache the DAGs write computed features into. Task pods cannot reach it until
 # the environment is granted the path below.
 resource "hyperfluid_key_value_cache" "features" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "features"
 }
 
 resource "hyperfluid_airflow" "analytics" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics"
 
   dag_bucket_ref = hyperfluid_bucket.dags.name

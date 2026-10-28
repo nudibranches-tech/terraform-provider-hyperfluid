@@ -11,11 +11,13 @@ import (
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
 )
 
-// ExternalBackupTargetInput is the flat, external-S3 create input. The create
-// API takes a discriminated `source` union; this wrapper builds the `external`
-// variant. (The `internal` variant — org Ceph bucket — is a follow-up.)
-type ExternalBackupTargetInput struct {
+// BackupTargetInput is the flat create input. The create API takes a
+// discriminated `source` union: a set BucketName builds the `internal` variant
+// (a bucket of the environment), otherwise the external S3 fields build the
+// `external` one.
+type BackupTargetInput struct {
 	Name                      string
+	BucketName                string
 	EndpointURL               string
 	DestinationPath           string
 	AccessKeySecretName       string
@@ -26,7 +28,7 @@ type ExternalBackupTargetInput struct {
 	Tags                      []string
 }
 
-func (c *Client) CreateExternalBackupTarget(ctx context.Context, orgID, harborID string, in ExternalBackupTargetInput) (*console.BackupTargetResponse, error) {
+func (c *Client) CreateBackupTarget(ctx context.Context, orgID, harborID string, in BackupTargetInput) (*console.BackupTargetResponse, error) {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {
 		return nil, err
@@ -37,13 +39,21 @@ func (c *Client) CreateExternalBackupTarget(ctx context.Context, orgID, harborID
 	}
 
 	var source console.BackupTargetSourceRequest
-	if err := source.FromBackupTargetSourceRequest1(console.BackupTargetSourceRequest1{
-		Mode:                      "external",
-		EndpointUrl:               in.EndpointURL,
-		DestinationPath:           in.DestinationPath,
-		AccessKeySecretName:       in.AccessKeySecretName,
-		SecretAccessKeySecretName: in.SecretAccessKeySecretName,
-	}); err != nil {
+	if in.BucketName != "" {
+		err = source.FromBackupTargetSourceRequest0(console.BackupTargetSourceRequest0{
+			Mode:       console.BackupTargetSourceRequest0ModeInternal,
+			BucketName: in.BucketName,
+		})
+	} else {
+		err = source.FromBackupTargetSourceRequest1(console.BackupTargetSourceRequest1{
+			Mode:                      "external",
+			EndpointUrl:               in.EndpointURL,
+			DestinationPath:           in.DestinationPath,
+			AccessKeySecretName:       in.AccessKeySecretName,
+			SecretAccessKeySecretName: in.SecretAccessKeySecretName,
+		})
+	}
+	if err != nil {
 		return nil, fmt.Errorf("build backup target source: %w", err)
 	}
 

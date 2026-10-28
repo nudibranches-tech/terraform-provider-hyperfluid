@@ -3,22 +3,22 @@
 page_title: "hyperfluid_env Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing environment by name. Envs are created out-of-band; this data source resolves the id used to scope resources.
+  Look up an existing environment by name, to get the id other resources take as env.
 ---
 
 # hyperfluid_env (Data Source)
 
-Look up an existing environment by name. Envs are created out-of-band; this data source resolves the id used to scope resources.
+Look up an existing environment by name, to get the id other resources take as `env`.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 output "env_id" {
-  value = data.hyperfluid_env.default.id
+  value = data.hyperfluid_environment.default.id
 }
 ```
 
@@ -27,8 +27,8 @@ output "env_id" {
 
 ### Required
 
-- `name` (String) Env name (slug) to look up.
+- `name` (String) Environment name (slug).
 
 ### Read-Only
 
-- `id` (String) Resolved env id.
+- `id` (String) Environment id.

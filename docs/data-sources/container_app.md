@@ -13,18 +13,23 @@ Look up an existing container app by its slug within an environment.
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reference an existing container app to read its endpoint and status.
 data "hyperfluid_container_app" "web" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   slug = "web"
 }
 
 output "app_endpoint" {
   value = data.hyperfluid_container_app.web.endpoint
+}
+
+# The app's plain environment variables, as a name => value map.
+output "app_env" {
+  value = { for e in data.hyperfluid_container_app.web.env_vars : e.name => e.value if e.secret == null }
 }
 ```
 
@@ -38,39 +43,119 @@ output "app_endpoint" {
 ### Optional
 
 - `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead.
-- `slug` (String) Slug of the app to look up. Display names are not unique, so an app is looked up by its slug. This is the name a `hyperfluid_service_link` endpoint takes.
+- `slug` (String) Slug of the app to look up.
 
 ### Read-Only
 
+- `args` (List of String) Arguments of the main container, or empty for the image's.
+- `autoscaling` (Attributes) Horizontal autoscaling, or null when the app runs a fixed `replicas`. (see [below for nested schema](#nestedatt--autoscaling))
 - `available_replicas` (Number) Available replicas reported by the platform.
-- `cpu_limit` (String) CPU limit derived from resource_tier.
-- `cpu_request` (String) CPU request derived from resource_tier.
+- `command` (List of String) Entrypoint of the main container, or empty for the image's.
+- `cpu_limit` (String) CPU limit of each replica.
+- `cpu_request` (String) CPU request of each replica.
+- `custom_domain_statuses` (Attributes List) Where each custom domain stands, as the platform last reported it. (see [below for nested schema](#nestedatt--custom_domain_statuses))
+- `custom_domains` (Attributes List) Domains of the organization's own the app answers on. (see [below for nested schema](#nestedatt--custom_domains))
+- `custom_resources` (Attributes) Always null on a data source; read `cpu_request` and `memory_request` instead. (see [below for nested schema](#nestedatt--custom_resources))
 - `description` (String) Free-form description.
 - `desired_replicas` (Number) Desired replicas reported by the platform.
 - `display_name` (String) The app's name, shown in the console.
 - `enabled` (Boolean) Whether the app is running.
 - `endpoint` (String) Public endpoint, once provisioned.
+- `env_vars` (Attributes List) Environment variables of the main container: plain ones first, then secret-backed ones. (see [below for nested schema](#nestedatt--env_vars))
 - `expose_to_internet` (Boolean) Whether internet-facing routes are created for the app.
+- `file_mounts` (Attributes List) Files written into the main container before it starts. (see [below for nested schema](#nestedatt--file_mounts))
 - `health_check_path` (String) HTTP health check path.
 - `health_check_port` (Number) HTTP health check port.
 - `id` (String) App id.
+- `image_digest` (String) Digest the main image is pinned to, when it is.
+- `image_pull_secrets` (List of String) Names of the secrets used to pull the app's images.
 - `image_repository` (String) Container image repository.
-- `image_source` (Attributes) The Git source the app's image comes from, or null for an app with a literal image. `image_repository` and `image_tag` then report the image it resolved, when it has one. (see [below for nested schema](#nestedatt--image_source))
+- `image_source` (Attributes) Git source of the app's image, or null for a literal image. (see [below for nested schema](#nestedatt--image_source))
 - `image_tag` (String) Container image tag.
+- `init_containers` (Attributes List) Containers run to completion, in order, before the main container starts. (see [below for nested schema](#nestedatt--init_containers))
 - `last_synced_at` (String) When the repository was last checked successfully (RFC 3339).
-- `memory_limit` (String) Memory limit derived from resource_tier.
-- `memory_request` (String) Memory request derived from resource_tier.
+- `memory_limit` (String) Memory limit of each replica.
+- `memory_request` (String) Memory request of each replica.
+- `metrics` (Attributes) Where the app serves Prometheus metrics, or null. (see [below for nested schema](#nestedatt--metrics))
 - `phase` (String) Current lifecycle phase.
-- `port` (Number) The app's single container port. Deprecated by the API in favour of `ports`; for an app publishing several, this reports the primary one.
+- `port` (Number) **Deprecated — use `ports`.** The primary port of the app.
 - `ports` (Attributes List) Every port the app publishes. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Desired replica count.
 - `resolved_image` (String) The image a Git source resolved and runs, as `repository:tag@digest`.
 - `resolved_ref` (String) The branch followed, or the tag a Git source's `tag_pattern` selected.
-- `resource_tier` (String) Resource tier — not returned by the API, so always null on a data source.
-- `resource_version` (String) Kubernetes resourceVersion.
+- `resource_mode` (String) Whether the console shows CPU rightsizing advice: `advisory`, `manual` or `managed`.
+- `resource_tier` (String) Always null on a data source.
+- `resource_version` (String) Version of the app's spec.
 - `revision` (String) The commit the running image was read from.
 - `sync_error` (String) Why the last check failed, or null.
+- `tag_is_floating` (Boolean) Whether the image tag is one upstream can re-push.
 - `tags` (List of String) User-defined tags.
+
+<a id="nestedatt--autoscaling"></a>
+### Nested Schema for `autoscaling`
+
+Read-Only:
+
+- `max_replicas` (Number) Most replicas.
+- `min_replicas` (Number) Fewest replicas, or null for the platform's 1.
+- `scale_to_zero_after_seconds` (Number) Idle time before the app sleeps.
+- `target_cpu_utilization` (Number) CPU use held, in percent of the request.
+- `target_http_concurrency` (Number) In-flight requests per replica held.
+- `target_memory_utilization` (Number) Memory use held, in percent of the request.
+
+
+<a id="nestedatt--custom_domain_statuses"></a>
+### Nested Schema for `custom_domain_statuses`
+
+Read-Only:
+
+- `certificate_secret_name` (String) Secret holding the certificate served.
+- `fqdn` (String) The domain.
+- `message` (String) Why the domain is not ready, when it is not.
+- `observed_addresses` (List of String) Addresses the domain resolved to at the last check.
+- `state` (String) `pendingVerification`, `conflict`, `pendingDns`, `provisioning`, `ready` or `error`.
+- `target` (String) Where the domain's DNS record must point.
+
+
+<a id="nestedatt--custom_domains"></a>
+### Nested Schema for `custom_domains`
+
+Read-Only:
+
+- `fqdn` (String) The domain.
+- `tls_mode` (String) `acme` or `secret`.
+- `tls_secret_name` (String) Secret holding the certificate, with `tls_mode = "secret"`.
+
+
+<a id="nestedatt--custom_resources"></a>
+### Nested Schema for `custom_resources`
+
+Read-Only:
+
+- `cpu_millis` (Number) CPU sold, in millicores.
+- `memory_mib` (Number) Memory, in MiB.
+
+
+<a id="nestedatt--env_vars"></a>
+### Nested Schema for `env_vars`
+
+Read-Only:
+
+- `name` (String) Variable name.
+- `secret` (String) Name of the secret holding the value, or null for a plain variable.
+- `value` (String) Plain-text value, or null for a secret-backed variable.
+
+
+<a id="nestedatt--file_mounts"></a>
+### Nested Schema for `file_mounts`
+
+Read-Only:
+
+- `content` (String) Inline content, or null for a secret-backed file.
+- `mode` (String) Octal file mode, or null for the platform's default.
+- `mount_path` (String) Path of the file.
+- `secret_name` (String) Secret holding the file, or null for inline content.
+
 
 <a id="nestedatt--image_source"></a>
 ### Nested Schema for `image_source`
@@ -96,6 +181,29 @@ Read-Only:
 - `sync_policy` (String) `auto` or `manual`, or null for the platform default (`auto`).
 - `tag_pattern` (String) The regular expression selecting the tag followed, or null.
 
+
+
+<a id="nestedatt--init_containers"></a>
+### Nested Schema for `init_containers`
+
+Read-Only:
+
+- `args` (List of String) Arguments, or null for the image's.
+- `command` (List of String) Entrypoint, or null for the image's.
+- `image_repository` (String) Image repository, or null when the container runs the app's own image.
+- `image_tag` (String) Image tag, or null when the container runs the app's own image.
+- `inherit_env` (Boolean) Whether the container gets the app's environment.
+- `mount_persistence` (Boolean) Whether the app's persistent volumes are mounted.
+- `name` (String) Container name.
+
+
+<a id="nestedatt--metrics"></a>
+### Nested Schema for `metrics`
+
+Read-Only:
+
+- `path` (String) Path scraped, or null for the platform's default.
+- `port` (String) Name of the port serving the metrics.
 
 
 <a id="nestedatt--ports"></a>

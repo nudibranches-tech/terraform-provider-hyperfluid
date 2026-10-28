@@ -3,12 +3,12 @@
 page_title: "hyperfluid_shared_model Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up a platform shared model — a model the organization can consume — by name.
+  Look up by name a model the platform shares with the organization.
 ---
 
 # hyperfluid_shared_model (Data Source)
 
-Look up a platform shared model — a model the organization can consume — by name.
+Look up by name a model the platform shares with the organization.
 
 ## Example Usage
 
@@ -36,7 +36,7 @@ output "shared_model_endpoint" {
 - `endpoint` (String) OpenAI-compatible endpoint.
 - `gpu` (Number) GPU count.
 - `memory` (String) Memory request.
-- `model_type` (String) Model type (generation or embedding).
+- `model_type` (String) Model type: `generation` or `embedding`.
 - `phase` (String) Current lifecycle phase.
-- `runtime` (String) Serving runtime (vllm or tgi).
-- `served_model_name` (String) Served model name override, if any.
+- `runtime` (String) Serving runtime: `vllm` or `tgi`.
+- `served_model_name` (String) Model name to request, when it differs from `name`.

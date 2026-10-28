@@ -61,6 +61,7 @@ type managedPostgresqlModel struct {
 	StorageCapacity  types.Int64  `tfsdk:"storage_capacity"`
 	BackupPolicy     types.String `tfsdk:"backup_policy"`
 	BackupTargetID   types.String `tfsdk:"backup_target_id"`
+	BackupPlacement  types.String `tfsdk:"backup_placement"`
 	Configuration    types.String `tfsdk:"configuration"`
 	ExposeToInternet types.Bool   `tfsdk:"expose_to_internet"`
 	Description      types.String `tfsdk:"description"`
@@ -119,11 +120,12 @@ func restoreType() basetypes.ObjectType {
 
 // managedPostgresqlKeep carries the attributes no read echoes back, so a
 // refresh keeps what the configuration asked for instead of nulling it: the
-// status view reports neither the backup target a database ships to nor its
-// recovery policy, and the CRD spec view exposes neither either.
+// status view reports neither the backup target or placement a database ships
+// to nor its recovery policy, and the CRD spec view exposes none of them either.
 type managedPostgresqlKeep struct {
 	Pitr             types.Object
 	BackupTargetID   types.String
+	BackupPlacement  types.String
 	RestoreWoVersion types.String
 }
 
@@ -142,7 +144,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A managed PostgreSQL cluster (DBaaS).",
+		MarkdownDescription: "A managed PostgreSQL cluster in an environment.\n\n" +
+			"~> Changing an attribute that forces a new cluster deletes the database and its data.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -164,47 +167,48 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"engine": func() schema.StringAttribute {
-				a := forceNewStr("Engine: postgresql, postgis, timescaledb.")
+				a := forceNewStr("Engine: `postgresql`, `postgis` or `timescaledb`. Changing this forces a new cluster.")
 				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis", "timescaledb")}
 				return a
 			}(),
-			"version": forceNewStr("PostgreSQL major version, e.g. \"17\"."),
+			"version": forceNewStr("PostgreSQL major version, e.g. `17`. Changing this forces a new cluster."),
 			"node_tier": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Resource tier: nano, micro, small, medium, large, xlarge.",
+				MarkdownDescription: "Size: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`.",
 				Validators:          []validator.String{stringvalidator.OneOf("nano", "micro", "small", "medium", "large", "xlarge")},
 			},
 			"storage_capacity": schema.Int64Attribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Storage capacity in GB (1-30). Growth is applied in place but is " +
-					"eventually consistent — `plan` may show the increase as pending until the " +
-					"underlying volume finishes expanding.",
-				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Storage capacity in GB, 1 to 30. It can grow in place but not shrink.",
+				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
 			"backup_policy": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Backup policy: automated or manual (defaults to manual). Changing this forces a new cluster.",
+				MarkdownDescription: "Backup policy: `automated` or `manual` (default). Changing this forces a new cluster.",
 				Validators:          []validator.String{stringvalidator.OneOf("automated", "manual")},
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()},
 			},
 			"backup_target_id": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Backup target id — where base backups and, with `pitr`, the " +
-					"write-ahead log ship. Required when `backup_policy` is `automated` and whenever " +
-					"`pitr` is set. Changing this forces a new cluster.\n\n" +
-					"~> No API view reports it, so Terraform carries it from prior state. " +
-					"`terraform import` cannot recover it, and a target attached elsewhere is invisible " +
-					"to `terraform plan`.",
+				MarkdownDescription: "Id of the backup target that receives backups. Conflicts with `backup_placement`; " +
+					"`automated` backups and `pitr` need one of the two. Not recovered by import. Changing this forces a new cluster.",
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Validators:    []validator.String{stringvalidator.ConflictsWith(path.MatchRoot("backup_placement"))},
+			},
+			"backup_placement": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "Set to `platform` to let the platform choose the backup target. Conflicts with " +
+					"`backup_target_id`; removing it keeps the current placement, and import does not recover it.",
+				Validators: []validator.String{stringvalidator.OneOf(string(console.BackupPlacementPlatform))},
 			},
 			"configuration": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Topology: standalone or high-availability.",
+				MarkdownDescription: "Topology: `standalone` or `high-availability`.",
 				Validators:          []validator.String{stringvalidator.OneOf("standalone", "high-availability")},
 			},
 			"expose_to_internet": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Whether the cluster is reachable from the internet via an external NodePort Service. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish an external endpoint.",
+				MarkdownDescription: "Whether the cluster gets an external endpoint reachable from the internet. Defaults to false.",
 				Default:             booldefault.StaticBool(false),
 			},
 			"description": schema.StringAttribute{Optional: true, MarkdownDescription: "Free-form description."},
@@ -215,81 +219,51 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"pitr": schema.SingleNestedAttribute{
 				Optional: true,
-				MarkdownDescription: "Point-in-time recovery policy. Needs a `backup_target_id`, because the " +
-					"write-ahead log has to ship somewhere; the platform refuses the policy otherwise, " +
-					"and refuses it at apply time rather than at plan time.\n\n" +
-					"~> No API view echoes this policy back, so Terraform carries it from prior state. " +
-					"`terraform import` therefore cannot recover it, and a policy changed in the console " +
-					"or through `hfctl` is invisible to `terraform plan`.\n\n" +
-					"~> Removing `pitr` from the configuration does **not** turn recovery off: the " +
-					"platform reads an absent policy as \"leave it as it is\", so `enabled = false` is " +
-					"the only off switch.",
+				MarkdownDescription: "Point-in-time recovery policy; needs `backup_target_id` or `backup_placement`. " +
+					"Removing it does not turn recovery off (set `enabled = false`), and import does not recover it.",
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						Required: true,
-						MarkdownDescription: "Whether a bounded recovery point objective is kept. `false` does not " +
-							"stop archiving — a database with a backup target attached always ships its WAL, " +
-							"because a base backup is not consistent without it. It drops the forced segment " +
-							"switch, so WAL ships only as segments fill and an idle hour may not be recoverable.",
+						MarkdownDescription: "Whether a bounded recovery point objective is kept. `false` keeps archiving " +
+							"but without forced switches, so recent changes on an idle database may not be recoverable.",
 					},
 					"archive_interval_seconds": schema.Int64Attribute{
 						Optional:   true,
 						Validators: []validator.Int64{int64validator.Between(60, 86400)},
-						MarkdownDescription: "Seconds between forced WAL segment switches (60-86400) — the " +
-							"worst-case recovery point objective while the database is idle. Left out, the " +
-							"platform resolves its own interval at every reconcile, so a platform change " +
-							"reaches the database.\n\n" +
-							"~> There is no way back to that resolved interval: a pin can be changed to " +
-							"another number, and dropping it from the config keeps the pin the platform " +
-							"already stored. It also survives `enabled = false`, so turning recovery back " +
-							"on restores the same objective.\n\n" +
-							"This is what the database asks for. The top-level `archive_interval_seconds` " +
-							"is what the running cluster carries.",
+						MarkdownDescription: "Seconds between forced WAL switches, 60 to 86400: the worst-case recovery " +
+							"point on an idle database. Defaults to the platform's interval; once set, removing it keeps the last value.",
 					},
 				},
 			},
 			"restore": schema.SingleNestedAttribute{
 				Optional: true, WriteOnly: true,
-				MarkdownDescription: "Bootstrap the database from an existing archive instead of an empty " +
-					"`initdb`. Write-only: it is sent on create and never written to state, so it requires " +
-					"Terraform >= 1.11.\n\n" +
-					"~> Read at create only. The platform cannot restore a database in place and " +
-					"echoes nothing back, so Terraform cannot see this block change on its own: " +
-					"editing it produces no plan unless `restore_wo_version` changes with it.\n\n" +
-					"`engine` and `version` must match the source exactly, and an omitted `engine` or " +
-					"`version` is compared as `postgresql` / `17` rather than inherited — state both on " +
-					"any other source. Leaving `backup_target_id` out inherits the source's backup target " +
-					"and its schedule, which can read back as `backup_policy = \"automated\"`. Nothing " +
-					"checks `storage_capacity` against the source's volume: a restore into a smaller one " +
-					"is accepted here and fails inside the cluster.",
+				MarkdownDescription: "Create the database from a backup or another database's archive. Write-only " +
+					"(Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, " +
+					"`version` and enough `storage_capacity` must match the source.",
 				Attributes: map[string]schema.Attribute{
 					"backup_id": schema.StringAttribute{
 						Optional: true, WriteOnly: true,
-						MarkdownDescription: "Id of a completed backup to restore exactly as it was taken. " +
-							"Must live in the same environment as the new database.",
+						MarkdownDescription: "Id of a completed backup in the same environment. Conflicts with `source_instance_id`.",
 						Validators: []validator.String{
 							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("source_instance_id")),
 						},
 					},
 					"source_instance_id": schema.StringAttribute{
 						Optional: true, WriteOnly: true,
-						MarkdownDescription: "Id of the database whose continuous WAL archive to restore from. " +
-							"Must live in the same environment as the new database, and is the only route that " +
-							"accepts a `target_time`. The source must have completed at least one base backup.",
+						MarkdownDescription: "Id of a database in the same environment whose archive to restore from; it must " +
+							"have completed at least one base backup.",
 					},
 					"target_time": schema.StringAttribute{
 						Optional: true, WriteOnly: true,
-						MarkdownDescription: "RFC 3339 point to recover to. Must fall between the source's " +
-							"`first_recoverability_point` and now, which the platform checks when the create " +
-							"call runs — the window is not known at plan time. Left out, recovery replays to " +
-							"the latest archived WAL.",
+						MarkdownDescription: "RFC 3339 time to recover to, between the source's `first_recoverability_point` " +
+							"and now. Requires `source_instance_id`; defaults to the latest archived point.",
 						Validators: []validator.String{
 							stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("source_instance_id")),
 						},
 					},
 					"exclusive": schema.BoolAttribute{
 						Optional: true, WriteOnly: true,
-						MarkdownDescription: "Stop immediately before `target_time` rather than at it.",
+						MarkdownDescription: "Stop just before `target_time` instead of at it.",
 						Validators: []validator.Bool{
 							boolvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("target_time")),
 						},
@@ -297,14 +271,10 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				},
 			},
 			"restore_wo_version": schema.StringAttribute{
-				Optional: true,
-				MarkdownDescription: "Arbitrary token that makes a changed `restore` visible to Terraform. " +
-					"A write-only attribute never reaches state, so nothing else can tell one restore " +
-					"descriptor from the next; change this alongside `restore` to ask for the restore " +
-					"again. Changing it forces a new cluster, because a restore only happens when a " +
-					"database is created.",
-				Validators:    []validator.String{stringvalidator.AlsoRequires(path.MatchRoot("restore"))},
-				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Optional:            true,
+				MarkdownDescription: "Any value; change it together with `restore` to restore again. Changing this forces a new cluster.",
+				Validators:          []validator.String{stringvalidator.AlsoRequires(path.MatchRoot("restore"))},
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 
 			"phase":             computedStr("Current lifecycle phase."),
@@ -316,19 +286,13 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			"slug":              computedStr("Derived slug. This is the name a `hyperfluid_service_link` endpoint takes."),
 			"archive_interval_seconds": schema.Int64Attribute{
 				Computed: true,
-				MarkdownDescription: "Seconds between forced WAL segment switches on the running cluster — " +
-					"the interval the platform resolved, not the one `pitr` asks for, so it lags a change " +
-					"until the cluster picks it up. `0` means no forced switch, so nothing bounds the lag " +
-					"on an idle database; null means the database archives nowhere, or the platform has " +
-					"not reported on it yet.",
+				MarkdownDescription: "Seconds between forced WAL switches on the running cluster. `0` means none; " +
+					"null means the database is not archived or not reported yet.",
 			},
-			"first_recoverability_point": computedStr("Earliest point a restore can target, as the backup " +
-				"catalog reports it. Null on a database that archives nowhere, and on one that ships WAL " +
-				"but has never completed a base backup — which is not restorable however healthy its " +
-				"archiver looks."),
-			"last_successful_backup_time": computedStr("When the last base backup completed. A " +
-				"continuous-archive restore needs one, because recovery replays forward from a base backup."),
-			"last_failed_backup_time": computedStr("When the last backup failed."),
+			"first_recoverability_point": computedStr("Earliest time a restore can target, or null when no base " +
+				"backup has completed."),
+			"last_successful_backup_time": computedStr("When the last base backup completed."),
+			"last_failed_backup_time":     computedStr("When the last backup failed."),
 		},
 	}
 }
@@ -395,6 +359,10 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		}
 		body.BackupTargetId = &bt
 	}
+	if !plan.BackupPlacement.IsNull() && !plan.BackupPlacement.IsUnknown() {
+		bp := console.BackupPlacement(plan.BackupPlacement.ValueString())
+		body.BackupPlacement = &bp
+	}
 
 	pitr, d := pitrRequestFrom(ctx, plan.Pitr)
 	resp.Diagnostics.Append(d...)
@@ -431,6 +399,7 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
+		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
 	})
 	if err != nil {
@@ -449,6 +418,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 	state, err := r.readInto(ctx, prior.ID.ValueString(), managedPostgresqlKeep{
 		Pitr:             prior.Pitr,
 		BackupTargetID:   prior.BackupTargetID,
+		BackupPlacement:  prior.BackupPlacement,
 		RestoreWoVersion: prior.RestoreWoVersion,
 	})
 	if errors.Is(err, client.ErrNotFound) {
@@ -498,6 +468,12 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 	body.Pitr = pitr
+	// Sent only when it changes: a placement cannot be unset through the API, so
+	// one removed from the configuration is left as it is.
+	if !plan.BackupPlacement.IsNull() && !plan.BackupPlacement.IsUnknown() && !plan.BackupPlacement.Equal(state.BackupPlacement) {
+		bp := console.BackupPlacement(plan.BackupPlacement.ValueString())
+		body.BackupPlacement = &bp
+	}
 
 	id := state.ID.ValueString()
 	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body); err != nil {
@@ -511,6 +487,7 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	newState, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
+		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
 	})
 	if err != nil {
@@ -625,6 +602,7 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 		Slug:             types.StringValue(c.Slug),
 
 		BackupTargetID:           keep.BackupTargetID,
+		BackupPlacement:          keep.BackupPlacement,
 		Pitr:                     keep.Pitr,
 		Restore:                  types.ObjectNull(restoreType().AttrTypes),
 		RestoreWoVersion:         keep.RestoreWoVersion,

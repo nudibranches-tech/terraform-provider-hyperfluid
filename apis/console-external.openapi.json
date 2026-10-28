@@ -8169,7 +8169,7 @@
         ],
         "responses": {
           "200": {
-            "description": "One page of the optimization run history, newest first. Absent query params default to page 0, limit 20; a catalog without a schedule answers an empty page with total 0",
+            "description": "One page of the optimization run history, newest first. Absent query params default to page 0, limit 20; a catalog without a schedule answers an empty page with total 0. Runs come without `error_details`, `log_output` and `table_results` (always null here): read them from `GET …/optimize/runs/{run_id}`",
             "content": {
               "application/json": {
                 "schema": {
@@ -41752,6 +41752,265 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/roles": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_user_roles",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles held by the user in the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, or the user is not in the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/roles/{role_id}": {
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "add_role_to_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "scope_path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "Resource family of the bound resource (e.g. `secret`). Filters the role\nbundle to that family so a scoped role grant (\"Editor on this secret\")\napplies only its same-family permissions. Only valid with an exact\n`scope_path`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role assigned to the user"
+          },
+          "400": {
+            "description": "Invalid scope path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, or the role belongs to another organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "remove_role_from_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "scope_path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role removed from the user"
+          },
+          "403": {
+            "description": "Forbidden, role or user outside the organization, or last owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/virtual-machines/{instance_id}": {
       "get": {
         "tags": [
@@ -46567,6 +46826,336 @@
         }
       }
     },
+    "/api/v1/roles": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "list_roles",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Case-insensitive substring filter on the role name.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListRolesResponseData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "create_role",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Role created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A role with this name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or reserved role name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles/{role_id}": {
+      "get": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "get_role",
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "update_role",
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Role updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, or the role is a system role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A role with this name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid role name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Authorization"
+        ],
+        "operationId": "delete_role",
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role deleted"
+          },
+          "403": {
+            "description": "Forbidden, or the role is a system role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/roles/{role_id}/permissions": {
       "get": {
         "tags": [
@@ -48121,6 +48710,345 @@
         }
       }
     },
+    "/api/v1/users/me/account": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get the caller's account: profile, sign-in methods and linked identity providers.",
+        "operationId": "get_my_account",
+        "responses": {
+          "200": {
+            "description": "The caller's account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOverview"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/identity-providers/{alias}": {
+      "delete": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Unlink one of the caller's identity providers. Linking goes through Keycloak's\n`idp_link` action, which signs the user in at the provider.",
+        "operationId": "unlink_my_identity_provider",
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "description": "Identity provider alias",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Identity provider unlinked"
+          },
+          "400": {
+            "description": "It is the account's only way to sign in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account is not linked to this provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/profile": {
+      "put": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Update the caller's first and last name.",
+        "description": "The console picks the new name up from the next token the user is issued.",
+        "operationId": "update_my_profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Profile updated"
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A name is empty or too long",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/sessions": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "List the caller's signed-in sessions, most recently used first.",
+        "operationId": "list_my_sessions",
+        "responses": {
+          "200": {
+            "description": "The caller's sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountSession"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Sign out every session of the caller except the current one.",
+        "operationId": "revoke_my_other_sessions",
+        "responses": {
+          "200": {
+            "description": "Other sessions signed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeSessionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The token names no session, so the current one cannot be kept",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/sessions/{session_id}": {
+      "delete": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Sign out one of the caller's other sessions.",
+        "operationId": "revoke_my_session",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "description": "Session id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session signed out"
+          },
+          "400": {
+            "description": "The session is the current one: sign out instead",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service accounts have no user account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The caller has no such session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The console cannot reach the identity provider's admin API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/pipelines": {
       "post": {
         "tags": [
@@ -48735,6 +49663,156 @@
           },
           "resource_id": {
             "type": "string"
+          }
+        }
+      },
+      "AccountCredential": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Keycloak credential id, the argument of its `delete_credential` action."
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AccountIdentityProvider": {
+        "type": "object",
+        "required": [
+          "alias",
+          "display_name",
+          "linked"
+        ],
+        "properties": {
+          "alias": {
+            "type": "string",
+            "description": "Alias in the organization's realm, the argument of Keycloak's `idp_link` action."
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "linked": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string",
+            "description": "The account's username at that provider, when linked.",
+            "nullable": true
+          }
+        }
+      },
+      "AccountOverview": {
+        "type": "object",
+        "description": "The caller's own account in the organization's identity realm.",
+        "required": [
+          "username",
+          "otp_authenticators",
+          "mfa_required",
+          "identity_providers"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identity_providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountIdentityProvider"
+            },
+            "description": "The organization's enabled identity providers, plus any other the account is linked to."
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "mfa_required": {
+            "type": "boolean",
+            "description": "The organization requires every member to use an authenticator app."
+          },
+          "otp_authenticators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountCredential"
+            },
+            "description": "Registered authenticator apps (TOTP)."
+          },
+          "password": {
+            "$ref": "#/components/schemas/AccountPassword",
+            "nullable": true
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "AccountPassword": {
+        "type": "object",
+        "properties": {
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the current password was set.",
+            "nullable": true
+          }
+        }
+      },
+      "AccountSession": {
+        "type": "object",
+        "description": "A signed-in session of the caller.",
+        "required": [
+          "id",
+          "started_at",
+          "last_access_at",
+          "clients",
+          "current"
+        ],
+        "properties": {
+          "clients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Client ids the session holds tokens for."
+          },
+          "current": {
+            "type": "boolean",
+            "description": "The session the request was made from."
+          },
+          "id": {
+            "type": "string"
+          },
+          "ip_address": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_access_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -52663,6 +53741,13 @@
           "scheduled"
         ]
       },
+      "BackupPlacement": {
+        "type": "string",
+        "description": "Who chooses a database's backup target when `backupTarget` names none.",
+        "enum": [
+          "platform"
+        ]
+      },
       "BackupPolicy": {
         "type": "string",
         "enum": [
@@ -52764,6 +53849,13 @@
           },
           "phase": {
             "type": "string"
+          },
+          "required_retention_days": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Set only on the platform's external target: the retention its operating\nparty must configure there (Object Lock). Required, not verified.",
+            "minimum": 0,
+            "nullable": true
           },
           "retention_days": {
             "type": "integer",
@@ -57744,8 +58836,13 @@
           "database_name"
         ],
         "properties": {
+          "backup_placement": {
+            "$ref": "#/components/schemas/BackupPlacement",
+            "nullable": true
+          },
           "backup_policy": {
-            "$ref": "#/components/schemas/BackupPolicy"
+            "$ref": "#/components/schemas/BackupPolicy",
+            "nullable": true
           },
           "backup_target_id": {
             "type": "string",
@@ -58498,6 +59595,31 @@
           "name": {
             "type": "string",
             "description": "The `<project>` path segment in `<harbor>/<project>/<image>`."
+          }
+        }
+      },
+      "CreateRoleRequestBody": {
+        "type": "object",
+        "required": [
+          "name",
+          "organization_id"
+        ],
+        "properties": {
+          "color": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Role name, unique within the organization. System role names are reserved."
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -61308,6 +62430,29 @@
           "source": {
             "type": "string",
             "description": "Instructions for the LLM on how to extract this value from the document"
+          }
+        }
+      },
+      "EarlierRecoveryWindow": {
+        "type": "object",
+        "description": "What an archive a database wrote before its current one can restore, kept\nuntil `expires_at` (ADR-0047 D8).",
+        "required": [
+          "start",
+          "end",
+          "expires_at"
+        ],
+        "properties": {
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -64665,7 +65810,9 @@
             "description": "Wall-clock duration measured by the runner.",
             "nullable": true
           },
-          "error_details": {},
+          "error_details": {
+            "description": "Errors the runner reported. Always `null` in the history list; read the\nrun itself (`GET …/optimize/runs/{run_id}`) for it."
+          },
           "finished_reason": {
             "type": "string",
             "description": "Set when the terminal status did not come from the runner itself (today:\nthe stuck-run reaper).",
@@ -64681,7 +65828,7 @@
           },
           "log_output": {
             "type": "string",
-            "description": "Raw log lines the runner reported, newest last. The pod's full output\nlives in the log store and is read through the run's `/logs` route;\nthis is the summary the runner chose to persist.",
+            "description": "Raw log lines the runner reported, newest last. The pod's full output\nlives in the log store and is read through the run's `/logs` route;\nthis is the summary the runner chose to persist. Always `null` in the\nhistory list; read the run itself for it.",
             "nullable": true
           },
           "metrics": {
@@ -64708,7 +65855,7 @@
             "type": "string"
           },
           "table_results": {
-            "description": "Per-table results — see [`OptimizeTableResult`]."
+            "description": "Per-table results — see [`OptimizeTableResult`]. Always `null` in the\nhistory list; read the run itself for it."
           },
           "tables_failed": {
             "type": "integer",
@@ -64746,7 +65893,7 @@
             "items": {
               "$ref": "#/components/schemas/IcebergOptimizeRun"
             },
-            "description": "Newest first."
+            "description": "Newest first. Each run comes without its heavy fields (`error_details`,\n`log_output` and `table_results` are `null`); the run's own route\nreturns them."
           },
           "limit": {
             "type": "integer",
@@ -66828,6 +67975,20 @@
           }
         }
       },
+      "ListRolesResponseData": {
+        "type": "object",
+        "required": [
+          "roles"
+        ],
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          }
+        }
+      },
       "ListRunsResponse": {
         "type": "object",
         "required": [
@@ -67729,6 +68890,13 @@
             "type": "string",
             "nullable": true
           },
+          "earlier_recovery_windows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarlierRecoveryWindow"
+            },
+            "description": "Archives this database wrote before it moved to another backup target,\neach restorable to a point inside its span until `expires_at`."
+          },
           "engine": {
             "type": "string"
           },
@@ -67739,7 +68907,7 @@
           "first_recoverability_point": {
             "type": "string",
             "format": "date-time",
-            "description": "What barman says can actually be restored. All three are `null` on a\ndatabase that archives nowhere; `first_recoverability_point` and\n`last_successful_backup_time` are both `null` on one that archives WAL\nand has never had a base backup — which is not restorable, however\nhealthy its archiver looks.",
+            "description": "What barman says can actually be restored. All three are `null` on a\ndatabase that archives nowhere; `first_recoverability_point` and\n`last_successful_backup_time` are both `null` on one that archives WAL\nand has never had a base backup — which is not restorable, however\nhealthy its archiver looks. Right after a move to another target, the\nlast backup is the earlier archive's until the new one has its own.",
             "nullable": true
           },
           "harbor_id": {
@@ -71282,6 +72450,10 @@
       "PatchManagedPostgresqlCrdRequestBody": {
         "type": "object",
         "properties": {
+          "backup_placement": {
+            "$ref": "#/components/schemas/BackupPlacement",
+            "nullable": true
+          },
           "backup_policy": {
             "$ref": "#/components/schemas/BackupPolicy",
             "nullable": true
@@ -74704,6 +75876,18 @@
           "total_rows": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "RevokeSessionsResponse": {
+        "type": "object",
+        "required": [
+          "revoked"
+        ],
+        "properties": {
+          "revoked": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       },
@@ -79076,6 +80260,21 @@
           "ops_per_second"
         ]
       },
+      "UpdateAccountProfile": {
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name"
+        ],
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateActionTypeRequest": {
         "type": "object",
         "description": "`api_name` and `object_type_id` are deliberately absent — like\n[`ObjectType::api_name`] and a link's endpoints, they are the action's\nstructural identity; retargeting is modelled as delete+recreate.\n\nPATCH semantics are COALESCE-based: an absent/`null` field is left\nunchanged, and the nullable `description` cannot be cleared back to\n`NULL` via PATCH (`parameters` is not nullable — send `[]` to empty it).",
@@ -80043,6 +81242,25 @@
           },
           "status": {
             "$ref": "#/components/schemas/RefStatus"
+          }
+        }
+      },
+      "UpdateRoleRequestBody": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "color": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -81786,6 +83004,10 @@
     {
       "name": "Users",
       "description": "Users operations"
+    },
+    {
+      "name": "Account",
+      "description": "The caller's own account: sign-in methods and sessions"
     },
     {
       "name": "Organizations",

@@ -51,8 +51,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"env": schema.StringAttribute{Required: true, MarkdownDescription: "Environment id the app runs in."},
 			"slug": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Slug of the app to look up. Display names are not unique, so an app is looked up " +
-					"by its slug. This is the name a `hyperfluid_service_link` endpoint takes.",
+				MarkdownDescription: "Slug of the app to look up.",
 			},
 			"name": schema.StringAttribute{
 				Optional: true, Computed: true,
@@ -65,26 +64,25 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
-			"port":               ci("The app's single container port. Deprecated by the API in favour of `ports`; for an app publishing several, this reports the primary one."),
+			"port":               ci("**Deprecated — use `ports`.** The primary port of the app."),
 			"replicas":           ci("Desired replica count."),
 			"enabled":            schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app is running."},
 			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether internet-facing routes are created for the app."},
-			"resource_tier":      cs("Resource tier — not returned by the API, so always null on a data source."),
+			"resource_tier":      cs("Always null on a data source."),
 			"health_check_path":  cs("HTTP health check path."),
 			"health_check_port":  ci("HTTP health check port."),
-			"resource_version":   cs("Kubernetes resourceVersion."),
-			"cpu_request":        cs("CPU request derived from resource_tier."),
-			"cpu_limit":          cs("CPU limit derived from resource_tier."),
-			"memory_request":     cs("Memory request derived from resource_tier."),
-			"memory_limit":       cs("Memory limit derived from resource_tier."),
+			"resource_version":   cs("Version of the app's spec."),
+			"cpu_request":        cs("CPU request of each replica."),
+			"cpu_limit":          cs("CPU limit of each replica."),
+			"memory_request":     cs("Memory request of each replica."),
+			"memory_limit":       cs("Memory limit of each replica."),
 			"phase":              cs("Current lifecycle phase."),
 			"endpoint":           cs("Public endpoint, once provisioned."),
 			"desired_replicas":   ci("Desired replicas reported by the platform."),
 			"available_replicas": ci("Available replicas reported by the platform."),
 			"image_source": schema.SingleNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "The Git source the app's image comes from, or null for an app with a literal " +
-					"image. `image_repository` and `image_tag` then report the image it resolved, when it has one.",
+				Computed:            true,
+				MarkdownDescription: "Git source of the app's image, or null for a literal image.",
 				Attributes: map[string]schema.Attribute{
 					"git": schema.SingleNestedAttribute{
 						Computed:            true,
@@ -122,6 +120,103 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 					},
 				},
 			},
+			"env_vars": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Environment variables of the main container: plain ones first, then secret-backed ones.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name":   cs("Variable name."),
+						"value":  cs("Plain-text value, or null for a secret-backed variable."),
+						"secret": cs("Name of the secret holding the value, or null for a plain variable."),
+					},
+				},
+			},
+			"image_pull_secrets": schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Names of the secrets used to pull the app's images."},
+			"command":            schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Entrypoint of the main container, or empty for the image's."},
+			"args":               schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Arguments of the main container, or empty for the image's."},
+			"init_containers": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Containers run to completion, in order, before the main container starts.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name":              cs("Container name."),
+						"image_repository":  cs("Image repository, or null when the container runs the app's own image."),
+						"image_tag":         cs("Image tag, or null when the container runs the app's own image."),
+						"command":           schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Entrypoint, or null for the image's."},
+						"args":              schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Arguments, or null for the image's."},
+						"inherit_env":       schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the container gets the app's environment."},
+						"mount_persistence": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app's persistent volumes are mounted."},
+					},
+				},
+			},
+			"file_mounts": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Files written into the main container before it starts.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"mount_path":  cs("Path of the file."),
+						"mode":        cs("Octal file mode, or null for the platform's default."),
+						"content":     cs("Inline content, or null for a secret-backed file."),
+						"secret_name": cs("Secret holding the file, or null for inline content."),
+					},
+				},
+			},
+			"custom_resources": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Always null on a data source; read `cpu_request` and `memory_request` instead.",
+				Attributes: map[string]schema.Attribute{
+					"cpu_millis": ci("CPU sold, in millicores."),
+					"memory_mib": ci("Memory, in MiB."),
+				},
+			},
+			"resource_mode": cs("Whether the console shows CPU rightsizing advice: `advisory`, `manual` or `managed`."),
+			"autoscaling": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Horizontal autoscaling, or null when the app runs a fixed `replicas`.",
+				Attributes: map[string]schema.Attribute{
+					"min_replicas":                ci("Fewest replicas, or null for the platform's 1."),
+					"max_replicas":                ci("Most replicas."),
+					"target_cpu_utilization":      ci("CPU use held, in percent of the request."),
+					"target_memory_utilization":   ci("Memory use held, in percent of the request."),
+					"target_http_concurrency":     ci("In-flight requests per replica held."),
+					"scale_to_zero_after_seconds": ci("Idle time before the app sleeps."),
+				},
+			},
+			"metrics": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Where the app serves Prometheus metrics, or null.",
+				Attributes: map[string]schema.Attribute{
+					"port": cs("Name of the port serving the metrics."),
+					"path": cs("Path scraped, or null for the platform's default."),
+				},
+			},
+			"custom_domains": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Domains of the organization's own the app answers on.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"fqdn":            cs("The domain."),
+						"tls_mode":        cs("`acme` or `secret`."),
+						"tls_secret_name": cs("Secret holding the certificate, with `tls_mode = \"secret\"`."),
+					},
+				},
+			},
+			"custom_domain_statuses": schema.ListNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Where each custom domain stands, as the platform last reported it.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"fqdn":                    cs("The domain."),
+						"state":                   cs("`pendingVerification`, `conflict`, `pendingDns`, `provisioning`, `ready` or `error`."),
+						"message":                 cs("Why the domain is not ready, when it is not."),
+						"target":                  cs("Where the domain's DNS record must point."),
+						"observed_addresses":      schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "Addresses the domain resolved to at the last check."},
+						"certificate_secret_name": cs("Secret holding the certificate served."),
+					},
+				},
+			},
+			"image_digest":    cs("Digest the main image is pinned to, when it is."),
+			"tag_is_floating": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the image tag is one upstream can re-push."},
 		},
 	}
 }
@@ -169,7 +264,7 @@ func (d *containerAppDataSource) Read(ctx context.Context, req datasource.ReadRe
 	// Reuse the resource's mapper so spec/status → model lives in one place; it
 	// only needs the API client, so a zero-value resource with our providerData is
 	// enough. resource_tier isn't returned by the API → null on a data source.
-	state, err := (&containerAppResource{p: d.p}).readInto(ctx, appID, types.StringNull(), nullImageSource())
+	state, err := (&containerAppResource{p: d.p}).readInto(ctx, appID, importedApp())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read container app", err.Error())
 		return

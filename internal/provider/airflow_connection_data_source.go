@@ -41,47 +41,30 @@ func (d *airflowConnectionDataSource) Schema(_ context.Context, _ datasource.Sch
 		return schema.BoolAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up a managed Airflow connection by the `conn_id` a DAG asks for — a " +
-			"connection declared through the console, `hfctl`, or another Terraform configuration.\n\n" +
-			"This is a read of the declaration and its status, which is what makes it useful for asserting " +
-			"that a connection a DAG depends on is actually in force: `phase`, `source_applied` and " +
-			"`collision` say whether the credential reached the target, and `resolved_permission_level` " +
-			"says what access it granted — where the target is one the platform grants access on at all, " +
-			"which `permission_level_applies` reports. No credential is exposed: the platform mints a " +
-			"bucket connection's object-store session fresh, in-cluster and short-lived and it is part of " +
-			"no read, and neither is the client secret a Trino connection's row carries.",
+		MarkdownDescription: "Look up a managed Airflow connection by its `conn_id`. No credential is exposed.",
 		Attributes: map[string]schema.Attribute{
 			"airflow": schema.StringAttribute{Required: true, MarkdownDescription: "Id of the `hyperfluid_airflow` environment the connection belongs to."},
 			"conn_id": schema.StringAttribute{Required: true, MarkdownDescription: "The connection id a DAG asks Airflow for."},
 
-			"id": cs("Composite identifier `<airflow_id>/<conn_id>`, the same string the " +
-				"`hyperfluid_airflow_connection` resource exports as `id` and `terraform import` takes."),
-			"name":                   cs("The connection object's own name, which is how the API addresses it. Not the same string as `conn_id`."),
-			"managed_postgresql_ref": cs("Name of the PostgreSQL cluster the connection targets, for a database connection."),
-			"bucket_ref":             cs("Name of the bucket the connection targets, for a bucket connection."),
-			"trino_ref":              cs("Name of the Trino Data Dock the connection targets, for a Trino connection."),
-			"catalog": cs("The Trino catalog the connection opens against — the session default for " +
-				"unqualified table names, not a scope. Set for a Trino connection, where it is " +
-				"required, and null for every other type."),
-			"permission_level": cs("The level pinned on the connection, or null when it follows the platform default."),
-			"connection_type": cs("The Airflow `conn_type` of the row the platform wrote, derived from which " +
-				"target it names: `postgres`, `aws` for a bucket, or `hyperfluid_trino`."),
-			"resolved_permission_level": cs("The level actually in force: the pinned value, or the platform's " +
-				"own default when nothing is pinned. Read `permission_level_applies` first — where the knob " +
-				"does not apply, this field describes nothing the platform granted."),
-			"permission_level_applies": cb("Whether `permission_level` means anything for this connection's " +
-				"type. False for a Trino connection, which carries the environment's own service account and " +
-				"is therefore granted no authority of its own for a level to scale."),
+			"id":                        cs("Identifier `<airflow_id>/<conn_id>`."),
+			"name":                      cs("Name the platform gave the connection object, different from `conn_id`."),
+			"managed_postgresql_ref":    cs("PostgreSQL cluster the connection targets, for a database connection."),
+			"bucket_ref":                cs("Bucket the connection targets, for a bucket connection."),
+			"trino_ref":                 cs("Trino Data Dock the connection targets, for a Trino connection."),
+			"catalog":                   cs("Default Trino catalog of a Trino connection, null otherwise."),
+			"permission_level":          cs("Pinned access level, or null when the platform default applies."),
+			"connection_type":           cs("Airflow `conn_type`: `postgres`, `aws` for a bucket, or `hyperfluid_trino`."),
+			"resolved_permission_level": cs("Access level in force. Meaningless when `permission_level_applies` is false."),
+			"permission_level_applies":  cb("Whether `permission_level` applies to this connection's type; false for Trino."),
 			"phase": cs("Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, `TakingOver`, " +
-				"`Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` means the environment is asleep."),
-			"spec_observed":  cb("Whether the platform has looked at the current declaration yet."),
-			"source_applied": cb("Whether the credential has actually been applied to the target."),
-			"collision":      cb("Whether an Airflow connection row the platform does not manage — a hand-written one, say — already owns this `conn_id`."),
-			"collision_existing_connection_type": cs("Type of the connection already holding this `conn_id`, " +
-				"when there is a collision."),
+				"`Applying`, `Ready`, `Parked` (environment asleep), `Deleting` or `Failed`."),
+			"spec_observed":                      cb("Whether the platform has processed the current configuration."),
+			"source_applied":                     cb("Whether the credential has been applied to the target."),
+			"collision":                          cb("Whether a connection the platform does not manage already holds `conn_id`."),
+			"collision_existing_connection_type": cs("Type of the connection already holding `conn_id`, on a collision."),
 			"conditions": schema.ListNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "The platform's status conditions for this connection — the detail behind `phase`.",
+				MarkdownDescription: "Status conditions behind `phase`.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"type":    cs("Condition type."),

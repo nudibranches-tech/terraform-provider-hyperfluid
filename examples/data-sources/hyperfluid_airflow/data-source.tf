@@ -1,11 +1,11 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reference an existing Airflow environment (created via the console, hfctl, or
 # another config) to hang connections off it and to find its DAG bucket.
 data "hyperfluid_airflow" "analytics" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics"
 }
 

@@ -43,49 +43,44 @@ func (d *airflowDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 		return schema.BoolAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow " +
-			"environment created through the console, `hfctl`, or another Terraform configuration.\n\n" +
-			"Its `id` is what a `hyperfluid_airflow_connection`'s `airflow` takes, and `dag_bucket` names " +
-			"the bucket DAGs are delivered through, so this data source is the usual way to attach " +
-			"connections or a DAG-upload pipeline to an environment somebody else owns.",
+		MarkdownDescription: "Look up an existing Airflow environment by name.",
 		Attributes: map[string]schema.Attribute{
 			"env":  schema.StringAttribute{Required: true, MarkdownDescription: "Id of the Hyperfluid environment the Airflow environment runs in."},
 			"name": schema.StringAttribute{Required: true, MarkdownDescription: "Airflow environment name."},
 
-			"id":             cs("Environment id. This is the value a `hyperfluid_airflow_connection`'s `airflow` takes."),
+			"id":             cs("Airflow environment id, used as `airflow` by `hyperfluid_airflow_connection`."),
 			"postgres_ref":   cs("Name of the referenced metadata PostgreSQL cluster, or null when the platform provisioned one."),
 			"dag_bucket_ref": cs("Name of the referenced DAG bucket, or null when the platform provisioned one."),
-			"node_tier":      cs("Size of the four Airflow components: `micro`, `small`, `medium` or `large`."),
+			"node_tier":      cs("Size of each Airflow component: `micro`, `small`, `medium` or `large`."),
 			"triggerer_enabled": cb("Whether the triggerer runs, which is what lets deferrable operators " +
 				"give their worker slot back while they wait."),
 			"sleep_mode":          cb("Whether every component is scaled to zero."),
-			"runtime_image":       cs("Pinned Airflow runtime image, or null when the environment tracks the platform's own."),
-			"task_quota_max_pods": schema.Int64Attribute{Computed: true, MarkdownDescription: "Ceiling on concurrent task pods, or null when the platform default is in charge."},
+			"runtime_image":       cs("Pinned Airflow runtime image, or null for the platform's."),
+			"task_quota_max_pods": schema.Int64Attribute{Computed: true, MarkdownDescription: "Most task pods running at once, or null for the platform default."},
 			"description":         cs("Free-form description."),
 			"tags":                schema.ListAttribute{ElementType: types.StringType, Computed: true, MarkdownDescription: "User-defined tags."},
 
 			"egress": schema.SingleNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "Egress the environment's task pods are granted on top of the platform " +
-					"baseline. Null when the environment runs on the baseline alone.",
+				Computed:            true,
+				MarkdownDescription: "Extra network egress for task pods, or null for none.",
 				Attributes: map[string]schema.Attribute{
 					"fqdns": schema.SetAttribute{
 						ElementType: types.StringType, Computed: true,
-						MarkdownDescription: "Public hostnames task pods may reach on 443.",
+						MarkdownDescription: "Public hostnames task pods may reach on port 443.",
 					},
 					"in_cluster": schema.SetNestedAttribute{
 						Computed:            true,
-						MarkdownDescription: "Services in the same Hyperfluid environment that task pods may reach.",
+						MarkdownDescription: "Services in the same environment that task pods may reach.",
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"kind": schema.StringAttribute{Computed: true, MarkdownDescription: "Kind of service."},
-								"name": schema.StringAttribute{Computed: true, MarkdownDescription: "The target's slug in the same Hyperfluid environment."},
+								"name": schema.StringAttribute{Computed: true, MarkdownDescription: "The target's slug."},
 							},
 						},
 					},
 					"allowlists": schema.SetAttribute{
 						ElementType: types.StringType, Computed: true,
-						MarkdownDescription: "Names of the Hyperfluid environment's shared egress allow-lists attached to the Airflow environment.",
+						MarkdownDescription: "Names of the shared egress allow-lists attached.",
 					},
 				},
 			},
@@ -94,18 +89,18 @@ func (d *airflowDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				MarkdownDescription: "`airflow.cfg` overrides, keyed `section.key`. Null when none are set.",
 			},
 
-			"slug":                    cs("Derived slug. This is the name an `egress.in_cluster` entry would target."),
+			"slug":                    cs("Slug, the name an `egress.in_cluster` entry targets."),
 			"phase":                   cs("Live lifecycle phase: `Pending`, `Provisioning`, `Running`, `Sleeping`, `Error` or `Unknown`."),
-			"web_url":                 cs("Public HTTPS URL of the Airflow UI, once the route is serving."),
-			"public_host":             cs("Public hostname the UI is published under."),
+			"web_url":                 cs("URL of the Airflow UI, once it is serving."),
+			"public_host":             cs("Public hostname of the UI."),
 			"network_mode":            cs("How the UI is exposed: `ingress` or `httproute`."),
 			"task_namespace":          cs("Dedicated Kubernetes namespace the environment's task pods run in."),
-			"dag_bucket":              cs("Bucket DAGs are delivered through. Upload DAGs under its `dags/` prefix."),
+			"dag_bucket":              cs("Bucket to upload DAGs to, under its `dags/` prefix."),
 			"service_account":         cs("Data-plane service account every task pod runs as."),
-			"managed_postgresql_name": cs("Name of the metadata PostgreSQL cluster, whether referenced or provisioned."),
+			"managed_postgresql_name": cs("Name of the metadata PostgreSQL cluster."),
 			"unresolved_allowlists": schema.ListAttribute{
 				ElementType: types.StringType, Computed: true,
-				MarkdownDescription: "Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this Hyperfluid environment.",
+				MarkdownDescription: "Names in `egress.allowlists` that match no allow-list.",
 			},
 			"cpu_request":    cs("CPU request per component, resolved from the tier."),
 			"cpu_limit":      cs("CPU limit per component, resolved from the tier."),

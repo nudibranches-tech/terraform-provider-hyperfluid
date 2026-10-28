@@ -3,40 +3,28 @@
 page_title: "hyperfluid_container_app Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a follow-up.
-  Deploying from Git
-  An image_source { git { ... } } block replaces the literal image_repository / image_tag: the platform polls a hyperfluid.toml file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless alert_on_sync_failure is false. The repository is read with an organization-wide hyperfluid_secret of type scm_credential, named in credential.
-  Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, hyperfluid.toml, an entry named after the app, a check every 5 minutes). The image that runs is never written to image_repository / image_tag: read it from resolved_image, resolved_ref, revision and last_synced_at, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in sync_error.
-  sync_policy = "manual" stops the platform from rolling a change out on its own: it reports it and waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: use the console or hfctl apps check / hfctl apps sync.
-  Removing the block detaches the source: the app keeps running the image it last resolved until the literal image_repository / image_tag you set in its place is applied.
-  ~> Push access to the tracked branch, or to a tag matching tag_pattern, is deploy access. Protect them (GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).
+  A container app: a container image run as a service in an environment. Settings you leave out keep whatever the app already has; removing one that Terraform set clears it.
+  To deploy from Git, set an image_source block instead of image_repository and image_tag.
+  ~> Overriding command or args, on the app or an init container, needs the organization's container command override feature; without it the apply is refused.
 ---
 
 # hyperfluid_container_app (Resource)
 
-A container app (CaaS). Scalar core; nested env/secret/mount blocks land in a follow-up.
+A container app: a container image run as a service in an environment. Settings you leave out keep whatever the app already has; removing one that Terraform set clears it.
 
-## Deploying from Git
+To deploy from Git, set an `image_source` block instead of `image_repository` and `image_tag`.
 
-An `image_source { git { ... } }` block replaces the literal `image_repository` / `image_tag`: the platform polls a `hyperfluid.toml` file in the repository and rolls the app out when this app's entry changes. It keeps running the last good image when a check fails, and a failing check raises an alert unless `alert_on_sync_failure` is `false`. The repository is read with an organization-wide `hyperfluid_secret` of type `scm_credential`, named in `credential`.
-
-Every optional field of the block stays unset when omitted, and the platform resolves its default itself (the default branch, `hyperfluid.toml`, an entry named after the app, a check every 5 minutes). The image that runs is never written to `image_repository` / `image_tag`: read it from `resolved_image`, `resolved_ref`, `revision` and `last_synced_at`, which Terraform never plans a change for, so a release made through Git is not drift. Terraform waits for the first check of a new source, not for the rollouts that follow it; a check that fails or is slow is a warning, with the reason in `sync_error`.
-
-`sync_policy = "manual"` stops the platform from rolling a change out on its own: it reports it and waits for Sync. Check now and Sync are actions, not configuration, so they have no Terraform equivalent: use the console or `hfctl apps check` / `hfctl apps sync`.
-
-Removing the block detaches the source: the app keeps running the image it last resolved until the literal `image_repository` / `image_tag` you set in its place is applied.
-
-~> Push access to the tracked branch, or to a tag matching `tag_pattern`, is deploy access. Protect them (GitHub rulesets, GitLab protected branches and tags, Forgejo protected branches and tags).
+~> Overriding `command` or `args`, on the app or an init container, needs the organization's container command override feature; without it the apply is refused.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_container_app" "web" {
-  env              = data.hyperfluid_env.default.id
+  env              = data.hyperfluid_environment.default.id
   slug             = "web"
   display_name     = "Web storefront"
   description      = "Public storefront."
@@ -56,6 +44,108 @@ resource "hyperfluid_container_app" "web" {
 
 output "endpoint" {
   value = hyperfluid_container_app.web.endpoint
+}
+
+# Environment variables, secrets and init containers. A plain `value` is stored
+# in Terraform state, so a credential goes in an organization-wide
+# `hyperfluid_secret` named by `secret`. A value can reference an earlier plain
+# variable as `$(NAME)`, but not a secret-backed one.
+#
+# Each of these lists, once applied, is managed by Terraform: removing it from
+# the configuration clears it on the app. Left out from the start, it is not
+# managed, so what the console or an app template set survives an apply.
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
+resource "hyperfluid_secret" "db" {
+  name             = "production/orders/db-password"
+  secret_type      = "plaintext"
+  value            = var.db_password
+  value_wo_version = "1"
+}
+
+resource "hyperfluid_container_app" "api" {
+  env              = data.hyperfluid_environment.default.id
+  slug             = "orders"
+  image_repository = "ghcr.io/acme/orders"
+  image_tag        = "2.3.0"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+  ]
+  resource_tier = "small"
+
+  env_vars = [
+    { name = "DB_HOST", value = "orders-db" },
+    { name = "DB_URL", value = "postgres://orders@$(DB_HOST):5432/orders" },
+    { name = "DB_PASSWORD", secret = hyperfluid_secret.db.name },
+  ]
+
+  # Run to completion, in order, before the app starts. With no image of its
+  # own an init container runs the app's image, and follows it on every
+  # upgrade. Each inherits the app's environment and volumes unless told not to.
+  init_containers = [
+    { name = "migrate", args = ["migrate", "up"] },
+    {
+      name             = "wait-for-db"
+      image_repository = "busybox"
+      image_tag        = "1.37"
+      args             = ["sh", "-c", "until nc -z orders-db 5432; do sleep 2; done"]
+      inherit_env      = false
+    },
+  ]
+
+  # Overriding the entrypoint or arguments, here or on an init container, needs
+  # the organization's container command override feature; without it the
+  # platform refuses the apply. Leave command and args out to run the image's own.
+  # command = ["/app/orders"]
+  # args    = ["serve", "--port", "8080"]
+}
+
+# Sizing, scaling, files, domains and metrics. Like the lists above, `file_mounts`,
+# `custom_domains`, `autoscaling` and `metrics` are managed once applied and left
+# to the app while they never were.
+resource "hyperfluid_container_app" "storefront" {
+  env              = data.hyperfluid_environment.default.id
+  slug             = "storefront"
+  image_repository = "ghcr.io/acme/storefront"
+  image_tag        = "4.1.0"
+  ports = [
+    { name = "http", port = 8080, protocol = "HTTP", primary = true },
+    { name = "metrics", port = 9090, protocol = "TCP" },
+  ]
+  expose_to_internet = true
+
+  # A size between two tiers, instead of resource_tier.
+  custom_resources = { cpu_millis = 750, memory_mib = 768 }
+
+  # Replaces `replicas`. Scaling to zero wakes the app through its public route.
+  autoscaling = {
+    min_replicas           = 1
+    max_replicas           = 4
+    target_cpu_utilization = 70
+  }
+
+  # `port` names an entry of `ports`.
+  metrics = { port = "metrics", path = "/metrics" }
+
+  # The organization must have verified acme.com (or shop.acme.com) first.
+  # `custom_domain_statuses` reports how far each domain got.
+  custom_domains = [
+    { fqdn = "shop.acme.com", tls_mode = "acme" },
+  ]
+
+  # Inline content is plain text in state, 8 KiB per file and 32 KiB in all;
+  # anything sensitive comes from an organization-wide secret.
+  file_mounts = [
+    { mount_path = "/etc/storefront/config.yaml", content = file("${path.module}/storefront.yaml") },
+    { mount_path = "/etc/storefront/license", secret_name = "production/storefront/license", mode = "0400" },
+  ]
+}
+
+output "storefront_domains" {
+  value = hyperfluid_container_app.storefront.custom_domain_statuses
 }
 
 # Deploy what a Git repository declares instead of a literal image. The platform
@@ -83,7 +173,7 @@ resource "hyperfluid_secret" "git" {
 }
 
 resource "hyperfluid_container_app" "orders" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   slug = "orders-api"
   ports = [
     { name = "http", port = 8080, protocol = "HTTP", primary = true },
@@ -122,69 +212,173 @@ output "orders_image" {
 
 ### Optional
 
-- `description` (String) Free-form description.
-- `display_name` (String) The app's name, shown in the console, at most 255 characters. Several apps may share one. Defaults to the slug.
+- `args` (List of String) Arguments, replacing the image's `CMD`; `[]` keeps the image's. Needs the organization's container command override feature.
+- `autoscaling` (Attributes) Autoscaling between `min_replicas` and `max_replicas`, on CPU unless another target is set. Conflicts with `replicas`. (see [below for nested schema](#nestedatt--autoscaling))
+- `command` (List of String) Entrypoint, replacing the image's `ENTRYPOINT`; `[]` keeps the image's. Needs the organization's container command override feature.
+- `custom_domains` (Attributes List) Your own domains the app answers on, each verified by the organization beforehand. Needs `expose_to_internet`. (see [below for nested schema](#nestedatt--custom_domains))
+- `custom_resources` (Attributes) Custom size of each replica, between two tiers. Conflicts with `resource_tier`. (see [below for nested schema](#nestedatt--custom_resources))
+- `description` (String) Free-form description, at most 1000 characters.
+- `display_name` (String) Name shown in the console, at most 255 characters. Defaults to the slug.
 - `enabled` (Boolean) Whether the app is running. Defaults to true.
-- `expose_to_internet` (Boolean) Whether internet-facing routes (platform host route and custom-domain routes) are created for the app. Defaults to false (reachable only in-cluster), matching the platform's private-by-default posture. Set true to publish internet-facing routes.
-- `health_check_path` (String) HTTP health check path.
-- `health_check_port` (Number) HTTP health check port.
-- `image_repository` (String) Container image repository. Required unless `image_source` is set, and conflicts with it.
-- `image_source` (Block, Optional) Deploy the image a Git repository declares instead of a literal `image_repository` / `image_tag`, which it conflicts with. See "Deploying from Git" above. (see [below for nested schema](#nestedblock--image_source))
-- `image_tag` (String) Container image tag. Required unless `image_source` is set, and conflicts with it.
+- `env_vars` (Attributes List) Environment variables of the main container, each set from exactly one of `value` and `secret`. A value may reference an earlier plain variable as `$(NAME)`, but not a secret-backed one: those are set after every plain variable. (see [below for nested schema](#nestedatt--env_vars))
+- `expose_to_internet` (Boolean) Whether the app gets public routes (its platform host and custom domains). Defaults to false: reachable in-cluster only.
+- `file_mounts` (Attributes List) Files mounted into the container. Inline content is limited to 8 KiB per file and 32 KiB in all, and is stored in plain text in state. (see [below for nested schema](#nestedatt--file_mounts))
+- `health_check_path` (String) HTTP path probed for health.
+- `health_check_port` (Number) Port probed for health. Requires `health_check_path`.
+- `image_pull_secrets` (List of String) Names of organization-wide secrets holding registry credentials for pulling the app's images.
+- `image_repository` (String) Image repository. Required unless `image_source` is set.
+- `image_source` (Block, Optional) Deploys the image declared in a `hyperfluid.toml` of a Git repository, instead of `image_repository` and `image_tag`. Anyone who can push to the tracked branch or tag can deploy, so protect it. (see [below for nested schema](#nestedblock--image_source))
+- `image_tag` (String) Image tag. Required unless `image_source` is set.
+- `init_containers` (Attributes List) Containers run in order before the app starts, at most 4. Setting this replaces any init containers an app template added. (see [below for nested schema](#nestedatt--init_containers))
+- `metrics` (Attributes) Where the app serves Prometheus metrics for the platform to scrape. (see [below for nested schema](#nestedatt--metrics))
 - `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead. Changing this forces a new app.
-- `port` (Number) The app's single container port. **Deprecated — use `ports`**, which this conflicts with.
-
-~> The platform ignores writes to this attribute once the app's spec carries a non-empty `ports`, so on such an app a change here applies cleanly in Terraform and does nothing. Move the app to `ports` rather than editing this.
-- `ports` (Attributes List) The ports the container listens on, replacing the deprecated single `port`. Only the port marked `primary` gets a public route; the rest are reachable in-cluster through the app's Service. Leave it out and the platform derives a single entry from `port`.
-
-Assignable straight to a `hyperfluid_service_link`'s `target_ports`, which reads the `port` and `protocol` of each entry. (see [below for nested schema](#nestedatt--ports))
-- `replicas` (Number) Desired replica count.
-- `resource_tier` (String) Resource tier: nano, micro, small, medium, large, xlarge. Maps to cpu/memory server-side.
-- `slug` (String) The app's identifier, unique in its environment and used in its URL and Kubernetes resource names. This is the name a `hyperfluid_service_link` endpoint takes. Lowercase letters, digits and single hyphens, at most 49 characters. Derived from `display_name` when omitted. Changing this forces a new app.
-- `tags` (List of String) User-defined tags: at most 20, each at most 64 characters.
+- `port` (Number) **Deprecated — use `ports`.** Single container port; conflicts with `ports` and is ignored once the app has them.
+- `ports` (Attributes List) Ports the container listens on, at most 16. Only the `primary` port gets a public route. (see [below for nested schema](#nestedatt--ports))
+- `replicas` (Number) Number of replicas, at most 5. Conflicts with `autoscaling`.
+- `resource_mode` (String) Whether the console shows CPU rightsizing advice: `advisory` (default) shows it, `manual` and `managed` hide it.
+- `resource_tier` (String) Size of each replica: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`. Conflicts with `custom_resources`.
+- `slug` (String) Identifier of the app, unique in its environment: lowercase letters, digits and single hyphens, at most 49 characters. Defaults to one derived from `display_name`. Changing this forces a new app.
+- `tags` (List of String) Tags, at most 20 of at most 64 characters each.
 
 ### Read-Only
 
-- `available_replicas` (Number) Available replicas reported by the platform.
-- `cpu_limit` (String) CPU limit derived from resource_tier.
-- `cpu_request` (String) CPU request derived from resource_tier.
-- `desired_replicas` (Number) Desired replicas reported by the platform.
-- `endpoint` (String) Public endpoint, once provisioned.
+- `available_replicas` (Number) Replicas currently available.
+- `cpu_limit` (String) CPU limit of each replica.
+- `cpu_request` (String) CPU request of each replica.
+- `custom_domain_statuses` (Attributes List) Status of each custom domain. (see [below for nested schema](#nestedatt--custom_domain_statuses))
+- `desired_replicas` (Number) Replicas the platform is aiming for.
+- `endpoint` (String) Public URL, once the app is exposed.
 - `id` (String) The ID of this resource.
-- `last_synced_at` (String) When the repository was last checked successfully (RFC 3339), whether or not anything changed.
-- `memory_limit` (String) Memory limit derived from resource_tier.
-- `memory_request` (String) Memory request derived from resource_tier.
+- `image_digest` (String) Digest the main image is pinned to, when it is.
+- `last_synced_at` (String) When the repository was last checked successfully (RFC 3339).
+- `memory_limit` (String) Memory limit of each replica.
+- `memory_request` (String) Memory request of each replica.
 - `phase` (String) Current lifecycle phase.
-- `resolved_image` (String) The image a Git `image_source` resolved and runs, as `repository:tag@digest`. Null until the first successful check, and for an app without a Git source.
+- `resolved_image` (String) Image the Git source resolved, as `repository:tag@digest`.
 - `resolved_ref` (String) The branch followed, or the tag `tag_pattern` selected.
-- `resource_version` (String) Kubernetes resourceVersion; used for optimistic concurrency on update.
+- `resource_version` (String) Version of the app's spec, used to detect concurrent edits.
 - `revision` (String) The commit the running image was read from.
-- `sync_error` (String) Why the last check failed, or null. A failing check never stops the app: it keeps running the last good image.
+- `sync_error` (String) Why the last check failed; the app keeps running its last good image.
+- `tag_is_floating` (Boolean) Whether the image tag can be re-pushed upstream, such as `latest` or `15`.
+
+<a id="nestedatt--autoscaling"></a>
+### Nested Schema for `autoscaling`
+
+Required:
+
+- `max_replicas` (Number) Most replicas, 1 to 5.
+
+Optional:
+
+- `min_replicas` (Number) Fewest replicas, defaults to 1. 0 lets the app sleep, which needs `expose_to_internet` and an HTTP port.
+- `scale_to_zero_after_seconds` (Number) Idle seconds before the app sleeps when `min_replicas` is 0, 30 to 86400.
+- `target_cpu_utilization` (Number) Target average CPU use, in percent of the request (1 to 100).
+- `target_http_concurrency` (Number) Target in-flight requests per replica, at least 1. Needs `expose_to_internet` and an HTTP port.
+- `target_memory_utilization` (Number) Target average memory use, in percent of the request (1 to 100).
+
+
+<a id="nestedatt--custom_domains"></a>
+### Nested Schema for `custom_domains`
+
+Required:
+
+- `fqdn` (String) Domain, lowercase and without a trailing dot, such as `app.acme.com`.
+- `tls_mode` (String) `acme` for a certificate the platform obtains, or `secret` for the one in `tls_secret_name`.
+
+Optional:
+
+- `tls_secret_name` (String) Secret holding the certificate. Required with `tls_mode = "secret"` only.
+
+
+<a id="nestedatt--custom_resources"></a>
+### Nested Schema for `custom_resources`
+
+Required:
+
+- `cpu_millis` (Number) CPU sold, in millicores, 50 to 8000.
+- `memory_mib` (Number) Memory, in MiB, 64 to 8192.
+
+
+<a id="nestedatt--env_vars"></a>
+### Nested Schema for `env_vars`
+
+Required:
+
+- `name` (String) Variable name.
+
+Optional:
+
+- `secret` (String) Name of the organization-wide `hyperfluid_secret` holding the value, which never lands in state.
+- `value` (String) Plain-text value, stored in state.
+
+
+<a id="nestedatt--file_mounts"></a>
+### Nested Schema for `file_mounts`
+
+Required:
+
+- `mount_path` (String) Absolute path of the file, unique in the app; not under `/proc`, `/sys` or `/dev`.
+
+Optional:
+
+- `content` (String) Content of the file. Exactly one of `content` and `secret_name` is required.
+- `mode` (String) Octal file mode. Defaults to `0644` for `content` and `0400` for `secret_name`.
+- `secret_name` (String) Name of the organization-wide secret whose value is the file.
+
 
 <a id="nestedblock--image_source"></a>
 ### Nested Schema for `image_source`
 
 Optional:
 
-- `git` (Block, Optional) A Git repository holding the `hyperfluid.toml` that declares the image. Required when `image_source` is set. (see [below for nested schema](#nestedblock--image_source--git))
+- `git` (Block, Optional) The repository holding `hyperfluid.toml`. Required in `image_source`. (see [below for nested schema](#nestedblock--image_source--git))
 
 <a id="nestedblock--image_source--git"></a>
 ### Nested Schema for `image_source.git`
 
 Optional:
 
-- `alert_on_sync_failure` (Boolean) Whether a failing check raises the default "Git sync failed" alert. The platform raises it unless this is `false`.
-- `base_url` (String) Origin of a self-hosted provider (GitHub Enterprise, self-managed GitLab, external Forgejo). Leave it out for the provider's public host, or for the organization's own Forgejo.
-- `branch` (String) Follow the head of this branch. Conflicts with `tag_pattern`. When neither is set, the repository's default branch is followed.
-- `container` (String) Key of the `[containers.<key>]` entry this app reads. Defaults to the app's name.
-- `credential` (String) Name of an organization-scoped `hyperfluid_secret` of type `scm_credential` the platform reads the repository with. Required, public repositories included: the checks then count against the token's own rate limit rather than the anonymous one every app of the cluster shares. A read-only token is enough (GitHub fine-grained Contents: read, GitLab `read_repository`, Forgejo `read:repository`).
-- `interval` (String) How often the repository is checked, as a duration such as `5m`, `15m`, `1h` or `24h`. At least `5m`, which is also the default.
+- `alert_on_sync_failure` (Boolean) Whether a failing check raises an alert. Defaults to true.
+- `base_url` (String) URL of a self-hosted Git server. Defaults to the provider's public host.
+- `branch` (String) Branch to follow. Defaults to the repository's default branch; conflicts with `tag_pattern`.
+- `container` (String) Key of the `[containers.<key>]` entry to read. Defaults to the app's name.
+- `credential` (String) Name of an organization-wide `scm_credential` secret used to read the repository, even a public one. Required; a read-only token is enough.
+- `interval` (String) How often the repository is checked, such as `15m` or `1h`. At least and by default `5m`.
 - `path` (String) Path of the file in the repository. Defaults to `hyperfluid.toml`.
 - `provider` (String) Git host: `github`, `gitlab` or `forgejo`. Required.
-- `repository` (String) Repository path on the provider, e.g. `acme/orders-api`. For GitLab, the full group path. Required.
-- `sync_policy` (String) `auto` rolls out every change found in Git. `manual` only reports it ("Out of sync") until someone clicks Sync in the console or runs `hfctl apps sync`; the first image of a new source still rolls out. Absent means `auto`. While the organization has automatic sync turned off, `auto` is refused (403) and an absent policy behaves as `manual`.
-- `tag_pattern` (String) Follow the highest tag matching this regular expression, which must capture the version in a group named `version`, e.g. `v?(?<version>\d+\.\d+\.\d+)`. It is matched against the whole tag, and the file is read at that tag. Conflicts with `branch`.
+- `repository` (String) Repository path, such as `acme/orders-api` (the full group path on GitLab). Required.
+- `sync_policy` (String) `auto` (default) rolls out every change; `manual` waits for a Sync in the console or `hfctl apps sync`.
+- `tag_pattern` (String) Follow the highest tag matching this regular expression, with a `version` group such as `v?(?<version>\d+\.\d+\.\d+)`. Conflicts with `branch`.
 
+
+
+<a id="nestedatt--init_containers"></a>
+### Nested Schema for `init_containers`
+
+Required:
+
+- `name` (String) Name, unique in the app and different from its slug: at most 63 lowercase letters, digits and hyphens.
+
+Optional:
+
+- `args` (List of String) Arguments, replacing the image's `CMD`. Needs the organization's container command override feature.
+- `command` (List of String) Entrypoint, replacing the image's `ENTRYPOINT`. Needs the organization's container command override feature.
+- `image_repository` (String) Image repository, set with `image_tag`. Defaults to the app's own image.
+- `image_tag` (String) Image tag, set with `image_repository`.
+- `inherit_env` (Boolean) Whether the container gets the app's environment variables. Defaults to true.
+- `mount_persistence` (Boolean) Whether the app's persistent volumes are mounted. Defaults to true.
+
+
+<a id="nestedatt--metrics"></a>
+### Nested Schema for `metrics`
+
+Required:
+
+- `port` (String) Name of the entry of `ports` serving the metrics.
+
+Optional:
+
+- `path` (String) Path to scrape, starting with `/`. Defaults to `/metrics`.
 
 
 <a id="nestedatt--ports"></a>
@@ -192,13 +386,26 @@ Optional:
 
 Required:
 
-- `name` (String) Port name, unique within the app, e.g. `http` or `metrics`. Lowercase letters, digits and hyphens, with at least one letter and no leading, trailing or consecutive hyphens; 15 characters at most.
+- `name` (String) Port name, unique in the app, such as `http`: at most 15 lowercase letters, digits and single hyphens, with at least one letter.
 - `port` (Number) Port the container listens on.
 
 Optional:
 
-- `primary` (Boolean) Marks the port that public routes and the default health probe target. Only an `HTTP` port can be primary, and at most one port may be. A single `HTTP` port becomes primary on its own.
-- `protocol` (String) One of `HTTP`, `TCP` or `UDP`, defaulting to `HTTP`. Only an `HTTP` port can be published: the platform ingress terminates HTTP(S) and has no listener for anything else, so a `TCP` or `UDP` port is reachable in-cluster through the app's Service only.
+- `primary` (Boolean) Whether public routes and the health probe use this port. Only one `HTTP` port can be primary; a lone `HTTP` port is primary by default.
+- `protocol` (String) `HTTP`, `TCP` or `UDP`. Defaults to `HTTP`; `TCP` and `UDP` ports are reachable in-cluster only.
+
+
+<a id="nestedatt--custom_domain_statuses"></a>
+### Nested Schema for `custom_domain_statuses`
+
+Read-Only:
+
+- `certificate_secret_name` (String) Secret holding the certificate served.
+- `fqdn` (String) The domain.
+- `message` (String) Why the domain is not ready, when it is not.
+- `observed_addresses` (List of String) Addresses the domain resolved to at the last check.
+- `state` (String) `pendingVerification`, `conflict`, `pendingDns`, `provisioning`, `ready` or `error`.
+- `target` (String) Where the domain's DNS record must point.
 
 ## Import
 

@@ -200,34 +200,14 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 		return schema.BoolAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A managed Airflow connection: the platform resolves the target, puts a " +
-			"credential scoped to it in place and writes the Airflow connection row itself. A DAG then " +
-			"asks for the `conn_id` and never holds a secret — nothing here puts a password in Terraform " +
-			"state, because no password ever reaches Terraform.\n\n" +
-			"A connection names exactly one target — `managed_postgresql_ref`, `bucket_ref` **or** " +
-			"`trino_ref` — and which one it is decides the connection's type. Two of them, or none, is a " +
-			"configuration error reported at plan time.\n\n" +
-			"The Trino target is the one that is more than a name: it takes a required `catalog`, and it " +
-			"reaches the dock at its in-cluster address. It is also the one the " +
-			"platform provisions nothing for — it carries the environment's own service account, so " +
-			"`permission_level` has no meaning on it and is refused. `permission_level_applies` reports " +
-			"that, and is what to read before `resolved_permission_level`.\n\n" +
-			"~> **Object-store credentials are not exposed here.** A bucket connection's credential is " +
-			"minted fresh, short-lived and valid only against the in-cluster gateway that issued it, so " +
-			"it has no sane representation in Terraform state: by the time state were written the " +
-			"credential would already be expiring, and it would be useless anywhere but inside the " +
-			"cluster. DAGs get it from the connection at run time; there is no Terraform attribute, and " +
-			"no data source, that hands it out.\n\n" +
-			"Import id is `\"<airflow_id>/<conn_id>\"` — the same composite the resource exports as " +
-			"`id`, so an id copied out of state is a usable import id.",
+		MarkdownDescription: "An Airflow connection the platform manages, with a scoped credential that never " +
+			"reaches Terraform state. It targets exactly one of `managed_postgresql_ref`, `bucket_ref` or `trino_ref`. " +
+			"Import with `<airflow_id>/<conn_id>`.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
-				MarkdownDescription: "Composite identifier `<airflow_id>/<conn_id>`, which is exactly the " +
-					"string `terraform import` takes — an id copied out of state imports the connection it " +
-					"came from. The connection object's own name, which is how the API addresses it, is " +
-					"exported separately as `name`.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Computed:            true,
+				MarkdownDescription: "Identifier `<airflow_id>/<conn_id>`, also the import id.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"airflow": schema.StringAttribute{
 				Required: true,
@@ -237,24 +217,8 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"conn_id": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "The connection id a DAG asks Airflow for, e.g. `warehouse`. It has to " +
-					"be unique within the environment, and the two ways it can already be taken end " +
-					"differently.\n\n" +
-					"A `conn_id` another **managed** connection in the same environment already holds is " +
-					"refused here, before anything is created. The platform's own create route answers a " +
-					"taken id by allocating `warehouse-1`, `warehouse-2`, … instead of failing — sensible " +
-					"for a console form, wrong for a declaration that asked for one specific id — so this " +
-					"resource looks first, and checks afterwards that it got the id it asked for. Adopt an " +
-					"existing connection with `terraform import` rather than declaring it a second " +
-					"time.\n\n" +
-					"A `conn_id` held by a **foreign** row — one written by hand in the Airflow UI — is " +
-					"never overwritten: the connection reports phase `Collision` and is not applied, and " +
-					"taking the id over is an explicit action from the console or `hfctl`.\n\n" +
-					"The platform accepts ASCII letters, digits, `_`, `.` and `-`, up to 200 bytes of " +
-					"them, and refuses the ids it keeps for its own rows (`dag_bucket_s3`, " +
-					"`hyperfluid_default`). All three rules are checked at plan time, because a `conn_id` " +
-					"the API rejects would otherwise fail the apply after everything this connection " +
-					"depends on had already been created.\n\n" +
+				MarkdownDescription: "Connection id a DAG asks Airflow for, unique in the environment: ASCII " +
+					"letters, digits, `_`, `.` and `-`, up to 200 bytes, not `dag_bucket_s3` or `hyperfluid_default`. " +
 					"Changing this forces a new connection.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, airflowConnIDMaxBytes),
@@ -266,57 +230,26 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"managed_postgresql_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same Hyperfluid environment to connect " +
-					"to. Exactly one of this, `bucket_ref` and `trino_ref` must be set. Switching a " +
-					"connection from one target to another is applied in place: the platform releases the " +
-					"credential it no longer needs before putting the new one in place.",
+				MarkdownDescription: "Name of a `hyperfluid_managed_postgresql` in the same environment to connect to. " +
+					"Exactly one of this, `bucket_ref` and `trino_ref` must be set.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
 			},
 			"bucket_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same Hyperfluid environment to connect to. Exactly " +
+				MarkdownDescription: "Name of a `hyperfluid_bucket` in the same environment to connect to. Exactly " +
 					"one of this, `managed_postgresql_ref` and `trino_ref` must be set.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
 			},
 			"trino_ref": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "Name of a Trino Data Dock in the same Hyperfluid environment to connect to — the dock's " +
-					"own name, as the console and `hfctl` list it, never a host or a URL. Exactly one of " +
-					"this, `managed_postgresql_ref` and `bucket_ref` must be set, and `catalog` is required " +
-					"beside this one.\n\n" +
-					"Data Docks are not managed by this provider; a Trino connection names one that already " +
-					"exists in the Hyperfluid environment the Airflow environment runs in.\n\n" +
-					"~> **A Trino connection carries the environment's own service account** — the identity " +
-					"the platform's reserved `hyperfluid_default` connection already uses. Nothing is " +
-					"provisioned for it: no new service account, no scoped identity, no grant, and no " +
-					"credential minted per connection. Every query is authorized server-side against the " +
-					"grants that identity already holds, which is why `permission_level` cannot be set on " +
-					"this type — there is no authority of the connection's own for a level to scale. Grant " +
-					"the environment's service account what the DAGs need from the console, the same way you " +
-					"grant any other principal.",
+				MarkdownDescription: "Name of a Trino Data Dock in the same environment to connect to; requires " +
+					"`catalog`. The connection uses the environment's service account, so grant that account what the DAGs need.",
 				Validators: []validator.String{stringvalidator.LengthBetween(1, 63)},
 			},
 			"catalog": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "The Trino catalog every session on the connection opens against. " +
-					"Required with `trino_ref`, and meaningless without it — both directions are plan " +
-					"errors.\n\n" +
-					"It is the session **default** for unqualified table names, not a scope: the platform " +
-					"authorizes each statement against the catalog of the table being touched, so a DAG " +
-					"that names `other_catalog.schema.table` in full reaches it, bounded by what the " +
-					"environment's service account is granted. Two connections on one dock naming " +
-					"different catalogs therefore carry identical authority — this attribute buys DAG " +
-					"ergonomics, never isolation.\n\n" +
-					"Required rather than defaulted because Airflow's own `TrinoHook` falls back to a " +
-					"catalog called `hive`, which exists on no Hyperfluid dock: a connection without one " +
-					"would aim every query at something that is not there. The platform cannot pick for you " +
-					"either, since a dock carries as many catalogs as the Hyperfluid environment has data containers and " +
-					"which one a DAG wants is not derivable.\n\n" +
-					"ASCII letters, digits, `_` and `-`, 63 characters at most. The rule is checked at plan " +
-					"time because the value travels to the coordinator as an HTTP header and is validated by " +
-					"the platform's API server — which would refuse it mid-apply, after the environment and " +
-					"the dock already exist.\n\n" +
-					"Changing it is applied in place; a Trino payload is always sent whole.",
+				MarkdownDescription: "Default Trino catalog for unqualified table names, required with `trino_ref` and " +
+					"refused without it: ASCII letters, digits, `_` and `-`, at most 63 characters.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, airflowCatalogMaxLen),
 					stringvalidator.RegexMatches(airflowCatalogPattern,
@@ -332,22 +265,8 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 				// the object on the user's behalf would erase that difference
 				// permanently.
 				Optional: true,
-				MarkdownDescription: "Pin the access level granted on the target: `viewer` or `editor`. Leave " +
-					"it out to follow the platform default, which is resolved on every reconcile and is " +
-					"therefore a different thing from pinning today's default value — the level actually " +
-					"in force is always reported as `resolved_permission_level`. What the level means " +
-					"depends on the target: database grants for a PostgreSQL connection, the object-store " +
-					"verbs of a scoped identity for a bucket one.\n\n" +
-					"~> **It cannot be set on a Trino connection.** The level scales the authority the " +
-					"platform grants a connection's own identity, and a Trino connection carries the " +
-					"environment's service account, for which the platform grants none. The API refuses " +
-					"the combination with a 400 and the platform refuses the declaration; naming both here " +
-					"is a plan error instead.\n\n" +
-					"~> **Removing the pin forces a new connection.** The API can raise or lower a pinned " +
-					"level in place but has no way to un-pin one, so going back to the platform default " +
-					"means replacing the connection — which re-provisions its credential. Retargeting a " +
-					"pinned connection to `trino_ref` therefore replaces it too: the pin has to come out " +
-					"of the configuration for the Trino target to be legal at all.",
+				MarkdownDescription: "Access level on the target, `viewer` or `editor`; omitted, the platform default " +
+					"applies. Not allowed with `trino_ref`, and removing it forces a new connection.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(airflowPermissionLevels...),
 					stringvalidator.ConflictsWith(path.MatchRoot("trino_ref")),
@@ -363,39 +282,21 @@ func (r *airflowConnectionResource) Schema(_ context.Context, _ resource.SchemaR
 				},
 			},
 
-			"name": computedStr("The connection object's own name, which is how the API addresses it. " +
-				"Derived by the platform and not the same string as `conn_id`."),
-			"connection_type": computedStr("The Airflow `conn_type` of the row the platform wrote, derived " +
-				"from which target was named: `postgres`, `aws` for a bucket, or `hyperfluid_trino` — a " +
-				"Hyperfluid-owned spelling, not the stock `trino`, because the hook that serves the type " +
-				"is the platform's own."),
-			"resolved_permission_level": computedStr("The level actually in force: the value pinned in " +
-				"`permission_level`, or the platform's own default when nothing is pinned. Read " +
-				"`permission_level_applies` first — where the knob does not apply this field describes " +
-				"nothing the platform granted and must not be read as an access level."),
-			"permission_level_applies": computedBool("Whether `permission_level` means anything for this " +
-				"connection's type. False for a Trino connection, permanently: it carries the " +
-				"environment's own service account, whose grants are yours to assign, so the platform " +
-				"grants the connection no authority of its own for a level to scale."),
+			"name":            computedStr("Name the platform gave the connection object, different from `conn_id`."),
+			"connection_type": computedStr("Airflow `conn_type`: `postgres`, `aws` for a bucket, or `hyperfluid_trino`."),
+			"resolved_permission_level": computedStr("Access level in force, pinned or the platform default. " +
+				"Meaningless when `permission_level_applies` is false."),
+			"permission_level_applies": computedBool("Whether `permission_level` applies to this connection's type; false for Trino."),
 			"phase": computedStr("Lifecycle phase: `Pending`, `WaitingForDependency`, `Collision`, " +
-				"`TakingOver`, `Applying`, `Ready`, `Parked`, `Deleting` or `Failed`. `Parked` is not a " +
-				"failure — it is what a connection reports while its environment is asleep."),
-			"spec_observed": computedBool("Whether the platform has looked at the current declaration yet. " +
-				"False distinguishes \"not seen\" from \"seen and cannot be satisfied\", which otherwise " +
-				"look identical."),
+				"`TakingOver`, `Applying`, `Ready`, `Parked` (environment asleep), `Deleting` or `Failed`."),
+			"spec_observed":  computedBool("Whether the platform has processed the current configuration."),
 			"source_applied": computedBool("Whether the credential has actually been applied to the target."),
-			"collision": computedBool("Whether a connection row the platform does not manage — one written " +
-				"by hand in the Airflow UI, or left behind by something other than Hyperfluid — already " +
-				"owns this `conn_id`. A colliding connection is not applied. Resolving a collision " +
-				"requires an explicit takeover, which is done from the console or `hfctl`, not from " +
-				"Terraform. A `conn_id` a second Terraform declaration asks for is not this: that is " +
-				"refused at create time, before any connection exists to collide."),
-			"collision_existing_connection_type": computedStr("Type of the connection already holding this " +
-				"`conn_id`, when there is a collision."),
+			"collision": computedBool("Whether a connection this platform does not manage already holds `conn_id`. " +
+				"The connection is then not applied until it is taken over from the console or `hfctl`."),
+			"collision_existing_connection_type": computedStr("Type of the connection already holding `conn_id`, on a collision."),
 			"conditions": schema.ListNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "The platform's status conditions for this connection — the detail " +
-					"behind `phase`, and where the reason for a connection that will not apply is written.",
+				Computed:            true,
+				MarkdownDescription: "Status conditions behind `phase`, with the reason a connection does not apply.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"type":    computedStr("Condition type."),

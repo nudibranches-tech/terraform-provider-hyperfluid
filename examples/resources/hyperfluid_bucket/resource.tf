@@ -1,9 +1,9 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 resource "hyperfluid_bucket" "lake" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "data-lake"
 }
 
@@ -15,7 +15,7 @@ data "hyperfluid_storage_zone" "default" {
 }
 
 resource "hyperfluid_bucket" "lake_pinned" {
-  env             = data.hyperfluid_env.default.id
+  env             = data.hyperfluid_environment.default.id
   name            = "data-lake-pinned"
   storage_zone_id = data.hyperfluid_storage_zone.default.zone_id
 }

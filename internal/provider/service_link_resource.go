@@ -137,15 +137,13 @@ func endpointAttribute(desc string, kinds []string) schema.SingleNestedAttribute
 		Attributes: map[string]schema.Attribute{
 			"kind": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "Kind of service. One of `" + strings.Join(kinds, "`, `") + "`. " +
-					"A `Trino` or `Kafka` endpoint is accepted and recorded, but not yet enforced under strict " +
-					"isolation. Changing this forces a new link.",
+				MarkdownDescription: "Kind of service: `" + strings.Join(kinds, "`, `") + "`. " +
+					"Changing this forces a new link.",
 				Validators: []validator.String{stringvalidator.OneOf(kinds...)},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
-				MarkdownDescription: "The service's slug — the `slug` attribute of the resource, not its " +
-					"display name. Both endpoints must live in `env`. Changing this forces a new link.",
+				Required:            true,
+				MarkdownDescription: "The service's `slug`, not its display name. Changing this forces a new link.",
 			},
 		},
 	}
@@ -153,20 +151,10 @@ func endpointAttribute(desc string, kinds []string) schema.SingleNestedAttribute
 
 func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A declared network path from one service to another within an environment.\n\n" +
-			"~> **Whether a link is enforced depends on the environment.** An environment's network isolation " +
-			"is `lenient` unless it has been set to `strict`, and under `lenient` any service in the " +
-			"environment can already reach any other — so a link changes nothing about reachability there, it " +
-			"only records the intent that survives a later switch to `strict`. Under `strict` the blanket " +
-			"allow is gone and a service is reachable only over its declared links. Even then, enforcement " +
-			"covers `ContainerApp`, `HfKeyValueCache` and `ManagedPostgreSQL`; `Trino` and `Kafka` links are " +
-			"recorded but not yet enforced. The mode is a property of the environment and is not manageable " +
-			"through this provider.\n\n" +
-			"~> **Every configurable attribute forces replacement.** A link is immutable — the API has no " +
-			"update endpoint and the underlying resource rejects any change to its endpoints or ports — so " +
-			"editing `env`, `consumer`, `target` or `target_ports` destroys the link and creates a new one. " +
-			"Reachability is therefore briefly interrupted on such a change.\n\n" +
-			"Deleting either endpoint also removes the links that name it.",
+		MarkdownDescription: "A network path that lets one service reach another in the same environment. It " +
+			"is enforced only when the environment's network isolation is `strict`, and not yet for `Trino` " +
+			"or `Kafka` endpoints.\n\n" +
+			"~> Every change replaces the link, which briefly interrupts traffic between the two services.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -179,47 +167,36 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"name": schema.StringAttribute{
-				Computed: true,
-				MarkdownDescription: "The link's name, derived by the platform from the linked pair " +
-					"(`<consumer>-<target>`, truncated to 63 characters). Also its identifier within the environment.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Computed:            true,
+				MarkdownDescription: "Name the platform gives the link, `<consumer>-<target>` cut to 63 characters.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"consumer": endpointAttribute(
-				"The service that gets permission to reach `target`. `Airflow` and `Pipeline` are valid here "+
-					"and nowhere else: both reach their targets and are never reached themselves. Note an "+
-					"Airflow environment can also declare its own egress inline, with "+
-					"`hyperfluid_airflow`'s `egress.in_cluster` block. Changing this forces a new link.",
+				"The service allowed to reach `target`. Changing this forces a new link.",
 				serviceLinkConsumerKinds),
 			"target": endpointAttribute(
-				"The service that becomes reachable. `Airflow` and `Pipeline` are refused here — nothing "+
-					"connects to either. Changing this forces a new link.",
+				"The service made reachable; `Airflow` and `Pipeline` are not allowed here. Changing this forces a new link.",
 				serviceLinkTargetKinds),
 			"target_ports": schema.SetNestedAttribute{
 				Optional: true,
-				MarkdownDescription: "Which of the target's ports to open. Valid only when `target.kind` is " +
-					"`ContainerApp` — the one kind that publishes more than one port — and each port must " +
-					"already be declared by that app. Omit it to let the platform pick: a container app's " +
-					"primary port, or the known port of a fixed-port kind. Changing this forces a new link.",
+				MarkdownDescription: "Ports of a `ContainerApp` target to open; omitted, the platform opens the " +
+					"target's primary port. Changing this forces a new link.",
 				PlanModifiers: []planmodifier.Set{setplanmodifier.RequiresReplace()},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port": schema.Int64Attribute{Required: true, MarkdownDescription: "Port number."},
 						"protocol": schema.StringAttribute{
 							Optional: true, Computed: true,
-							Default: stringdefault.StaticString("TCP"),
-							MarkdownDescription: "The port's protocol, spelled as the target app declares it: " +
-								"`HTTP`, `TCP`, `UDP` or `SCTP`. An `HTTP` port is opened over TCP, which is why " +
-								"a container app's `ports` can be assigned to this attribute unchanged.",
-							Validators: []validator.String{stringvalidator.OneOf("HTTP", "TCP", "UDP", "SCTP")},
+							Default:             stringdefault.StaticString("TCP"),
+							MarkdownDescription: "Protocol: `HTTP`, `TCP`, `UDP` or `SCTP`. Defaults to `TCP`.",
+							Validators:          []validator.String{stringvalidator.OneOf("HTTP", "TCP", "UDP", "SCTP")},
 						},
 					},
 				},
 			},
 			"ports": schema.ListNestedAttribute{
-				Computed: true,
-				MarkdownDescription: "The ports actually opened for this link, including the ones the platform " +
-					"picked when `target_ports` was omitted. Reported as the L4 protocol the platform opened, " +
-					"so an app's `HTTP` port reads back as `TCP` here. Empty until the link has been reconciled.",
+				Computed:            true,
+				MarkdownDescription: "Ports opened for this link, with their L4 protocol (an `HTTP` port reads as `TCP`).",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port":     schema.Int64Attribute{Computed: true, MarkdownDescription: "Port number."},
@@ -228,10 +205,8 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 				},
 			},
 			"ready": schema.BoolAttribute{
-				Computed: true,
-				MarkdownDescription: "Whether the platform has reconciled this link and opened its ports. " +
-					"True regardless of the environment's isolation mode — it reports that the link exists, " +
-					"not that anything was blocked without it.",
+				Computed:            true,
+				MarkdownDescription: "Whether the platform has opened the link's ports.",
 			},
 		},
 	}

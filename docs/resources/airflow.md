@@ -3,26 +3,20 @@
 page_title: "hyperfluid_airflow Resource - Hyperfluid"
 subcategory: ""
 description: |-
-  A managed Apache Airflow 3 environment: an api-server, a scheduler, a dag-processor and (unless disabled) a triggerer, with a metadata PostgreSQL cluster and a DAG bucket of their own, and a dedicated task namespace the KubernetesExecutor runs task pods in.
-  DAGs are delivered through the bucket: upload them under the bucket's dags/ prefix and the platform mirrors them into the dag-processor. Nothing outside that prefix is picked up.
-  ~> postgres_ref and dag_bucket_ref are create-only. Both are references the platform resolves once, at creation; leave either out and the environment provisions its own. Changing or adding one afterwards forces a new environment, which means a new metadata database — the run history in the old one does not come along.
-  Task-pod egress is denied by default except for a fixed platform baseline (the Airflow execution API, object storage, Bifrost and DNS). The egress block grants what a DAG needs on top of that baseline; the baseline itself is not editable and never appears here.
+  A managed Apache Airflow 3 environment. Upload DAGs under the dags/ prefix of its DAG bucket.
+  ~> Changing postgres_ref or dag_bucket_ref forces a new environment with a new metadata database, so the run history is lost.
 ---
 
 # hyperfluid_airflow (Resource)
 
-A managed Apache Airflow 3 environment: an api-server, a scheduler, a dag-processor and (unless disabled) a triggerer, with a metadata PostgreSQL cluster and a DAG bucket of their own, and a dedicated task namespace the KubernetesExecutor runs task pods in.
+A managed Apache Airflow 3 environment. Upload DAGs under the `dags/` prefix of its DAG bucket.
 
-DAGs are delivered through the bucket: upload them under the bucket's `dags/` prefix and the platform mirrors them into the dag-processor. Nothing outside that prefix is picked up.
-
-~> **`postgres_ref` and `dag_bucket_ref` are create-only.** Both are references the platform resolves once, at creation; leave either out and the environment provisions its own. Changing or adding one afterwards forces a new environment, which means a new metadata database — the run history in the old one does not come along.
-
-Task-pod egress is denied by default except for a fixed platform baseline (the Airflow execution API, object storage, Bifrost and DNS). The `egress` block grants what a DAG needs on top of that baseline; the baseline itself is not editable and never appears here.
+~> Changing `postgres_ref` or `dag_bucket_ref` forces a new environment with a new metadata database, so the run history is lost.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -31,19 +25,19 @@ data "hyperfluid_env" "default" {
 # Naming the bucket keeps it in Terraform's hands — omit dag_bucket_ref and the
 # platform provisions "<name>-airflow" instead.
 resource "hyperfluid_bucket" "dags" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics-dags"
 }
 
 # A cache the DAGs write computed features into. Task pods cannot reach it until
 # the environment is granted the path below.
 resource "hyperfluid_key_value_cache" "features" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "features"
 }
 
 resource "hyperfluid_airflow" "analytics" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics"
 
   dag_bucket_ref = hyperfluid_bucket.dags.name
@@ -104,52 +98,48 @@ output "dag_bucket" {
 ### Required
 
 - `env` (String) Id of the Hyperfluid environment the Airflow environment runs in. Changing this forces a new Airflow environment.
-- `name` (String) Environment name. Must be a slug: lowercase letters, digits and hyphens, not starting or ending with a hyphen. It has to be unique across the organization's workload namespace, not merely within the Hyperfluid environment, because every per-environment child object is named after it. Changing this forces a new environment.
+- `name` (String) Name, unique in the organization: lowercase letters, digits and hyphens, at most 63 characters. Changing this forces a new environment.
 
 ### Optional
 
-- `config` (Map of String) `airflow.cfg` overrides, keyed `section.key` — for example `{ "core.parallelism" = "64" }`, which the platform renders as `AIRFLOW__CORE__PARALLELISM`. Keys are lowercase letters, digits and underscores on both sides of a single dot.
-
-~> **The map is replaced wholesale, not merged**, and removing it restores every default. Settings the platform owns — the executor, the auth manager, the execution API, the metadata database, remote logging and the secrets backend — are refused with a 400 naming them, because overriding one would either leak a platform secret or detach the environment from the platform that runs it.
-- `dag_bucket_ref` (String) Name of an existing `hyperfluid_bucket` in the same Hyperfluid environment to deliver DAGs through. Omit it and the platform provisions `<name>-airflow`; either way the bucket actually in use is reported as `dag_bucket`. Create-only: changing it forces a new environment.
-- `description` (String) Free-form description. Stored by the console, not in the environment itself. Omit it for no description — the empty string is not a value here.
-- `egress` (Attributes) Network egress the environment's task pods are granted **on top of** the platform baseline (execution API, object storage, Bifrost, DNS). The baseline is not editable and is never reported here.
-
-~> **The block is replaced wholesale, not merged.** Whatever it contains is the complete set of extra grants; removing the block revokes all of them and leaves the environment on the baseline alone. (see [below for nested schema](#nestedatt--egress))
-- `node_tier` (String) Size of the four Airflow components. One of `micro`, `small`, `medium`, `large` (defaults to `small`); memory request and limit are always equal, and the resolved values are reported as `cpu_request`, `cpu_limit`, `memory_request` and `memory_limit`. There is no `nano` tier: 512Mi cannot hold the triggerer, so the catalogue starts one tier up. Changing the tier restarts the components.
-- `postgres_ref` (String) Name of an existing `hyperfluid_managed_postgresql` in the same Hyperfluid environment to host Airflow's metadata database. Omit it and the platform provisions a dedicated cluster for the environment. Create-only: changing it forces a new environment.
-- `runtime_image` (String) Pin the Airflow runtime image, e.g. to one built with extra Python dependencies. Omit it — or remove it from a configuration that had it — and the environment tracks the platform's own image, which is what picks up security updates; removing the attribute clears the pin rather than keeping the last value.
-- `sleep_mode` (Boolean) Scale every component to zero (defaults to `false`). A sleeping environment fires no schedules and serves no UI, but keeps its metadata database, its DAG bucket and its connections, so waking it up resumes where it left off. Reported as phase `Sleeping`.
-- `tags` (List of String) User-defined tags. Stored by the console, not in the environment itself.
-- `task_quota_max_pods` (Number) Ceiling on how many task pods the environment's task namespace may run at once. Omit it to leave the platform default in charge; removing it hands the ceiling back to that default. Zero is not a value — it is how the API spells "no ceiling of your own" — so use omission for that and this attribute for a real limit.
-- `triggerer_enabled` (Boolean) Whether the triggerer runs (defaults to `true`). The triggerer is what makes deferrable operators and sensors give their worker slot back while they wait; without it a deferring task stays deferred forever. Turn it off only for an environment whose DAGs use neither.
+- `config` (Map of String) `airflow.cfg` overrides keyed `section.key`, such as `{ "core.parallelism" = "64" }`. Settings the platform owns (executor, auth, database, logging, secrets) are refused.
+- `dag_bucket_ref` (String) Name of a `hyperfluid_bucket` in the same environment to deliver DAGs through; omitted, the platform provisions `<name>-airflow`. Changing this forces a new environment.
+- `description` (String) Free-form description, 1 to 500 characters.
+- `egress` (Attributes) Extra network egress for task pods, beyond the platform baseline. It is the complete set of extra grants: removing it revokes them all. (see [below for nested schema](#nestedatt--egress))
+- `node_tier` (String) Size of each Airflow component: `micro`, `small`, `medium`, `large`. Defaults to `small`; changing it restarts the components.
+- `postgres_ref` (String) Name of a `hyperfluid_managed_postgresql` in the same environment for the metadata database; omitted, the platform provisions one. Changing this forces a new environment.
+- `runtime_image` (String) Airflow runtime image to run, e.g. one with extra Python dependencies. Omitted, the environment follows the platform's image and its security updates.
+- `sleep_mode` (Boolean) Scale every component to zero, keeping its data: no schedules run and the UI is down. Defaults to `false`.
+- `tags` (List of String) User-defined tags.
+- `task_quota_max_pods` (Number) Most task pods that may run at once, at least 1. Omitted, the platform default applies.
+- `triggerer_enabled` (Boolean) Whether the triggerer runs, which deferrable operators and sensors need. Defaults to `true`.
 
 ### Read-Only
 
 - `cpu_limit` (String) CPU limit per component, resolved from `node_tier`.
 - `cpu_request` (String) CPU request per component, resolved from `node_tier`.
-- `dag_bucket` (String) Bucket DAGs are delivered through — the one named by `dag_bucket_ref`, or the one the platform provisioned. Upload DAGs under its `dags/` prefix.
-- `id` (String) Environment id. This is the value a `hyperfluid_airflow_connection`'s `airflow` takes.
-- `managed_postgresql_name` (String) Name of the metadata PostgreSQL cluster, whether referenced or provisioned.
-- `memory_limit` (String) Memory limit per component, resolved from `node_tier` (equal to the request).
+- `dag_bucket` (String) Bucket to upload DAGs to, under its `dags/` prefix.
+- `id` (String) Airflow environment id, used as `airflow` by `hyperfluid_airflow_connection`.
+- `managed_postgresql_name` (String) Name of the metadata PostgreSQL cluster.
+- `memory_limit` (String) Memory limit per component, resolved from `node_tier`.
 - `memory_request` (String) Memory request per component, resolved from `node_tier`.
-- `network_mode` (String) How the UI is exposed: `ingress` or `httproute`. A property of the platform, not of this resource.
+- `network_mode` (String) How the platform exposes the UI: `ingress` or `httproute`.
 - `phase` (String) Live lifecycle phase: `Pending`, `Provisioning`, `Running`, `Sleeping`, `Error` or `Unknown`.
-- `public_host` (String) Public hostname the UI is published under, identical in both network modes.
+- `public_host` (String) Public hostname of the UI.
 - `service_account` (String) Data-plane service account every task pod runs as.
-- `slug` (String) Derived slug. This is the name an `egress.in_cluster` entry elsewhere would target.
+- `slug` (String) Slug, the name an `egress.in_cluster` entry targets.
 - `task_namespace` (String) Dedicated Kubernetes namespace the environment's task pods run in.
-- `unresolved_allowlists` (List of String) Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this Hyperfluid environment. Empty is the healthy case; anything listed here is a grant that silently is not in force.
-- `web_url` (String) Public HTTPS URL of the Airflow UI. Absent until the route is actually serving, and for a sleeping environment.
+- `unresolved_allowlists` (List of String) Names in `egress.allowlists` that match no allow-list, so grant nothing.
+- `web_url` (String) URL of the Airflow UI, null until it is serving and while asleep.
 
 <a id="nestedatt--egress"></a>
 ### Nested Schema for `egress`
 
 Optional:
 
-- `allowlists` (Set of String) Names of the Hyperfluid environment's shared egress allow-lists to attach — the same named lists dev workstations and CI runners attach. A name that does not resolve to an allow-list of this Hyperfluid environment reaches the task policy as nothing at all, and is reported back in `unresolved_allowlists`.
-- `fqdns` (Set of String) Public hostnames task pods may reach on 443, e.g. `api.example.com` or `*.example.org`. Lowercase, at least two labels, and a leading `*.` must still leave two labels behind it — no bare wildcards and no IP literals. A few platform-reserved suffixes are refused by the API.
-- `in_cluster` (Attributes Set) Services in the same Hyperfluid environment that task pods may reach, by kind and name. This is the Airflow equivalent of a `hyperfluid_service_link`, declared on the environment rather than as its own resource. (see [below for nested schema](#nestedatt--egress--in_cluster))
+- `allowlists` (Set of String) Names of the environment's shared egress allow-lists to attach. Names that match none are reported in `unresolved_allowlists`.
+- `fqdns` (Set of String) Public hostnames task pods may reach on port 443, such as `api.example.com` or `*.example.org`: lowercase, at least two labels besides `*.`, no IP addresses.
+- `in_cluster` (Attributes Set) Services in the same environment that task pods may reach. (see [below for nested schema](#nestedatt--egress--in_cluster))
 
 <a id="nestedatt--egress--in_cluster"></a>
 ### Nested Schema for `egress.in_cluster`
@@ -157,7 +147,7 @@ Optional:
 Required:
 
 - `kind` (String) Kind of service. One of `ManagedPostgreSQL`, `ContainerApp`, `Kafka`, `HfKeyValueCache`, `Trino`.
-- `name` (String) The target's slug in the same Hyperfluid environment — the `slug` attribute of the resource, not its display name.
+- `name` (String) The target's `slug`, not its display name.
 
 ## Import
 

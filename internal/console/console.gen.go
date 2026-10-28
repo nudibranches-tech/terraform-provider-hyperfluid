@@ -751,6 +751,21 @@ func (e BackupOrigin) Valid() bool {
 	}
 }
 
+// Defines values for BackupPlacement.
+const (
+	BackupPlacementPlatform BackupPlacement = "platform"
+)
+
+// Valid indicates whether the value is a known member of the BackupPlacement enum.
+func (e BackupPlacement) Valid() bool {
+	switch e {
+	case BackupPlacementPlatform:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for BackupPolicy.
 const (
 	BackupPolicyAutomated BackupPolicy = "automated"
@@ -5738,6 +5753,64 @@ type AccessCheckResult struct {
 	ResourceId string        `json:"resource_id"`
 }
 
+// AccountCredential defines model for AccountCredential.
+type AccountCredential struct {
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+
+	// Id Keycloak credential id, the argument of its `delete_credential` action.
+	Id    string  `json:"id"`
+	Label *string `json:"label,omitempty"`
+}
+
+// AccountIdentityProvider defines model for AccountIdentityProvider.
+type AccountIdentityProvider struct {
+	// Alias Alias in the organization's realm, the argument of Keycloak's `idp_link` action.
+	Alias       string `json:"alias"`
+	DisplayName string `json:"display_name"`
+	Linked      bool   `json:"linked"`
+
+	// Username The account's username at that provider, when linked.
+	Username *string `json:"username,omitempty"`
+}
+
+// AccountOverview The caller's own account in the organization's identity realm.
+type AccountOverview struct {
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Email     *string    `json:"email,omitempty"`
+	FirstName *string    `json:"first_name,omitempty"`
+
+	// IdentityProviders The organization's enabled identity providers, plus any other the account is linked to.
+	IdentityProviders []AccountIdentityProvider `json:"identity_providers"`
+	LastName          *string                   `json:"last_name,omitempty"`
+
+	// MfaRequired The organization requires every member to use an authenticator app.
+	MfaRequired bool `json:"mfa_required"`
+
+	// OtpAuthenticators Registered authenticator apps (TOTP).
+	OtpAuthenticators []AccountCredential `json:"otp_authenticators"`
+	Password          *AccountPassword    `json:"password,omitempty"`
+	Username          string              `json:"username"`
+}
+
+// AccountPassword defines model for AccountPassword.
+type AccountPassword struct {
+	// UpdatedAt When the current password was set.
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// AccountSession A signed-in session of the caller.
+type AccountSession struct {
+	// Clients Client ids the session holds tokens for.
+	Clients []string `json:"clients"`
+
+	// Current The session the request was made from.
+	Current      bool      `json:"current"`
+	Id           string    `json:"id"`
+	IpAddress    *string   `json:"ip_address,omitempty"`
+	LastAccessAt time.Time `json:"last_access_at"`
+	StartedAt    time.Time `json:"started_at"`
+}
+
 // ActionParameter One declared parameter of an [`ActionType`] — a named input mapped to a
 // backing column *through* a property of the target object type
 // (`property_api_name`), never a raw column. At execution the property
@@ -7846,6 +7919,9 @@ type BackendDriver string
 // hey-api, SDK users) sees the same closed set.
 type BackupOrigin string
 
+// BackupPlacement Who chooses a database's backup target when `backupTarget` names none.
+type BackupPlacement string
+
 // BackupPolicy defines model for BackupPolicy.
 type BackupPolicy string
 
@@ -7878,6 +7954,10 @@ type BackupTargetResponse struct {
 	Name                string             `json:"name"`
 	OrganizationId      openapi_types.UUID `json:"organization_id"`
 	Phase               string             `json:"phase"`
+
+	// RequiredRetentionDays Set only on the platform's external target: the retention its operating
+	// party must configure there (Object Lock). Required, not verified.
+	RequiredRetentionDays *int32 `json:"required_retention_days,omitempty"`
 
 	// RetentionDays Days of backups and WAL archives this target keeps before expiring them.
 	RetentionDays             int32     `json:"retention_days"`
@@ -10736,7 +10816,9 @@ type CreateManagedPostgresqlBackupCrdRequestBody struct {
 
 // CreateManagedPostgresqlCrdRequestBody defines model for CreateManagedPostgresqlCrdRequestBody.
 type CreateManagedPostgresqlCrdRequestBody struct {
-	BackupPolicy *BackupPolicy `json:"backup_policy,omitempty"`
+	// BackupPlacement Who chooses a database's backup target when `backupTarget` names none.
+	BackupPlacement *BackupPlacement `json:"backup_placement,omitempty"`
+	BackupPolicy    *BackupPolicy    `json:"backup_policy,omitempty"`
 
 	// BackupTargetId BackupTarget to use for on-demand and scheduled backups. Required when
 	// `backup_policy` is `automated`. Optional for `manual`, where it enables
@@ -11353,6 +11435,16 @@ type CreateRegistryProjectRequestBody struct {
 
 	// Name The `<project>` path segment in `<harbor>/<project>/<image>`.
 	Name string `json:"name"`
+}
+
+// CreateRoleRequestBody defines model for CreateRoleRequestBody.
+type CreateRoleRequestBody struct {
+	Color       *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+
+	// Name Role name, unique within the organization. System role names are reserved.
+	Name           string             `json:"name"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
 }
 
 // CreateS3CopyPipelineRequest S3-to-S3 copy pipeline request
@@ -12827,6 +12919,14 @@ type DynamicLabelPlaceholder struct {
 
 	// Source Instructions for the LLM on how to extract this value from the document
 	Source string `json:"source"`
+}
+
+// EarlierRecoveryWindow What an archive a database wrote before its current one can restore, kept
+// until `expires_at` (ADR-0047 D8).
+type EarlierRecoveryWindow struct {
+	End       time.Time `json:"end"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Start     time.Time `json:"start"`
 }
 
 // Effect Whether a grant confers or withdraws access. Deny is evaluated with strict
@@ -14657,7 +14757,10 @@ type IcebergOptimizeRun struct {
 	CreatedAt   time.Time  `json:"created_at"`
 
 	// DurationMs Wall-clock duration measured by the runner.
-	DurationMs   *int64      `json:"duration_ms,omitempty"`
+	DurationMs *int64 `json:"duration_ms,omitempty"`
+
+	// ErrorDetails Errors the runner reported. Always `null` in the history list; read the
+	// run itself (`GET …/optimize/runs/{run_id}`) for it.
 	ErrorDetails interface{} `json:"error_details,omitempty"`
 
 	// FinishedReason Set when the terminal status did not come from the runner itself (today:
@@ -14668,7 +14771,8 @@ type IcebergOptimizeRun struct {
 
 	// LogOutput Raw log lines the runner reported, newest last. The pod's full output
 	// lives in the log store and is read through the run's `/logs` route;
-	// this is the summary the runner chose to persist.
+	// this is the summary the runner chose to persist. Always `null` in the
+	// history list; read the run itself for it.
 	LogOutput *string `json:"log_output,omitempty"`
 
 	// Metrics Run-level outcome totals — see [`OptimizeRunMetrics`].
@@ -14682,7 +14786,8 @@ type IcebergOptimizeRun struct {
 	StartedAt time.Time `json:"started_at"`
 	Status    string    `json:"status"`
 
-	// TableResults Per-table results — see [`OptimizeTableResult`].
+	// TableResults Per-table results — see [`OptimizeTableResult`]. Always `null` in the
+	// history list; read the run itself for it.
 	TableResults    interface{} `json:"table_results,omitempty"`
 	TablesFailed    *int32      `json:"tables_failed,omitempty"`
 	TablesProcessed *int32      `json:"tables_processed,omitempty"`
@@ -14696,7 +14801,9 @@ type IcebergOptimizeRun struct {
 //
 // Same pagination contract as `PipelinesPage` (`data`/`total`/`page`/`limit`).
 type IcebergOptimizeRunsPage struct {
-	// Data Newest first.
+	// Data Newest first. Each run comes without its heavy fields (`error_details`,
+	// `log_output` and `table_results` are `null`); the run's own route
+	// returns them.
 	Data []IcebergOptimizeRun `json:"data"`
 
 	// Limit Page size actually served.
@@ -15713,6 +15820,11 @@ type ListQuotaProfilesResponse struct {
 	Profiles []QuotaProfileResponse `json:"profiles"`
 }
 
+// ListRolesResponseData defines model for ListRolesResponseData.
+type ListRolesResponseData struct {
+	Roles []Role `json:"roles"`
+}
+
 // ListRunsResponse defines model for ListRunsResponse.
 type ListRunsResponse struct {
 	Runs []PipelineRun `json:"runs"`
@@ -16060,14 +16172,19 @@ type ManagedPostgresqlResponse struct {
 	CurrentPrimary         *string     `json:"current_primary,omitempty"`
 	DatabaseName           string      `json:"database_name"`
 	Description            *string     `json:"description,omitempty"`
-	Engine                 string      `json:"engine"`
-	ExternalEndpoint       *string     `json:"external_endpoint,omitempty"`
+
+	// EarlierRecoveryWindows Archives this database wrote before it moved to another backup target,
+	// each restorable to a point inside its span until `expires_at`.
+	EarlierRecoveryWindows *[]EarlierRecoveryWindow `json:"earlier_recovery_windows,omitempty"`
+	Engine                 string                   `json:"engine"`
+	ExternalEndpoint       *string                  `json:"external_endpoint,omitempty"`
 
 	// FirstRecoverabilityPoint What barman says can actually be restored. All three are `null` on a
 	// database that archives nowhere; `first_recoverability_point` and
 	// `last_successful_backup_time` are both `null` on one that archives WAL
 	// and has never had a base backup — which is not restorable, however
-	// healthy its archiver looks.
+	// healthy its archiver looks. Right after a move to another target, the
+	// last backup is the earlier archive's until the new one has its own.
 	FirstRecoverabilityPoint *time.Time         `json:"first_recoverability_point,omitempty"`
 	HarborId                 openapi_types.UUID `json:"harbor_id"`
 	Id                       openapi_types.UUID `json:"id"`
@@ -17957,7 +18074,9 @@ type PatchHfKeyValueCacheCrdRequestBody struct {
 
 // PatchManagedPostgresqlCrdRequestBody defines model for PatchManagedPostgresqlCrdRequestBody.
 type PatchManagedPostgresqlCrdRequestBody struct {
-	BackupPolicy *BackupPolicy `json:"backup_policy,omitempty"`
+	// BackupPlacement Who chooses a database's backup target when `backupTarget` names none.
+	BackupPlacement *BackupPlacement `json:"backup_placement,omitempty"`
+	BackupPolicy    *BackupPolicy    `json:"backup_policy,omitempty"`
 
 	// BackupTargetId Attach or change the backup target (by id). Enables on-demand backups on a
 	// previously target-less database. `None` leaves the current target unchanged.
@@ -19703,6 +19822,11 @@ type ResultsPage struct {
 	HasMore   bool            `json:"has_more"`
 	Rows      [][]interface{} `json:"rows"`
 	TotalRows int64           `json:"total_rows"`
+}
+
+// RevokeSessionsResponse defines model for RevokeSessionsResponse.
+type RevokeSessionsResponse struct {
+	Revoked int `json:"revoked"`
 }
 
 // RevokedS3Key defines model for RevokedS3Key.
@@ -22041,6 +22165,12 @@ type UnifiedCatalogResponse struct {
 // Unit defines model for Unit.
 type Unit string
 
+// UpdateAccountProfile defines model for UpdateAccountProfile.
+type UpdateAccountProfile struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
 // UpdateActionTypeRequest `api_name` and `object_type_id` are deliberately absent — like
 // [`ObjectType::api_name`] and a link's endpoints, they are the action's
 // structural identity; retargeting is modelled as delete+recreate.
@@ -22651,6 +22781,13 @@ type UpdateRefRequest struct {
 	PipelineChecksum string              `json:"pipeline_checksum"`
 	PipelineId       openapi_types.UUID  `json:"pipeline_id"`
 	Status           RefStatus           `json:"status"`
+}
+
+// UpdateRoleRequestBody defines model for UpdateRoleRequestBody.
+type UpdateRoleRequestBody struct {
+	Color       *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name        string  `json:"name"`
 }
 
 // UpdateSavedQueryRequest defines model for UpdateSavedQueryRequest.
@@ -25010,6 +25147,23 @@ type ListSupportTicketsParams struct {
 	Status *TicketStatus `form:"status,omitempty" json:"status,omitempty"`
 }
 
+// RemoveRoleFromUserParams defines parameters for RemoveRoleFromUser.
+type RemoveRoleFromUserParams struct {
+	ScopePath *string `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+}
+
+// AddRoleToUserParams defines parameters for AddRoleToUser.
+type AddRoleToUserParams struct {
+	ScopePath    *string             `form:"scope_path,omitempty" json:"scope_path,omitempty"`
+	ResourceUuid *openapi_types.UUID `form:"resource_uuid,omitempty" json:"resource_uuid,omitempty"`
+
+	// ResourceType Resource family of the bound resource (e.g. `secret`). Filters the role
+	// bundle to that family so a scoped role grant ("Editor on this secret")
+	// applies only its same-family permissions. Only valid with an exact
+	// `scope_path`.
+	ResourceType *string `form:"resource_type,omitempty" json:"resource_type,omitempty"`
+}
+
 // ListVirtualMachineUsersParams defines parameters for ListVirtualMachineUsers.
 type ListVirtualMachineUsersParams struct {
 	// Page Zero-based page index. Absent or omitted defaults to the first page.
@@ -25178,6 +25332,13 @@ type ListRefsParams struct {
 
 // CreateManyRefsJSONBody defines parameters for CreateManyRefs.
 type CreateManyRefsJSONBody = []CreateRefRequest
+
+// ListRolesParams defines parameters for ListRoles.
+type ListRolesParams struct {
+	// Name Case-insensitive substring filter on the role name.
+	Name           *string            `form:"name,omitempty" json:"name,omitempty"`
+	OrganizationId openapi_types.UUID `form:"organization_id" json:"organization_id"`
+}
 
 // ListBranchesParams defines parameters for ListBranches.
 type ListBranchesParams struct {
@@ -25794,6 +25955,12 @@ type CreateManyRefsJSONRequestBody = CreateManyRefsJSONBody
 // UpdateRefJSONRequestBody defines body for UpdateRef for application/json ContentType.
 type UpdateRefJSONRequestBody = UpdateRefRequest
 
+// CreateRoleJSONRequestBody defines body for CreateRole for application/json ContentType.
+type CreateRoleJSONRequestBody = CreateRoleRequestBody
+
+// UpdateRoleJSONRequestBody defines body for UpdateRole for application/json ContentType.
+type UpdateRoleJSONRequestBody = UpdateRoleRequestBody
+
 // SetRolePermissionsJSONRequestBody defines body for SetRolePermissions for application/json ContentType.
 type SetRolePermissionsJSONRequestBody = SetRolePermissionsRequestBody
 
@@ -25820,6 +25987,9 @@ type StartRunHandlerJSONRequestBody = ExecuteRequest
 
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = CreateUser
+
+// UpdateMyProfileJSONRequestBody defines body for UpdateMyProfile for application/json ContentType.
+type UpdateMyProfileJSONRequestBody = UpdateAccountProfile
 
 // CreatePipelineV2JSONRequestBody defines body for CreatePipelineV2 for application/json ContentType.
 type CreatePipelineV2JSONRequestBody = CreatePipelineRequestV2
@@ -30872,6 +31042,15 @@ type ClientInterface interface {
 
 	CreateUserGrant(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, body CreateUserGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListUserRoles request
+	ListUserRoles(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveRoleFromUser request
+	RemoveRoleFromUser(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *RemoveRoleFromUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddRoleToUser request
+	AddRoleToUser(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *AddRoleToUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetVirtualMachine request
 	GetVirtualMachine(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -31135,6 +31314,25 @@ type ClientInterface interface {
 	// ListResourceFamilies request
 	ListResourceFamilies(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListRoles request
+	ListRoles(ctx context.Context, params *ListRolesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateRoleWithBody request with any body
+	CreateRoleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteRole request
+	DeleteRole(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRole request
+	GetRole(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateRoleWithBody request with any body
+	UpdateRoleWithBody(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateRole(ctx context.Context, roleId openapi_types.UUID, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListRolePermissions request
 	ListRolePermissions(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -31230,6 +31428,26 @@ type ClientInterface interface {
 	CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMyAccount request
+	GetMyAccount(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnlinkMyIdentityProvider request
+	UnlinkMyIdentityProvider(ctx context.Context, alias string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateMyProfileWithBody request with any body
+	UpdateMyProfileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateMyProfile(ctx context.Context, body UpdateMyProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeMyOtherSessions request
+	RevokeMyOtherSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListMySessions request
+	ListMySessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeMySession request
+	RevokeMySession(ctx context.Context, sessionId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePipelineV2WithBody request with any body
 	CreatePipelineV2WithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -40022,6 +40240,42 @@ func (c *Client) CreateUserGrant(ctx context.Context, organizationId openapi_typ
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListUserRoles(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListUserRolesRequest(c.Server, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveRoleFromUser(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *RemoveRoleFromUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveRoleFromUserRequest(c.Server, organizationId, userId, roleId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddRoleToUser(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *AddRoleToUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddRoleToUserRequest(c.Server, organizationId, userId, roleId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetVirtualMachine(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetVirtualMachineRequest(c.Server, organizationId, instanceId)
 	if err != nil {
@@ -41174,6 +41428,90 @@ func (c *Client) ListResourceFamilies(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListRoles(ctx context.Context, params *ListRolesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRolesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRoleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRoleRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRoleRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteRole(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteRoleRequest(c.Server, roleId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRole(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRoleRequest(c.Server, roleId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRoleWithBody(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRoleRequestWithBody(c.Server, roleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRole(ctx context.Context, roleId openapi_types.UUID, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRoleRequest(c.Server, roleId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListRolePermissions(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRolePermissionsRequest(c.Server, roleId)
 	if err != nil {
@@ -41584,6 +41922,90 @@ func (c *Client) CreateUserWithBody(ctx context.Context, contentType string, bod
 
 func (c *Client) CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetMyAccount(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMyAccountRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnlinkMyIdentityProvider(ctx context.Context, alias string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnlinkMyIdentityProviderRequest(c.Server, alias)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMyProfileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMyProfileRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMyProfile(ctx context.Context, body UpdateMyProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMyProfileRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RevokeMyOtherSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeMyOtherSessionsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListMySessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMySessionsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RevokeMySession(ctx context.Context, sessionId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeMySessionRequest(c.Server, sessionId)
 	if err != nil {
 		return nil, err
 	}
@@ -71823,6 +72245,221 @@ func NewCreateUserGrantRequestWithBody(server string, organizationId openapi_typ
 	return req, nil
 }
 
+// NewListUserRolesRequest generates requests for ListUserRoles
+func NewListUserRolesRequest(server string, organizationId openapi_types.UUID, userId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "user_id", userId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/users/%s/roles", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRemoveRoleFromUserRequest generates requests for RemoveRoleFromUser
+func NewRemoveRoleFromUserRequest(server string, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *RemoveRoleFromUserParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "user_id", userId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/users/%s/roles/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ScopePath != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", *params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAddRoleToUserRequest generates requests for AddRoleToUser
+func NewAddRoleToUserRequest(server string, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *AddRoleToUserParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "user_id", userId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/users/%s/roles/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ScopePath != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope_path", *params.ScopePath, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceUuid != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_uuid", *params.ResourceUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_type", *params.ResourceType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetVirtualMachineRequest generates requests for GetVirtualMachine
 func NewGetVirtualMachineRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -75516,6 +76153,223 @@ func NewListResourceFamiliesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewListRolesRequest generates requests for ListRoles
+func NewListRolesRequest(server string, params *ListRolesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Name != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "name", *params.Name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "organization_id", params.OrganizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateRoleRequest calls the generic CreateRole builder with application/json body
+func NewCreateRoleRequest(server string, body CreateRoleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateRoleRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateRoleRequestWithBody generates requests for CreateRole with any type of body
+func NewCreateRoleRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteRoleRequest generates requests for DeleteRole
+func NewDeleteRoleRequest(server string, roleId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRoleRequest generates requests for GetRole
+func NewGetRoleRequest(server string, roleId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateRoleRequest calls the generic UpdateRole builder with application/json body
+func NewUpdateRoleRequest(server string, roleId openapi_types.UUID, body UpdateRoleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateRoleRequestWithBody(server, roleId, "application/json", bodyReader)
+}
+
+// NewUpdateRoleRequestWithBody generates requests for UpdateRole with any type of body
+func NewUpdateRoleRequestWithBody(server string, roleId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "role_id", roleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/roles/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListRolePermissionsRequest generates requests for ListRolePermissions
 func NewListRolePermissionsRequest(server string, roleId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -76641,6 +77495,195 @@ func NewCreateUserRequestWithBody(server string, contentType string, body io.Rea
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetMyAccountRequest generates requests for GetMyAccount
+func NewGetMyAccountRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/account")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUnlinkMyIdentityProviderRequest generates requests for UnlinkMyIdentityProvider
+func NewUnlinkMyIdentityProviderRequest(server string, alias string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "alias", alias, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/identity-providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateMyProfileRequest calls the generic UpdateMyProfile builder with application/json body
+func NewUpdateMyProfileRequest(server string, body UpdateMyProfileJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateMyProfileRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateMyProfileRequestWithBody generates requests for UpdateMyProfile with any type of body
+func NewUpdateMyProfileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/profile")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRevokeMyOtherSessionsRequest generates requests for RevokeMyOtherSessions
+func NewRevokeMyOtherSessionsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListMySessionsRequest generates requests for ListMySessions
+func NewListMySessionsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeMySessionRequest generates requests for RevokeMySession
+func NewRevokeMySessionRequest(server string, sessionId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "session_id", sessionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/me/sessions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -79008,6 +80051,15 @@ type ClientWithResponsesInterface interface {
 
 	CreateUserGrantWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, body CreateUserGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserGrantHTTPResp, error)
 
+	// ListUserRolesWithResponse request
+	ListUserRolesWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListUserRolesHTTPResp, error)
+
+	// RemoveRoleFromUserWithResponse request
+	RemoveRoleFromUserWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *RemoveRoleFromUserParams, reqEditors ...RequestEditorFn) (*RemoveRoleFromUserHTTPResp, error)
+
+	// AddRoleToUserWithResponse request
+	AddRoleToUserWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *AddRoleToUserParams, reqEditors ...RequestEditorFn) (*AddRoleToUserHTTPResp, error)
+
 	// GetVirtualMachineWithResponse request
 	GetVirtualMachineWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVirtualMachineHTTPResp, error)
 
@@ -79271,6 +80323,25 @@ type ClientWithResponsesInterface interface {
 	// ListResourceFamiliesWithResponse request
 	ListResourceFamiliesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListResourceFamiliesHTTPResp, error)
 
+	// ListRolesWithResponse request
+	ListRolesWithResponse(ctx context.Context, params *ListRolesParams, reqEditors ...RequestEditorFn) (*ListRolesHTTPResp, error)
+
+	// CreateRoleWithBodyWithResponse request with any body
+	CreateRoleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRoleHTTPResp, error)
+
+	CreateRoleWithResponse(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRoleHTTPResp, error)
+
+	// DeleteRoleWithResponse request
+	DeleteRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRoleHTTPResp, error)
+
+	// GetRoleWithResponse request
+	GetRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRoleHTTPResp, error)
+
+	// UpdateRoleWithBodyWithResponse request with any body
+	UpdateRoleWithBodyWithResponse(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRoleHTTPResp, error)
+
+	UpdateRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRoleHTTPResp, error)
+
 	// ListRolePermissionsWithResponse request
 	ListRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRolePermissionsHTTPResp, error)
 
@@ -79366,6 +80437,26 @@ type ClientWithResponsesInterface interface {
 	CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserHTTPResp, error)
 
 	CreateUserWithResponse(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserHTTPResp, error)
+
+	// GetMyAccountWithResponse request
+	GetMyAccountWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMyAccountHTTPResp, error)
+
+	// UnlinkMyIdentityProviderWithResponse request
+	UnlinkMyIdentityProviderWithResponse(ctx context.Context, alias string, reqEditors ...RequestEditorFn) (*UnlinkMyIdentityProviderHTTPResp, error)
+
+	// UpdateMyProfileWithBodyWithResponse request with any body
+	UpdateMyProfileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMyProfileHTTPResp, error)
+
+	UpdateMyProfileWithResponse(ctx context.Context, body UpdateMyProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMyProfileHTTPResp, error)
+
+	// RevokeMyOtherSessionsWithResponse request
+	RevokeMyOtherSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RevokeMyOtherSessionsHTTPResp, error)
+
+	// ListMySessionsWithResponse request
+	ListMySessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMySessionsHTTPResp, error)
+
+	// RevokeMySessionWithResponse request
+	RevokeMySessionWithResponse(ctx context.Context, sessionId string, reqEditors ...RequestEditorFn) (*RevokeMySessionHTTPResp, error)
 
 	// CreatePipelineV2WithBodyWithResponse request with any body
 	CreatePipelineV2WithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePipelineV2HTTPResp, error)
@@ -97968,6 +99059,104 @@ func (r CreateUserGrantHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListUserRolesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Role
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListUserRolesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListUserRolesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListUserRolesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveRoleFromUserHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveRoleFromUserHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveRoleFromUserHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveRoleFromUserHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AddRoleToUserHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r AddRoleToUserHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddRoleToUserHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AddRoleToUserHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetVirtualMachineHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -100251,6 +101440,172 @@ func (r ListResourceFamiliesHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListRolesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ListRolesResponseData
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRolesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRolesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRolesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateRoleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Role
+	JSON403      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateRoleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateRoleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateRoleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteRoleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteRoleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteRoleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteRoleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRoleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Role
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRoleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRoleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRoleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateRoleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Role
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateRoleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateRoleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateRoleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListRolePermissionsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -101085,6 +102440,203 @@ func (r CreateUserHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateUserHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetMyAccountHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AccountOverview
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMyAccountHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMyAccountHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetMyAccountHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UnlinkMyIdentityProviderHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UnlinkMyIdentityProviderHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnlinkMyIdentityProviderHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UnlinkMyIdentityProviderHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateMyProfileHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateMyProfileHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateMyProfileHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateMyProfileHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RevokeMyOtherSessionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RevokeSessionsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeMyOtherSessionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeMyOtherSessionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RevokeMyOtherSessionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListMySessionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AccountSession
+	JSON403      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMySessionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMySessionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListMySessionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RevokeMySessionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeMySessionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeMySessionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RevokeMySessionHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -107761,6 +109313,33 @@ func (c *ClientWithResponses) CreateUserGrantWithResponse(ctx context.Context, o
 	return ParseCreateUserGrantHTTPResp(rsp)
 }
 
+// ListUserRolesWithResponse request returning *ListUserRolesHTTPResp
+func (c *ClientWithResponses) ListUserRolesWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListUserRolesHTTPResp, error) {
+	rsp, err := c.ListUserRoles(ctx, organizationId, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListUserRolesHTTPResp(rsp)
+}
+
+// RemoveRoleFromUserWithResponse request returning *RemoveRoleFromUserHTTPResp
+func (c *ClientWithResponses) RemoveRoleFromUserWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *RemoveRoleFromUserParams, reqEditors ...RequestEditorFn) (*RemoveRoleFromUserHTTPResp, error) {
+	rsp, err := c.RemoveRoleFromUser(ctx, organizationId, userId, roleId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveRoleFromUserHTTPResp(rsp)
+}
+
+// AddRoleToUserWithResponse request returning *AddRoleToUserHTTPResp
+func (c *ClientWithResponses) AddRoleToUserWithResponse(ctx context.Context, organizationId openapi_types.UUID, userId openapi_types.UUID, roleId openapi_types.UUID, params *AddRoleToUserParams, reqEditors ...RequestEditorFn) (*AddRoleToUserHTTPResp, error) {
+	rsp, err := c.AddRoleToUser(ctx, organizationId, userId, roleId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddRoleToUserHTTPResp(rsp)
+}
+
 // GetVirtualMachineWithResponse request returning *GetVirtualMachineHTTPResp
 func (c *ClientWithResponses) GetVirtualMachineWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVirtualMachineHTTPResp, error) {
 	rsp, err := c.GetVirtualMachine(ctx, organizationId, instanceId, reqEditors...)
@@ -108600,6 +110179,67 @@ func (c *ClientWithResponses) ListResourceFamiliesWithResponse(ctx context.Conte
 	return ParseListResourceFamiliesHTTPResp(rsp)
 }
 
+// ListRolesWithResponse request returning *ListRolesHTTPResp
+func (c *ClientWithResponses) ListRolesWithResponse(ctx context.Context, params *ListRolesParams, reqEditors ...RequestEditorFn) (*ListRolesHTTPResp, error) {
+	rsp, err := c.ListRoles(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRolesHTTPResp(rsp)
+}
+
+// CreateRoleWithBodyWithResponse request with arbitrary body returning *CreateRoleHTTPResp
+func (c *ClientWithResponses) CreateRoleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRoleHTTPResp, error) {
+	rsp, err := c.CreateRoleWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRoleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateRoleWithResponse(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRoleHTTPResp, error) {
+	rsp, err := c.CreateRole(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRoleHTTPResp(rsp)
+}
+
+// DeleteRoleWithResponse request returning *DeleteRoleHTTPResp
+func (c *ClientWithResponses) DeleteRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRoleHTTPResp, error) {
+	rsp, err := c.DeleteRole(ctx, roleId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteRoleHTTPResp(rsp)
+}
+
+// GetRoleWithResponse request returning *GetRoleHTTPResp
+func (c *ClientWithResponses) GetRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRoleHTTPResp, error) {
+	rsp, err := c.GetRole(ctx, roleId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRoleHTTPResp(rsp)
+}
+
+// UpdateRoleWithBodyWithResponse request with arbitrary body returning *UpdateRoleHTTPResp
+func (c *ClientWithResponses) UpdateRoleWithBodyWithResponse(ctx context.Context, roleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRoleHTTPResp, error) {
+	rsp, err := c.UpdateRoleWithBody(ctx, roleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRoleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateRoleWithResponse(ctx context.Context, roleId openapi_types.UUID, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRoleHTTPResp, error) {
+	rsp, err := c.UpdateRole(ctx, roleId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRoleHTTPResp(rsp)
+}
+
 // ListRolePermissionsWithResponse request returning *ListRolePermissionsHTTPResp
 func (c *ClientWithResponses) ListRolePermissionsWithResponse(ctx context.Context, roleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRolePermissionsHTTPResp, error) {
 	rsp, err := c.ListRolePermissions(ctx, roleId, reqEditors...)
@@ -108904,6 +110544,68 @@ func (c *ClientWithResponses) CreateUserWithResponse(ctx context.Context, body C
 		return nil, err
 	}
 	return ParseCreateUserHTTPResp(rsp)
+}
+
+// GetMyAccountWithResponse request returning *GetMyAccountHTTPResp
+func (c *ClientWithResponses) GetMyAccountWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMyAccountHTTPResp, error) {
+	rsp, err := c.GetMyAccount(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMyAccountHTTPResp(rsp)
+}
+
+// UnlinkMyIdentityProviderWithResponse request returning *UnlinkMyIdentityProviderHTTPResp
+func (c *ClientWithResponses) UnlinkMyIdentityProviderWithResponse(ctx context.Context, alias string, reqEditors ...RequestEditorFn) (*UnlinkMyIdentityProviderHTTPResp, error) {
+	rsp, err := c.UnlinkMyIdentityProvider(ctx, alias, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnlinkMyIdentityProviderHTTPResp(rsp)
+}
+
+// UpdateMyProfileWithBodyWithResponse request with arbitrary body returning *UpdateMyProfileHTTPResp
+func (c *ClientWithResponses) UpdateMyProfileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMyProfileHTTPResp, error) {
+	rsp, err := c.UpdateMyProfileWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMyProfileHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateMyProfileWithResponse(ctx context.Context, body UpdateMyProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMyProfileHTTPResp, error) {
+	rsp, err := c.UpdateMyProfile(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMyProfileHTTPResp(rsp)
+}
+
+// RevokeMyOtherSessionsWithResponse request returning *RevokeMyOtherSessionsHTTPResp
+func (c *ClientWithResponses) RevokeMyOtherSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RevokeMyOtherSessionsHTTPResp, error) {
+	rsp, err := c.RevokeMyOtherSessions(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeMyOtherSessionsHTTPResp(rsp)
+}
+
+// ListMySessionsWithResponse request returning *ListMySessionsHTTPResp
+func (c *ClientWithResponses) ListMySessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMySessionsHTTPResp, error) {
+	rsp, err := c.ListMySessions(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMySessionsHTTPResp(rsp)
+}
+
+// RevokeMySessionWithResponse request returning *RevokeMySessionHTTPResp
+func (c *ClientWithResponses) RevokeMySessionWithResponse(ctx context.Context, sessionId string, reqEditors ...RequestEditorFn) (*RevokeMySessionHTTPResp, error) {
+	rsp, err := c.RevokeMySession(ctx, sessionId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeMySessionHTTPResp(rsp)
 }
 
 // CreatePipelineV2WithBodyWithResponse request with arbitrary body returning *CreatePipelineV2HTTPResp
@@ -134112,6 +135814,140 @@ func ParseCreateUserGrantHTTPResp(rsp *http.Response) (*CreateUserGrantHTTPResp,
 	return response, nil
 }
 
+// ParseListUserRolesHTTPResp parses an HTTP response from a ListUserRolesWithResponse call
+func ParseListUserRolesHTTPResp(rsp *http.Response) (*ListUserRolesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListUserRolesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveRoleFromUserHTTPResp parses an HTTP response from a RemoveRoleFromUserWithResponse call
+func ParseRemoveRoleFromUserHTTPResp(rsp *http.Response) (*RemoveRoleFromUserHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveRoleFromUserHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAddRoleToUserHTTPResp parses an HTTP response from a AddRoleToUserWithResponse call
+func ParseAddRoleToUserHTTPResp(rsp *http.Response) (*AddRoleToUserHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddRoleToUserHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetVirtualMachineHTTPResp parses an HTTP response from a GetVirtualMachineWithResponse call
 func ParseGetVirtualMachineHTTPResp(rsp *http.Response) (*GetVirtualMachineHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -137029,6 +138865,248 @@ func ParseListResourceFamiliesHTTPResp(rsp *http.Response) (*ListResourceFamilie
 	return response, nil
 }
 
+// ParseListRolesHTTPResp parses an HTTP response from a ListRolesWithResponse call
+func ParseListRolesHTTPResp(rsp *http.Response) (*ListRolesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRolesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ListRolesResponseData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateRoleHTTPResp parses an HTTP response from a CreateRoleWithResponse call
+func ParseCreateRoleHTTPResp(rsp *http.Response) (*CreateRoleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateRoleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteRoleHTTPResp parses an HTTP response from a DeleteRoleWithResponse call
+func ParseDeleteRoleHTTPResp(rsp *http.Response) (*DeleteRoleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteRoleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRoleHTTPResp parses an HTTP response from a GetRoleWithResponse call
+func ParseGetRoleHTTPResp(rsp *http.Response) (*GetRoleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRoleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateRoleHTTPResp parses an HTTP response from a UpdateRoleWithResponse call
+func ParseUpdateRoleHTTPResp(rsp *http.Response) (*UpdateRoleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateRoleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListRolePermissionsHTTPResp parses an HTTP response from a ListRolePermissionsWithResponse call
 func ParseListRolePermissionsHTTPResp(rsp *http.Response) (*ListRolePermissionsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -138119,6 +140197,281 @@ func ParseCreateUserHTTPResp(rsp *http.Response) (*CreateUserHTTPResp, error) {
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMyAccountHTTPResp parses an HTTP response from a GetMyAccountWithResponse call
+func ParseGetMyAccountHTTPResp(rsp *http.Response) (*GetMyAccountHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMyAccountHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AccountOverview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUnlinkMyIdentityProviderHTTPResp parses an HTTP response from a UnlinkMyIdentityProviderWithResponse call
+func ParseUnlinkMyIdentityProviderHTTPResp(rsp *http.Response) (*UnlinkMyIdentityProviderHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnlinkMyIdentityProviderHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateMyProfileHTTPResp parses an HTTP response from a UpdateMyProfileWithResponse call
+func ParseUpdateMyProfileHTTPResp(rsp *http.Response) (*UpdateMyProfileHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateMyProfileHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeMyOtherSessionsHTTPResp parses an HTTP response from a RevokeMyOtherSessionsWithResponse call
+func ParseRevokeMyOtherSessionsHTTPResp(rsp *http.Response) (*RevokeMyOtherSessionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeMyOtherSessionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RevokeSessionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListMySessionsHTTPResp parses an HTTP response from a ListMySessionsWithResponse call
+func ParseListMySessionsHTTPResp(rsp *http.Response) (*ListMySessionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMySessionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AccountSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeMySessionHTTPResp parses an HTTP response from a RevokeMySessionWithResponse call
+func ParseRevokeMySessionHTTPResp(rsp *http.Response) (*RevokeMySessionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeMySessionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 

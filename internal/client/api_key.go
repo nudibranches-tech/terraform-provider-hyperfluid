@@ -108,3 +108,27 @@ func (c *Client) RevokeApiKey(ctx context.Context, orgID, keyID string) error {
 	}
 	return statusErr("revoke api key", resp.StatusCode(), resp.Body)
 }
+
+// SetApiKeyRateLimits replaces a key's organization-set rate ceilings. The
+// request is whole, not merged: a nil axis clears that ceiling.
+func (c *Client) SetApiKeyRateLimits(ctx context.Context, orgID, keyID string, body console.SetApiKeyRateLimitsRequest) (*console.ApiKeyResponse, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	key, err := parseUUID("id", keyID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.SetApiKeyRateLimitsWithResponse(ctx, org, key, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("set api key rate limits", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: set api key rate limits: empty response")
+	}
+	return resp.JSON200, nil
+}

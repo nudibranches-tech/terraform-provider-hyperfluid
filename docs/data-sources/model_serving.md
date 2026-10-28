@@ -36,12 +36,12 @@ output "endpoint" {
 - `display_name` (String) Human-readable display name.
 - `endpoint` (String) OpenAI-compatible endpoint.
 - `gpu` (Number) GPU count.
-- `id` (String) Resource identifier (same as name).
+- `id` (String) Serving id, the same as `name`.
 - `max_model_len` (Number) Maximum model context length.
 - `memory` (String) Memory request.
 - `model_id` (String) Model identifier.
-- `model_type` (String) Model type (generation or embedding).
+- `model_type` (String) Model type: `generation` or `embedding`.
 - `phase` (String) Current lifecycle phase.
-- `ready_replicas` (Number) Ready replica count.
-- `replicas` (Number) Desired replica count.
-- `runtime` (String) Serving runtime (vllm or tgi).
+- `ready_replicas` (Number) Number of ready replicas.
+- `replicas` (Number) Number of replicas.
+- `runtime` (String) Serving runtime: `vllm` or `tgi`.

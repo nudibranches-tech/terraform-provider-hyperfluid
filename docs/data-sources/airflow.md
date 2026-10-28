@@ -3,27 +3,24 @@
 page_title: "hyperfluid_airflow Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow environment created through the console, hfctl, or another Terraform configuration.
-  Its id is what a hyperfluid_airflow_connection's airflow takes, and dag_bucket names the bucket DAGs are delivered through, so this data source is the usual way to attach connections or a DAG-upload pipeline to an environment somebody else owns.
+  Look up an existing Airflow environment by name.
 ---
 
 # hyperfluid_airflow (Data Source)
 
-Look up an existing Airflow environment by name within a Hyperfluid environment — an Airflow environment created through the console, `hfctl`, or another Terraform configuration.
-
-Its `id` is what a `hyperfluid_airflow_connection`'s `airflow` takes, and `dag_bucket` names the bucket DAGs are delivered through, so this data source is the usual way to attach connections or a DAG-upload pipeline to an environment somebody else owns.
+Look up an existing Airflow environment by name.
 
 ## Example Usage
 
 ```terraform
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 # Reference an existing Airflow environment (created via the console, hfctl, or
 # another config) to hang connections off it and to find its DAG bucket.
 data "hyperfluid_airflow" "analytics" {
-  env  = data.hyperfluid_env.default.id
+  env  = data.hyperfluid_environment.default.id
   name = "analytics"
 }
 
@@ -62,38 +59,38 @@ output "unresolved_allowlists" {
 - `config` (Map of String) `airflow.cfg` overrides, keyed `section.key`. Null when none are set.
 - `cpu_limit` (String) CPU limit per component, resolved from the tier.
 - `cpu_request` (String) CPU request per component, resolved from the tier.
-- `dag_bucket` (String) Bucket DAGs are delivered through. Upload DAGs under its `dags/` prefix.
+- `dag_bucket` (String) Bucket to upload DAGs to, under its `dags/` prefix.
 - `dag_bucket_ref` (String) Name of the referenced DAG bucket, or null when the platform provisioned one.
 - `description` (String) Free-form description.
-- `egress` (Attributes) Egress the environment's task pods are granted on top of the platform baseline. Null when the environment runs on the baseline alone. (see [below for nested schema](#nestedatt--egress))
-- `id` (String) Environment id. This is the value a `hyperfluid_airflow_connection`'s `airflow` takes.
-- `managed_postgresql_name` (String) Name of the metadata PostgreSQL cluster, whether referenced or provisioned.
+- `egress` (Attributes) Extra network egress for task pods, or null for none. (see [below for nested schema](#nestedatt--egress))
+- `id` (String) Airflow environment id, used as `airflow` by `hyperfluid_airflow_connection`.
+- `managed_postgresql_name` (String) Name of the metadata PostgreSQL cluster.
 - `memory_limit` (String) Memory limit per component, resolved from the tier.
 - `memory_request` (String) Memory request per component, resolved from the tier.
 - `network_mode` (String) How the UI is exposed: `ingress` or `httproute`.
-- `node_tier` (String) Size of the four Airflow components: `micro`, `small`, `medium` or `large`.
+- `node_tier` (String) Size of each Airflow component: `micro`, `small`, `medium` or `large`.
 - `phase` (String) Live lifecycle phase: `Pending`, `Provisioning`, `Running`, `Sleeping`, `Error` or `Unknown`.
 - `postgres_ref` (String) Name of the referenced metadata PostgreSQL cluster, or null when the platform provisioned one.
-- `public_host` (String) Public hostname the UI is published under.
-- `runtime_image` (String) Pinned Airflow runtime image, or null when the environment tracks the platform's own.
+- `public_host` (String) Public hostname of the UI.
+- `runtime_image` (String) Pinned Airflow runtime image, or null for the platform's.
 - `service_account` (String) Data-plane service account every task pod runs as.
 - `sleep_mode` (Boolean) Whether every component is scaled to zero.
-- `slug` (String) Derived slug. This is the name an `egress.in_cluster` entry would target.
+- `slug` (String) Slug, the name an `egress.in_cluster` entry targets.
 - `tags` (List of String) User-defined tags.
 - `task_namespace` (String) Dedicated Kubernetes namespace the environment's task pods run in.
-- `task_quota_max_pods` (Number) Ceiling on concurrent task pods, or null when the platform default is in charge.
+- `task_quota_max_pods` (Number) Most task pods running at once, or null for the platform default.
 - `triggerer_enabled` (Boolean) Whether the triggerer runs, which is what lets deferrable operators give their worker slot back while they wait.
-- `unresolved_allowlists` (List of String) Names from `egress.allowlists` the last reconcile could not resolve to an allow-list of this Hyperfluid environment.
-- `web_url` (String) Public HTTPS URL of the Airflow UI, once the route is serving.
+- `unresolved_allowlists` (List of String) Names in `egress.allowlists` that match no allow-list.
+- `web_url` (String) URL of the Airflow UI, once it is serving.
 
 <a id="nestedatt--egress"></a>
 ### Nested Schema for `egress`
 
 Read-Only:
 
-- `allowlists` (Set of String) Names of the Hyperfluid environment's shared egress allow-lists attached to the Airflow environment.
-- `fqdns` (Set of String) Public hostnames task pods may reach on 443.
-- `in_cluster` (Attributes Set) Services in the same Hyperfluid environment that task pods may reach. (see [below for nested schema](#nestedatt--egress--in_cluster))
+- `allowlists` (Set of String) Names of the shared egress allow-lists attached.
+- `fqdns` (Set of String) Public hostnames task pods may reach on port 443.
+- `in_cluster` (Attributes Set) Services in the same environment that task pods may reach. (see [below for nested schema](#nestedatt--egress--in_cluster))
 
 <a id="nestedatt--egress--in_cluster"></a>
 ### Nested Schema for `egress.in_cluster`
@@ -101,4 +98,4 @@ Read-Only:
 Read-Only:
 
 - `kind` (String) Kind of service.
-- `name` (String) The target's slug in the same Hyperfluid environment.
+- `name` (String) The target's slug.

@@ -3,12 +3,12 @@
 page_title: "hyperfluid_bifrost Data Source - Hyperfluid"
 subcategory: ""
 description: |-
-  The cluster's query-layer (Bifrost) connection endpoints and feature configuration. Bifrost is a per-deployment singleton, so this data source takes no arguments.
+  The connection endpoints and enabled features of Bifrost, the platform's query layer. Takes no arguments.
 ---
 
 # hyperfluid_bifrost (Data Source)
 
-The cluster's query-layer (Bifrost) connection endpoints and feature configuration. Bifrost is a per-deployment singleton, so this data source takes no arguments.
+The connection endpoints and enabled features of Bifrost, the platform's query layer. Takes no arguments.
 
 ## Example Usage
 
@@ -36,7 +36,7 @@ output "bifrost_graphql_enabled" {
 ### Read-Only
 
 - `features` (Attributes) Which Bifrost query features are enabled on this deployment. (see [below for nested schema](#nestedatt--features))
-- `graphql_url_template` (String) GraphQL URL template — substitute a Data Dock id for `{data_dock_id}`.
+- `graphql_url_template` (String) GraphQL URL template, with `{data_dock_id}` to replace by a Data Dock id.
 - `pgwire_endpoint` (String) PostgreSQL wire-protocol endpoint as `host:port`.
 - `rest_url` (String) REST / OpenAPI base URL (e.g. `https://bifrost.example.com`).
 

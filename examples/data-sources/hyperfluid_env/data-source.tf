@@ -1,7 +1,7 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
 output "env_id" {
-  value = data.hyperfluid_env.default.id
+  value = data.hyperfluid_environment.default.id
 }

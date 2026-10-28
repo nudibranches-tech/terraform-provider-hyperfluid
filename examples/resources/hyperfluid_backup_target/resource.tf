@@ -1,4 +1,4 @@
-data "hyperfluid_env" "default" {
+data "hyperfluid_environment" "default" {
   name = "default"
 }
 
@@ -35,7 +35,7 @@ resource "hyperfluid_secret" "backup_secret_key" {
 # Note: insecure = true is not supported with an https:// endpoint — use http://
 # or a trusted TLS cert.
 resource "hyperfluid_backup_target" "offsite" {
-  env          = data.hyperfluid_env.default.id
+  env          = data.hyperfluid_environment.default.id
   name         = "offsite"
   endpoint_url = "https://s3.eu-west-3.amazonaws.com"
   # Bucket + an arbitrary prefix to store backups under (NOT a database name);
@@ -46,4 +46,19 @@ resource "hyperfluid_backup_target" "offsite" {
   # How long base backups and WAL archives are kept, 1-35 days. Left out, the
   # platform keeps 7.
   retention_days = 14
+}
+
+# Or back up into a bucket of the environment: the platform resolves its
+# endpoint and credentials, and reports what it resolved in endpoint_url and
+# destination_path. Moving a target between a bucket and an external endpoint
+# replaces it.
+resource "hyperfluid_bucket" "pg_backups" {
+  env  = data.hyperfluid_environment.default.id
+  name = "pg-backups"
+}
+
+resource "hyperfluid_backup_target" "in_environment" {
+  env         = data.hyperfluid_environment.default.id
+  name        = "in-environment"
+  bucket_name = hyperfluid_bucket.pg_backups.name
 }
