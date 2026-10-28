@@ -192,6 +192,7 @@ func (p *HyperfluidProvider) DataSources(_ context.Context) []func() datasource.
 		NewPermissionsDataSource,
 		NewGroupDataSource,
 		NewServiceAccountDataSource,
+		NewUserDataSource,
 		NewRoleDataSource,
 		NewAlertChannelDataSource,
 		NewSqlEngineClusterDataSource,

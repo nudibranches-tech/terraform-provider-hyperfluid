@@ -282,6 +282,55 @@ func (c *Client) RemoveGroupMember(ctx context.Context, orgID, groupID, principa
 	return needs(statusErr("remove group member", resp.StatusCode(), resp.Body), "group:update")
 }
 
+// ── Organization users ────────────────────────────────────────────────────
+
+// ListOrgUsers returns the organization's members with their org-wide roles.
+func (c *Client) ListOrgUsers(ctx context.Context, orgID string) ([]console.UserWithRoles, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.ListOrgUsersWithResponse(ctx, org)
+	if err != nil {
+		return nil, err
+	}
+	err = statusErr("list organization users", resp.StatusCode(), resp.Body)
+	if errors.Is(err, ErrForbidden) && !strings.Contains(err.Error(), "user:read") {
+		return nil, fmt.Errorf("%w (this call requires the %q permission)", err, "user:read")
+	}
+	if err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, nil
+	}
+	return *resp.JSON200, nil
+}
+
+// FindOrgUserByEmail resolves a member by email, ignoring case and surrounding
+// spaces. The API has no email filter, so it lists the members.
+func (c *Client) FindOrgUserByEmail(ctx context.Context, orgID, email string) (*console.UserWithRoles, error) {
+	users, err := c.ListOrgUsers(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	want := strings.TrimSpace(email)
+	var matches []*console.UserWithRoles
+	for i := range users {
+		if strings.EqualFold(strings.TrimSpace(users[i].Email), want) {
+			matches = append(matches, &users[i])
+		}
+	}
+	switch len(matches) {
+	case 0:
+		return nil, ErrNotFound
+	case 1:
+		return matches[0], nil
+	default:
+		return nil, fmt.Errorf("hyperfluid: %d organization members have the email %q", len(matches), want)
+	}
+}
+
 // ── Role bindings ─────────────────────────────────────────────────────────
 
 // RoleScope narrows a role binding. Every field is optional: an empty scope

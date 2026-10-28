@@ -13,6 +13,10 @@ A group of users and service accounts; its roles and grants apply to every membe
 ## Example Usage
 
 ```terraform
+data "hyperfluid_user" "alice" {
+  email = "alice@example.com"
+}
+
 data "hyperfluid_service_account" "etl" {
   client_id = "etl"
 }
@@ -22,7 +26,7 @@ resource "hyperfluid_group" "data_eng" {
   description = "Builds and runs the pipelines"
 
   members = [
-    { type = "user", id = var.alice_user_id },
+    { type = "user", id = data.hyperfluid_user.alice.id },
     { type = "service_account", id = data.hyperfluid_service_account.etl.id },
   ]
 
