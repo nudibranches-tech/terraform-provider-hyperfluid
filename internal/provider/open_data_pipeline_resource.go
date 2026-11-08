@@ -38,8 +38,13 @@ var (
 )
 
 // openDataPipelineNameRe is the name the platform keeps: it lowercases the name
-// into a Kubernetes object name, so anything else would read back as drift.
-var openDataPipelineNameRe = regexp.MustCompile(`^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$`)
+// into a Kubernetes object name (a DNS-1123 subdomain, at most 253 characters),
+// so anything else would read back as drift or be refused.
+var openDataPipelineNameRe = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`)
+
+// scheduleTrimmedRe refuses surrounding whitespace, which the platform trims
+// off and which would then read back as a change.
+var scheduleTrimmedRe = regexp.MustCompile(`^\S(.*\S)?$`)
 
 func NewOpenDataPipelineResource() resource.Resource {
 	return &openDataPipelineResource{}
@@ -88,11 +93,15 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 			},
 			"name": schema.StringAttribute{
 				Required: true,
-				MarkdownDescription: "Pipeline name: lowercase letters, digits, `-` and `.`, starting and ending " +
-					"with a letter or digit. Changing this forces a new pipeline.",
+				MarkdownDescription: "Pipeline name, a DNS-1123 subdomain of at most 253 characters: dot-separated " +
+					"labels of lowercase letters, digits and `-`, each starting and ending with a letter or digit. " +
+					"Changing this forces a new pipeline.",
 				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
-				Validators: []validator.String{stringvalidator.RegexMatches(openDataPipelineNameRe,
-					"must be lowercase letters, digits, `-` and `.`, starting and ending with a letter or digit")},
+				Validators: []validator.String{
+					stringvalidator.LengthAtMost(253),
+					stringvalidator.RegexMatches(openDataPipelineNameRe,
+						"must be dot-separated labels of lowercase letters, digits and `-`, each starting and ending with a letter or digit"),
+				},
 			},
 			"connector_slug": schema.StringAttribute{
 				Required: true,
@@ -128,8 +137,10 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 			},
 			"schedule": schema.StringAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "5-field cron, or `one_off` for a single run. Left out, the pipeline runs once " +
-					"(`one_off`). Changing this forces a new pipeline.",
+				MarkdownDescription: "5-field cron, or `one_off` for a single run, without surrounding whitespace. " +
+					"Left out at creation, the pipeline runs once (`one_off`); left out afterwards, it keeps the " +
+					"pipeline's schedule. Changing this forces a new pipeline.",
+				Validators: []validator.String{stringvalidator.RegexMatches(scheduleTrimmedRe, "must not be empty or start or end with whitespace")},
 				PlanModifiers: []planmodifier.String{
 					// UseStateForUnknown first: an omitted schedule is unknown in any plan that
 					// changes something else, and RequiresReplace would replace on that.
@@ -137,7 +148,11 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 				},
 			},
 			"max_duration_minutes": schema.Int64Attribute{
-				Optional: true, MarkdownDescription: "Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. Not recovered by import.",
+				Optional: true,
+				MarkdownDescription: "Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. " +
+					"Not recovered by import: after an import it is null, and the next in-place update (such as " +
+					"toggling `suspended`) sends it as null, which hands a budget set in the console back to the " +
+					"schedule. Set it here to keep one.",
 				Validators: []validator.Int64{int64validator.Between(1, 1440)},
 			},
 			"suspended": schema.BoolAttribute{

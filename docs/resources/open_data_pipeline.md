@@ -46,15 +46,15 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
 - `connector_slug` (String) Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue `GET /api/v1/opendata/connectors` serves, checked at plan time. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `data_container_id` (String) Id of the destination Iceberg data container; the table is created in its SQL engine catalog. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `env` (String) Environment id the pipeline runs in. Changing this forces a new pipeline.
-- `name` (String) Pipeline name: lowercase letters, digits, `-` and `.`, starting and ending with a letter or digit. Changing this forces a new pipeline.
+- `name` (String) Pipeline name, a DNS-1123 subdomain of at most 253 characters: dot-separated labels of lowercase letters, digits and `-`, each starting and ending with a letter or digit. Changing this forces a new pipeline.
 - `params` (String) The connector's parameters as a JSON object (`jsonencode`), in the shape of its `params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, so key order, whitespace and the spelling of a number (`1` and `1.0`) never plan a change. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `schema_name` (String) Schema of the destination table. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `table_name` (String) Destination table, replaced in full on every run. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 
 ### Optional
 
-- `max_duration_minutes` (Number) Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. Not recovered by import.
-- `schedule` (String) 5-field cron, or `one_off` for a single run. Left out, the pipeline runs once (`one_off`). Changing this forces a new pipeline.
+- `max_duration_minutes` (Number) Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. Not recovered by import: after an import it is null, and the next in-place update (such as toggling `suspended`) sends it as null, which hands a budget set in the console back to the schedule. Set it here to keep one.
+- `schedule` (String) 5-field cron, or `one_off` for a single run, without surrounding whitespace. Left out at creation, the pipeline runs once (`one_off`); left out afterwards, it keeps the pipeline's schedule. Changing this forces a new pipeline.
 - `suspended` (Boolean) Whether scheduled runs are paused. Left out, it is not managed.
 
 ### Read-Only

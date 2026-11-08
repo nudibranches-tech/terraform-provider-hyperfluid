@@ -370,15 +370,29 @@ func TestOpenDataPipelineValidation(t *testing.T) {
 		}
 	}
 	for name, ok := range map[string]bool{
-		"opendata-cat-opidor": true,
-		"feed.v2":             true,
-		"Opendata":            false,
-		"cat_opidor":          false,
-		"-feed":               false,
-		"feed-":               false,
+		"opendata-cat-opidor":    true,
+		"feed.v2":                true,
+		"Opendata":               false,
+		"cat_opidor":             false,
+		"-feed":                  false,
+		"feed-":                  false,
+		"a..b":                   false,
+		"a.-b":                   false,
+		"a-.b":                   false,
+		".a":                     false,
+		"a.b-c.d1":               true,
+		strings.Repeat("a", 253): true,
+		strings.Repeat("a", 254): false,
 	} {
 		if d := validateString(t, s, cfg, path.Root("name"), types.StringValue(name)); d.HasError() == ok {
 			t.Errorf("name %q: accepted = %v, want %v", name, !d.HasError(), ok)
+		}
+	}
+	for schedule, ok := range map[string]bool{
+		"0 6 * * *": true, "one_off": true, " 0 6 * * *": false, "0 6 * * * ": false, "one_off\n": false, "": false,
+	} {
+		if d := validateString(t, s, cfg, path.Root("schedule"), types.StringValue(schedule)); d.HasError() == ok {
+			t.Errorf("schedule %q: accepted = %v, want %v", schedule, !d.HasError(), ok)
 		}
 	}
 	if d := validateString(t, s, cfg, path.Root("data_container_id"), types.StringValue("rag")); !d.HasError() {
