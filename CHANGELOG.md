@@ -4,6 +4,10 @@ FEATURES:
 
 * **New Resource:** `hyperfluid_open_data_pipeline` — an open data pipeline, the one the console's Open Data page creates: an opendata connector (`connector_slug`, with its `params` as a JSON object) that loads its source into the Iceberg table `schema_name`.`table_name` of a data container (`data_container_id`), full refresh on every run. It is created through the open data ingestion endpoint and then read, updated and deleted as an ordinary pipeline. `params` is compared as JSON, so key order and whitespace plan no change. A slug the connector catalogue does not list is refused before anything is created, with the available ones named. `suspended` and `max_duration_minutes` change in place; any other change replaces the pipeline. A `schedule` left out runs the pipeline once (`one_off`). Imported by pipeline id, like `hyperfluid_pipeline`; the connector, its params and the destination are not recovered, and the first apply records them from the configuration.
 
+BUG FIXES:
+
+* resource/hyperfluid_pipeline: a `schedule` left out of the configuration no longer replaces the pipeline when something else changes (`suspended`, `max_duration_minutes`, or the first apply after an import). The framework marks such a schedule unknown before the plan modifiers run, and the replacement check ran before the prior value was restored.
+
 ## 0.11.0 (October 28, 2026)
 
 DEPRECATIONS:

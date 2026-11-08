@@ -97,7 +97,11 @@ func (r *pipelineResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"schedule": schema.StringAttribute{
 				Optional: true, Computed: true,
 				MarkdownDescription: "5-field cron, or `one_off` for a single run. Defaults to the kind's own cadence. Changing this forces a new pipeline.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()},
+				PlanModifiers: []planmodifier.String{
+					// UseStateForUnknown first: an omitted schedule is unknown in any plan that
+					// changes something else, and RequiresReplace would replace on that.
+					stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"max_duration_minutes": schema.Int64Attribute{
 				Optional: true, MarkdownDescription: "Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. Not recovered by import.",

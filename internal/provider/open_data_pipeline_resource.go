@@ -129,7 +129,11 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 				Optional: true, Computed: true,
 				MarkdownDescription: "5-field cron, or `one_off` for a single run. Left out, the pipeline runs once " +
 					"(`one_off`). Changing this forces a new pipeline.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()},
+				PlanModifiers: []planmodifier.String{
+					// UseStateForUnknown first: an omitted schedule is unknown in any plan that
+					// changes something else, and RequiresReplace would replace on that.
+					stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"max_duration_minutes": schema.Int64Attribute{
 				Optional: true, MarkdownDescription: "Budget of one run in minutes, 1 to 1440. Left out, it follows the schedule. Not recovered by import.",
