@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
+	"math/big"
 	"regexp"
 	"sort"
 	"strings"
@@ -105,7 +105,7 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 				Required: true,
 				MarkdownDescription: "The connector's parameters as a JSON object (`jsonencode`), in the shape of its " +
 					"`params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, " +
-					"so key order and whitespace never plan a change." + recovered,
+					"so key order, whitespace and the spelling of a number (`1` and `1.0`) never plan a change." + recovered,
 				PlanModifiers: []planmodifier.String{jsonObjectReplaceIfChanged()},
 				Validators:    []validator.String{jsonObjectValidator{}},
 			},
@@ -488,7 +488,9 @@ func decodeJSONObject(s string) (map[string]any, error) {
 }
 
 // jsonEqual reports whether two JSON documents hold the same value, whatever
-// their key order and whitespace. Numbers compare by their written form.
+// their key order and whitespace. Numbers compare by value, exactly: `1`,
+// `1.0` and `1e0` are equal, and two large integers differing in their last
+// digit are not.
 func jsonEqual(a, b string) bool {
 	da, err := decodeJSONObject(a)
 	if err != nil {
@@ -498,7 +500,45 @@ func jsonEqual(a, b string) bool {
 	if err != nil {
 		return false
 	}
-	return reflect.DeepEqual(da, db)
+	return jsonValueEqual(da, db)
+}
+
+func jsonValueEqual(a, b any) bool {
+	switch x := a.(type) {
+	case map[string]any:
+		y, ok := b.(map[string]any)
+		if !ok || len(x) != len(y) {
+			return false
+		}
+		for k, xv := range x {
+			yv, ok := y[k]
+			if !ok || !jsonValueEqual(xv, yv) {
+				return false
+			}
+		}
+		return true
+	case []any:
+		y, ok := b.([]any)
+		if !ok || len(x) != len(y) {
+			return false
+		}
+		for i := range x {
+			if !jsonValueEqual(x[i], y[i]) {
+				return false
+			}
+		}
+		return true
+	case json.Number:
+		y, ok := b.(json.Number)
+		if !ok {
+			return false
+		}
+		rx, okx := new(big.Rat).SetString(x.String())
+		ry, oky := new(big.Rat).SetString(y.String())
+		return okx && oky && rx.Cmp(ry) == 0
+	default:
+		return a == b
+	}
 }
 
 // jsonObjectReplaceIfChanged keeps the recorded value when the configuration

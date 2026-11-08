@@ -47,7 +47,7 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
 - `data_container_id` (String) Id of the destination Iceberg data container; the table is created in its SQL engine catalog. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `env` (String) Environment id the pipeline runs in. Changing this forces a new pipeline.
 - `name` (String) Pipeline name: lowercase letters, digits, `-` and `.`, starting and ending with a letter or digit. Changing this forces a new pipeline.
-- `params` (String) The connector's parameters as a JSON object (`jsonencode`), in the shape of its `params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, so key order and whitespace never plan a change. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
+- `params` (String) The connector's parameters as a JSON object (`jsonencode`), in the shape of its `params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, so key order, whitespace and the spelling of a number (`1` and `1.0`) never plan a change. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `schema_name` (String) Schema of the destination table. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `table_name` (String) Destination table, replaced in full on every run. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 
