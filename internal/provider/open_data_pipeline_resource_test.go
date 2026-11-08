@@ -6,6 +6,7 @@ package provider
 import (
 	"context"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -149,22 +150,47 @@ func TestOpenDataPipelineDefaultSchedule(t *testing.T) {
 	}
 }
 
-// A slug the catalogue does not list is refused before anything is created.
+func openDataDriverConfig(f *fakeAPI) map[string]any {
+	return map[string]any{
+		"env": f.env.String(), "name": "opendata-cat-opidor", "connector_slug": "cat_opidor",
+		"params":            `{"include_stopped":false,"scope":"services_structures_ateliers"}`,
+		"data_container_id": uuid.NewString(), "schema_name": "directory", "table_name": "cat_opidor",
+	}
+}
+
+// A slug the catalogue does not list fails the plan, naming the ones it does;
+// a plan that creates nothing does not read the catalogue.
 func TestOpenDataPipelineUnknownConnector(t *testing.T) {
 	f, r, _ := fakeOpenDataPipelines(t)
-	l := newLifecycle[openDataPipelineModel](t, r)
-	plan := openDataPipelinePlan(f, uuid.NewString())
-	plan.ConnectorSlug = types.StringValue("nope")
-	_, d := l.create(plan)
-	if !d.HasError() {
-		t.Fatal("an unknown connector was accepted")
-	}
-	if msg := d.Errors()[0].Detail(); !strings.Contains(msg, "cat_opidor, world_bank") {
-		t.Errorf("error does not list the connectors: %s", msg)
-	}
+	d := newDriver(t, r.p, "hyperfluid_open_data_pipeline")
+	cfg := openDataDriverConfig(f)
+	cfg["connector_slug"] = "nope"
+	wantErr(t, d.plan(tfState{}, d.config(cfg)).err, "cat_opidor, world_bank")
 	if n := len(f.calls("POST", `/api/v1/opendata/ingestions`)); n != 0 {
 		t.Errorf("%d ingestion requests for an unknown connector", n)
 	}
+
+	cfg["connector_slug"] = "cat_opidor"
+	s := d.mustApply(tfState{}, d.config(cfg))
+	before := len(f.calls("GET", `/api/v1/opendata/connectors`))
+	cfg["suspended"] = true
+	if p := d.plan(s, d.config(cfg)); p.err != nil {
+		t.Fatalf("plan: %v", p.err)
+	}
+	if n := len(f.calls("GET", `/api/v1/opendata/connectors`)); n != before {
+		t.Errorf("an in-place plan read the catalogue %d times", n-before)
+	}
+	cfg["connector_slug"] = "nope"
+	wantErr(t, d.plan(s, d.config(cfg)).err, "Unknown connector")
+}
+
+// A catalogue that cannot be read fails the plan rather than skipping the check.
+func TestOpenDataPipelineCatalogueUnreadable(t *testing.T) {
+	f, r, _ := fakeOpenDataPipelines(t)
+	f.routes = append([]fakeRoute{{method: "GET", path: regexp.MustCompile(`/api/v1/opendata/connectors$`),
+		handle: func(string, []byte) (int, any) { return 500, map[string]string{"message": "boom"} }}}, f.routes...)
+	d := newDriver(t, r.p, "hyperfluid_open_data_pipeline")
+	wantErr(t, d.plan(tfState{}, d.config(openDataDriverConfig(f))).err, "Failed to read the connector catalogue")
 }
 
 // Suspending patches the generic pipeline in place; no change sends nothing.

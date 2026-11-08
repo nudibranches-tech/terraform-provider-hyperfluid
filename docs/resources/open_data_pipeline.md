@@ -43,7 +43,7 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
 
 ### Required
 
-- `connector_slug` (String) Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue `GET /api/v1/opendata/connectors` serves. Not recovered by import: the first apply after an import records it from the configuration.
+- `connector_slug` (String) Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue `GET /api/v1/opendata/connectors` serves, checked at plan time. Not recovered by import: the first apply after an import records it from the configuration.
 - `data_container_id` (String) Id of the destination Iceberg data container; the table is created in its SQL engine catalog. Not recovered by import: the first apply after an import records it from the configuration.
 - `env` (String) Environment id the pipeline runs in. Changing this forces a new pipeline.
 - `name` (String) Pipeline name: lowercase letters, digits, `-` and `.`, starting and ending with a letter or digit. Changing this forces a new pipeline.

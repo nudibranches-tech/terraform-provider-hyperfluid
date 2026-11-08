@@ -34,6 +34,7 @@ var (
 	_ resource.Resource                = &openDataPipelineResource{}
 	_ resource.ResourceWithConfigure   = &openDataPipelineResource{}
 	_ resource.ResourceWithImportState = &openDataPipelineResource{}
+	_ resource.ResourceWithModifyPlan  = &openDataPipelineResource{}
 )
 
 // openDataPipelineNameRe is the name the platform keeps: it lowercases the name
@@ -96,7 +97,7 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 			"connector_slug": schema.StringAttribute{
 				Required: true,
 				MarkdownDescription: "Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue " +
-					"`GET /api/v1/opendata/connectors` serves." + notRecovered,
+					"`GET /api/v1/opendata/connectors` serves, checked at plan time." + notRecovered,
 				PlanModifiers: []planmodifier.String{requiresReplaceIfKnown()},
 				Validators:    []validator.String{stringvalidator.LengthAtLeast(1)},
 			},
@@ -170,14 +171,6 @@ func (r *openDataPipelineResource) Create(ctx context.Context, req resource.Crea
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	// A catalogue that cannot be read is no reason to refuse: the create
-	// request is the authority, and reports an unknown slug itself.
-	if connectors, err := r.p.API.ListOpenDataConnectors(ctx); err == nil {
-		if err := unknownConnector(plan.ConnectorSlug.ValueString(), connectors); err != nil {
-			resp.Diagnostics.AddAttributeError(path.Root("connector_slug"), "Unknown connector", err.Error())
-			return
-		}
-	}
 	slug, err := r.p.API.GetOrganizationSlug(ctx, r.p.OrgID)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read the organization", err.Error())
@@ -203,12 +196,43 @@ func (r *openDataPipelineResource) Create(ctx context.Context, req resource.Crea
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-// unknownConnector refuses a slug the connector catalogue does not list,
-// naming the ones it does. An empty catalogue refuses nothing.
-func unknownConnector(slug string, connectors []console.ConnectorDescriptorResponse) error {
-	if len(connectors) == 0 {
-		return nil
+// ModifyPlan checks the connector slug against the catalogue when a pipeline
+// is about to be created with it. Nothing else does before the first run: the
+// ingestion endpoint copies the slug into the pipeline unchecked, and only the
+// run fails on it. The catalogue is public, so failing to read it is refused
+// rather than skipped.
+func (r *openDataPipelineResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if r.p == nil || req.Plan.Raw.IsNull() {
+		return
 	}
+	var slug types.String
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("connector_slug"), &slug)...)
+	if resp.Diagnostics.HasError() || slug.IsNull() || slug.IsUnknown() {
+		return
+	}
+	if !req.State.Raw.IsNull() {
+		var prior types.String
+		resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("connector_slug"), &prior)...)
+		// The same connector, or one adopted onto an existing pipeline: no
+		// pipeline is created with it.
+		if resp.Diagnostics.HasError() || prior.IsNull() || prior.Equal(slug) {
+			return
+		}
+	}
+	connectors, err := r.p.API.ListOpenDataConnectors(ctx)
+	if err != nil {
+		resp.Diagnostics.AddAttributeError(path.Root("connector_slug"), "Failed to read the connector catalogue",
+			"The connector could not be checked against GET /api/v1/opendata/connectors: "+err.Error())
+		return
+	}
+	if err := unknownConnector(slug.ValueString(), connectors); err != nil {
+		resp.Diagnostics.AddAttributeError(path.Root("connector_slug"), "Unknown connector", err.Error())
+	}
+}
+
+// unknownConnector refuses a slug the connector catalogue does not list,
+// naming the ones it does.
+func unknownConnector(slug string, connectors []console.ConnectorDescriptorResponse) error {
 	slugs := make([]string, 0, len(connectors))
 	for _, c := range connectors {
 		if c.Slug == slug {
@@ -217,7 +241,11 @@ func unknownConnector(slug string, connectors []console.ConnectorDescriptorRespo
 		slugs = append(slugs, c.Slug)
 	}
 	sort.Strings(slugs)
-	return fmt.Errorf("the platform has no opendata connector %q. Available connectors: %s", slug, strings.Join(slugs, ", "))
+	available := strings.Join(slugs, ", ")
+	if available == "" {
+		available = "none"
+	}
+	return fmt.Errorf("the platform has no opendata connector %q. Available connectors: %s", slug, available)
 }
 
 func (r *openDataPipelineResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
