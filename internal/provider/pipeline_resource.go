@@ -67,7 +67,8 @@ func (r *pipelineResource) Metadata(_ context.Context, req resource.MetadataRequ
 func (r *pipelineResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "A data pipeline, declared as the body `hfctl pipelines create --spec` takes. Runs are actions and stay out of Terraform.\n\n" +
-			"~> Only `suspended` and `max_duration_minutes` change in place: any other change deletes the pipeline and its run history.",
+			"~> Only `suspended` and `max_duration_minutes` change in place: any other change deletes the pipeline and its run history.\n\n" +
+			"An open data connector pipeline, the kind the console's Open Data page creates, is `hyperfluid_open_data_pipeline`.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,

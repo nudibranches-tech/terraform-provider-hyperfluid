@@ -5,6 +5,7 @@ subcategory: ""
 description: |-
   A data pipeline, declared as the body hfctl pipelines create --spec takes. Runs are actions and stay out of Terraform.
   ~> Only suspended and max_duration_minutes change in place: any other change deletes the pipeline and its run history.
+  An open data connector pipeline, the kind the console's Open Data page creates, is hyperfluid_open_data_pipeline.
 ---
 
 # hyperfluid_pipeline (Resource)
@@ -12,6 +13,8 @@ description: |-
 A data pipeline, declared as the body `hfctl pipelines create --spec` takes. Runs are actions and stay out of Terraform.
 
 ~> Only `suspended` and `max_duration_minutes` change in place: any other change deletes the pipeline and its run history.
+
+An open data connector pipeline, the kind the console's Open Data page creates, is `hyperfluid_open_data_pipeline`.
 
 ## Example Usage
 
