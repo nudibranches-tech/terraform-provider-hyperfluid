@@ -402,7 +402,7 @@ func jsonObjectReplaceIfChanged() planmodifier.String {
 type jsonObjectReplaceIfChangedModifier struct{}
 
 func (jsonObjectReplaceIfChangedModifier) Description(_ context.Context) string {
-	return "Compares the JSON values, not the text; a change of value forces a new resource, unless the value was never recorded (after an import)."
+	return "Compares the JSON values, not the text; a change of value, or a value only known at apply time, forces a new resource, unless the value was never recorded (after an import)."
 }
 
 func (m jsonObjectReplaceIfChangedModifier) MarkdownDescription(ctx context.Context) string {
@@ -410,8 +410,15 @@ func (m jsonObjectReplaceIfChangedModifier) MarkdownDescription(ctx context.Cont
 }
 
 func (jsonObjectReplaceIfChangedModifier) PlanModifyString(_ context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	// Creating, destroying, an unknown value, or adopting after an import.
-	if req.State.Raw.IsNull() || req.Plan.Raw.IsNull() || req.PlanValue.IsUnknown() || req.PlanValue.IsNull() || req.StateValue.IsNull() {
+	// Creating, destroying, or adopting after an import.
+	if req.State.Raw.IsNull() || req.Plan.Raw.IsNull() || req.PlanValue.IsNull() || req.StateValue.IsNull() {
+		return
+	}
+	// A value known only at apply time may differ from the recorded one, and
+	// no update can carry params: planning it in place would let the state
+	// drift from the platform for good.
+	if req.PlanValue.IsUnknown() {
+		resp.RequiresReplace = true
 		return
 	}
 	if jsonEqual(req.StateValue.ValueString(), req.PlanValue.ValueString()) {

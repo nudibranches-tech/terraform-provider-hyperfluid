@@ -300,8 +300,12 @@ func TestOpenDataPipelineParamsPlanModifier(t *testing.T) {
 	if requiresReplaceString(t, s, p, types.StringNull(), types.StringValue(recorded)) {
 		t.Error("adopting params after import replaces the pipeline")
 	}
-	if requiresReplaceString(t, s, p, types.StringValue(recorded), types.StringUnknown()) {
-		t.Error("unknown params replace the pipeline before they are known")
+	// No update carries params, so a value only known at apply time replaces.
+	if !requiresReplaceString(t, s, p, types.StringValue(recorded), types.StringUnknown()) {
+		t.Error("params known only at apply time plan an in-place update that never reaches the platform")
+	}
+	if requiresReplaceString(t, s, p, types.StringNull(), types.StringUnknown()) {
+		t.Error("unknown params replace a pipeline that has none recorded")
 	}
 	// The other destination fields keep the import-friendly replacement.
 	for _, attr := range []string{"connector_slug", "data_container_id", "schema_name", "table_name"} {
