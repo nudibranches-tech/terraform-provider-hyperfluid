@@ -5,6 +5,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"regexp"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -26,10 +28,39 @@ import (
 // and the generic pipeline routes the created pipeline lives on. An omitted
 // schedule reads back as `one_off`, and the name is lowercased, as the console
 // does.
-func fakeOpenDataPipelines(t *testing.T) (*fakeAPI, *openDataPipelineResource, *[]byte) {
+// openDataFake is what a test reaches into: the last ingestion body as sent,
+// and the pipelines the fake serves.
+type openDataFake struct {
+	lastCreate []byte
+	pipelines  map[string]*console.PipelineDetailResponse
+}
+
+// connectorIngestGroup is the detail group the console renders for a
+// ConnectorIngest step: its labels are what import recovers from.
+func connectorIngestGroup(t *testing.T, slug, params string, container uuid.UUID, catalog, schema, table string) console.PipelineDetailGroup {
+	t.Helper()
+	var ref console.PipelineFieldReference
+	if err := ref.FromPipelineFieldReference2(console.PipelineFieldReference2{
+		Kind: console.PipelineFieldReference2KindTable, DataContainerId: container, Schema: schema, Table: table,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	stepType := "hyperfluid.builtins.connector_ingest"
+	desc := "Ingest " + slug + " into Iceberg via opendata connector"
+	return console.PipelineDetailGroup{
+		Title: "ConnectorIngest", StepType: &stepType, Description: &desc,
+		Fields: []console.PipelineDetailField{
+			{Label: "Destination table", Value: catalog + "." + schema + "." + table, Copyable: true, Reference: &ref},
+			{Label: "Connector slug", Value: slug, Copyable: true},
+			{Label: "Params json", Value: params, Copyable: true},
+		},
+	}
+}
+
+func fakeOpenDataPipelines(t *testing.T) (*fakeAPI, *openDataPipelineResource, *openDataFake) {
 	f, pd := newFakeAPI(t)
-	var lastCreate []byte
-	pipelines := map[string]*console.PipelineDetailResponse{}
+	fk := &openDataFake{pipelines: map[string]*console.PipelineDetailResponse{}}
+	pipelines := fk.pipelines
 	f.on("GET", `/api/v1/organizations/[^/]+`, func(string, []byte) (int, any) {
 		return 200, console.Org{Id: f.org, Name: "Acme", Slug: "acme"}
 	})
@@ -40,8 +71,18 @@ func fakeOpenDataPipelines(t *testing.T) (*fakeAPI, *openDataPipelineResource, *
 		}}
 	})
 	f.on("POST", `/api/v1/opendata/ingestions`, func(_ string, raw []byte) (int, any) {
-		lastCreate = append([]byte(nil), raw...)
+		fk.lastCreate = append([]byte(nil), raw...)
 		body := decodeInto[console.CreateConnectorIngestRequest](t, raw)
+		// The console stores params as serde_json writes them: compact, keys sorted.
+		var wire struct {
+			Params json.RawMessage `json:"params"`
+		}
+		_ = json.Unmarshal(raw, &wire)
+		params, err := decodeJSONObject(string(wire.Params))
+		if err != nil {
+			t.Errorf("params: %v", err)
+		}
+		paramsJSON, _ := json.Marshal(params)
 		schedule := "one_off"
 		if body.Pipeline.Schedule != nil {
 			schedule = *body.Pipeline.Schedule
@@ -49,7 +90,9 @@ func fakeOpenDataPipelines(t *testing.T) (*fakeAPI, *openDataPipelineResource, *
 		p := &console.PipelineDetailResponse{
 			Id: uuid.New(), Name: strings.ToLower(body.Pipeline.Name), HarborId: body.Pipeline.HarborId,
 			Schedule: schedule, Suspended: body.Pipeline.Enabled != nil && !*body.Pipeline.Enabled,
-			Type: "open_data", CreatedAt: time.Now(), Groups: []console.PipelineDetailGroup{},
+			Type: "OpenData", CreatedAt: time.Now(), Groups: []console.PipelineDetailGroup{
+				connectorIngestGroup(t, body.ConnectorSlug, string(paramsJSON), body.DataContainerId, "rag", body.SchemaName, body.TableName),
+			},
 		}
 		pipelines[p.Id.String()] = p
 		return 201, console.PipelineResponseData{Id: p.Id, Name: p.Name, HarborId: p.HarborId, OrgId: f.org}
@@ -69,7 +112,7 @@ func fakeOpenDataPipelines(t *testing.T) (*fakeAPI, *openDataPipelineResource, *
 		delete(pipelines, p[strings.LastIndex(p, "/")+1:])
 		return 200, nil
 	})
-	return f, &openDataPipelineResource{p: pd}, &lastCreate
+	return f, &openDataPipelineResource{p: pd}, fk
 }
 
 func openDataPipelinePlan(f *fakeAPI, container string) openDataPipelineModel {
@@ -92,7 +135,7 @@ func TestOpenDataPipelineSchema(t *testing.T) {
 // integers intact), the destination and the pipeline block; omitted settings
 // stay absent.
 func TestOpenDataPipelineCreate(t *testing.T) {
-	f, r, raw := fakeOpenDataPipelines(t)
+	f, r, fk := fakeOpenDataPipelines(t)
 	l := newLifecycle[openDataPipelineModel](t, r)
 	container := uuid.NewString()
 	plan := openDataPipelinePlan(f, container)
@@ -124,11 +167,11 @@ func TestOpenDataPipelineCreate(t *testing.T) {
 		}
 	}
 	// The recorded body decodes numbers as float64, so read the wire text.
-	if !strings.Contains(string(*raw), `"limit":12345678901234567`) {
-		t.Errorf("params lost the exact integer: %s", *raw)
+	if !strings.Contains(string(fk.lastCreate), `"limit":12345678901234567`) {
+		t.Errorf("params lost the exact integer: %s", fk.lastCreate)
 	}
 	if got.ID.IsUnknown() || got.Schedule.ValueString() != "0 6 * * *" || got.Suspended.ValueBool() ||
-		got.Params != plan.Params || got.ConnectorSlug != plan.ConnectorSlug || got.PipelineType.ValueString() != "open_data" {
+		got.Params != plan.Params || got.ConnectorSlug != plan.ConnectorSlug || got.PipelineType.ValueString() != "OpenData" {
 		t.Errorf("state = %+v", got)
 	}
 }
@@ -220,27 +263,26 @@ func TestOpenDataPipelineUpdate(t *testing.T) {
 	}
 }
 
-// Import takes the pipeline id; what no read reports stays null, to be
-// adopted from the configuration. Delete goes through the generic endpoint.
+// Import takes the pipeline id and recovers the connector, its params and the
+// destination from the detail; only the run budget stays null. Delete goes
+// through the generic endpoint.
 func TestOpenDataPipelineImportDelete(t *testing.T) {
 	f, r, _ := fakeOpenDataPipelines(t)
 	l := newLifecycle[openDataPipelineModel](t, r)
-	created, d := l.create(openDataPipelinePlan(f, uuid.NewString()))
+	container := uuid.NewString()
+	created, d := l.create(openDataPipelinePlan(f, container))
 	mustSucceed(t, d)
 
 	imported, d := l.importAndRead(created.ID.ValueString())
 	mustSucceed(t, d)
 	if imported.Name.ValueString() != "opendata-cat-opidor" || imported.Schedule.ValueString() != "0 6 * * *" ||
-		imported.Env.ValueString() != f.env.String() {
+		imported.Env.ValueString() != f.env.String() || imported.ConnectorSlug.ValueString() != "cat_opidor" ||
+		imported.DataContainerID.ValueString() != container || imported.SchemaName.ValueString() != "directory" ||
+		imported.TableName.ValueString() != "cat_opidor" || !jsonEqual(imported.Params.ValueString(), created.Params.ValueString()) {
 		t.Errorf("imported = %+v", imported)
 	}
-	for name, v := range map[string]types.String{
-		"connector_slug": imported.ConnectorSlug, "params": imported.Params, "data_container_id": imported.DataContainerID,
-		"schema_name": imported.SchemaName, "table_name": imported.TableName,
-	} {
-		if !v.IsNull() {
-			t.Errorf("import recovered %s = %s", name, v)
-		}
+	if !imported.MaxDurationMinutes.IsNull() {
+		t.Errorf("import recovered max_duration_minutes = %s", imported.MaxDurationMinutes)
 	}
 
 	mustSucceed(t, l.destroy(created))
@@ -252,6 +294,61 @@ func TestOpenDataPipelineImportDelete(t *testing.T) {
 	if !removed {
 		t.Error("a deleted pipeline stayed in state")
 	}
+}
+
+// An imported pipeline that matches the configuration plans nothing (params
+// compared as JSON against the console's compact text); one whose destination
+// differs plans a replacement instead of silently adopting the configuration.
+func TestOpenDataPipelineImportPlans(t *testing.T) {
+	f, r, _ := fakeOpenDataPipelines(t)
+	d := newDriver(t, r.p, "hyperfluid_open_data_pipeline")
+	cfg := openDataDriverConfig(f)
+	cfg["params"] = "{\n  \"scope\": \"services_structures_ateliers\",\n  \"include_stopped\": false\n}"
+	cfg["schedule"] = "0 6 * * *"
+	s := d.mustApply(tfState{}, d.config(cfg))
+
+	imported, err := d.importState(idOf(t, s))
+	if err != nil {
+		t.Fatalf("import: %v", err)
+	}
+	if p := d.plan(imported, d.config(cfg)); p.err != nil || p.replace || !p.noop(imported) {
+		t.Fatalf("matching import: err %v, replace %v, noop %v", p.err, p.replace, p.noop(imported))
+	}
+	delete(cfg, "schedule")
+	if p := d.plan(imported, d.config(cfg)); p.err != nil || p.replace {
+		t.Fatalf("matching import, schedule omitted: err %v, replace %v", p.err, p.replace)
+	}
+	for attr, v := range map[string]any{
+		"table_name": "other", "schema_name": "other", "data_container_id": uuid.NewString(),
+		"params": `{"scope":"services"}`, "connector_slug": "world_bank",
+	} {
+		next := map[string]any{}
+		for k, x := range cfg {
+			next[k] = x
+		}
+		next[attr] = v
+		if p := d.plan(imported, d.config(next)); p.err != nil || !p.replace {
+			t.Errorf("import with a different %s: err %v, replace %v", attr, p.err, p.replace)
+		}
+	}
+}
+
+// Import refuses a pipeline that is not a connector ingest.
+func TestOpenDataPipelineImportRefusesOtherPipelines(t *testing.T) {
+	f, r, fk := fakeOpenDataPipelines(t)
+	d := newDriver(t, r.p, "hyperfluid_open_data_pipeline")
+	markitdown := &console.PipelineDetailResponse{Id: uuid.New(), Name: "invoices", HarborId: f.env,
+		Schedule: "*/10 * * * *", Type: "Markitdown", CreatedAt: time.Now(), Groups: []console.PipelineDetailGroup{}}
+	dataset := &console.PipelineDetailResponse{Id: uuid.New(), Name: "rnic", HarborId: f.env,
+		Schedule: "one_off", Type: "OpenData", CreatedAt: time.Now(),
+		Groups: []console.PipelineDetailGroup{{Title: "OpenDataIngest", Fields: []console.PipelineDetailField{}}}}
+	fk.pipelines[markitdown.Id.String()] = markitdown
+	fk.pipelines[dataset.Id.String()] = dataset
+
+	_, err := d.importStateErr(markitdown.Id.String())
+	wantErr(t, err, "is a Markitdown pipeline, not an open data connector pipeline")
+	_, err = d.importStateErr(dataset.Id.String())
+	wantErr(t, err, "without a connector ingest step")
 }
 
 func TestOpenDataPipelineValidation(t *testing.T) {
@@ -407,9 +504,9 @@ func TestAccOpenDataPipelineResource(t *testing.T) {
 				ResourceName:      "hyperfluid_open_data_pipeline.cat_opidor",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"connector_slug", "params", "data_container_id", "schema_name", "table_name", "max_duration_minutes",
-				},
+				// params is recovered as the console writes it, which may differ
+				// from jsonencode's text; the run budget is not reported.
+				ImportStateVerifyIgnore: []string{"params", "max_duration_minutes"},
 			},
 		},
 	})
@@ -437,4 +534,28 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
   suspended         = ` + s + `
 }
 `
+}
+
+// importStateErr is importState for an import expected to fail: it returns the
+// error of the import or of the read that follows it instead of failing.
+func (d *tfDriver) importStateErr(id string) (tfState, error) {
+	d.t.Helper()
+	resp, err := d.srv.ImportResourceState(d.t.Context(), &tfprotov6.ImportResourceStateRequest{TypeName: d.typeName, ID: id})
+	if err != nil {
+		return tfState{}, err
+	}
+	if err := diagErr(resp.Diagnostics); err != nil {
+		return tfState{}, err
+	}
+	imported := resp.ImportedResources[0]
+	read, err := d.srv.ReadResource(d.t.Context(), &tfprotov6.ReadResourceRequest{
+		TypeName: d.typeName, CurrentState: imported.State, Private: imported.Private,
+	})
+	if err != nil {
+		return tfState{}, err
+	}
+	if err := diagErr(read.Diagnostics); err != nil {
+		return tfState{}, err
+	}
+	return tfState{value: d.undyn(read.NewState), private: read.Private}, nil
 }

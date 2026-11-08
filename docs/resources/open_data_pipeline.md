@@ -43,13 +43,13 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
 
 ### Required
 
-- `connector_slug` (String) Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue `GET /api/v1/opendata/connectors` serves, checked at plan time. Not recovered by import: the first apply after an import records it from the configuration.
-- `data_container_id` (String) Id of the destination Iceberg data container; the table is created in its SQL engine catalog. Not recovered by import: the first apply after an import records it from the configuration.
+- `connector_slug` (String) Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue `GET /api/v1/opendata/connectors` serves, checked at plan time. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
+- `data_container_id` (String) Id of the destination Iceberg data container; the table is created in its SQL engine catalog. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 - `env` (String) Environment id the pipeline runs in. Changing this forces a new pipeline.
 - `name` (String) Pipeline name: lowercase letters, digits, `-` and `.`, starting and ending with a letter or digit. Changing this forces a new pipeline.
-- `params` (String) The connector's parameters as a JSON object (`jsonencode`), in the shape of its `params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, so key order and whitespace never plan a change. Not recovered by import: the first apply after an import records it from the configuration.
-- `schema_name` (String) Schema of the destination table. Not recovered by import: the first apply after an import records it from the configuration.
-- `table_name` (String) Destination table, replaced in full on every run. Not recovered by import: the first apply after an import records it from the configuration.
+- `params` (String) The connector's parameters as a JSON object (`jsonencode`), in the shape of its `params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, so key order and whitespace never plan a change. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
+- `schema_name` (String) Schema of the destination table. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
+- `table_name` (String) Destination table, replaced in full on every run. Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement.
 
 ### Optional
 
@@ -71,8 +71,9 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 
 ```shell
 # Open data pipeline import id is the pipeline id, as for hyperfluid_pipeline, so a
-# pipeline created from the console's Open Data page imports here. `connector_slug`,
-# `params`, `data_container_id`, `schema_name`, `table_name` and `max_duration_minutes`
-# are not recovered: the first apply after the import records them from the configuration.
+# pipeline created from the console's Open Data page imports here. The connector, its
+# params and the destination are recovered from the pipeline, and a configuration that
+# does not match them plans a replacement. A pipeline that is not an open data connector
+# pipeline is refused. `max_duration_minutes` is not recovered.
 terraform import hyperfluid_open_data_pipeline.cat_opidor 00000000-0000-0000-0000-000000000000
 ```

@@ -70,7 +70,7 @@ func (r *openDataPipelineResource) Metadata(_ context.Context, req resource.Meta
 }
 
 func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	notRecovered := " Not recovered by import: the first apply after an import records it from the configuration."
+	recovered := " Recovered by import from the pipeline's detail, so a configuration that does not match plans a replacement."
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "An open data pipeline: an opendata connector (the console's Open Data page) that loads its " +
 			"source into an Iceberg table of a data container, full refresh on every run. Once created it is an " +
@@ -97,7 +97,7 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 			"connector_slug": schema.StringAttribute{
 				Required: true,
 				MarkdownDescription: "Connector to run, such as `cat_opidor` or `world_bank`: a slug of the catalogue " +
-					"`GET /api/v1/opendata/connectors` serves, checked at plan time." + notRecovered,
+					"`GET /api/v1/opendata/connectors` serves, checked at plan time." + recovered,
 				PlanModifiers: []planmodifier.String{requiresReplaceIfKnown()},
 				Validators:    []validator.String{stringvalidator.LengthAtLeast(1)},
 			},
@@ -105,24 +105,24 @@ func (r *openDataPipelineResource) Schema(_ context.Context, _ resource.SchemaRe
 				Required: true,
 				MarkdownDescription: "The connector's parameters as a JSON object (`jsonencode`), in the shape of its " +
 					"`params_schema` in the catalogue; `jsonencode({})` for a connector without any. Compared as JSON, " +
-					"so key order and whitespace never plan a change." + notRecovered,
+					"so key order and whitespace never plan a change." + recovered,
 				PlanModifiers: []planmodifier.String{jsonObjectReplaceIfChanged()},
 				Validators:    []validator.String{jsonObjectValidator{}},
 			},
 			"data_container_id": schema.StringAttribute{
 				Required: true,
 				MarkdownDescription: "Id of the destination Iceberg data container; the table is created in its " +
-					"SQL engine catalog." + notRecovered,
+					"SQL engine catalog." + recovered,
 				PlanModifiers: []planmodifier.String{requiresReplaceIfKnown()},
 				Validators:    []validator.String{isUUID()},
 			},
 			"schema_name": schema.StringAttribute{
-				Required: true, MarkdownDescription: "Schema of the destination table." + notRecovered,
+				Required: true, MarkdownDescription: "Schema of the destination table." + recovered,
 				PlanModifiers: []planmodifier.String{requiresReplaceIfKnown()},
 				Validators:    []validator.String{stringvalidator.LengthAtLeast(1)},
 			},
 			"table_name": schema.StringAttribute{
-				Required: true, MarkdownDescription: "Destination table, replaced in full on every run." + notRecovered,
+				Required: true, MarkdownDescription: "Destination table, replaced in full on every run." + recovered,
 				PlanModifiers: []planmodifier.String{requiresReplaceIfKnown()},
 				Validators:    []validator.String{stringvalidator.LengthAtLeast(1)},
 			},
@@ -317,17 +317,25 @@ func (r *openDataPipelineResource) Delete(ctx context.Context, req resource.Dele
 }
 
 // ImportState takes the pipeline id, as hyperfluid_pipeline does, so a pipeline
-// created in the console imports here.
+// created in the console imports here. The Read that follows refuses a
+// pipeline that is not a connector ingest.
 func (r *openDataPipelineResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // readInto maps the pipeline onto the model, keeping from keep what no read
 // reports: the connector, its params, the destination and the run budget.
+// Right after an import keep holds none of them, and they are recovered from
+// the pipeline's detail instead.
 func (r *openDataPipelineResource) readInto(ctx context.Context, id string, keep openDataPipelineModel) (openDataPipelineModel, error) {
 	p, err := r.p.API.GetPipeline(ctx, r.p.OrgID, id)
 	if err != nil {
 		return openDataPipelineModel{}, err
+	}
+	if keep.ConnectorSlug.IsNull() {
+		if keep, err = recoverConnectorIngest(p, keep); err != nil {
+			return openDataPipelineModel{}, err
+		}
 	}
 	return openDataPipelineModel{
 		ID:                 types.StringValue(id),
@@ -344,6 +352,79 @@ func (r *openDataPipelineResource) readInto(ctx context.Context, id string, keep
 		PipelineType:       types.StringValue(p.Type),
 		CreatedAt:          timeString(p.CreatedAt),
 	}, nil
+}
+
+// The pipeline type and the detail group of a connector ingest, as the console
+// reports them.
+const (
+	openDataPipelineType      = "OpenData"
+	connectorIngestGroupTitle = "ConnectorIngest"
+	connectorIngestStepSuffix = "connector_ingest"
+)
+
+// recoverConnectorIngest fills the connector, its params and the destination
+// from the pipeline's detail, refusing a pipeline that is not a connector
+// ingest so an import cannot adopt an unrelated one.
+//
+// The detail has no typed fields for these: they come from the rows the
+// console renders for the pipeline's ConnectorIngest step, found by their
+// display labels ("Connector slug", "Params json", "Destination table"). That
+// is a fragile contract: a label renamed in the console leaves the attribute
+// null, and the first apply then adopts it from the configuration, as before
+// this recovery existed. Only the type and the step are required.
+func recoverConnectorIngest(p *console.PipelineDetailResponse, keep openDataPipelineModel) (openDataPipelineModel, error) {
+	if p.Type != openDataPipelineType {
+		return keep, fmt.Errorf("pipeline %s is a %s pipeline, not an open data connector pipeline: manage it with hyperfluid_pipeline", p.Id, p.Type)
+	}
+	var group *console.PipelineDetailGroup
+	for i := range p.Groups {
+		g := &p.Groups[i]
+		if g.Title == connectorIngestGroupTitle || (g.StepType != nil && strings.HasSuffix(*g.StepType, connectorIngestStepSuffix)) {
+			group = g
+			break
+		}
+	}
+	if group == nil {
+		return keep, fmt.Errorf("pipeline %s is an open data pipeline without a connector ingest step "+
+			"(a catalogue dataset pipeline): manage it with hyperfluid_pipeline", p.Id)
+	}
+	for _, f := range group.Fields {
+		switch f.Label {
+		case "Connector slug":
+			if f.Value != "" {
+				keep.ConnectorSlug = types.StringValue(f.Value)
+			}
+		case "Params json":
+			if _, err := decodeJSONObject(f.Value); err == nil {
+				keep.Params = types.StringValue(f.Value)
+			}
+		case "Destination table":
+			recoverDestination(f, &keep)
+		}
+	}
+	if keep.ConnectorSlug.IsNull() {
+		return keep, fmt.Errorf("pipeline %s: its connector ingest step names no connector", p.Id)
+	}
+	return keep, nil
+}
+
+// recoverDestination takes the data container, schema and table from the
+// resolved table reference, or schema and table from the `catalog.schema.table`
+// text when the console could not resolve the catalog.
+func recoverDestination(f console.PipelineDetailField, keep *openDataPipelineModel) {
+	if f.Reference != nil {
+		if ref, err := f.Reference.AsPipelineFieldReference2(); err == nil &&
+			ref.Kind == console.PipelineFieldReference2KindTable && ref.DataContainerId != uuid.Nil {
+			keep.DataContainerID = types.StringValue(ref.DataContainerId.String())
+			keep.SchemaName = types.StringValue(ref.Schema)
+			keep.TableName = types.StringValue(ref.Table)
+			return
+		}
+	}
+	if parts := strings.Split(f.Value, "."); len(parts) == 3 && parts[1] != "" && parts[2] != "" {
+		keep.SchemaName = types.StringValue(parts[1])
+		keep.TableName = types.StringValue(parts[2])
+	}
 }
 
 // openDataPipelineBody assembles the create request. Optional settings left
