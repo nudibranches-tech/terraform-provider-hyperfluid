@@ -345,10 +345,8 @@ func TestOpenDataPipelineImportRefusesOtherPipelines(t *testing.T) {
 	fk.pipelines[markitdown.Id.String()] = markitdown
 	fk.pipelines[dataset.Id.String()] = dataset
 
-	_, err := d.importStateErr(markitdown.Id.String())
-	wantErr(t, err, "is a Markitdown pipeline, not an open data connector pipeline")
-	_, err = d.importStateErr(dataset.Id.String())
-	wantErr(t, err, "without a connector ingest step")
+	wantErr(t, d.importErr(markitdown.Id.String()), "is a Markitdown pipeline, not an open data connector pipeline")
+	wantErr(t, d.importErr(dataset.Id.String()), "without a connector ingest step")
 }
 
 func TestOpenDataPipelineValidation(t *testing.T) {
@@ -557,26 +555,23 @@ resource "hyperfluid_open_data_pipeline" "cat_opidor" {
 `
 }
 
-// importStateErr is importState for an import expected to fail: it returns the
-// error of the import or of the read that follows it instead of failing.
-func (d *tfDriver) importStateErr(id string) (tfState, error) {
+// importErr runs an import expected to fail, and returns the error of the
+// import or of the read that follows it instead of failing the test.
+func (d *tfDriver) importErr(id string) error {
 	d.t.Helper()
 	resp, err := d.srv.ImportResourceState(d.t.Context(), &tfprotov6.ImportResourceStateRequest{TypeName: d.typeName, ID: id})
 	if err != nil {
-		return tfState{}, err
+		return err
 	}
 	if err := diagErr(resp.Diagnostics); err != nil {
-		return tfState{}, err
+		return err
 	}
 	imported := resp.ImportedResources[0]
 	read, err := d.srv.ReadResource(d.t.Context(), &tfprotov6.ReadResourceRequest{
 		TypeName: d.typeName, CurrentState: imported.State, Private: imported.Private,
 	})
 	if err != nil {
-		return tfState{}, err
+		return err
 	}
-	if err := diagErr(read.Diagnostics); err != nil {
-		return tfState{}, err
-	}
-	return tfState{value: d.undyn(read.NewState), private: read.Private}, nil
+	return diagErr(read.Diagnostics)
 }
