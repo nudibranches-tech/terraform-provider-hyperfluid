@@ -160,6 +160,7 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewSqlEngineClusterResource,
 		NewSqlEngineCatalogResource,
 		NewPipelineResource,
+		NewOpenDataPipelineResource,
 		NewNextflowResource,
 		NewComputeDockResource,
 		NewAgentResource,
