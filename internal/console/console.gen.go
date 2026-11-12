@@ -12075,8 +12075,8 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
 	// Extensions Extensions to enable from the platform catalog, by name. Each must be
-	// offered for the chosen `engine` (PostGIS extensions need the `postgis`
-	// engine). Absent or empty enables none.
+	// offered for the database's `engine`, which follows them when absent
+	// (PostGIS extensions need the `postgis` engine). Absent or empty enables none.
 	Extensions *[]string `json:"extensions,omitempty"`
 
 	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
