@@ -41,10 +41,8 @@ resource "hyperfluid_managed_postgresql" "db" {
     archive_interval_seconds = 300
   }
 
-  # Extensions from the platform catalog. Once set, this is the whole declared
-  # list: an entry removed from it stays installed (reported `unmanaged` in
-  # extension_status), and dropping one takes ensure = "absent".
-  # pg_stat_statements is preloaded, so enabling it restarts the cluster.
+  # Removing an entry does not uninstall the extension: use ensure = "absent".
+  # Enabling pg_stat_statements restarts the cluster.
   extensions = [
     { name = "postgres_fdw" },
     { name = "pg_stat_statements" },
@@ -53,7 +51,7 @@ resource "hyperfluid_managed_postgresql" "db" {
   ]
 }
 
-# PostGIS extensions ship in the postgis image only.
+# PostGIS extensions need the postgis engine.
 resource "hyperfluid_managed_postgresql" "geo" {
   env              = data.hyperfluid_environment.default.id
   name             = "geodb"
@@ -95,8 +93,6 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   restore_wo_version = "1"
 }
 
-# What the operator reports for every extension: installing, installed,
-# failed (with a message), absent or unmanaged.
 output "extensions" {
   value = hyperfluid_managed_postgresql.db.extension_status
 }

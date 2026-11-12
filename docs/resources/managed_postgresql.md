@@ -59,10 +59,8 @@ resource "hyperfluid_managed_postgresql" "db" {
     archive_interval_seconds = 300
   }
 
-  # Extensions from the platform catalog. Once set, this is the whole declared
-  # list: an entry removed from it stays installed (reported `unmanaged` in
-  # extension_status), and dropping one takes ensure = "absent".
-  # pg_stat_statements is preloaded, so enabling it restarts the cluster.
+  # Removing an entry does not uninstall the extension: use ensure = "absent".
+  # Enabling pg_stat_statements restarts the cluster.
   extensions = [
     { name = "postgres_fdw" },
     { name = "pg_stat_statements" },
@@ -71,7 +69,7 @@ resource "hyperfluid_managed_postgresql" "db" {
   ]
 }
 
-# PostGIS extensions ship in the postgis image only.
+# PostGIS extensions need the postgis engine.
 resource "hyperfluid_managed_postgresql" "geo" {
   env              = data.hyperfluid_environment.default.id
   name             = "geodb"
@@ -113,8 +111,6 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   restore_wo_version = "1"
 }
 
-# What the operator reports for every extension: installing, installed,
-# failed (with a message), absent or unmanaged.
 output "extensions" {
   value = hyperfluid_managed_postgresql.db.extension_status
 }
@@ -152,9 +148,9 @@ output "recovery_window" {
 - `backup_target_id` (String) Id of the backup target that receives backups. Conflicts with `backup_placement`; `automated` backups and `pitr` need one of the two. Not recovered by import. Changing this forces a new cluster.
 - `configuration` (String) Topology: `standalone` or `high-availability`.
 - `description` (String) Free-form description.
-- `engine` (String) Engine, the image the cluster runs: `postgresql`, `postgis` or `timescaledb`. It sets which `extensions` are available (PostGIS extensions ship in the `postgis` image only); enabling an extension never changes it. Changing this forces a new cluster.
+- `engine` (String) Engine: `postgresql` or `postgis`. PostGIS extensions need `postgis`. Changing this forces a new cluster.
 - `expose_to_internet` (Boolean) Whether the cluster gets an external endpoint reachable from the internet. Defaults to false.
-- `extensions` (Attributes Set) Extensions to enable from the platform catalog. When set, it is the complete declared list. An extension removed from it stays installed (reported `unmanaged`); drop it with `ensure = "absent"`. Leaving the attribute out does not manage extensions at all. Some extensions (`pg_stat_statements`, `pgaudit`) restart the cluster, and PostGIS extensions need `engine = "postgis"`. Import does not recover it. (see [below for nested schema](#nestedatt--extensions))
+- `extensions` (Attributes Set) PostgreSQL extensions to enable. Removing an entry does not uninstall the extension: set `ensure = "absent"` to drop it. Enabling `pg_stat_statements` or `pgaudit` restarts the cluster. (see [below for nested schema](#nestedatt--extensions))
 - `node_tier` (String) Size: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`.
 - `pitr` (Attributes) Point-in-time recovery policy; needs `backup_target_id` or `backup_placement`. Removing it does not turn recovery off (set `enabled = false`), and import does not recover it. (see [below for nested schema](#nestedatt--pitr))
 - `restore` (Attributes, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Create the database from a backup or another database's archive. Write-only (Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, `version` and enough `storage_capacity` must match the source. (see [below for nested schema](#nestedatt--restore))
@@ -166,7 +162,7 @@ output "recovery_window" {
 ### Read-Only
 
 - `archive_interval_seconds` (Number) Seconds between forced WAL switches on the running cluster. `0` means none; null means the database is not archived or not reported yet.
-- `extension_status` (Attributes List) Extensions the operator reports on this cluster, declared or not. Null when the console does not report extensions. (see [below for nested schema](#nestedatt--extension_status))
+- `extension_status` (Attributes List) State of the extensions installed on the cluster. (see [below for nested schema](#nestedatt--extension_status))
 - `external_endpoint` (String) External endpoint, if exposed.
 - `first_recoverability_point` (String) Earliest time a restore can target, or null when no base backup has completed.
 - `id` (String) The ID of this resource.
@@ -184,12 +180,12 @@ output "recovery_window" {
 
 Required:
 
-- `name` (String) Extension name from the platform catalog, e.g. `postgis`, `postgres_fdw`, `pg_stat_statements`.
+- `name` (String) Extension name, e.g. `postgis`, `postgres_fdw`, `vector`.
 
 Optional:
 
-- `ensure` (String) `present` (the default) or `absent`. `absent` drops the extension; PostgreSQL refuses while anything depends on it.
-- `version` (String) Version to install or update to. Defaults to the version the cluster's image ships.
+- `ensure` (String) `present` (default) or `absent`.
+- `version` (String) Version to install. Defaults to the version available on the cluster.
 
 
 <a id="nestedatt--pitr"></a>
@@ -201,7 +197,7 @@ Required:
 
 Optional:
 
-- `archive_interval_seconds` (Number) Seconds between forced WAL switches, 60 to 86400: the worst-case recovery point on an idle database. Left out, the database follows the platform's recommended interval, so removing a pinned value clears the pin (platforms before 2.56 keep the last value).
+- `archive_interval_seconds` (Number) Seconds between forced WAL switches, 60 to 86400: the worst-case recovery point on an idle database. Defaults to the platform's interval.
 
 
 <a id="nestedatt--restore"></a>
@@ -220,11 +216,11 @@ Optional:
 
 Read-Only:
 
-- `available_version` (String) Default version the running image ships.
-- `installed_version` (String) Version installed in the database right now.
-- `message` (String) Why the extension failed.
+- `available_version` (String) Default version available on the cluster.
+- `installed_version` (String) Installed version.
+- `message` (String) Error message, when `failed`.
 - `name` (String) Extension name.
-- `phase` (String) `installing`, `installed`, `failed`, `absent` or `unmanaged` (installed but not declared).
+- `phase` (String) `installing`, `installed`, `failed`, `absent` or `unmanaged`.
 
 ## Import
 

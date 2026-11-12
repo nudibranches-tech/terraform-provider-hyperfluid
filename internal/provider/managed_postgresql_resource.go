@@ -172,10 +172,9 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"engine": func() schema.StringAttribute {
-				a := forceNewStr("Engine, the image the cluster runs: `postgresql`, `postgis` or `timescaledb`. It sets which " +
-					"`extensions` are available (PostGIS extensions ship in the `postgis` image only); enabling an extension " +
-					"never changes it. Changing this forces a new cluster.")
-				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis", "timescaledb")}
+				a := forceNewStr("Engine: `postgresql` or `postgis`. PostGIS extensions need `postgis`. " +
+					"Changing this forces a new cluster.")
+				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis")}
 				return a
 			}(),
 			"version": forceNewStr("PostgreSQL major version, e.g. `17`. Changing this forces a new cluster."),
@@ -238,8 +237,7 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 						Optional:   true,
 						Validators: []validator.Int64{int64validator.Between(60, 86400)},
 						MarkdownDescription: "Seconds between forced WAL switches, 60 to 86400: the worst-case recovery " +
-							"point on an idle database. Left out, the database follows the platform's recommended interval, " +
-							"so removing a pinned value clears the pin (platforms before 2.56 keep the last value).",
+							"point on an idle database. Defaults to the platform's interval.",
 					},
 				},
 			},
@@ -427,9 +425,8 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	// database, data included, to retry an extension.
 	if manageExtensions {
 		if err := r.waitExtensions(ctx, id, extensions); err != nil {
-			resp.Diagnostics.AddWarning("Extensions did not settle",
-				"The cluster was created, but its extensions are not all installed: "+err.Error()+
-					". See `extension_status`; fix the declaration and apply again.")
+			resp.Diagnostics.AddWarning("Extensions not installed",
+				"The cluster was created, but some extensions failed: "+err.Error()+".")
 		} else if err := r.waitReady(ctx, id); err != nil {
 			resp.Diagnostics.AddError("Cluster did not become ready after enabling extensions", err.Error())
 			return
@@ -586,7 +583,7 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	// Reported after the state is saved, so the declaration is kept and the
 	// failure stays visible in `extension_status` rather than re-planned.
 	if extensionErr != nil {
-		resp.Diagnostics.AddError("Extensions did not settle", extensionErr.Error()+". See `extension_status`.")
+		resp.Diagnostics.AddError("Extensions not installed", extensionErr.Error()+".")
 	}
 }
 

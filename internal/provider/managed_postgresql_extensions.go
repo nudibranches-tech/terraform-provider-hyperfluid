@@ -74,29 +74,26 @@ func extensionStatusObjectType() basetypes.ObjectType {
 func extensionsSchema() schema.SetNestedAttribute {
 	return schema.SetNestedAttribute{
 		Optional: true,
-		MarkdownDescription: "Extensions to enable from the platform catalog. When set, it is the complete " +
-			"declared list. An extension removed from it stays installed (reported `unmanaged`); drop it with " +
-			"`ensure = \"absent\"`. Leaving the attribute out does not manage extensions at all. Some extensions " +
-			"(`pg_stat_statements`, `pgaudit`) restart the cluster, and PostGIS extensions need `engine = \"postgis\"`. " +
-			"Import does not recover it.",
+		MarkdownDescription: "PostgreSQL extensions to enable. Removing an entry does not uninstall the " +
+			"extension: set `ensure = \"absent\"` to drop it. Enabling `pg_stat_statements` or `pgaudit` " +
+			"restarts the cluster.",
 		Validators: []validator.Set{uniqueExtensionNames{}},
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: map[string]schema.Attribute{
 				"name": schema.StringAttribute{
 					Required:            true,
-					MarkdownDescription: "Extension name from the platform catalog, e.g. `postgis`, `postgres_fdw`, `pg_stat_statements`.",
+					MarkdownDescription: "Extension name, e.g. `postgis`, `postgres_fdw`, `vector`.",
 					Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 				},
 				"ensure": schema.StringAttribute{
-					Optional: true,
-					MarkdownDescription: "`present` (the default) or `absent`. `absent` drops the extension; PostgreSQL " +
-						"refuses while anything depends on it.",
+					Optional:            true,
+					MarkdownDescription: "`present` (default) or `absent`.",
 					Validators: []validator.String{stringvalidator.OneOf(
 						string(console.ExtensionEnsurePresent), string(console.ExtensionEnsureAbsent))},
 				},
 				"version": schema.StringAttribute{
 					Optional:            true,
-					MarkdownDescription: "Version to install or update to. Defaults to the version the cluster's image ships.",
+					MarkdownDescription: "Version to install. Defaults to the version available on the cluster.",
 					Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
 				},
 			},
@@ -109,16 +106,15 @@ func extensionStatusSchema() schema.ListNestedAttribute {
 		return schema.StringAttribute{Computed: true, MarkdownDescription: desc}
 	}
 	return schema.ListNestedAttribute{
-		Computed: true,
-		MarkdownDescription: "Extensions the operator reports on this cluster, declared or not. Null when the " +
-			"console does not report extensions.",
+		Computed:            true,
+		MarkdownDescription: "State of the extensions installed on the cluster.",
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: map[string]schema.Attribute{
 				"name":              str("Extension name."),
-				"phase":             str("`installing`, `installed`, `failed`, `absent` or `unmanaged` (installed but not declared)."),
-				"installed_version": str("Version installed in the database right now."),
-				"available_version": str("Default version the running image ships."),
-				"message":           str("Why the extension failed."),
+				"phase":             str("`installing`, `installed`, `failed`, `absent` or `unmanaged`."),
+				"installed_version": str("Installed version."),
+				"available_version": str("Default version available on the cluster."),
+				"message":           str("Error message, when `failed`."),
 			},
 		},
 	}
@@ -333,7 +329,7 @@ func (r *managedPostgresqlResource) readExtensions(ctx context.Context, id strin
 	resp, err := r.p.API.GetManagedPostgresqlExtensions(ctx, r.p.OrgID, id)
 	if errors.Is(err, client.ErrNotFound) {
 		if managed {
-			return nil, errors.New("this console does not support managed PostgreSQL extensions; remove `extensions` or upgrade the platform")
+			return nil, errors.New("extensions are not supported by this Hyperfluid version")
 		}
 		return nil, nil
 	}

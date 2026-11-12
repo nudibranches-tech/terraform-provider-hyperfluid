@@ -7,6 +7,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -73,5 +74,18 @@ func TestManagedPostgresqlArchiveIntervalPinAndClear(t *testing.T) {
 	mustSucceed(t, d)
 	if pitr, sent := patchedPitr(t, f, 2); sent {
 		t.Errorf("PATCH carries pitr %v although the configuration has none", pitr)
+	}
+}
+
+func TestManagedPostgresqlEngines(t *testing.T) {
+	s := resourceSchema(t, NewManagedPostgresqlResource()).Schema
+	cfg := nullConfig(t, s, nil)
+	for _, engine := range []string{"postgresql", "postgis"} {
+		if d := validateString(t, s, cfg, path.Root("engine"), types.StringValue(engine)); d.HasError() {
+			t.Errorf("engine %q was refused: %v", engine, d)
+		}
+	}
+	if d := validateString(t, s, cfg, path.Root("engine"), types.StringValue("timescaledb")); !d.HasError() {
+		t.Error("engine timescaledb was accepted")
 	}
 }
