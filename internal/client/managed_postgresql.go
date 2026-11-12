@@ -147,6 +147,56 @@ func (c *Client) DeleteManagedPostgresql(ctx context.Context, orgID, instanceID 
 	return statusErr("delete managed postgresql", resp.StatusCode(), resp.Body)
 }
 
+// ── Managed PostgreSQL extensions ──────────────────────────────────────────
+
+// GetManagedPostgresqlExtensions returns the platform catalog as it applies to
+// one cluster, each entry joined with what was declared for it and what the
+// operator last observed.
+func (c *Client) GetManagedPostgresqlExtensions(ctx context.Context, orgID, instanceID string) (*console.ManagedPostgresqlExtensionsResponse, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	inst, err := parseUUID("id", instanceID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.GetManagedPostgresqlExtensionsWithResponse(ctx, org, inst)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("get managed postgresql extensions", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: get managed postgresql extensions: empty response")
+	}
+	return resp.JSON200, nil
+}
+
+// SetManagedPostgresqlExtensions replaces a cluster's declared extension list.
+// An installed extension left out of it stays installed (reported `unmanaged`);
+// dropping one takes an explicit `ensure: absent` entry.
+func (c *Client) SetManagedPostgresqlExtensions(ctx context.Context, orgID, instanceID string, extensions []console.ExtensionRequestItem) error {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return err
+	}
+	inst, err := parseUUID("id", instanceID)
+	if err != nil {
+		return err
+	}
+	if extensions == nil {
+		extensions = []console.ExtensionRequestItem{}
+	}
+	resp, err := c.api.SetManagedPostgresqlExtensionsWithResponse(ctx, org, inst,
+		console.SetManagedPostgresqlExtensionsRequestBody{Extensions: extensions})
+	if err != nil {
+		return err
+	}
+	return statusErr("set managed postgresql extensions", resp.StatusCode(), resp.Body)
+}
+
 // ── Managed PostgreSQL user (sub-resource of a cluster) ────────────────────
 
 func (c *Client) CreateManagedPostgresqlUser(ctx context.Context, orgID, clusterID string, body console.CreateManagedPostgresqlUserCrdRequestBody) (*console.ManagedPostgresqlUserResponse, error) {

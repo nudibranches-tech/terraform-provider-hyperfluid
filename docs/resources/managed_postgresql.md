@@ -58,6 +58,33 @@ resource "hyperfluid_managed_postgresql" "db" {
     enabled                  = true
     archive_interval_seconds = 300
   }
+
+  # Extensions from the platform catalog. Once set, this is the whole declared
+  # list: an entry removed from it stays installed (reported `unmanaged` in
+  # extension_status), and dropping one takes ensure = "absent".
+  # pg_stat_statements is preloaded, so enabling it restarts the cluster.
+  extensions = [
+    { name = "postgres_fdw" },
+    { name = "pg_stat_statements" },
+    { name = "citext", version = "1.6" },
+    { name = "hstore", ensure = "absent" },
+  ]
+}
+
+# PostGIS extensions ship in the postgis image only.
+resource "hyperfluid_managed_postgresql" "geo" {
+  env              = data.hyperfluid_environment.default.id
+  name             = "geodb"
+  database_name    = "geodb"
+  engine           = "postgis"
+  version          = "17"
+  node_tier        = "nano"
+  storage_capacity = 5
+
+  extensions = [
+    { name = "postgis" },
+    { name = "postgis_topology" },
+  ]
 }
 
 # A second database recovered from the first one's archive, as it stood at a
@@ -84,6 +111,12 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   # change. Change this token alongside it to ask for the restore again; that
   # replaces the database, which is the only moment a restore happens.
   restore_wo_version = "1"
+}
+
+# What the operator reports for every extension: installing, installed,
+# failed (with a message), absent or unmanaged.
+output "extensions" {
+  value = hyperfluid_managed_postgresql.db.extension_status
 }
 
 output "write_endpoint" {
@@ -121,6 +154,7 @@ output "recovery_window" {
 - `description` (String) Free-form description.
 - `engine` (String) Engine: `postgresql`, `postgis` or `timescaledb`. Changing this forces a new cluster.
 - `expose_to_internet` (Boolean) Whether the cluster gets an external endpoint reachable from the internet. Defaults to false.
+- `extensions` (Attributes Set) Extensions to enable from the platform catalog. When set, it is the complete declared list. An extension removed from it stays installed (reported `unmanaged`); drop it with `ensure = "absent"`. Leaving the attribute out does not manage extensions at all. Some extensions (`pg_stat_statements`, `pgaudit`) restart the cluster, and PostGIS extensions need `engine = "postgis"`. Import does not recover it. (see [below for nested schema](#nestedatt--extensions))
 - `node_tier` (String) Size: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`.
 - `pitr` (Attributes) Point-in-time recovery policy; needs `backup_target_id` or `backup_placement`. Removing it does not turn recovery off (set `enabled = false`), and import does not recover it. (see [below for nested schema](#nestedatt--pitr))
 - `restore` (Attributes, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Create the database from a backup or another database's archive. Write-only (Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, `version` and enough `storage_capacity` must match the source. (see [below for nested schema](#nestedatt--restore))
@@ -132,6 +166,7 @@ output "recovery_window" {
 ### Read-Only
 
 - `archive_interval_seconds` (Number) Seconds between forced WAL switches on the running cluster. `0` means none; null means the database is not archived or not reported yet.
+- `extension_status` (Attributes List) Extensions the operator reports on this cluster, declared or not. Null when the console does not report extensions. (see [below for nested schema](#nestedatt--extension_status))
 - `external_endpoint` (String) External endpoint, if exposed.
 - `first_recoverability_point` (String) Earliest time a restore can target, or null when no base backup has completed.
 - `id` (String) The ID of this resource.
@@ -143,6 +178,19 @@ output "recovery_window" {
 - `ready_instances` (Number) Ready instance count.
 - `slug` (String) Derived slug. This is the name a `hyperfluid_service_link` endpoint takes.
 - `write_endpoint` (String) Primary (read-write) endpoint.
+
+<a id="nestedatt--extensions"></a>
+### Nested Schema for `extensions`
+
+Required:
+
+- `name` (String) Extension name from the platform catalog, e.g. `postgis`, `postgres_fdw`, `pg_stat_statements`.
+
+Optional:
+
+- `ensure` (String) `present` (the default) or `absent`. `absent` drops the extension; PostgreSQL refuses while anything depends on it.
+- `version` (String) Version to install or update to. Defaults to the version the cluster's image ships.
+
 
 <a id="nestedatt--pitr"></a>
 ### Nested Schema for `pitr`
@@ -165,6 +213,18 @@ Optional:
 - `exclusive` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Stop just before `target_time` instead of at it.
 - `source_instance_id` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Id of a database in the same environment whose archive to restore from; it must have completed at least one base backup.
 - `target_time` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) RFC 3339 time to recover to, between the source's `first_recoverability_point` and now. Requires `source_instance_id`; defaults to the latest archived point.
+
+
+<a id="nestedatt--extension_status"></a>
+### Nested Schema for `extension_status`
+
+Read-Only:
+
+- `available_version` (String) Default version the running image ships.
+- `installed_version` (String) Version installed in the database right now.
+- `message` (String) Why the extension failed.
+- `name` (String) Extension name.
+- `phase` (String) `installing`, `installed`, `failed`, `absent` or `unmanaged` (installed but not declared).
 
 ## Import
 

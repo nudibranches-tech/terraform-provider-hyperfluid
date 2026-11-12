@@ -157,6 +157,24 @@ func (e AirflowNodeTier) Valid() bool {
 	}
 }
 
+// Defines values for AlertLevel.
+const (
+	AlertLevelCritical AlertLevel = "critical"
+	AlertLevelWarning  AlertLevel = "warning"
+)
+
+// Valid indicates whether the value is a known member of the AlertLevel enum.
+func (e AlertLevel) Valid() bool {
+	switch e {
+	case AlertLevelCritical:
+		return true
+	case AlertLevelWarning:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AppProtocol.
 const (
 	AppProtocolHttp AppProtocol = "http"
@@ -453,13 +471,13 @@ func (e AuditLogEvent5Type) Valid() bool {
 
 // Defines values for AuditLogEvent6Type.
 const (
-	AuditLogEvent6TypeAuthzOrganizationPolicyRevoked AuditLogEvent6Type = "authz_organization_policy_revoked"
+	AuditLogEvent6TypeS3GatewayAccessSummary AuditLogEvent6Type = "s3_gateway_access_summary"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent6Type enum.
 func (e AuditLogEvent6Type) Valid() bool {
 	switch e {
-	case AuditLogEvent6TypeAuthzOrganizationPolicyRevoked:
+	case AuditLogEvent6TypeS3GatewayAccessSummary:
 		return true
 	default:
 		return false
@@ -468,13 +486,13 @@ func (e AuditLogEvent6Type) Valid() bool {
 
 // Defines values for AuditLogEvent7Type.
 const (
-	AuditLogEvent7TypeAuthzBreakGlassUsed AuditLogEvent7Type = "authz_break_glass_used"
+	AuditLogEvent7TypeAuthzOrganizationPolicyRevoked AuditLogEvent7Type = "authz_organization_policy_revoked"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent7Type enum.
 func (e AuditLogEvent7Type) Valid() bool {
 	switch e {
-	case AuditLogEvent7TypeAuthzBreakGlassUsed:
+	case AuditLogEvent7TypeAuthzOrganizationPolicyRevoked:
 		return true
 	default:
 		return false
@@ -483,13 +501,13 @@ func (e AuditLogEvent7Type) Valid() bool {
 
 // Defines values for AuditLogEvent8Type.
 const (
-	AuditLogEvent8TypePlatformAdminAction AuditLogEvent8Type = "platform_admin_action"
+	AuditLogEvent8TypeAuthzBreakGlassUsed AuditLogEvent8Type = "authz_break_glass_used"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent8Type enum.
 func (e AuditLogEvent8Type) Valid() bool {
 	switch e {
-	case AuditLogEvent8TypePlatformAdminAction:
+	case AuditLogEvent8TypeAuthzBreakGlassUsed:
 		return true
 	default:
 		return false
@@ -498,13 +516,13 @@ func (e AuditLogEvent8Type) Valid() bool {
 
 // Defines values for AuditLogEvent9Type.
 const (
-	AuditLogEvent9TypeRuntimeSecurityAlert AuditLogEvent9Type = "runtime_security_alert"
+	AuditLogEvent9TypePlatformAdminAction AuditLogEvent9Type = "platform_admin_action"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent9Type enum.
 func (e AuditLogEvent9Type) Valid() bool {
 	switch e {
-	case AuditLogEvent9TypeRuntimeSecurityAlert:
+	case AuditLogEvent9TypePlatformAdminAction:
 		return true
 	default:
 		return false
@@ -513,13 +531,13 @@ func (e AuditLogEvent9Type) Valid() bool {
 
 // Defines values for AuditLogEvent10Type.
 const (
-	AuditLogEvent10TypeTrinoQueryCompleted AuditLogEvent10Type = "trino_query_completed"
+	AuditLogEvent10TypeRuntimeSecurityAlert AuditLogEvent10Type = "runtime_security_alert"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent10Type enum.
 func (e AuditLogEvent10Type) Valid() bool {
 	switch e {
-	case AuditLogEvent10TypeTrinoQueryCompleted:
+	case AuditLogEvent10TypeRuntimeSecurityAlert:
 		return true
 	default:
 		return false
@@ -528,13 +546,13 @@ func (e AuditLogEvent10Type) Valid() bool {
 
 // Defines values for AuditLogEvent11Type.
 const (
-	AuditLogEvent11TypeWorkstationAgentRequest AuditLogEvent11Type = "workstation_agent_request"
+	AuditLogEvent11TypeTrinoQueryCompleted AuditLogEvent11Type = "trino_query_completed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent11Type enum.
 func (e AuditLogEvent11Type) Valid() bool {
 	switch e {
-	case AuditLogEvent11TypeWorkstationAgentRequest:
+	case AuditLogEvent11TypeTrinoQueryCompleted:
 		return true
 	default:
 		return false
@@ -543,13 +561,13 @@ func (e AuditLogEvent11Type) Valid() bool {
 
 // Defines values for AuditLogEvent12Type.
 const (
-	AuditLogEvent12TypeWorkstationTerminalCommand AuditLogEvent12Type = "workstation_terminal_command"
+	AuditLogEvent12TypeWorkstationAgentRequest AuditLogEvent12Type = "workstation_agent_request"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent12Type enum.
 func (e AuditLogEvent12Type) Valid() bool {
 	switch e {
-	case AuditLogEvent12TypeWorkstationTerminalCommand:
+	case AuditLogEvent12TypeWorkstationAgentRequest:
 		return true
 	default:
 		return false
@@ -558,13 +576,13 @@ func (e AuditLogEvent12Type) Valid() bool {
 
 // Defines values for AuditLogEvent13Type.
 const (
-	AuditLogEvent13TypeWorkstationPreviewSession AuditLogEvent13Type = "workstation_preview_session"
+	AuditLogEvent13TypeWorkstationTerminalCommand AuditLogEvent13Type = "workstation_terminal_command"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent13Type enum.
 func (e AuditLogEvent13Type) Valid() bool {
 	switch e {
-	case AuditLogEvent13TypeWorkstationPreviewSession:
+	case AuditLogEvent13TypeWorkstationTerminalCommand:
 		return true
 	default:
 		return false
@@ -573,13 +591,13 @@ func (e AuditLogEvent13Type) Valid() bool {
 
 // Defines values for AuditLogEvent14Type.
 const (
-	AuditLogEvent14TypeManagedPostgresqlImportCreated AuditLogEvent14Type = "managed_postgresql_import_created"
+	AuditLogEvent14TypeWorkstationPreviewSession AuditLogEvent14Type = "workstation_preview_session"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent14Type enum.
 func (e AuditLogEvent14Type) Valid() bool {
 	switch e {
-	case AuditLogEvent14TypeManagedPostgresqlImportCreated:
+	case AuditLogEvent14TypeWorkstationPreviewSession:
 		return true
 	default:
 		return false
@@ -588,13 +606,13 @@ func (e AuditLogEvent14Type) Valid() bool {
 
 // Defines values for AuditLogEvent15Type.
 const (
-	AuditLogEvent15TypeVirtualMachineConsoleSession AuditLogEvent15Type = "virtual_machine_console_session"
+	AuditLogEvent15TypeManagedPostgresqlImportCreated AuditLogEvent15Type = "managed_postgresql_import_created"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent15Type enum.
 func (e AuditLogEvent15Type) Valid() bool {
 	switch e {
-	case AuditLogEvent15TypeVirtualMachineConsoleSession:
+	case AuditLogEvent15TypeManagedPostgresqlImportCreated:
 		return true
 	default:
 		return false
@@ -603,13 +621,13 @@ func (e AuditLogEvent15Type) Valid() bool {
 
 // Defines values for AuditLogEvent16Type.
 const (
-	AuditLogEvent16TypeContainerAppImageSynced AuditLogEvent16Type = "container_app_image_synced"
+	AuditLogEvent16TypeVirtualMachineConsoleSession AuditLogEvent16Type = "virtual_machine_console_session"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent16Type enum.
 func (e AuditLogEvent16Type) Valid() bool {
 	switch e {
-	case AuditLogEvent16TypeContainerAppImageSynced:
+	case AuditLogEvent16TypeVirtualMachineConsoleSession:
 		return true
 	default:
 		return false
@@ -618,13 +636,13 @@ func (e AuditLogEvent16Type) Valid() bool {
 
 // Defines values for AuditLogEvent17Type.
 const (
-	AuditLogEvent17TypeObjectStorageOwnerKeyRevealed AuditLogEvent17Type = "object_storage_owner_key_revealed"
+	AuditLogEvent17TypeContainerAppImageSynced AuditLogEvent17Type = "container_app_image_synced"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent17Type enum.
 func (e AuditLogEvent17Type) Valid() bool {
 	switch e {
-	case AuditLogEvent17TypeObjectStorageOwnerKeyRevealed:
+	case AuditLogEvent17TypeContainerAppImageSynced:
 		return true
 	default:
 		return false
@@ -633,13 +651,43 @@ func (e AuditLogEvent17Type) Valid() bool {
 
 // Defines values for AuditLogEvent18Type.
 const (
-	AuditLogEvent18TypeObjectStorageUsageCollected AuditLogEvent18Type = "object_storage_usage_collected"
+	AuditLogEvent18TypeObjectStorageOwnerKeyRevealed AuditLogEvent18Type = "object_storage_owner_key_revealed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent18Type enum.
 func (e AuditLogEvent18Type) Valid() bool {
 	switch e {
-	case AuditLogEvent18TypeObjectStorageUsageCollected:
+	case AuditLogEvent18TypeObjectStorageOwnerKeyRevealed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent19Type.
+const (
+	AuditLogEvent19TypeObjectStorageUsageCollected AuditLogEvent19Type = "object_storage_usage_collected"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent19Type enum.
+func (e AuditLogEvent19Type) Valid() bool {
+	switch e {
+	case AuditLogEvent19TypeObjectStorageUsageCollected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent20Type.
+const (
+	AuditLogEvent20TypeObjectStorageReplicated AuditLogEvent20Type = "object_storage_replicated"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent20Type enum.
+func (e AuditLogEvent20Type) Valid() bool {
+	switch e {
+	case AuditLogEvent20TypeObjectStorageReplicated:
 		return true
 	default:
 		return false
@@ -655,9 +703,11 @@ const (
 	AuditLogEventTypeDataDockOpaEvaluation          AuditLogEventType = "data_dock_opa_evaluation"
 	AuditLogEventTypeManagedPostgresqlImportCreated AuditLogEventType = "managed_postgresql_import_created"
 	AuditLogEventTypeObjectStorageOwnerKeyRevealed  AuditLogEventType = "object_storage_owner_key_revealed"
+	AuditLogEventTypeObjectStorageReplicated        AuditLogEventType = "object_storage_replicated"
 	AuditLogEventTypeObjectStorageUsageCollected    AuditLogEventType = "object_storage_usage_collected"
 	AuditLogEventTypePlatformAdminAction            AuditLogEventType = "platform_admin_action"
 	AuditLogEventTypeRuntimeSecurityAlert           AuditLogEventType = "runtime_security_alert"
+	AuditLogEventTypeS3GatewayAccessSummary         AuditLogEventType = "s3_gateway_access_summary"
 	AuditLogEventTypeS3GatewayDecision              AuditLogEventType = "s3_gateway_decision"
 	AuditLogEventTypeS3GatewayGateDenied            AuditLogEventType = "s3_gateway_gate_denied"
 	AuditLogEventTypeS3GatewaySessionIssued         AuditLogEventType = "s3_gateway_session_issued"
@@ -686,11 +736,15 @@ func (e AuditLogEventType) Valid() bool {
 		return true
 	case AuditLogEventTypeObjectStorageOwnerKeyRevealed:
 		return true
+	case AuditLogEventTypeObjectStorageReplicated:
+		return true
 	case AuditLogEventTypeObjectStorageUsageCollected:
 		return true
 	case AuditLogEventTypePlatformAdminAction:
 		return true
 	case AuditLogEventTypeRuntimeSecurityAlert:
+		return true
+	case AuditLogEventTypeS3GatewayAccessSummary:
 		return true
 	case AuditLogEventTypeS3GatewayDecision:
 		return true
@@ -952,6 +1006,24 @@ func (e CatalogFailureKind) Valid() bool {
 	}
 }
 
+// Defines values for CatalogueMode.
+const (
+	CatalogueModeEnforced CatalogueMode = "Enforced"
+	CatalogueModeOff      CatalogueMode = "Off"
+)
+
+// Valid indicates whether the value is a known member of the CatalogueMode enum.
+func (e CatalogueMode) Valid() bool {
+	switch e {
+	case CatalogueModeEnforced:
+		return true
+	case CatalogueModeOff:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ChannelKind.
 const (
 	ChannelKindDiscordWebhook ChannelKind = "discord_webhook"
@@ -1095,28 +1167,42 @@ func (e Configuration) Valid() bool {
 
 // Defines values for ConsoleConfigFeatureFlag.
 const (
-	ConsoleConfigFeatureFlagAirflowEnabled                  ConsoleConfigFeatureFlag = "airflow_enabled"
-	ConsoleConfigFeatureFlagAlertingEnabled                 ConsoleConfigFeatureFlag = "alerting_enabled"
-	ConsoleConfigFeatureFlagCiFarmEnabled                   ConsoleConfigFeatureFlag = "ci_farm_enabled"
-	ConsoleConfigFeatureFlagComputeDocksEnabled             ConsoleConfigFeatureFlag = "compute_docks_enabled"
-	ConsoleConfigFeatureFlagContainerCommandOverrideEnabled ConsoleConfigFeatureFlag = "container_command_override_enabled"
-	ConsoleConfigFeatureFlagKafkaEnabled                    ConsoleConfigFeatureFlag = "kafka_enabled"
-	ConsoleConfigFeatureFlagModelCatalogEnabled             ConsoleConfigFeatureFlag = "model_catalog_enabled"
-	ConsoleConfigFeatureFlagModelServingEnabled             ConsoleConfigFeatureFlag = "model_serving_enabled"
-	ConsoleConfigFeatureFlagNextflowEnabled                 ConsoleConfigFeatureFlag = "nextflow_enabled"
-	ConsoleConfigFeatureFlagOntologyEnabled                 ConsoleConfigFeatureFlag = "ontology_enabled"
-	ConsoleConfigFeatureFlagSapienceAgentEnabled            ConsoleConfigFeatureFlag = "sapience_agent_enabled"
-	ConsoleConfigFeatureFlagSapienceResourcesEnabled        ConsoleConfigFeatureFlag = "sapience_resources_enabled"
-	ConsoleConfigFeatureFlagScheduledQueriesEnabled         ConsoleConfigFeatureFlag = "scheduled_queries_enabled"
-	ConsoleConfigFeatureFlagShowDemoBanner                  ConsoleConfigFeatureFlag = "show_demo_banner"
-	ConsoleConfigFeatureFlagShowMarketing                   ConsoleConfigFeatureFlag = "show_marketing"
-	ConsoleConfigFeatureFlagVaubanPreview                   ConsoleConfigFeatureFlag = "vauban_preview"
-	ConsoleConfigFeatureFlagVirtualMachinesEnabled          ConsoleConfigFeatureFlag = "virtual_machines_enabled"
+	ConsoleConfigFeatureFlagAiGatewayEnabled         ConsoleConfigFeatureFlag = "ai_gateway_enabled"
+	ConsoleConfigFeatureFlagAirflowEnabled           ConsoleConfigFeatureFlag = "airflow_enabled"
+	ConsoleConfigFeatureFlagAlertingEnabled          ConsoleConfigFeatureFlag = "alerting_enabled"
+	ConsoleConfigFeatureFlagCiFarmEnabled            ConsoleConfigFeatureFlag = "ci_farm_enabled"
+	ConsoleConfigFeatureFlagComputeDocksEnabled      ConsoleConfigFeatureFlag = "compute_docks_enabled"
+	ConsoleConfigFeatureFlagContainerAppsEnabled     ConsoleConfigFeatureFlag = "container_apps_enabled"
+	ConsoleConfigFeatureFlagDashboardsEnabled        ConsoleConfigFeatureFlag = "dashboards_enabled"
+	ConsoleConfigFeatureFlagDecisionModelsEnabled    ConsoleConfigFeatureFlag = "decision_models_enabled"
+	ConsoleConfigFeatureFlagDevWorkstationsEnabled   ConsoleConfigFeatureFlag = "dev_workstations_enabled"
+	ConsoleConfigFeatureFlagKafkaEnabled             ConsoleConfigFeatureFlag = "kafka_enabled"
+	ConsoleConfigFeatureFlagKvCacheEnabled           ConsoleConfigFeatureFlag = "kv_cache_enabled"
+	ConsoleConfigFeatureFlagManagedPostgresqlEnabled ConsoleConfigFeatureFlag = "managed_postgresql_enabled"
+	ConsoleConfigFeatureFlagModelCatalogEnabled      ConsoleConfigFeatureFlag = "model_catalog_enabled"
+	ConsoleConfigFeatureFlagModelServingEnabled      ConsoleConfigFeatureFlag = "model_serving_enabled"
+	ConsoleConfigFeatureFlagNextflowEnabled          ConsoleConfigFeatureFlag = "nextflow_enabled"
+	ConsoleConfigFeatureFlagObjectStorageEnabled     ConsoleConfigFeatureFlag = "object_storage_enabled"
+	ConsoleConfigFeatureFlagOntologyEnabled          ConsoleConfigFeatureFlag = "ontology_enabled"
+	ConsoleConfigFeatureFlagPipelinesEnabled         ConsoleConfigFeatureFlag = "pipelines_enabled"
+	ConsoleConfigFeatureFlagRabbitmqEnabled          ConsoleConfigFeatureFlag = "rabbitmq_enabled"
+	ConsoleConfigFeatureFlagRegistryEnabled          ConsoleConfigFeatureFlag = "registry_enabled"
+	ConsoleConfigFeatureFlagSapienceAgentEnabled     ConsoleConfigFeatureFlag = "sapience_agent_enabled"
+	ConsoleConfigFeatureFlagSapienceResourcesEnabled ConsoleConfigFeatureFlag = "sapience_resources_enabled"
+	ConsoleConfigFeatureFlagScheduledQueriesEnabled  ConsoleConfigFeatureFlag = "scheduled_queries_enabled"
+	ConsoleConfigFeatureFlagShowDemoBanner           ConsoleConfigFeatureFlag = "show_demo_banner"
+	ConsoleConfigFeatureFlagShowMarketing            ConsoleConfigFeatureFlag = "show_marketing"
+	ConsoleConfigFeatureFlagSourceControlEnabled     ConsoleConfigFeatureFlag = "source_control_enabled"
+	ConsoleConfigFeatureFlagSqlEngineEnabled         ConsoleConfigFeatureFlag = "sql_engine_enabled"
+	ConsoleConfigFeatureFlagTinyQueryEnabled         ConsoleConfigFeatureFlag = "tiny_query_enabled"
+	ConsoleConfigFeatureFlagVirtualMachinesEnabled   ConsoleConfigFeatureFlag = "virtual_machines_enabled"
 )
 
 // Valid indicates whether the value is a known member of the ConsoleConfigFeatureFlag enum.
 func (e ConsoleConfigFeatureFlag) Valid() bool {
 	switch e {
+	case ConsoleConfigFeatureFlagAiGatewayEnabled:
+		return true
 	case ConsoleConfigFeatureFlagAirflowEnabled:
 		return true
 	case ConsoleConfigFeatureFlagAlertingEnabled:
@@ -1125,9 +1211,19 @@ func (e ConsoleConfigFeatureFlag) Valid() bool {
 		return true
 	case ConsoleConfigFeatureFlagComputeDocksEnabled:
 		return true
-	case ConsoleConfigFeatureFlagContainerCommandOverrideEnabled:
+	case ConsoleConfigFeatureFlagContainerAppsEnabled:
+		return true
+	case ConsoleConfigFeatureFlagDashboardsEnabled:
+		return true
+	case ConsoleConfigFeatureFlagDecisionModelsEnabled:
+		return true
+	case ConsoleConfigFeatureFlagDevWorkstationsEnabled:
 		return true
 	case ConsoleConfigFeatureFlagKafkaEnabled:
+		return true
+	case ConsoleConfigFeatureFlagKvCacheEnabled:
+		return true
+	case ConsoleConfigFeatureFlagManagedPostgresqlEnabled:
 		return true
 	case ConsoleConfigFeatureFlagModelCatalogEnabled:
 		return true
@@ -1135,7 +1231,15 @@ func (e ConsoleConfigFeatureFlag) Valid() bool {
 		return true
 	case ConsoleConfigFeatureFlagNextflowEnabled:
 		return true
+	case ConsoleConfigFeatureFlagObjectStorageEnabled:
+		return true
 	case ConsoleConfigFeatureFlagOntologyEnabled:
+		return true
+	case ConsoleConfigFeatureFlagPipelinesEnabled:
+		return true
+	case ConsoleConfigFeatureFlagRabbitmqEnabled:
+		return true
+	case ConsoleConfigFeatureFlagRegistryEnabled:
 		return true
 	case ConsoleConfigFeatureFlagSapienceAgentEnabled:
 		return true
@@ -1147,7 +1251,11 @@ func (e ConsoleConfigFeatureFlag) Valid() bool {
 		return true
 	case ConsoleConfigFeatureFlagShowMarketing:
 		return true
-	case ConsoleConfigFeatureFlagVaubanPreview:
+	case ConsoleConfigFeatureFlagSourceControlEnabled:
+		return true
+	case ConsoleConfigFeatureFlagSqlEngineEnabled:
+		return true
+	case ConsoleConfigFeatureFlagTinyQueryEnabled:
 		return true
 	case ConsoleConfigFeatureFlagVirtualMachinesEnabled:
 		return true
@@ -1459,6 +1567,21 @@ func (e CreatePipelineRequestV210Type) Valid() bool {
 	}
 }
 
+// Defines values for CreatePipelineRequestV211Type.
+const (
+	CreatePipelineRequestV211TypeDecisionScan CreatePipelineRequestV211Type = "decision_scan"
+)
+
+// Valid indicates whether the value is a known member of the CreatePipelineRequestV211Type enum.
+func (e CreatePipelineRequestV211Type) Valid() bool {
+	switch e {
+	case CreatePipelineRequestV211TypeDecisionScan:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CredentialLocation.
 const (
 	CredentialLocationEnv     CredentialLocation = "env"
@@ -1492,6 +1615,60 @@ func (e CustomDomainTlsModeInput) Valid() bool {
 	case CustomDomainTlsModeInputAcme:
 		return true
 	case CustomDomainTlsModeInputSecret:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CveAction.
+const (
+	CveActionAlert       CveAction = "alert"
+	CveActionBlockDeploy CveAction = "block_deploy"
+	CveActionCutEgress   CveAction = "cut_egress"
+	CveActionCutIngress  CveAction = "cut_ingress"
+	CveActionIsolate     CveAction = "isolate"
+	CveActionStop        CveAction = "stop"
+)
+
+// Valid indicates whether the value is a known member of the CveAction enum.
+func (e CveAction) Valid() bool {
+	switch e {
+	case CveActionAlert:
+		return true
+	case CveActionBlockDeploy:
+		return true
+	case CveActionCutEgress:
+		return true
+	case CveActionCutIngress:
+		return true
+	case CveActionIsolate:
+		return true
+	case CveActionStop:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CvePolicyPreset.
+const (
+	CvePolicyPresetObserver  CvePolicyPreset = "observer"
+	CvePolicyPresetSovereign CvePolicyPreset = "sovereign"
+	CvePolicyPresetStandard  CvePolicyPreset = "standard"
+	CvePolicyPresetStrict    CvePolicyPreset = "strict"
+)
+
+// Valid indicates whether the value is a known member of the CvePolicyPreset enum.
+func (e CvePolicyPreset) Valid() bool {
+	switch e {
+	case CvePolicyPresetObserver:
+		return true
+	case CvePolicyPresetSovereign:
+		return true
+	case CvePolicyPresetStandard:
+		return true
+	case CvePolicyPresetStrict:
 		return true
 	default:
 		return false
@@ -1711,6 +1888,45 @@ func (e DataVerb) Valid() bool {
 	}
 }
 
+// Defines values for DecisionRunner.
+const (
+	DecisionRunnerGenerate DecisionRunner = "generate"
+	DecisionRunnerPooling  DecisionRunner = "pooling"
+)
+
+// Valid indicates whether the value is a known member of the DecisionRunner enum.
+func (e DecisionRunner) Valid() bool {
+	switch e {
+	case DecisionRunnerGenerate:
+		return true
+	case DecisionRunnerPooling:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DecisionSurface.
+const (
+	DecisionSurfaceChatLogprobs DecisionSurface = "chat-logprobs"
+	DecisionSurfaceScore        DecisionSurface = "score"
+	DecisionSurfaceSystemone    DecisionSurface = "systemone"
+)
+
+// Valid indicates whether the value is a known member of the DecisionSurface enum.
+func (e DecisionSurface) Valid() bool {
+	switch e {
+	case DecisionSurfaceChatLogprobs:
+		return true
+	case DecisionSurfaceScore:
+		return true
+	case DecisionSurfaceSystemone:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DomainVerificationStateDto.
 const (
 	DomainVerificationStateDtoPending  DomainVerificationStateDto = "pending"
@@ -1807,6 +2023,33 @@ func (e EmailAuthPolicy) Valid() bool {
 	}
 }
 
+// Defines values for EnforcementStatus.
+const (
+	EnforcementStatusActive       EnforcementStatus = "active"
+	EnforcementStatusDryRun       EnforcementStatus = "dry_run"
+	EnforcementStatusPendingGrace EnforcementStatus = "pending_grace"
+	EnforcementStatusReleased     EnforcementStatus = "released"
+	EnforcementStatusSuppressed   EnforcementStatus = "suppressed"
+)
+
+// Valid indicates whether the value is a known member of the EnforcementStatus enum.
+func (e EnforcementStatus) Valid() bool {
+	switch e {
+	case EnforcementStatusActive:
+		return true
+	case EnforcementStatusDryRun:
+		return true
+	case EnforcementStatusPendingGrace:
+		return true
+	case EnforcementStatusReleased:
+		return true
+	case EnforcementStatusSuppressed:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Engine.
 const (
 	EnginePostgis     Engine = "postgis"
@@ -1840,6 +2083,51 @@ func (e ExposureMode) Valid() bool {
 	case ExposureModeAll:
 		return true
 	case ExposureModeSelected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ExtensionEnsure.
+const (
+	ExtensionEnsureAbsent  ExtensionEnsure = "absent"
+	ExtensionEnsurePresent ExtensionEnsure = "present"
+)
+
+// Valid indicates whether the value is a known member of the ExtensionEnsure enum.
+func (e ExtensionEnsure) Valid() bool {
+	switch e {
+	case ExtensionEnsureAbsent:
+		return true
+	case ExtensionEnsurePresent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ExtensionPhase.
+const (
+	ExtensionPhaseAbsent     ExtensionPhase = "absent"
+	ExtensionPhaseFailed     ExtensionPhase = "failed"
+	ExtensionPhaseInstalled  ExtensionPhase = "installed"
+	ExtensionPhaseInstalling ExtensionPhase = "installing"
+	ExtensionPhaseUnmanaged  ExtensionPhase = "unmanaged"
+)
+
+// Valid indicates whether the value is a known member of the ExtensionPhase enum.
+func (e ExtensionPhase) Valid() bool {
+	switch e {
+	case ExtensionPhaseAbsent:
+		return true
+	case ExtensionPhaseFailed:
+		return true
+	case ExtensionPhaseInstalled:
+		return true
+	case ExtensionPhaseInstalling:
+		return true
+	case ExtensionPhaseUnmanaged:
 		return true
 	default:
 		return false
@@ -2178,6 +2466,7 @@ const (
 	IdentityProviderKindGithub IdentityProviderKind = "github"
 	IdentityProviderKindGoogle IdentityProviderKind = "google"
 	IdentityProviderKindOidc   IdentityProviderKind = "oidc"
+	IdentityProviderKindSaml   IdentityProviderKind = "saml"
 )
 
 // Valid indicates whether the value is a known member of the IdentityProviderKind enum.
@@ -2188,6 +2477,8 @@ func (e IdentityProviderKind) Valid() bool {
 	case IdentityProviderKindGoogle:
 		return true
 	case IdentityProviderKindOidc:
+		return true
+	case IdentityProviderKindSaml:
 		return true
 	default:
 		return false
@@ -2350,6 +2641,48 @@ func (e InternetExposureState) Valid() bool {
 	case InternetExposureStatePublishing:
 		return true
 	case InternetExposureStateRemoving:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for InvitationDelivery.
+const (
+	InvitationDeliveryEmail InvitationDelivery = "email"
+	InvitationDeliveryLink  InvitationDelivery = "link"
+)
+
+// Valid indicates whether the value is a known member of the InvitationDelivery enum.
+func (e InvitationDelivery) Valid() bool {
+	switch e {
+	case InvitationDeliveryEmail:
+		return true
+	case InvitationDeliveryLink:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for InvitationEmailStatus.
+const (
+	InvitationEmailStatusFailed        InvitationEmailStatus = "failed"
+	InvitationEmailStatusNotConfigured InvitationEmailStatus = "not_configured"
+	InvitationEmailStatusPending       InvitationEmailStatus = "pending"
+	InvitationEmailStatusSent          InvitationEmailStatus = "sent"
+)
+
+// Valid indicates whether the value is a known member of the InvitationEmailStatus enum.
+func (e InvitationEmailStatus) Valid() bool {
+	switch e {
+	case InvitationEmailStatusFailed:
+		return true
+	case InvitationEmailStatusNotConfigured:
+		return true
+	case InvitationEmailStatusPending:
+		return true
+	case InvitationEmailStatusSent:
 		return true
 	default:
 		return false
@@ -2751,6 +3084,7 @@ func (e ModelProtocol) Valid() bool {
 
 // Defines values for ModelRuntime.
 const (
+	ModelRuntimeEncoder  ModelRuntime = "encoder"
 	ModelRuntimeExternal ModelRuntime = "external"
 	ModelRuntimeTgi      ModelRuntime = "tgi"
 	ModelRuntimeVllm     ModelRuntime = "vllm"
@@ -2759,6 +3093,8 @@ const (
 // Valid indicates whether the value is a known member of the ModelRuntime enum.
 func (e ModelRuntime) Valid() bool {
 	switch e {
+	case ModelRuntimeEncoder:
+		return true
 	case ModelRuntimeExternal:
 		return true
 	case ModelRuntimeTgi:
@@ -2802,6 +3138,7 @@ func (e ModelServingPhase) Valid() bool {
 
 // Defines values for ModelType.
 const (
+	ModelTypeDecision   ModelType = "decision"
 	ModelTypeEmbedding  ModelType = "embedding"
 	ModelTypeGeneration ModelType = "generation"
 	ModelTypeOcr        ModelType = "ocr"
@@ -2810,11 +3147,34 @@ const (
 // Valid indicates whether the value is a known member of the ModelType enum.
 func (e ModelType) Valid() bool {
 	switch e {
+	case ModelTypeDecision:
+		return true
 	case ModelTypeEmbedding:
 		return true
 	case ModelTypeGeneration:
 		return true
 	case ModelTypeOcr:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for NetworkCondition.
+const (
+	NetworkConditionInternetAny     NetworkCondition = "internet_any"
+	NetworkConditionInternetEgress  NetworkCondition = "internet_egress"
+	NetworkConditionInternetIngress NetworkCondition = "internet_ingress"
+)
+
+// Valid indicates whether the value is a known member of the NetworkCondition enum.
+func (e NetworkCondition) Valid() bool {
+	switch e {
+	case NetworkConditionInternetAny:
+		return true
+	case NetworkConditionInternetEgress:
+		return true
+	case NetworkConditionInternetIngress:
 		return true
 	default:
 		return false
@@ -2946,25 +3306,40 @@ func (e OcrProviderConfig1Type) Valid() bool {
 
 // Defines values for OrgFeature.
 const (
-	OrgFeatureAirflowEnabled                  OrgFeature = "airflow_enabled"
-	OrgFeatureAlertingEnabled                 OrgFeature = "alerting_enabled"
-	OrgFeatureCiFarmEnabled                   OrgFeature = "ci_farm_enabled"
-	OrgFeatureComputeDocksEnabled             OrgFeature = "compute_docks_enabled"
-	OrgFeatureContainerCommandOverrideEnabled OrgFeature = "container_command_override_enabled"
-	OrgFeatureKafkaEnabled                    OrgFeature = "kafka_enabled"
-	OrgFeatureModelCatalogEnabled             OrgFeature = "model_catalog_enabled"
-	OrgFeatureModelServingEnabled             OrgFeature = "model_serving_enabled"
-	OrgFeatureNextflowEnabled                 OrgFeature = "nextflow_enabled"
-	OrgFeatureOntologyEnabled                 OrgFeature = "ontology_enabled"
-	OrgFeatureSapienceAgentEnabled            OrgFeature = "sapience_agent_enabled"
-	OrgFeatureSapienceResourcesEnabled        OrgFeature = "sapience_resources_enabled"
-	OrgFeatureScheduledQueriesEnabled         OrgFeature = "scheduled_queries_enabled"
-	OrgFeatureVirtualMachinesEnabled          OrgFeature = "virtual_machines_enabled"
+	OrgFeatureAiGatewayEnabled         OrgFeature = "ai_gateway_enabled"
+	OrgFeatureAirflowEnabled           OrgFeature = "airflow_enabled"
+	OrgFeatureAlertingEnabled          OrgFeature = "alerting_enabled"
+	OrgFeatureCiFarmEnabled            OrgFeature = "ci_farm_enabled"
+	OrgFeatureComputeDocksEnabled      OrgFeature = "compute_docks_enabled"
+	OrgFeatureContainerAppsEnabled     OrgFeature = "container_apps_enabled"
+	OrgFeatureDashboardsEnabled        OrgFeature = "dashboards_enabled"
+	OrgFeatureDecisionModelsEnabled    OrgFeature = "decision_models_enabled"
+	OrgFeatureDevWorkstationsEnabled   OrgFeature = "dev_workstations_enabled"
+	OrgFeatureKafkaEnabled             OrgFeature = "kafka_enabled"
+	OrgFeatureKvCacheEnabled           OrgFeature = "kv_cache_enabled"
+	OrgFeatureManagedPostgresqlEnabled OrgFeature = "managed_postgresql_enabled"
+	OrgFeatureModelCatalogEnabled      OrgFeature = "model_catalog_enabled"
+	OrgFeatureModelServingEnabled      OrgFeature = "model_serving_enabled"
+	OrgFeatureNextflowEnabled          OrgFeature = "nextflow_enabled"
+	OrgFeatureObjectStorageEnabled     OrgFeature = "object_storage_enabled"
+	OrgFeatureOntologyEnabled          OrgFeature = "ontology_enabled"
+	OrgFeaturePipelinesEnabled         OrgFeature = "pipelines_enabled"
+	OrgFeatureRabbitmqEnabled          OrgFeature = "rabbitmq_enabled"
+	OrgFeatureRegistryEnabled          OrgFeature = "registry_enabled"
+	OrgFeatureSapienceAgentEnabled     OrgFeature = "sapience_agent_enabled"
+	OrgFeatureSapienceResourcesEnabled OrgFeature = "sapience_resources_enabled"
+	OrgFeatureScheduledQueriesEnabled  OrgFeature = "scheduled_queries_enabled"
+	OrgFeatureSourceControlEnabled     OrgFeature = "source_control_enabled"
+	OrgFeatureSqlEngineEnabled         OrgFeature = "sql_engine_enabled"
+	OrgFeatureTinyQueryEnabled         OrgFeature = "tiny_query_enabled"
+	OrgFeatureVirtualMachinesEnabled   OrgFeature = "virtual_machines_enabled"
 )
 
 // Valid indicates whether the value is a known member of the OrgFeature enum.
 func (e OrgFeature) Valid() bool {
 	switch e {
+	case OrgFeatureAiGatewayEnabled:
+		return true
 	case OrgFeatureAirflowEnabled:
 		return true
 	case OrgFeatureAlertingEnabled:
@@ -2973,9 +3348,19 @@ func (e OrgFeature) Valid() bool {
 		return true
 	case OrgFeatureComputeDocksEnabled:
 		return true
-	case OrgFeatureContainerCommandOverrideEnabled:
+	case OrgFeatureContainerAppsEnabled:
+		return true
+	case OrgFeatureDashboardsEnabled:
+		return true
+	case OrgFeatureDecisionModelsEnabled:
+		return true
+	case OrgFeatureDevWorkstationsEnabled:
 		return true
 	case OrgFeatureKafkaEnabled:
+		return true
+	case OrgFeatureKvCacheEnabled:
+		return true
+	case OrgFeatureManagedPostgresqlEnabled:
 		return true
 	case OrgFeatureModelCatalogEnabled:
 		return true
@@ -2983,13 +3368,27 @@ func (e OrgFeature) Valid() bool {
 		return true
 	case OrgFeatureNextflowEnabled:
 		return true
+	case OrgFeatureObjectStorageEnabled:
+		return true
 	case OrgFeatureOntologyEnabled:
+		return true
+	case OrgFeaturePipelinesEnabled:
+		return true
+	case OrgFeatureRabbitmqEnabled:
+		return true
+	case OrgFeatureRegistryEnabled:
 		return true
 	case OrgFeatureSapienceAgentEnabled:
 		return true
 	case OrgFeatureSapienceResourcesEnabled:
 		return true
 	case OrgFeatureScheduledQueriesEnabled:
+		return true
+	case OrgFeatureSourceControlEnabled:
+		return true
+	case OrgFeatureSqlEngineEnabled:
+		return true
+	case OrgFeatureTinyQueryEnabled:
 		return true
 	case OrgFeatureVirtualMachinesEnabled:
 		return true
@@ -3039,13 +3438,24 @@ func (e PermissionAction) Valid() bool {
 
 // Defines values for PermissionKey.
 const (
+	PermissionKeyAgentVerdictsLift               PermissionKey = "agent_verdicts:lift"
+	PermissionKeyAgentVerdictsRead               PermissionKey = "agent_verdicts:read"
 	PermissionKeyAiAgentCreate                   PermissionKey = "ai_agent:create"
 	PermissionKeyAiAgentDelete                   PermissionKey = "ai_agent:delete"
 	PermissionKeyAiAgentRead                     PermissionKey = "ai_agent:read"
 	PermissionKeyAiAgentUpdate                   PermissionKey = "ai_agent:update"
+	PermissionKeyAirflowConnectionsManage        PermissionKey = "airflow:connections_manage"
 	PermissionKeyAirflowCreate                   PermissionKey = "airflow:create"
+	PermissionKeyAirflowDagRun                   PermissionKey = "airflow:dag_run"
+	PermissionKeyAirflowDagsWrite                PermissionKey = "airflow:dags_write"
 	PermissionKeyAirflowDelete                   PermissionKey = "airflow:delete"
+	PermissionKeyAirflowEnvironmentLogsRead      PermissionKey = "airflow:environment_logs_read"
+	PermissionKeyAirflowOperate                  PermissionKey = "airflow:operate"
 	PermissionKeyAirflowRead                     PermissionKey = "airflow:read"
+	PermissionKeyAirflowRunLogsRead              PermissionKey = "airflow:run_logs_read"
+	PermissionKeyAirflowUiAccess                 PermissionKey = "airflow:ui_access"
+	PermissionKeyAirflowUiAdmin                  PermissionKey = "airflow:ui_admin"
+	PermissionKeyAirflowUiOperate                PermissionKey = "airflow:ui_operate"
 	PermissionKeyAirflowUpdate                   PermissionKey = "airflow:update"
 	PermissionKeyAlertingManage                  PermissionKey = "alerting:manage"
 	PermissionKeyAlertingRead                    PermissionKey = "alerting:read"
@@ -3115,6 +3525,8 @@ const (
 	PermissionKeyHarborRead                      PermissionKey = "harbor:read"
 	PermissionKeyHfKeyValueCacheManage           PermissionKey = "hf_key_value_cache:manage"
 	PermissionKeyHfKeyValueCacheRead             PermissionKey = "hf_key_value_cache:read"
+	PermissionKeyHfRabbitmqManage                PermissionKey = "hf_rabbitmq:manage"
+	PermissionKeyHfRabbitmqRead                  PermissionKey = "hf_rabbitmq:read"
 	PermissionKeyInferenceServiceCreate          PermissionKey = "inference_service:create"
 	PermissionKeyInferenceServiceDelete          PermissionKey = "inference_service:delete"
 	PermissionKeyInferenceServiceInvoke          PermissionKey = "inference_service:invoke"
@@ -3236,6 +3648,10 @@ const (
 // Valid indicates whether the value is a known member of the PermissionKey enum.
 func (e PermissionKey) Valid() bool {
 	switch e {
+	case PermissionKeyAgentVerdictsLift:
+		return true
+	case PermissionKeyAgentVerdictsRead:
+		return true
 	case PermissionKeyAiAgentCreate:
 		return true
 	case PermissionKeyAiAgentDelete:
@@ -3244,11 +3660,29 @@ func (e PermissionKey) Valid() bool {
 		return true
 	case PermissionKeyAiAgentUpdate:
 		return true
+	case PermissionKeyAirflowConnectionsManage:
+		return true
 	case PermissionKeyAirflowCreate:
+		return true
+	case PermissionKeyAirflowDagRun:
+		return true
+	case PermissionKeyAirflowDagsWrite:
 		return true
 	case PermissionKeyAirflowDelete:
 		return true
+	case PermissionKeyAirflowEnvironmentLogsRead:
+		return true
+	case PermissionKeyAirflowOperate:
+		return true
 	case PermissionKeyAirflowRead:
+		return true
+	case PermissionKeyAirflowRunLogsRead:
+		return true
+	case PermissionKeyAirflowUiAccess:
+		return true
+	case PermissionKeyAirflowUiAdmin:
+		return true
+	case PermissionKeyAirflowUiOperate:
 		return true
 	case PermissionKeyAirflowUpdate:
 		return true
@@ -3387,6 +3821,10 @@ func (e PermissionKey) Valid() bool {
 	case PermissionKeyHfKeyValueCacheManage:
 		return true
 	case PermissionKeyHfKeyValueCacheRead:
+		return true
+	case PermissionKeyHfRabbitmqManage:
+		return true
+	case PermissionKeyHfRabbitmqRead:
 		return true
 	case PermissionKeyInferenceServiceCreate:
 		return true
@@ -3794,6 +4232,7 @@ func (e PipelineStatusFilter) Valid() bool {
 const (
 	PipelineTypeContextEnricher     PipelineType = "ContextEnricher"
 	PipelineTypeCopy                PipelineType = "Copy"
+	PipelineTypeDecisionScan        PipelineType = "DecisionScan"
 	PipelineTypeFileRouter          PipelineType = "FileRouter"
 	PipelineTypeFileSorter          PipelineType = "FileSorter"
 	PipelineTypeGDriveConnector     PipelineType = "GDriveConnector"
@@ -3813,6 +4252,8 @@ func (e PipelineType) Valid() bool {
 	case PipelineTypeContextEnricher:
 		return true
 	case PipelineTypeCopy:
+		return true
+	case PipelineTypeDecisionScan:
 		return true
 	case PipelineTypeFileRouter:
 		return true
@@ -3835,6 +4276,27 @@ func (e PipelineType) Valid() bool {
 	case PipelineTypePageSplitter:
 		return true
 	case PipelineTypeSharePointConnector:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PolicyMode.
+const (
+	PolicyModeAudit   PolicyMode = "audit"
+	PolicyModeEnforce PolicyMode = "enforce"
+	PolicyModeWarn    PolicyMode = "warn"
+)
+
+// Valid indicates whether the value is a known member of the PolicyMode enum.
+func (e PolicyMode) Valid() bool {
+	switch e {
+	case PolicyModeAudit:
+		return true
+	case PolicyModeEnforce:
+		return true
+	case PolicyModeWarn:
 		return true
 	default:
 		return false
@@ -4069,6 +4531,30 @@ func (e QuotaStatus) Valid() bool {
 	}
 }
 
+// Defines values for RabbitMqPlugin.
+const (
+	RabbitMqPluginFederation RabbitMqPlugin = "federation"
+	RabbitMqPluginMqtt       RabbitMqPlugin = "mqtt"
+	RabbitMqPluginShovel     RabbitMqPlugin = "shovel"
+	RabbitMqPluginStream     RabbitMqPlugin = "stream"
+)
+
+// Valid indicates whether the value is a known member of the RabbitMqPlugin enum.
+func (e RabbitMqPlugin) Valid() bool {
+	switch e {
+	case RabbitMqPluginFederation:
+		return true
+	case RabbitMqPluginMqtt:
+		return true
+	case RabbitMqPluginShovel:
+		return true
+	case RabbitMqPluginStream:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RefStatus.
 const (
 	RefStatusDone    RefStatus = "done"
@@ -4096,6 +4582,7 @@ func (e RefStatus) Valid() bool {
 // Defines values for RefusalReason.
 const (
 	RefusalReasonAgentScope    RefusalReason = "agent_scope"
+	RefusalReasonAgentVerdict  RefusalReason = "agent_verdict"
 	RefusalReasonExposure      RefusalReason = "exposure"
 	RefusalReasonGrant         RefusalReason = "grant"
 	RefusalReasonImpersonation RefusalReason = "impersonation"
@@ -4110,6 +4597,8 @@ const (
 func (e RefusalReason) Valid() bool {
 	switch e {
 	case RefusalReasonAgentScope:
+		return true
+	case RefusalReasonAgentVerdict:
 		return true
 	case RefusalReasonExposure:
 		return true
@@ -4213,6 +4702,36 @@ func (e RescanScope) Valid() bool {
 	}
 }
 
+// Defines values for ResolutionSource.
+const (
+	ResolutionSourceClusterDefault      ResolutionSource = "ClusterDefault"
+	ResolutionSourceExplicit            ResolutionSource = "Explicit"
+	ResolutionSourceHarborDefault       ResolutionSource = "HarborDefault"
+	ResolutionSourceHelmFallback        ResolutionSource = "HelmFallback"
+	ResolutionSourceOrganizationDefault ResolutionSource = "OrganizationDefault"
+	ResolutionSourcePlatformDefault     ResolutionSource = "PlatformDefault"
+)
+
+// Valid indicates whether the value is a known member of the ResolutionSource enum.
+func (e ResolutionSource) Valid() bool {
+	switch e {
+	case ResolutionSourceClusterDefault:
+		return true
+	case ResolutionSourceExplicit:
+		return true
+	case ResolutionSourceHarborDefault:
+		return true
+	case ResolutionSourceHelmFallback:
+		return true
+	case ResolutionSourceOrganizationDefault:
+		return true
+	case ResolutionSourcePlatformDefault:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ResolveFailureReason.
 const (
 	ResolveFailureReasonCredentialNotFound ResolveFailureReason = "CredentialNotFound"
@@ -4261,6 +4780,7 @@ const (
 	ResourceKindDevWorkstation   ResourceKind = "dev_workstation"
 	ResourceKindGithubRunnerPool ResourceKind = "github_runner_pool"
 	ResourceKindHfKeyValueCache  ResourceKind = "hf_key_value_cache"
+	ResourceKindHfRabbitmq       ResourceKind = "hf_rabbitmq"
 	ResourceKindKafka            ResourceKind = "kafka"
 	ResourceKindModel            ResourceKind = "model"
 	ResourceKindPostgres         ResourceKind = "postgres"
@@ -4278,6 +4798,8 @@ func (e ResourceKind) Valid() bool {
 	case ResourceKindGithubRunnerPool:
 		return true
 	case ResourceKindHfKeyValueCache:
+		return true
+	case ResourceKindHfRabbitmq:
 		return true
 	case ResourceKindKafka:
 		return true
@@ -4381,6 +4903,51 @@ func (e RightsizingDirection) Valid() bool {
 	case RightsizingDirectionOverSized:
 		return true
 	case RightsizingDirectionUnderSized:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RiskClass.
+const (
+	RiskClassKnownExploited      RiskClass = "known_exploited"
+	RiskClassNetworkReachable    RiskClass = "network_reachable"
+	RiskClassPrivilegeEscalation RiskClass = "privilege_escalation"
+	RiskClassRce                 RiskClass = "rce"
+)
+
+// Valid indicates whether the value is a known member of the RiskClass enum.
+func (e RiskClass) Valid() bool {
+	switch e {
+	case RiskClassKnownExploited:
+		return true
+	case RiskClassNetworkReachable:
+		return true
+	case RiskClassPrivilegeEscalation:
+		return true
+	case RiskClassRce:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuleOrigin.
+const (
+	RuleOriginOrganization RuleOrigin = "organization"
+	RuleOriginPlatform     RuleOrigin = "platform"
+	RuleOriginPreset       RuleOrigin = "preset"
+)
+
+// Valid indicates whether the value is a known member of the RuleOrigin enum.
+func (e RuleOrigin) Valid() bool {
+	switch e {
+	case RuleOriginOrganization:
+		return true
+	case RuleOriginPlatform:
+		return true
+	case RuleOriginPreset:
 		return true
 	default:
 		return false
@@ -4594,6 +5161,30 @@ func (e RuntimeAlertPriority) Valid() bool {
 	}
 }
 
+// Defines values for SamlNameIdFormat.
+const (
+	SamlNameIdFormatEmailAddress SamlNameIdFormat = "emailAddress"
+	SamlNameIdFormatPersistent   SamlNameIdFormat = "persistent"
+	SamlNameIdFormatTransient    SamlNameIdFormat = "transient"
+	SamlNameIdFormatUnspecified  SamlNameIdFormat = "unspecified"
+)
+
+// Valid indicates whether the value is a known member of the SamlNameIdFormat enum.
+func (e SamlNameIdFormat) Valid() bool {
+	switch e {
+	case SamlNameIdFormatEmailAddress:
+		return true
+	case SamlNameIdFormatPersistent:
+		return true
+	case SamlNameIdFormatTransient:
+		return true
+	case SamlNameIdFormatUnspecified:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SavedQuerySort.
 const (
 	SavedQuerySortFailures  SavedQuerySort = "failures"
@@ -4696,6 +5287,24 @@ func (e ScanTrigger) Valid() bool {
 	}
 }
 
+// Defines values for ScannerKind.
+const (
+	ScannerKindGrype ScannerKind = "grype"
+	ScannerKindTrivy ScannerKind = "trivy"
+)
+
+// Valid indicates whether the value is a known member of the ScannerKind enum.
+func (e ScannerKind) Valid() bool {
+	switch e {
+	case ScannerKindGrype:
+		return true
+	case ScannerKindTrivy:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ScheduledRunStatus.
 const (
 	ScheduledRunStatusFailed    ScheduledRunStatus = "failed"
@@ -4741,6 +5350,24 @@ const (
 func (e SecretManagerType) Valid() bool {
 	switch e {
 	case SecretManagerTypeControlplane:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SecretOrigin.
+const (
+	SecretOriginPlatform SecretOrigin = "platform"
+	SecretOriginUser     SecretOrigin = "user"
+)
+
+// Valid indicates whether the value is a known member of the SecretOrigin enum.
+func (e SecretOrigin) Valid() bool {
+	switch e {
+	case SecretOriginPlatform:
+		return true
+	case SecretOriginUser:
 		return true
 	default:
 		return false
@@ -4854,13 +5481,19 @@ func (e SecurityDecision) Valid() bool {
 
 // Defines values for SecurityPolicy.
 const (
-	SecurityPolicyContainerAppsGitAutoSync SecurityPolicy = "container_apps_git_auto_sync"
+	SecurityPolicyContainerAppsCommandOverride SecurityPolicy = "container_apps_command_override"
+	SecurityPolicyContainerAppsGitAutoSync     SecurityPolicy = "container_apps_git_auto_sync"
+	SecurityPolicyInvitationLinks              SecurityPolicy = "invitation_links"
 )
 
 // Valid indicates whether the value is a known member of the SecurityPolicy enum.
 func (e SecurityPolicy) Valid() bool {
 	switch e {
+	case SecurityPolicyContainerAppsCommandOverride:
+		return true
 	case SecurityPolicyContainerAppsGitAutoSync:
+		return true
+	case SecurityPolicyInvitationLinks:
 		return true
 	default:
 		return false
@@ -4965,6 +5598,7 @@ const (
 	ServiceLinkKindAirflow           ServiceLinkKind = "Airflow"
 	ServiceLinkKindContainerApp      ServiceLinkKind = "ContainerApp"
 	ServiceLinkKindHfKeyValueCache   ServiceLinkKind = "HfKeyValueCache"
+	ServiceLinkKindHfRabbitMq        ServiceLinkKind = "HfRabbitMq"
 	ServiceLinkKindKafka             ServiceLinkKind = "Kafka"
 	ServiceLinkKindManagedPostgreSQL ServiceLinkKind = "ManagedPostgreSQL"
 	ServiceLinkKindPipeline          ServiceLinkKind = "Pipeline"
@@ -4979,6 +5613,8 @@ func (e ServiceLinkKind) Valid() bool {
 	case ServiceLinkKindContainerApp:
 		return true
 	case ServiceLinkKindHfKeyValueCache:
+		return true
+	case ServiceLinkKindHfRabbitMq:
 		return true
 	case ServiceLinkKindKafka:
 		return true
@@ -5011,6 +5647,33 @@ func (e SetupOutcome) Valid() bool {
 	case SetupOutcomeSucceeded:
 		return true
 	case SetupOutcomeUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Severity.
+const (
+	SeverityCritical Severity = "critical"
+	SeverityHigh     Severity = "high"
+	SeverityLow      Severity = "low"
+	SeverityMedium   Severity = "medium"
+	SeverityUnknown  Severity = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the Severity enum.
+func (e Severity) Valid() bool {
+	switch e {
+	case SeverityCritical:
+		return true
+	case SeverityHigh:
+		return true
+	case SeverityLow:
+		return true
+	case SeverityMedium:
+		return true
+	case SeverityUnknown:
 		return true
 	default:
 		return false
@@ -5116,6 +5779,36 @@ func (e SpendWindow) Valid() bool {
 	}
 }
 
+// Defines values for StorageLimitScope.
+const (
+	StorageLimitScopeBackend        StorageLimitScope = "backend"
+	StorageLimitScopeBackendProduct StorageLimitScope = "backend_product"
+	StorageLimitScopeMaxVolumeGb    StorageLimitScope = "max_volume_gb"
+	StorageLimitScopeMaxVolumes     StorageLimitScope = "max_volumes"
+	StorageLimitScopeProduct        StorageLimitScope = "product"
+	StorageLimitScopeTotal          StorageLimitScope = "total"
+)
+
+// Valid indicates whether the value is a known member of the StorageLimitScope enum.
+func (e StorageLimitScope) Valid() bool {
+	switch e {
+	case StorageLimitScopeBackend:
+		return true
+	case StorageLimitScopeBackendProduct:
+		return true
+	case StorageLimitScopeMaxVolumeGb:
+		return true
+	case StorageLimitScopeMaxVolumes:
+		return true
+	case StorageLimitScopeProduct:
+		return true
+	case StorageLimitScopeTotal:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SyncPolicy.
 const (
 	SyncPolicyAuto   SyncPolicy = "auto"
@@ -5128,6 +5821,96 @@ func (e SyncPolicy) Valid() bool {
 	case SyncPolicyAuto:
 		return true
 	case SyncPolicyManual:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneAnswer0Type.
+const (
+	SystemOneAnswer0TypeChoice SystemOneAnswer0Type = "choice"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneAnswer0Type enum.
+func (e SystemOneAnswer0Type) Valid() bool {
+	switch e {
+	case SystemOneAnswer0TypeChoice:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneAnswer1Type.
+const (
+	SystemOneAnswer1TypeNoul SystemOneAnswer1Type = "noul"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneAnswer1Type enum.
+func (e SystemOneAnswer1Type) Valid() bool {
+	switch e {
+	case SystemOneAnswer1TypeNoul:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneAnswer2Type.
+const (
+	SystemOneAnswer2TypeScore SystemOneAnswer2Type = "score"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneAnswer2Type enum.
+func (e SystemOneAnswer2Type) Valid() bool {
+	switch e {
+	case SystemOneAnswer2TypeScore:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneQuestion0Type.
+const (
+	SystemOneQuestion0TypeChoice SystemOneQuestion0Type = "choice"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneQuestion0Type enum.
+func (e SystemOneQuestion0Type) Valid() bool {
+	switch e {
+	case SystemOneQuestion0TypeChoice:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneQuestion1Type.
+const (
+	SystemOneQuestion1TypeNoul SystemOneQuestion1Type = "noul"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneQuestion1Type enum.
+func (e SystemOneQuestion1Type) Valid() bool {
+	switch e {
+	case SystemOneQuestion1TypeNoul:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SystemOneQuestion2Type.
+const (
+	SystemOneQuestion2TypeScore SystemOneQuestion2Type = "score"
+)
+
+// Valid indicates whether the value is a known member of the SystemOneQuestion2Type enum.
+func (e SystemOneQuestion2Type) Valid() bool {
+	switch e {
+	case SystemOneQuestion2TypeScore:
 		return true
 	default:
 		return false
@@ -5497,6 +6280,54 @@ func (e ValueFormat) Valid() bool {
 	}
 }
 
+// Defines values for VerdictEvidence0Rule.
+const (
+	VerdictEvidence0RuleLoopingAgent VerdictEvidence0Rule = "looping_agent"
+)
+
+// Valid indicates whether the value is a known member of the VerdictEvidence0Rule enum.
+func (e VerdictEvidence0Rule) Valid() bool {
+	switch e {
+	case VerdictEvidence0RuleLoopingAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VerdictEvidence1Rule.
+const (
+	VerdictEvidence1RuleCatalogueSweep VerdictEvidence1Rule = "catalogue_sweep"
+)
+
+// Valid indicates whether the value is a known member of the VerdictEvidence1Rule enum.
+func (e VerdictEvidence1Rule) Valid() bool {
+	switch e {
+	case VerdictEvidence1RuleCatalogueSweep:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VerdictRule.
+const (
+	VerdictRuleCatalogueSweep VerdictRule = "catalogue_sweep"
+	VerdictRuleLoopingAgent   VerdictRule = "looping_agent"
+)
+
+// Valid indicates whether the value is a known member of the VerdictRule enum.
+func (e VerdictRule) Valid() bool {
+	switch e {
+	case VerdictRuleCatalogueSweep:
+		return true
+	case VerdictRuleLoopingAgent:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for VmImageKind.
 const (
 	VmImageKindDisk      VmImageKind = "disk"
@@ -5509,6 +6340,114 @@ func (e VmImageKind) Valid() bool {
 	case VmImageKindDisk:
 		return true
 	case VmImageKindInstaller:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeAccessMode.
+const (
+	VolumeAccessModeReadOnlyMany     VolumeAccessMode = "ReadOnlyMany"
+	VolumeAccessModeReadWriteMany    VolumeAccessMode = "ReadWriteMany"
+	VolumeAccessModeReadWriteOnce    VolumeAccessMode = "ReadWriteOnce"
+	VolumeAccessModeReadWriteOncePod VolumeAccessMode = "ReadWriteOncePod"
+)
+
+// Valid indicates whether the value is a known member of the VolumeAccessMode enum.
+func (e VolumeAccessMode) Valid() bool {
+	switch e {
+	case VolumeAccessModeReadOnlyMany:
+		return true
+	case VolumeAccessModeReadWriteMany:
+		return true
+	case VolumeAccessModeReadWriteOnce:
+		return true
+	case VolumeAccessModeReadWriteOncePod:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeDefaultLevel.
+const (
+	VolumeDefaultLevelHarbor       VolumeDefaultLevel = "Harbor"
+	VolumeDefaultLevelOrganization VolumeDefaultLevel = "Organization"
+	VolumeDefaultLevelPlatform     VolumeDefaultLevel = "Platform"
+)
+
+// Valid indicates whether the value is a known member of the VolumeDefaultLevel enum.
+func (e VolumeDefaultLevel) Valid() bool {
+	switch e {
+	case VolumeDefaultLevelHarbor:
+		return true
+	case VolumeDefaultLevelOrganization:
+		return true
+	case VolumeDefaultLevelPlatform:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeMode.
+const (
+	VolumeModeBlock      VolumeMode = "Block"
+	VolumeModeFilesystem VolumeMode = "Filesystem"
+)
+
+// Valid indicates whether the value is a known member of the VolumeMode enum.
+func (e VolumeMode) Valid() bool {
+	switch e {
+	case VolumeModeBlock:
+		return true
+	case VolumeModeFilesystem:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeProduct.
+const (
+	VolumeProductCiRunner           VolumeProduct = "CiRunner"
+	VolumeProductComputeDockHome    VolumeProduct = "ComputeDockHome"
+	VolumeProductContainerApp       VolumeProduct = "ContainerApp"
+	VolumeProductContainerAppShared VolumeProduct = "ContainerAppShared"
+	VolumeProductDevWorkstation     VolumeProduct = "DevWorkstation"
+	VolumeProductDevWorkstationOci  VolumeProduct = "DevWorkstationOci"
+	VolumeProductKafka              VolumeProduct = "Kafka"
+	VolumeProductManagedPostgreSQL  VolumeProduct = "ManagedPostgreSQL"
+	VolumeProductNextflowWork       VolumeProduct = "NextflowWork"
+	VolumeProductTrino              VolumeProduct = "Trino"
+	VolumeProductVirtualMachine     VolumeProduct = "VirtualMachine"
+)
+
+// Valid indicates whether the value is a known member of the VolumeProduct enum.
+func (e VolumeProduct) Valid() bool {
+	switch e {
+	case VolumeProductCiRunner:
+		return true
+	case VolumeProductComputeDockHome:
+		return true
+	case VolumeProductContainerApp:
+		return true
+	case VolumeProductContainerAppShared:
+		return true
+	case VolumeProductDevWorkstation:
+		return true
+	case VolumeProductDevWorkstationOci:
+		return true
+	case VolumeProductKafka:
+		return true
+	case VolumeProductManagedPostgreSQL:
+		return true
+	case VolumeProductNextflowWork:
+		return true
+	case VolumeProductTrino:
+		return true
+	case VolumeProductVirtualMachine:
 		return true
 	default:
 		return false
@@ -5548,6 +6487,7 @@ const (
 	WorkloadKindForgejoRunner     WorkloadKind = "ForgejoRunner"
 	WorkloadKindGithubRunner      WorkloadKind = "GithubRunner"
 	WorkloadKindHfKeyValueCache   WorkloadKind = "HfKeyValueCache"
+	WorkloadKindHfRabbitMq        WorkloadKind = "HfRabbitMq"
 	WorkloadKindKafka             WorkloadKind = "Kafka"
 	WorkloadKindManagedPostgreSQL WorkloadKind = "ManagedPostgreSQL"
 	WorkloadKindModelServing      WorkloadKind = "ModelServing"
@@ -5581,6 +6521,8 @@ func (e WorkloadKind) Valid() bool {
 		return true
 	case WorkloadKindHfKeyValueCache:
 		return true
+	case WorkloadKindHfRabbitMq:
+		return true
 	case WorkloadKindKafka:
 		return true
 	case WorkloadKindManagedPostgreSQL:
@@ -5604,6 +6546,7 @@ func (e WorkloadKind) Valid() bool {
 
 // Defines values for WorkloadScanTrigger.
 const (
+	WorkloadScanTriggerDbUpdate   WorkloadScanTrigger = "db_update"
 	WorkloadScanTriggerFirstSight WorkloadScanTrigger = "first_sight"
 	WorkloadScanTriggerManual     WorkloadScanTrigger = "manual"
 	WorkloadScanTriggerScheduled  WorkloadScanTrigger = "scheduled"
@@ -5612,6 +6555,8 @@ const (
 // Valid indicates whether the value is a known member of the WorkloadScanTrigger enum.
 func (e WorkloadScanTrigger) Valid() bool {
 	switch e {
+	case WorkloadScanTriggerDbUpdate:
+		return true
 	case WorkloadScanTriggerFirstSight:
 		return true
 	case WorkloadScanTriggerManual:
@@ -5767,7 +6712,15 @@ type AccountIdentityProvider struct {
 	// Alias Alias in the organization's realm, the argument of Keycloak's `idp_link` action.
 	Alias       string `json:"alias"`
 	DisplayName string `json:"display_name"`
-	Linked      bool   `json:"linked"`
+
+	// EnforcedByPlatform The organization's sign-in is enforced through this provider by the
+	// platform administrator: the link cannot be removed.
+	EnforcedByPlatform bool `json:"enforced_by_platform"`
+	Linked             bool `json:"linked"`
+
+	// SuspendedByPlatform Disabled by the platform while another provider owns the organization's
+	// sign-in: it cannot be linked or used meanwhile.
+	SuspendedByPlatform bool `json:"suspended_by_platform"`
 
 	// Username The account's username at that provider, when linked.
 	Username *string `json:"username,omitempty"`
@@ -5809,6 +6762,12 @@ type AccountSession struct {
 	IpAddress    *string   `json:"ip_address,omitempty"`
 	LastAccessAt time.Time `json:"last_access_at"`
 	StartedAt    time.Time `json:"started_at"`
+}
+
+// AcknowledgeChangelogsRequest Ids of the entries the caller has just read (the dialog's content).
+type AcknowledgeChangelogsRequest struct {
+	// EntryIds 1 to 100 entry ids. Ids that are not published entries are ignored.
+	EntryIds []openapi_types.UUID `json:"entry_ids"`
 }
 
 // ActionParameter One declared parameter of an [`ActionType`] — a named input mapped to a
@@ -5907,6 +6866,15 @@ type AddWorkstationRepositoryResponse struct {
 	Repository WorkstationRepositoryResponse `json:"repository"`
 }
 
+// AgentDecisionUseDto One use of a decision model.
+type AgentDecisionUseDto struct {
+	// Model Shared decision model or flavor name, e.g. `decide-s`.
+	Model string `json:"model"`
+
+	// Threshold Probability to reach, strictly between 0 and 1. Absent = runtime default.
+	Threshold *float64 `json:"threshold,omitempty"`
+}
+
 // AgentMode An opencode agent/mode the user can switch between (Build, Plan, ...). The
 // chat toolbar renders one toggle per primary agent.
 type AgentMode struct {
@@ -5922,6 +6890,35 @@ type AgentMode struct {
 
 // AgentRequestKind Which workstation surface a recorded agent request came through.
 type AgentRequestKind string
+
+// AgentVerdictDto A data-access verdict on an AI agent's service account. While `active`, the
+// account reads nothing on any data dock.
+type AgentVerdictDto struct {
+	Active    bool      `json:"active"`
+	CreatedAt time.Time `json:"created_at"`
+
+	// Evidence What a detector saw. Counts, the window and query fingerprint hashes only:
+	// never SQL text and never table names.
+	Evidence   VerdictEvidence    `json:"evidence"`
+	Id         openapi_types.UUID `json:"id"`
+	LiftReason *string            `json:"lift_reason,omitempty"`
+	LiftedAt   *time.Time         `json:"lifted_at,omitempty"`
+
+	// LiftedBy The Keycloak subject of the human who lifted it.
+	LiftedBy *string `json:"lifted_by,omitempty"`
+
+	// LiftedByName The name of the human who lifted it, when it can be resolved.
+	LiftedByName   *string            `json:"lifted_by_name,omitempty"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// Rule The detector that produced a verdict. The wire names are the `rule` column
+	// and what OPA reports in `agent_verdicts[<subject>].rule`.
+	Rule             VerdictRule        `json:"rule"`
+	ServiceAccountId openapi_types.UUID `json:"service_account_id"`
+
+	// ServiceAccountName The account's name, when it can be resolved.
+	ServiceAccountName *string `json:"service_account_name,omitempty"`
+}
 
 // AgentWorkspaces defines model for AgentWorkspaces.
 type AgentWorkspaces struct {
@@ -5998,6 +6995,19 @@ type AiAgentDataSourceDto struct {
 	// this dock. Omitted or empty means the whole dock, which is what every
 	// agent created before this field gets.
 	Tables *[]string `json:"tables,omitempty"`
+}
+
+// AiAgentDecisionsDto Decision models the agent consults (decision-models.md section 6.2).
+//
+// `routing` is accepted on a routing agent only, `grounding` on an agent that can
+// retrieve content (`search` or `query`). A threshold left out is the runtime's
+// constant (routing 0.80, grounding 0.50) and is never filled in here.
+type AiAgentDecisionsDto struct {
+	// Grounding One use of a decision model.
+	Grounding *AgentDecisionUseDto `json:"grounding,omitempty"`
+
+	// Routing One use of a decision model.
+	Routing *AgentDecisionUseDto `json:"routing,omitempty"`
 }
 
 // AiAgentDesiredStateDto Whether the agent should be running. Stopping and starting is user-driven,
@@ -6173,7 +7183,14 @@ type AiAgentResponse struct {
 	Context     *string                `json:"context,omitempty"`
 	CreatedAt   time.Time              `json:"created_at"`
 	DataSources []AiAgentDataSourceDto `json:"data_sources"`
-	Description *string                `json:"description,omitempty"`
+
+	// Decisions Decision models the agent consults (decision-models.md section 6.2).
+	//
+	// `routing` is accepted on a routing agent only, `grounding` on an agent that can
+	// retrieve content (`search` or `query`). A threshold left out is the runtime's
+	// constant (routing 0.80, grounding 0.50) and is never filled in here.
+	Decisions   *AiAgentDecisionsDto `json:"decisions,omitempty"`
+	Description *string              `json:"description,omitempty"`
 
 	// DesiredState Whether the agent should be running. Stopping and starting is user-driven,
 	// exactly like a container app: there is no autoscaler and no wake-on-request,
@@ -6541,6 +7558,11 @@ type AirflowCrdStatusResponse struct {
 	// TaskNamespace Dedicated namespace the environment's task pods run in.
 	TaskNamespace *string `json:"task_namespace,omitempty"`
 
+	// UiPermissions The last sync of IAM grants onto the environment's Keycloak roles. The
+	// operator re-runs it on every reconcile (at least every 5 minutes), so a
+	// grant change reaches Airflow within that delay.
+	UiPermissions *AirflowUiPermissionsResponse `json:"ui_permissions,omitempty"`
+
 	// UnresolvedAllowlists Names from `egress.allowlists` the operator's last reconcile could not
 	// resolve to an `EgressAllowlist` of this Harbor. Empty is the healthy
 	// case; a name here reaches the task policy as nothing at all.
@@ -6676,6 +7698,25 @@ type AirflowResponse struct {
 	WebUrl                *string            `json:"web_url,omitempty"`
 }
 
+// AirflowUiPermissionsResponse The last sync of IAM grants onto the environment's Keycloak roles. The
+// operator re-runs it on every reconcile (at least every 5 minutes), so a
+// grant change reaches Airflow within that delay.
+type AirflowUiPermissionsResponse struct {
+	// AppliedRevision Revision of the grants now applied in Keycloak — equal to the
+	// `revision` of the internal `ui-permissions` read at that time.
+	AppliedRevision *string `json:"applied_revision,omitempty"`
+
+	// Error Why the last sync failed; absent when it succeeded.
+	Error *string `json:"error,omitempty"`
+
+	// SyncedAt When the last successful sync ran (RFC 3339).
+	SyncedAt *string `json:"synced_at,omitempty"`
+
+	// UnresolvedPrincipals Principals granted in IAM with no account in the organization's realm
+	// yet (they have never signed in); they get their access on a later sync.
+	UnresolvedPrincipals int32 `json:"unresolved_principals"`
+}
+
 // AlertEventDto defines model for AlertEventDto.
 type AlertEventDto struct {
 	FiredAt        time.Time          `json:"fired_at"`
@@ -6689,6 +7730,9 @@ type AlertEventDto struct {
 	Status         string             `json:"status"`
 	ValuePct       float64            `json:"value_pct"`
 }
+
+// AlertLevel defines model for AlertLevel.
+type AlertLevel string
 
 // AlertRuleBody Write payload; maps 1:1 to [`AlertRuleInput`].
 type AlertRuleBody struct {
@@ -6824,6 +7868,9 @@ type AntivirusConfig struct {
 
 // ApiErrorBody defines model for ApiErrorBody.
 type ApiErrorBody struct {
+	// Error The reason, on a surface that answers `{"error":{"type","message"}}` or `{"error":".."}`
+	Error interface{} `json:"error,omitempty"`
+
 	// Errors Validation detail of a 422: a string or a map of field errors
 	Errors             interface{} `json:"errors,omitempty"`
 	Message            *string     `json:"message,omitempty"`
@@ -6855,6 +7902,16 @@ type ApiKeyResponse struct {
 	PlatformMaxLlmRpm *int32   `json:"platform_max_llm_rpm,omitempty"`
 	PlatformMaxLlmTpm *int64   `json:"platform_max_llm_tpm,omitempty"`
 	Scopes            []string `json:"scopes"`
+}
+
+// AppInstanceCustomDomain One install-time custom domain and the public app that serves it.
+type AppInstanceCustomDomain struct {
+	// Component Template component name of a public ContainerApp (one declaring
+	// `network.host`).
+	Component string `json:"component"`
+
+	// Fqdn FQDN the org has verified, e.g. `git.acme.com`.
+	Fqdn string `json:"fqdn"`
 }
 
 // AppInstanceResponse defines model for AppInstanceResponse.
@@ -7419,35 +8476,48 @@ type AuditLogEvent5 struct {
 // AuditLogEvent5Type defines model for AuditLogEvent.5.Type.
 type AuditLogEvent5Type string
 
-// AuditLogEvent6 A guardrail (`organization_policy`) was removed by cascade-GC when its
-// resource subtree was deleted. Audited because dropping a deny-unless
-// guardrail *widens* access.
+// AuditLogEvent6 Allowed reads or lists of a platform service account the S3 gateway
+// folded into one record per operation, session, bucket and window.
 type AuditLogEvent6 struct {
-	// Data Audit payload for a guardrail removed by cascade-GC on resource delete.
-	// One entry is written per removed guardrail.
-	Data AuthzOrganizationPolicyRevokedLog `json:"data"`
-	Type AuditLogEvent6Type                `json:"type"`
+	// Data Allowed reads or lists of one platform service account, one session and one
+	// operation on one bucket, that the S3 gateway folded into one record
+	// (s0 ADR-011, hyperfluid ADR-0047 D6). It names the volume, not the objects.
+	Data S3GatewayAccessSummaryLog `json:"data"`
+	Type AuditLogEvent6Type        `json:"type"`
 }
 
 // AuditLogEvent6Type defines model for AuditLogEvent.6.Type.
 type AuditLogEvent6Type string
 
-// AuditLogEvent7 A request was allowed via the platform break-glass bypass. Audited
-// unconditionally: this is the one path that overrides deny and guardrails.
+// AuditLogEvent7 A guardrail (`organization_policy`) was removed by cascade-GC when its
+// resource subtree was deleted. Audited because dropping a deny-unless
+// guardrail *widens* access.
 type AuditLogEvent7 struct {
-	// Data Audit payload for a break-glass bypass. One entry per authorized request that
-	// resolved via the platform recovery subject.
-	Data AuthzBreakGlassUsedLog `json:"data"`
-	Type AuditLogEvent7Type     `json:"type"`
+	// Data Audit payload for a guardrail removed by cascade-GC on resource delete.
+	// One entry is written per removed guardrail.
+	Data AuthzOrganizationPolicyRevokedLog `json:"data"`
+	Type AuditLogEvent7Type                `json:"type"`
 }
 
 // AuditLogEvent7Type defines model for AuditLogEvent.7.Type.
 type AuditLogEvent7Type string
 
-// AuditLogEvent8 A platform administrator changed org-level commercial state from the
+// AuditLogEvent8 A request was allowed via the platform break-glass bypass. Audited
+// unconditionally: this is the one path that overrides deny and guardrails.
+type AuditLogEvent8 struct {
+	// Data Audit payload for a break-glass bypass. One entry per authorized request that
+	// resolved via the platform recovery subject.
+	Data AuthzBreakGlassUsedLog `json:"data"`
+	Type AuditLogEvent8Type     `json:"type"`
+}
+
+// AuditLogEvent8Type defines model for AuditLogEvent.8.Type.
+type AuditLogEvent8Type string
+
+// AuditLogEvent9 A platform administrator changed org-level commercial state from the
 // cockpit (plan, quota overrides, feature toggles). The actor is the
 // VALIDATED platform-realm JWT subject, recorded at the mutation site.
-type AuditLogEvent8 struct {
+type AuditLogEvent9 struct {
 	// Data Audit payload for a cockpit mutation. `actor` is the platform admin's
 	// email (fallback: Keycloak sub); `action` is a stable machine key
 	// (`quota_profile_assigned`, `custom_limits_updated`, `feature_override_set`,
@@ -7455,51 +8525,51 @@ type AuditLogEvent8 struct {
 	// as string key/values (new plan slug, the limits written, the flag…) —
 	// stringly-typed so the event enum keeps its `Eq` derive.
 	Data PlatformAdminActionLog `json:"data"`
-	Type AuditLogEvent8Type     `json:"type"`
+	Type AuditLogEvent9Type     `json:"type"`
 }
 
-// AuditLogEvent8Type defines model for AuditLogEvent.8.Type.
-type AuditLogEvent8Type string
+// AuditLogEvent9Type defines model for AuditLogEvent.9.Type.
+type AuditLogEvent9Type string
 
-// AuditLogEvent9 A runtime-security detection fired on a node. Emitted by Falco and
+// AuditLogEvent10 A runtime-security detection fired on a node. Emitted by Falco and
 // ingested through the internal runtime-security router.
 //
 // Attribution is best-effort: the enclosing request's `organization_id`
 // is `None` for platform namespaces and for anything the namespace-label
 // resolver could not place. Those are surfaced as "unattributed", never
 // silently dropped — see `runtime_security::attribution`.
-type AuditLogEvent9 struct {
+type AuditLogEvent10 struct {
 	// Data One Falco detection, after redaction, dedup and attribution — the shape
 	// actually persisted. Fields Falco's `output_fields` may omit (rule
 	// dependent — see falcosidekick's own docs) are `Option`; forcing them
 	// non-optional would make ingestion brittle to Falco's own rule authoring.
 	Data RuntimeSecurityAlertLog `json:"data"`
-	Type AuditLogEvent9Type      `json:"type"`
-}
-
-// AuditLogEvent9Type defines model for AuditLogEvent.9.Type.
-type AuditLogEvent9Type string
-
-// AuditLogEvent10 A Trino query completed — the SQL + outcome trace root beyond OPA
-// (ADR-0040 roadmap item 4), from the coordinator's built-in HTTP event
-// listener.
-type AuditLogEvent10 struct {
-	// Data A query-completion event, distilled from Trino's `QueryCompletedEvent`.
-	Data TrinoQueryCompletedLog `json:"data"`
-	Type AuditLogEvent10Type    `json:"type"`
+	Type AuditLogEvent10Type     `json:"type"`
 }
 
 // AuditLogEvent10Type defines model for AuditLogEvent.10.Type.
 type AuditLogEvent10Type string
 
-// AuditLogEvent11 A request a user made of the agent inside a dev workstation, recorded
+// AuditLogEvent11 A Trino query completed — the SQL + outcome trace root beyond OPA
+// (ADR-0040 roadmap item 4), from the coordinator's built-in HTTP event
+// listener.
+type AuditLogEvent11 struct {
+	// Data A query-completion event, distilled from Trino's `QueryCompletedEvent`.
+	Data TrinoQueryCompletedLog `json:"data"`
+	Type AuditLogEvent11Type    `json:"type"`
+}
+
+// AuditLogEvent11Type defines model for AuditLogEvent.11.Type.
+type AuditLogEvent11Type string
+
+// AuditLogEvent12 A request a user made of the agent inside a dev workstation, recorded
 // because the organization is in workstation audit mode.
 //
 // Content, not a decision. Not part of the tenant audit trail: it is
 // served only by the workstation transcript endpoint, behind
 // `Permission::DevWorkstationAuditRead`, and is filtered out of
 // `GET /api/v1/audit-logs` the way platform-admin actions are.
-type AuditLogEvent11 struct {
+type AuditLogEvent12 struct {
 	// Data Audit payload for a request made of the agent inside a dev workstation.
 	//
 	// The prompt is stored verbatim. Unlike terminal input there is no echo to
@@ -7507,15 +8577,15 @@ type AuditLogEvent11 struct {
 	// into a chat box and sent to a third-party model, so recording it discloses
 	// nothing to the organization that the model provider was not already given.
 	Data WorkstationAgentRequestLog `json:"data"`
-	Type AuditLogEvent11Type        `json:"type"`
+	Type AuditLogEvent12Type        `json:"type"`
 }
 
-// AuditLogEvent11Type defines model for AuditLogEvent.11.Type.
-type AuditLogEvent11Type string
+// AuditLogEvent12Type defines model for AuditLogEvent.12.Type.
+type AuditLogEvent12Type string
 
-// AuditLogEvent12 A command line submitted in a dev workstation terminal. Same audience
+// AuditLogEvent13 A command line submitted in a dev workstation terminal. Same audience
 // and same exclusion as [`Self::WorkstationAgentRequest`].
-type AuditLogEvent12 struct {
+type AuditLogEvent13 struct {
 	// Data Audit payload for one command line submitted in a workstation terminal.
 	//
 	// METADATA ONLY, and that is a deliberate contract rather than a limitation
@@ -7529,17 +8599,17 @@ type AuditLogEvent12 struct {
 	// what volume. What they do not get: what was run. Do not describe this event
 	// as a command history.
 	Data WorkstationTerminalCommandLog `json:"data"`
-	Type AuditLogEvent12Type           `json:"type"`
+	Type AuditLogEvent13Type           `json:"type"`
 }
 
-// AuditLogEvent12Type defines model for AuditLogEvent.12.Type.
-type AuditLogEvent12Type string
+// AuditLogEvent13Type defines model for AuditLogEvent.13.Type.
+type AuditLogEvent13Type string
 
-// AuditLogEvent13 A preview session was opened into a workstation while the organization
+// AuditLogEvent14 A preview session was opened into a workstation while the organization
 // was in audit mode with `PreviewPosture::Record`. Records that an
 // unrecorded interactive channel was available, and for how long, which
 // is the fact a reviewer needs even without its contents.
-type AuditLogEvent13 struct {
+type AuditLogEvent14 struct {
 	// Data Audit payload for a preview session opened while the organization is in
 	// audit mode with `PreviewPosture::Record`.
 	//
@@ -7548,33 +8618,33 @@ type AuditLogEvent13 struct {
 	// What is recordable, and what a reviewer needs, is that the channel was
 	// opened at all.
 	Data WorkstationPreviewSessionLog `json:"data"`
-	Type AuditLogEvent13Type          `json:"type"`
+	Type AuditLogEvent14Type          `json:"type"`
 }
 
-// AuditLogEvent13Type defines model for AuditLogEvent.13.Type.
-type AuditLogEvent13Type string
+// AuditLogEvent14Type defines model for AuditLogEvent.14.Type.
+type AuditLogEvent14Type string
 
-// AuditLogEvent14 A principal started loading a staged dump into a managed PostgreSQL
+// AuditLogEvent15 A principal started loading a staged dump into a managed PostgreSQL
 // instance. Recorded because the import replays arbitrary SQL as the
 // chosen database role, which is a write no other trail attributes to a
 // person.
-type AuditLogEvent14 struct {
+type AuditLogEvent15 struct {
 	// Data Audit payload for an import started into a managed PostgreSQL instance.
 	// The actor is the enclosing request's `oauth_id`.
 	//
 	// Identifies what was loaded and as whom; never the object's contents or a
 	// presigned URL.
 	Data ManagedPostgresqlImportCreatedLog `json:"data"`
-	Type AuditLogEvent14Type               `json:"type"`
+	Type AuditLogEvent15Type               `json:"type"`
 }
 
-// AuditLogEvent14Type defines model for AuditLogEvent.14.Type.
-type AuditLogEvent14Type string
+// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
+type AuditLogEvent15Type string
 
-// AuditLogEvent15 A browser console session (VNC or serial) on a virtual machine was
+// AuditLogEvent16 A browser console session (VNC or serial) on a virtual machine was
 // opened or closed. Recorded at both ends so a session's duration and the
 // reason it ended are on the ledger.
-type AuditLogEvent15 struct {
+type AuditLogEvent16 struct {
 	// Data Audit payload for a browser console session on a virtual machine. The
 	// actor is the enclosing request's `oauth_id`.
 	//
@@ -7582,34 +8652,34 @@ type AuditLogEvent15 struct {
 	// records who attached to which VM and for how long; the bytes relayed are
 	// never captured.
 	Data VirtualMachineConsoleSessionLog `json:"data"`
-	Type AuditLogEvent15Type             `json:"type"`
-}
-
-// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
-type AuditLogEvent15Type string
-
-// AuditLogEvent16 A ContainerApp's Git source resolved a new image and rolled it out
-// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
-// every such change is attributed to the commit and its author.
-type AuditLogEvent16 struct {
-	// Data Audit payload for an image a Git source rolled out. Written by the console
-	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
-	// the person behind it is the commit author, as the provider reports it.
-	Data ContainerAppImageSyncedLog `json:"data"`
-	Type AuditLogEvent16Type        `json:"type"`
+	Type AuditLogEvent16Type             `json:"type"`
 }
 
 // AuditLogEvent16Type defines model for AuditLogEvent.16.Type.
 type AuditLogEvent16Type string
 
-// AuditLogEvent17 A console-mediated read returned the raw value of a Ceph RGW
+// AuditLogEvent17 A ContainerApp's Git source resolved a new image and rolled it out
+// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
+// every such change is attributed to the commit and its author.
+type AuditLogEvent17 struct {
+	// Data Audit payload for an image a Git source rolled out. Written by the console
+	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
+	// the person behind it is the commit author, as the provider reports it.
+	Data ContainerAppImageSyncedLog `json:"data"`
+	Type AuditLogEvent17Type        `json:"type"`
+}
+
+// AuditLogEvent17Type defines model for AuditLogEvent.17.Type.
+type AuditLogEvent17Type string
+
+// AuditLogEvent18 A console-mediated read returned the raw value of a Ceph RGW
 // tenant-owner key (a Secret-Manager entry named under
 // `services/ceph/<binding>/owner/` or tagged `ceph-harbor-owner-user`, by
 // `harbor_binding_reconciler.rs`'s `publish_owner_credentials_to_console`).
 // The only observability left once that credential leaves Secret Manager —
 // see `handlers::secrets::read_secret_value`. Recorded through the acked
 // emitter: a reveal that cannot be recorded is refused.
-type AuditLogEvent17 struct {
+type AuditLogEvent18 struct {
 	// Data Audit payload for a console-mediated reveal of a Ceph RGW tenant-owner
 	// key. The actor is the enclosing request's `oauth_id`: the caller for an
 	// externally-authenticated read, or a fixed system actor for the internal
@@ -7619,28 +8689,43 @@ type AuditLogEvent17 struct {
 	// only what identifies which entry was revealed and, when resolvable, which
 	// harbor it belongs to.
 	Data ObjectStorageOwnerKeyRevealedLog `json:"data"`
-	Type AuditLogEvent17Type              `json:"type"`
+	Type AuditLogEvent18Type              `json:"type"`
 }
 
-// AuditLogEvent17Type defines model for AuditLogEvent.17.Type.
-type AuditLogEvent17Type string
+// AuditLogEvent18Type defines model for AuditLogEvent.18.Type.
+type AuditLogEvent18Type string
 
-// AuditLogEvent18 The platform's usage sweep read the organization's buckets on one
+// AuditLogEvent19 The platform's usage sweep read the organization's buckets on one
 // backend (ADR-0048 D5: the collector's principal is named, and it is
 // audited like every other job that reads object data). One event per
 // sweep per (organization, backend), reported by the operator through
 // the internal API.
-type AuditLogEvent18 struct {
+type AuditLogEvent19 struct {
 	// Data Audit payload for one usage sweep over one organization's buckets on one
 	// backend. It names who read (the collector's principal), where (the
 	// backend and its driver), how much (buckets read, and those whose read
 	// failed) and when; never a bucket's content, key or credential.
 	Data ObjectStorageUsageCollectedLog `json:"data"`
-	Type AuditLogEvent18Type            `json:"type"`
+	Type AuditLogEvent19Type            `json:"type"`
 }
 
-// AuditLogEvent18Type defines model for AuditLogEvent.18.Type.
-type AuditLogEvent18Type string
+// AuditLogEvent19Type defines model for AuditLogEvent.19.Type.
+type AuditLogEvent19Type string
+
+// AuditLogEvent20 The Replication Manager read one bucket and copied it to the platform
+// backup target (ADR-0047 D6). Its identity reads every tenant's data, so
+// each run is recorded per bucket, reported by the operator once the run
+// ends; s0 records the reads themselves.
+type AuditLogEvent20 struct {
+	// Data Audit payload for one bucket of one replication run: who read (the
+	// Replication Manager's principal), which bucket, what reached the backup
+	// target and when; never an object key, its content or a credential.
+	Data ObjectStorageReplicatedLog `json:"data"`
+	Type AuditLogEvent20Type        `json:"type"`
+}
+
+// AuditLogEvent20Type defines model for AuditLogEvent.20.Type.
+type AuditLogEvent20Type string
 
 // AuditLogEventType defines model for AuditLogEventType.
 type AuditLogEventType string
@@ -8390,6 +9475,11 @@ type CatalogResponse struct {
 	Repositories []CatalogRepositoryResponse `json:"repositories"`
 }
 
+// CatalogueMode Whether the catalogue drives placement (ADR-0056 D8). One switch, from the
+// Helm value `volumeStorage.catalogue`, read by the operator, the console
+// and the cockpit.
+type CatalogueMode string
+
 // CephZoneResponse defines model for CephZoneResponse.
 type CephZoneResponse struct {
 	// Description Human-readable description
@@ -8407,6 +9497,10 @@ type CephZoneResponse struct {
 // authoring metadata that would only invite the console to display an edit
 // date instead of the release date.
 type ChangelogEntryResponse struct {
+	// Acknowledged Whether the calling user has already read this entry, on any browser.
+	// Always false for a service account, which has no read state.
+	Acknowledged bool `json:"acknowledged"`
+
 	// Announce False for entries that belong in the history without popping the
 	// what's-new dialog (a small patch note).
 	Announce     bool   `json:"announce"`
@@ -8646,9 +9740,12 @@ type ComputeDockCrdPartition struct {
 
 // ComputeDockCrdSpecResponse defines model for ComputeDockCrdSpecResponse.
 type ComputeDockCrdSpecResponse struct {
-	AccountingEnabled      bool                      `json:"accounting_enabled"`
-	AutoSuspendEnabled     bool                      `json:"auto_suspend_enabled"`
-	AutoSuspendIdleMinutes *int32                    `json:"auto_suspend_idle_minutes,omitempty"`
+	AccountingEnabled      bool   `json:"accounting_enabled"`
+	AutoSuspendEnabled     bool   `json:"auto_suspend_enabled"`
+	AutoSuspendIdleMinutes *int32 `json:"auto_suspend_idle_minutes,omitempty"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend   `json:"effective_volume_backend,omitempty"`
 	Enabled                bool                      `json:"enabled"`
 	Engine                 string                    `json:"engine"`
 	HomeSize               string                    `json:"home_size"`
@@ -9230,6 +10327,14 @@ type ContainerAppVolumeUsageDto struct {
 	// ClaimName The `PersistentVolumeClaim` backing it (`<app>-<name>`).
 	ClaimName string `json:"claim_name"`
 
+	// EffectiveStorageClass The class the volume is actually on: the class the operator recorded
+	// for it (`status.volumes`), else the cluster default's name when the
+	// volume took it, else `storage_class`. `null` when none is known.
+	EffectiveStorageClass *string `json:"effective_storage_class,omitempty"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
+
 	// MountPath Absolute mount path inside the container.
 	MountPath string `json:"mount_path"`
 
@@ -9249,6 +10354,11 @@ type ContainerAppVolumeUsageDto struct {
 	// UsedBytes Bytes in use on the volume's filesystem. `null` without a recent
 	// sample — the kubelet only reports a volume while a pod has it mounted.
 	UsedBytes *int64 `json:"used_bytes,omitempty"`
+
+	// VolumeBackend The `VolumeBackend` `effective_storage_class` belongs to, when the
+	// platform's volume catalogue links it. `null` when the class is not
+	// linked to a backend.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // ContainerAppVolumesResponse The persistent volumes of a container app, one entry per
@@ -9620,7 +10730,14 @@ type CreateAiAgentRequest struct {
 
 	// DataSources Data docks the agent may read.
 	DataSources *[]AiAgentDataSourceDto `json:"data_sources,omitempty"`
-	Description *string                 `json:"description,omitempty"`
+
+	// Decisions Decision models the agent consults (decision-models.md section 6.2).
+	//
+	// `routing` is accepted on a routing agent only, `grounding` on an agent that can
+	// retrieve content (`search` or `query`). A threshold left out is the runtime's
+	// constant (routing 0.80, grounding 0.50) and is never filled in here.
+	Decisions   *AiAgentDecisionsDto `json:"decisions,omitempty"`
+	Description *string              `json:"description,omitempty"`
 
 	// DesiredState Whether the agent should be running. Stopping and starting is user-driven,
 	// exactly like a container app: there is no autoscaler and no wake-on-request,
@@ -9834,6 +10951,16 @@ type CreateApiKeyResponse struct {
 
 // CreateAppInstanceCrdRequestBody defines model for CreateAppInstanceCrdRequestBody.
 type CreateAppInstanceCrdRequestBody struct {
+	// CustomDomains Custom domains to attach at install time, each to the template's public
+	// ContainerApp (a `ContainerApp` component declaring `network.host`) it
+	// names. Optional, at most 8.
+	//
+	// An initial value: the operator adds them once, after which each app's
+	// Network tab owns its list. Each must be covered by a verified domain
+	// (Organization → Domains) and not be used by another app, exactly as on
+	// the Network tab.
+	CustomDomains *[]AppInstanceCustomDomain `json:"custom_domains,omitempty"`
+
 	// Parameters Concrete parameter values. Keys must match `AppTemplate.spec.parameters[*].name`.
 	// Validation against the declared parameter schema happens in the operator.
 	Parameters interface{} `json:"parameters,omitempty"`
@@ -9898,6 +11025,9 @@ type CreateComputeDockCrdRequestBody struct {
 	HomeSize *string `json:"home_size,omitempty"`
 
 	// HomeStorageClass RWX StorageClass for `/home`. Falls back to the operator default.
+	// Under the `Enforced` volume catalogue the class must belong to a
+	// backend granted to the environment (else 422); prefer `volume_backend`.
+	// Mutually exclusive with `volume_backend`.
 	HomeStorageClass *string `json:"home_storage_class,omitempty"`
 
 	// LoginEnabled Whether to run an SSH login node. Defaults to true.
@@ -9929,6 +11059,15 @@ type CreateComputeDockCrdRequestBody struct {
 	// Version Slinky image tag shared by all Slurm components. When omitted the
 	// operator uses its configured default.
 	Version *string `json:"version,omitempty"`
+
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends?product=ComputeDockHome`) for
+	// `/home`, which needs `ReadWriteMany`. Absent, the platform resolves
+	// the default when the dock is reconciled and nothing is stored. Mutually
+	// exclusive with `home_storage_class`; `403` when the backend is not
+	// granted to the environment, `422` when it is not ready or is not
+	// `ReadWriteMany`.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // CreateConnectorIngestRequest Connector-based ingest pipeline request: run an opendata connector and load
@@ -10268,6 +11407,32 @@ type CreateDataDockRequestBody struct {
 	Slug           string              `json:"slug"`
 }
 
+// CreateDecisionScanPipelineRequest A `DecisionScan` pipeline: one self-contained columns-mode decide step over
+// an Iceberg table, writing column labels and raising the table's sensitivity.
+type CreateDecisionScanPipelineRequest struct {
+	// Pipeline Pipeline metadata configuration (common to all pipeline types)
+	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Questions System One questions keyed by question id `[a-z0-9_]{1,32}`.
+	Questions map[string]SystemOneQuestion `json:"questions"`
+
+	// SampleRows Sampled values per column (absent means 20, at most 200).
+	SampleRows *int32 `json:"sample_rows,omitempty"`
+
+	// Sensitivity When a columns-mode scan raises the table's sensitivity.
+	//
+	// `PartialEq` only, like the `f64` it holds; the executor's step arguments
+	// write their `Eq` by hand, which holds because [`validate_decide_questions`]
+	// refuses a non-finite threshold.
+	Sensitivity *DecideSensitivity `json:"sensitivity,omitempty"`
+
+	// Source Metadata storage configuration (Trino/Iceberg for document metadata)
+	Source MetadataStorageConfig `json:"source"`
+
+	// Url Per-model gateway URL, as in [`DecideStepConfig::url`].
+	Url string `json:"url"`
+}
+
 // CreateDevWorkstationRequest defines model for CreateDevWorkstationRequest.
 type CreateDevWorkstationRequest struct {
 	// AdditionalRepositories Repositories cloned alongside the primary one, each into its own directory
@@ -10452,6 +11617,17 @@ type CreateFileSorterRequest struct {
 	Source FileSorterSourceConfig `json:"source"`
 }
 
+// CreateFolderRequest defines model for CreateFolderRequest.
+type CreateFolderRequest struct {
+	// Path Repo-relative path of the folder to create; missing parents are created
+	// too.
+	Path string `json:"path"`
+
+	// Repo Clone directory of the repository `path` is relative to. Absent = the
+	// primary repository.
+	Repo *string `json:"repo,omitempty"`
+}
+
 // CreateForgejoRunnerRequest Request body for creating a `ForgejoRunner` CR.
 //
 // The forge coordinates (namespace, container-app label) are resolved
@@ -10496,6 +11672,9 @@ type CreateForgejoRunnerRequest struct {
 type CreateGDrivePipelineRequest struct {
 	// BucketName HFBucket CRD name (must be Ready)
 	BucketName string `json:"bucket_name"`
+
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
 
 	// DestinationPrefix Optional prefix path within the destination bucket
 	DestinationPrefix *string `json:"destination_prefix,omitempty"`
@@ -10683,6 +11862,43 @@ type CreateHfKeyValueCacheCrdRequestBody struct {
 	Tags *[]string `json:"tags,omitempty"`
 }
 
+// CreateHfRabbitMqCrdRequestBody defines model for CreateHfRabbitMqCrdRequestBody.
+type CreateHfRabbitMqCrdRequestBody struct {
+	// Description Optional description (DB-only).
+	Description *string `json:"description,omitempty"`
+
+	// Image RabbitMQ container image. Omit to track the platform default, which is
+	// resolved at reconcile time. Do NOT materialise it here, or the value is
+	// persisted into the CRD spec and frozen (see CLAUDE.md).
+	Image *string `json:"image,omitempty"`
+
+	// Name Must be a valid RFC 1035 label: lowercase, starts with a letter, ends
+	// with a letter or digit, only letters/digits/hyphens in between.
+	Name string `json:"name"`
+
+	// Plugins Optional plugins to enable, from the fixed allowlist.
+	Plugins *[]RabbitMqPlugin `json:"plugins,omitempty"`
+
+	// Replicas Number of broker nodes: 1, 3 or 5. Omit to track the platform default,
+	// which is resolved at reconcile time (never materialised here).
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Volume size per node, a whole Kubernetes quantity such as "20Gi". Omit
+	// to track the platform default.
+	Storage *string `json:"storage,omitempty"`
+
+	// Tags User-defined tags (DB-only).
+	Tags *[]string `json:"tags,omitempty"`
+}
+
 // CreateIcebergDataContainerRequestBody defines model for CreateIcebergDataContainerRequestBody.
 type CreateIcebergDataContainerRequestBody struct {
 	DataDockId openapi_types.UUID `json:"data_dock_id"`
@@ -10717,19 +11933,25 @@ type CreateIcebergTableMetadataRequest struct {
 
 // CreateIdentityProviderRequest defines model for CreateIdentityProviderRequest.
 type CreateIdentityProviderRequest struct {
-	Alias    string `json:"alias"`
-	ClientId string `json:"client_id"`
+	Alias string `json:"alias"`
 
-	// ClientSecret Required on create; pushed to Keycloak and never stored console-side.
-	ClientSecret string `json:"client_secret"`
-	DisplayName  string `json:"display_name"`
-	Enabled      *bool  `json:"enabled,omitempty"`
+	// ClientId Required for `github`, `google` and `oidc`; must be absent for `saml`.
+	ClientId *string `json:"client_id,omitempty"`
+
+	// ClientSecret Required for `github`, `google` and `oidc`; pushed to Keycloak and never
+	// stored console-side. Must be absent for `saml`.
+	ClientSecret *string `json:"client_secret,omitempty"`
+	DisplayName  string  `json:"display_name"`
+	Enabled      *bool   `json:"enabled,omitempty"`
 
 	// Kind Which external identity provider a broker federates to.
 	Kind IdentityProviderKind `json:"kind"`
 
 	// OidcBaseUrl Required when `kind` is `oidc`.
 	OidcBaseUrl *string `json:"oidc_base_url,omitempty"`
+
+	// Saml A SAML 2.0 upstream provider (Microsoft Entra ID, ADFS, Okta…).
+	Saml *SamlSettings `json:"saml,omitempty"`
 }
 
 // CreateInboundEmailPipelineRequest Inbound email pipeline request: extract attachments from incoming emails and land to S3.
@@ -10739,6 +11961,9 @@ type CreateInboundEmailPipelineRequest struct {
 	// `From` address matches at least one pattern are processed; all others are
 	// skipped and marked as seen without uploading attachments.
 	AllowedSenders *[]SenderPattern `json:"allowed_senders,omitempty"`
+
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
 
 	// Destination S3 destination for an inbound email pipeline.
 	//
@@ -10768,8 +11993,10 @@ type CreateInboundEmailPipelineRequest struct {
 
 // CreateInvitationRequest defines model for CreateInvitationRequest.
 type CreateInvitationRequest struct {
-	Email  string              `json:"email"`
-	RoleId *openapi_types.UUID `json:"role_id,omitempty"`
+	// Delivery How an invitation's token reaches the invitee.
+	Delivery *InvitationDelivery `json:"delivery,omitempty"`
+	Email    string              `json:"email"`
+	RoleId   *openapi_types.UUID `json:"role_id,omitempty"`
 }
 
 // CreateKafkaHFServiceRequest defines model for CreateKafkaHFServiceRequest.
@@ -10785,6 +12012,14 @@ type CreateKafkaHFServiceRequest struct {
 	ReplicationFactor     *int32  `json:"replication_factor,omitempty"`
 	SchemaRegistryEnabled *bool   `json:"schema_registry_enabled,omitempty"`
 	StorageSizeGb         *int32  `json:"storage_size_gb,omitempty"`
+
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends?product=Kafka`) the brokers'
+	// volumes sit on. Absent, the platform resolves the default when the
+	// cluster is reconciled and nothing is stored in the KafkaHFService spec.
+	// `403` when the backend is not granted to the environment, `422` when it
+	// is not ready or cannot serve a `ReadWriteOnce` filesystem volume.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // CreateKafkaHFTopicRequest defines model for CreateKafkaHFTopicRequest.
@@ -10839,6 +12074,11 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// unless explicitly opted in.
 	ExposeToInternet *bool `json:"expose_to_internet,omitempty"`
 
+	// Extensions Extensions to enable from the platform catalog, by name. Each must be
+	// offered for the chosen `engine` (PostGIS extensions need the `postgis`
+	// engine). Absent or empty enables none.
+	Extensions *[]string `json:"extensions,omitempty"`
+
 	// Name Must be a valid slug: lowercase letters, digits, and hyphens only; cannot start or end with a hyphen.
 	Name string `json:"name"`
 
@@ -10874,8 +12114,17 @@ type CreateManagedPostgresqlCrdRequestBody struct {
 	// Tags User-defined tags
 	Tags *[]string `json:"tags,omitempty"`
 
-	// Version PostgreSQL major version (e.g. "17")
+	// Version PostgreSQL major version, 14 or newer (e.g. "17"); PostgreSQL 13 is end of life.
 	Version *string `json:"version,omitempty"`
+
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends?product=ManagedPostgreSQL`)
+	// to place the database volume on, WAL included. Absent, the platform
+	// resolves the default (environment, organization, then platform) when
+	// the database is reconciled, and nothing is stored in the resource; a
+	// restore does not inherit the source's backend. `403` when the backend
+	// is not granted to the environment, `422` when it is not ready.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // CreateManagedPostgresqlImportCrdRequestBody defines model for CreateManagedPostgresqlImportCrdRequestBody.
@@ -10926,6 +12175,10 @@ type CreateMedallionSchemaRequest struct {
 
 // CreateModelServingRequest defines model for CreateModelServingRequest.
 type CreateModelServingRequest struct {
+	// Decision Decision-specific serving options. Every field is an explicit override:
+	// absent means "the platform resolves it at reconcile".
+	Decision *DecisionServingConfig `json:"decision,omitempty"`
+
 	// DisplayName Human-readable display name
 	DisplayName string `json:"display_name"`
 
@@ -11118,6 +12371,9 @@ type CreatePipelineRequestV21 struct {
 	// Classification Classification configuration for AI processing
 	Classification *ClassificationConfig `json:"classification,omitempty"`
 
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
+
 	// MetadataStorage Metadata storage configuration (Trino/Iceberg for document metadata)
 	MetadataStorage MetadataStorageConfig `json:"metadata_storage"`
 
@@ -11288,6 +12544,9 @@ type CreatePipelineRequestV27 struct {
 	// BucketName HFBucket CRD name (must be Ready)
 	BucketName string `json:"bucket_name"`
 
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
+
 	// DestinationPrefix Optional prefix path within the destination bucket
 	DestinationPrefix *string `json:"destination_prefix,omitempty"`
 
@@ -11314,6 +12573,9 @@ type CreatePipelineRequestV28 struct {
 	// `From` address matches at least one pattern are processed; all others are
 	// skipped and marked as seen without uploading attachments.
 	AllowedSenders *[]SenderPattern `json:"allowed_senders,omitempty"`
+
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
 
 	// Destination S3 destination for an inbound email pipeline.
 	//
@@ -11366,6 +12628,9 @@ type CreatePipelineRequestV210 struct {
 	// BucketName HFBucket CRD name (must be Ready)
 	BucketName string `json:"bucket_name"`
 
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
+
 	// DestinationPrefix Optional prefix path within the destination bucket
 	DestinationPrefix *string `json:"destination_prefix,omitempty"`
 
@@ -11395,6 +12660,35 @@ type CreatePipelineRequestV210 struct {
 
 // CreatePipelineRequestV210Type defines model for CreatePipelineRequestV2.10.Type.
 type CreatePipelineRequestV210Type string
+
+// CreatePipelineRequestV211 defines model for .
+type CreatePipelineRequestV211 struct {
+	// Pipeline Pipeline metadata configuration (common to all pipeline types)
+	Pipeline PipelineMetadata `json:"pipeline"`
+
+	// Questions System One questions keyed by question id `[a-z0-9_]{1,32}`.
+	Questions map[string]SystemOneQuestion `json:"questions"`
+
+	// SampleRows Sampled values per column (absent means 20, at most 200).
+	SampleRows *int32 `json:"sample_rows,omitempty"`
+
+	// Sensitivity When a columns-mode scan raises the table's sensitivity.
+	//
+	// `PartialEq` only, like the `f64` it holds; the executor's step arguments
+	// write their `Eq` by hand, which holds because [`validate_decide_questions`]
+	// refuses a non-finite threshold.
+	Sensitivity *DecideSensitivity `json:"sensitivity,omitempty"`
+
+	// Source Metadata storage configuration (Trino/Iceberg for document metadata)
+	Source MetadataStorageConfig         `json:"source"`
+	Type   CreatePipelineRequestV211Type `json:"type"`
+
+	// Url Per-model gateway URL, as in [`DecideStepConfig::url`].
+	Url string `json:"url"`
+}
+
+// CreatePipelineRequestV211Type defines model for CreatePipelineRequestV2.11.Type.
+type CreatePipelineRequestV211Type string
 
 // CreatePostgresqlDataContainerRequestBody defines model for CreatePostgresqlDataContainerRequestBody.
 type CreatePostgresqlDataContainerRequestBody struct {
@@ -11593,6 +12887,9 @@ type CreateSharePointPipelineRequest struct {
 	// BucketName HFBucket CRD name (must be Ready)
 	BucketName string `json:"bucket_name"`
 
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
+
 	// DestinationPrefix Optional prefix path within the destination bucket
 	DestinationPrefix *string `json:"destination_prefix,omitempty"`
 
@@ -11726,6 +13023,9 @@ type CreateTableClassificationBody struct {
 type CreateTrinoPipelineRequest struct {
 	// Classification Classification configuration for AI processing
 	Classification *ClassificationConfig `json:"classification,omitempty"`
+
+	// Decision A rows-mode decide step added after a document pipeline's text extraction.
+	Decision *DecideStepConfig `json:"decision,omitempty"`
 
 	// MetadataStorage Metadata storage configuration (Trino/Iceberg for document metadata)
 	MetadataStorage MetadataStorageConfig `json:"metadata_storage"`
@@ -11880,18 +13180,22 @@ type CreditBudgetsResponse struct {
 type CreditLedgerLine struct {
 	// Actor Who authorised it. `None` for machine-written spend lines, which are
 	// attributed by principal instead.
-	Actor                    *string            `json:"actor,omitempty"`
-	AmountMicroCredits       int64              `json:"amount_micro_credits"`
-	BalanceAfterMicroCredits int64              `json:"balance_after_micro_credits"`
-	CompletionTokens         *int64             `json:"completion_tokens,omitempty"`
-	CreatedAt                time.Time          `json:"created_at"`
-	Id                       openapi_types.UUID `json:"id"`
-	Kind                     string             `json:"kind"`
-	ModelId                  *string            `json:"model_id,omitempty"`
-	Note                     *string            `json:"note,omitempty"`
-	PrincipalId              *string            `json:"principal_id,omitempty"`
-	PrincipalType            *string            `json:"principal_type,omitempty"`
-	PromptTokens             *int64             `json:"prompt_tokens,omitempty"`
+	Actor                    *string   `json:"actor,omitempty"`
+	AmountMicroCredits       int64     `json:"amount_micro_credits"`
+	BalanceAfterMicroCredits int64     `json:"balance_after_micro_credits"`
+	CompletionTokens         *int64    `json:"completion_tokens,omitempty"`
+	CreatedAt                time.Time `json:"created_at"`
+
+	// Decisions Decisions a decision-model debit paid for (decision-models.md
+	// section 7). `None` on every other line.
+	Decisions     *int64             `json:"decisions,omitempty"`
+	Id            openapi_types.UUID `json:"id"`
+	Kind          string             `json:"kind"`
+	ModelId       *string            `json:"model_id,omitempty"`
+	Note          *string            `json:"note,omitempty"`
+	PrincipalId   *string            `json:"principal_id,omitempty"`
+	PrincipalType *string            `json:"principal_type,omitempty"`
+	PromptTokens  *int64             `json:"prompt_tokens,omitempty"`
 }
 
 // CreditLedgerResponse defines model for CreditLedgerResponse.
@@ -12086,6 +13390,99 @@ type CustomResourceInput struct {
 	// limit are both set to this value — memory never gets a burst ceiling,
 	// the same rule every tier follows.
 	MemoryMib int64 `json:"memory_mib"`
+}
+
+// CveAction What a matching rule does, from the mildest to the most disruptive.
+type CveAction string
+
+// CveEnforcement One (workload, rule) violation and what was done about it.
+type CveEnforcement struct {
+	Actions    []CveAction `json:"actions"`
+	AlertLevel AlertLevel  `json:"alert_level"`
+	AppliedAt  *time.Time  `json:"applied_at,omitempty"`
+
+	// Attribution `organization` | `platform` | `unattributed`.
+	Attribution     string              `json:"attribution"`
+	EnforceAt       *time.Time          `json:"enforce_at,omitempty"`
+	FirstSeenAt     time.Time           `json:"first_seen_at"`
+	HarborId        *openapi_types.UUID `json:"harbor_id,omitempty"`
+	Id              openapi_types.UUID  `json:"id"`
+	LastEvaluatedAt time.Time           `json:"last_evaluated_at"`
+	Matched         RuleMatch           `json:"matched"`
+	Mode            PolicyMode          `json:"mode"`
+	Namespace       string              `json:"namespace"`
+	OrganizationId  *openapi_types.UUID `json:"organization_id,omitempty"`
+	QuarantineName  *string             `json:"quarantine_name,omitempty"`
+	ReleasedAt      *time.Time          `json:"released_at,omitempty"`
+	RuleId          string              `json:"rule_id"`
+	RuleName        string              `json:"rule_name"`
+	Status          EnforcementStatus   `json:"status"`
+	StatusMessage   *string             `json:"status_message,omitempty"`
+
+	// Summary One line: the matched CVEs and the highest score.
+	Summary      string `json:"summary"`
+	WorkloadKind string `json:"workload_kind"`
+	WorkloadName string `json:"workload_name"`
+}
+
+// CvePlatformPolicy Platform-wide switches (cockpit).
+type CvePlatformPolicy struct {
+	// EnforcementEnabled Off: every rule acts at most as `warn` (global dry run).
+	EnforcementEnabled bool `json:"enforcement_enabled"`
+
+	// InternalRegistryRequiresScan "No run without scan" for images of a Hyperfluid registry.
+	InternalRegistryRequiresScan bool `json:"internal_registry_requires_scan"`
+
+	// MaxEnforcementsPerHour Circuit breaker: quarantines applied in the last hour beyond this are
+	// suppressed and the platform is alerted.
+	MaxEnforcementsPerHour int32 `json:"max_enforcements_per_hour"`
+
+	// Preset Published as `CvePolicyPreset`: the dev-workstation agent permissions
+	// already own the `PolicyPreset` schema name in the external document.
+	Preset    CvePolicyPreset `json:"preset"`
+	UpdatedAt *time.Time      `json:"updated_at,omitempty"`
+	UpdatedBy *string         `json:"updated_by,omitempty"`
+}
+
+// CvePolicyPreset Published as `CvePolicyPreset`: the dev-workstation agent permissions
+// already own the `PolicyPreset` schema name in the external document.
+type CvePolicyPreset string
+
+// CveRule defines model for CveRule.
+type CveRule struct {
+	Actions     []CveAction    `json:"actions"`
+	AlertLevel  AlertLevel     `json:"alert_level"`
+	Conditions  RuleConditions `json:"conditions"`
+	Description *string        `json:"description,omitempty"`
+	Enabled     bool           `json:"enabled"`
+
+	// GraceMinutes Minutes between first detection and enforcement. Alerts are never delayed.
+	GraceMinutes int32 `json:"grace_minutes"`
+
+	// Id `preset:<preset>:<slug>` for a preset rule, a UUID otherwise.
+	Id             string              `json:"id"`
+	Mode           PolicyMode          `json:"mode"`
+	Name           string              `json:"name"`
+	OrganizationId *openapi_types.UUID `json:"organization_id,omitempty"`
+
+	// Origin Where a rule comes from.
+	Origin RuleOrigin `json:"origin"`
+
+	// WorkloadKinds Workload kinds the rule applies to (empty = every kind).
+	WorkloadKinds *[]string `json:"workload_kinds,omitempty"`
+}
+
+// CveRuleInput The writable part of a rule (create and replace).
+type CveRuleInput struct {
+	Actions       []CveAction    `json:"actions"`
+	AlertLevel    *AlertLevel    `json:"alert_level,omitempty"`
+	Conditions    RuleConditions `json:"conditions"`
+	Description   *string        `json:"description,omitempty"`
+	Enabled       *bool          `json:"enabled,omitempty"`
+	GraceMinutes  *int32         `json:"grace_minutes,omitempty"`
+	Mode          PolicyMode     `json:"mode"`
+	Name          string         `json:"name"`
+	WorkloadKinds *[]string      `json:"workload_kinds,omitempty"`
 }
 
 // Dashboard defines model for Dashboard.
@@ -12300,17 +13697,20 @@ type DataDockCatalogKind string
 
 // DataDockExternalResponseData External API response — strips infra details (namespaces) from user-facing endpoints.
 type DataDockExternalResponseData struct {
-	ConnectionKind  DataDockKindExternalResponse `json:"connection_kind"`
-	Description     string                       `json:"description"`
-	HarborId        openapi_types.UUID           `json:"harbor_id"`
-	Host            string                       `json:"host"`
-	Id              openapi_types.UUID           `json:"id"`
-	Name            string                       `json:"name"`
-	Port            int32                        `json:"port"`
-	RefreshInterval int32                        `json:"refresh_interval"`
-	RefreshedAt     *time.Time                   `json:"refreshed_at,omitempty"`
-	Slug            string                       `json:"slug"`
-	Status          DataDockStatus               `json:"status"`
+	ConnectionKind DataDockKindExternalResponse `json:"connection_kind"`
+	Description    string                       `json:"description"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
+	HarborId               openapi_types.UUID      `json:"harbor_id"`
+	Host                   string                  `json:"host"`
+	Id                     openapi_types.UUID      `json:"id"`
+	Name                   string                  `json:"name"`
+	Port                   int32                   `json:"port"`
+	RefreshInterval        int32                   `json:"refresh_interval"`
+	RefreshedAt            *time.Time              `json:"refreshed_at,omitempty"`
+	Slug                   string                  `json:"slug"`
+	Status                 DataDockStatus          `json:"status"`
 }
 
 // DataDockInternetExposureResponse defines model for DataDockInternetExposureResponse.
@@ -12430,6 +13830,11 @@ type DataDockSearchRequest struct {
 	// Query Text to search for; used for both keyword (BM25) and semantic legs.
 	Query string `json:"query"`
 
+	// ReturnColumns Columns each returned record carries; defaults to `columns`. List what a
+	// reader needs beside the searched text, such as a document name or an id.
+	// A row's `rls_labels` are never returned (#3788).
+	ReturnColumns *[]string `json:"return_columns,omitempty"`
+
 	// Schema Schema containing the table.
 	Schema string `json:"schema"`
 
@@ -12446,7 +13851,7 @@ type DataDockSearchResponse struct {
 
 // DataDockSearchResultItem defines model for DataDockSearchResultItem.
 type DataDockSearchResultItem struct {
-	// Record The matching record (columns as indexed).
+	// Record The matching record, narrowed to `return_columns` (`columns` by default).
 	Record interface{} `json:"record"`
 
 	// Score Fused relevance score (higher = more relevant).
@@ -12492,6 +13897,66 @@ type DataVerbDecision struct {
 
 	// Verb A table verb; declaration order is the order verb lists are emitted in.
 	Verb DataVerb `json:"verb"`
+}
+
+// DecideSensitivity When a columns-mode scan raises the table's sensitivity.
+//
+// `PartialEq` only, like the `f64` it holds; the executor's step arguments
+// write their `Eq` by hand, which holds because [`validate_decide_questions`]
+// refuses a non-finite threshold.
+type DecideSensitivity struct {
+	// Level `public`, `internal`, `confidential` or `restricted`.
+	Level string `json:"level"`
+
+	// MinProbability Absent means 0.5.
+	MinProbability *float64 `json:"min_probability,omitempty"`
+
+	// Question Id of a `noul` question; a column passes when its `yes` probability
+	// reaches `min_probability`.
+	Question string `json:"question"`
+}
+
+// DecideStepConfig A rows-mode decide step added after a document pipeline's text extraction.
+type DecideStepConfig struct {
+	// MaxContentChars Cap on the row content sent as the decision state, in characters.
+	MaxContentChars *int `json:"max_content_chars,omitempty"`
+
+	// Questions System One questions keyed by question id `[a-z0-9_]{1,32}`.
+	Questions map[string]SystemOneQuestion `json:"questions"`
+
+	// RouteBy Id of a `choice` question whose label becomes the row's category, so a
+	// category router downstream files the document by it.
+	RouteBy *string `json:"route_by,omitempty"`
+
+	// Url Per-model gateway URL `<gw>/v1/organizations/<org>/(models|shared-models)/<model>`.
+	// The operator mints the pipeline's gateway key for it.
+	Url string `json:"url"`
+}
+
+// DecisionRunner vLLM runner for a decision serving.
+type DecisionRunner string
+
+// DecisionServingConfig Decision-specific serving options. Every field is an explicit override:
+// absent means "the platform resolves it at reconcile".
+type DecisionServingConfig struct {
+	// Runner vLLM runner for a decision serving.
+	Runner *DecisionRunner `json:"runner,omitempty"`
+
+	// Surfaces Pins the surfaces this serving exposes (e.g. `[chat-logprobs]` for a
+	// guard model); absent means derived from the runtime and runner.
+	Surfaces *[]DecisionSurface `json:"surfaces,omitempty"`
+}
+
+// DecisionSurface A decision API a serving exposes (`docs/architecture/decision-models.md` §3).
+type DecisionSurface string
+
+// DeclaredExtension What the tenant declared for one extension.
+type DeclaredExtension struct {
+	// Ensure Whether a managed extension should exist in the database.
+	Ensure ExtensionEnsure `json:"ensure"`
+
+	// Version Pinned version; absent when the tenant takes the image's.
+	Version *string `json:"version,omitempty"`
 }
 
 // DeclaredLink A ServiceLink edge, as surfaced on a workload's declared network view.
@@ -12965,6 +14430,23 @@ type EffectiveSecuritySettingsResponse struct {
 	ZeroTrustMode          bool               `json:"zero_trust_mode"`
 }
 
+// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+type EffectiveVolumeBackend struct {
+	// DisplayName The backend's display name; its id when the backend no longer exists.
+	DisplayName string `json:"display_name"`
+
+	// Id The backend id (`VolumeBackend` name).
+	Id string `json:"id"`
+
+	// Revoked Under `Enforced`, the backend is no longer granted to this harbor (or
+	// no longer exists): the volume keeps working, but no new volume may be
+	// placed there.
+	Revoked bool `json:"revoked"`
+
+	// Source The level that answered.
+	Source ResolutionSource `json:"source"`
+}
+
 // EgressAllowlistResponse An `EgressAllowlist` CR as returned by the harbor-scoped egress-allowlists API.
 type EgressAllowlistResponse struct {
 	// CreatedAt RFC 3339 creation timestamp, straight off `metadata.creationTimestamp`
@@ -13045,6 +14527,14 @@ type EnableSqlEngineRequest struct {
 	// CRD name and as the `data_dock_ref` in the TrinoCatalog.
 	Slug string `json:"slug"`
 
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends?product=Trino`) the cluster's
+	// Trino volume sits on. Absent, the platform resolves the default when
+	// the cluster is reconciled and nothing is stored in the DataDock spec.
+	// `403` when the backend is not granted to the environment, `422` when
+	// it is not ready or cannot serve a `ReadWriteOnce` filesystem volume.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
+
 	// WorkerReplicas Number of Trino worker replicas. Clamped to ≥1. Defaults to 2.
 	WorkerReplicas *int32 `json:"worker_replicas,omitempty"`
 }
@@ -13069,6 +14559,9 @@ type EnableSqlEngineResponse struct {
 	// an idempotent re-run of this harbor's own `default`-zone demo bucket.
 	DemoBucketConflict *string `json:"demo_bucket_conflict,omitempty"`
 }
+
+// EnforcementStatus defines model for EnforcementStatus.
+type EnforcementStatus string
 
 // Engine defines model for Engine.
 type Engine string
@@ -13156,6 +14649,70 @@ type ExposedTableRef struct {
 // — the historical "everything is visible" behavior — so only catalogs that
 // opt into curation pay the lookup.
 type ExposureMode string
+
+// ExtensionCatalogItem One catalog extension, as it applies to this instance.
+type ExtensionCatalogItem struct {
+	// Available Whether this instance's engine offers it. `false` explains itself
+	// through `requires_engine`.
+	Available bool `json:"available"`
+
+	// Category `geospatial`, `federation`, `ai`, `search`, `indexing`, `types`,
+	// `utilities`, `observability` or `security`.
+	Category string `json:"category"`
+
+	// Declared What the tenant declared for one extension.
+	Declared    *DeclaredExtension `json:"declared,omitempty"`
+	DependsOn   []string           `json:"depends_on"`
+	Description string             `json:"description"`
+	Name        string             `json:"name"`
+
+	// NetworkEgress The extension opens outbound connections to hosts the tenant picks.
+	NetworkEgress bool `json:"network_egress"`
+
+	// RequiresEngine Engine (image flavour) the extension ships in, when it is not the
+	// default one.
+	RequiresEngine *string `json:"requires_engine,omitempty"`
+
+	// RequiresRestart Enabling it restarts the instances.
+	RequiresRestart bool `json:"requires_restart"`
+
+	// Status The observed state of one extension.
+	Status *ExtensionStatus `json:"status,omitempty"`
+}
+
+// ExtensionEnsure Whether a managed extension should exist in the database.
+type ExtensionEnsure string
+
+// ExtensionPhase Where an extension is, as the operator last observed it.
+type ExtensionPhase string
+
+// ExtensionRequestItem One entry of the declared list.
+type ExtensionRequestItem struct {
+	// Ensure Whether a managed extension should exist in the database.
+	Ensure *ExtensionEnsure `json:"ensure,omitempty"`
+
+	// Name An extension of the platform catalog.
+	Name string `json:"name"`
+
+	// Version Version to install or update to; omitted means the image's.
+	Version *string `json:"version,omitempty"`
+}
+
+// ExtensionStatus The observed state of one extension.
+type ExtensionStatus struct {
+	// AvailableVersion Default version the running image ships.
+	AvailableVersion *string `json:"availableVersion,omitempty"`
+
+	// InstalledVersion Version installed in the database right now.
+	InstalledVersion *string `json:"installedVersion,omitempty"`
+
+	// Message Reason, for `failed`.
+	Message *string `json:"message,omitempty"`
+	Name    string  `json:"name"`
+
+	// Phase Where an extension is, as the operator last observed it.
+	Phase ExtensionPhase `json:"phase"`
+}
 
 // FakerFieldType defines model for FakerFieldType.
 type FakerFieldType struct {
@@ -13467,16 +15024,73 @@ type FileToTableForm struct {
 	TableName *string `json:"table_name,omitempty"`
 }
 
-// Finding defines model for Finding.
+// Finding One compacted finding — the shape both `compact_findings` callers (the
+// console's `WorkloadVulnerability` DTO, and any future consumer) mirror.
+//
+// The scoring fields (ADR-0055 §1) are optional on the wire: rows written
+// before they existed, and scanners that do not report them, read back as
+// `None`/empty rather than failing to deserialize.
 type Finding struct {
-	FixedVersion     *string `json:"fixed_version,omitempty"`
-	Id               string  `json:"id"`
-	InstalledVersion string  `json:"installed_version"`
-	PkgName          string  `json:"pkg_name"`
-	PrimaryUrl       *string `json:"primary_url,omitempty"`
-	Severity         string  `json:"severity"`
-	Target           string  `json:"target"`
-	Title            *string `json:"title,omitempty"`
+	// CvssScore Highest relevant CVSS base score (v4 or v3), see
+	// [`crate::workload_security::scan_report`] for the source order.
+	CvssScore *float64 `json:"cvss_score,omitempty"`
+
+	// CvssVector The vector that score came from, e.g. `CVSS:3.1/AV:N/AC:L/PR:N/…`.
+	CvssVector *string `json:"cvss_vector,omitempty"`
+
+	// CweIds `CWE-<n>` identifiers, as the scanner reports them.
+	CweIds *[]string `json:"cwe_ids,omitempty"`
+
+	// Description Longer free text, kept short: the RCE classifier reads it when there is
+	// no CWE (Grype).
+	Description *string `json:"description,omitempty"`
+
+	// Epss FIRST EPSS probability, when the scanner reports one (Grype).
+	Epss         *float64 `json:"epss,omitempty"`
+	FixedVersion *string  `json:"fixed_version,omitempty"`
+
+	// Id `VulnerabilityID`, e.g. `CVE-2024-12345`.
+	Id               string `json:"id"`
+	InstalledVersion string `json:"installed_version"`
+
+	// Kev Known exploited, when the scanner itself says so (Grype). The console
+	// also joins its own CISA KEV copy at evaluation time.
+	Kev         *bool      `json:"kev,omitempty"`
+	PkgName     string     `json:"pkg_name"`
+	PrimaryUrl  *string    `json:"primary_url,omitempty"`
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+
+	// Severity Canonical UPPERCASE severity token.
+	Severity string `json:"severity"`
+
+	// Target The scanned `Target` (e.g. the layer or lockfile) this finding came
+	// from — the enclosing `Results[]` entry's `Target`, not per-finding.
+	Target string  `json:"target"`
+	Title  *string `json:"title,omitempty"`
+}
+
+// FindingFilter Which findings count. A finding counts when it passes every filter set.
+type FindingFilter struct {
+	// ClassesAny The finding has at least one of these classes.
+	ClassesAny *[]RiskClass `json:"classes_any,omitempty"`
+
+	// FixableOnly Only findings a fixed version exists for.
+	FixableOnly *bool `json:"fixable_only,omitempty"`
+
+	// KevOnly Only known-exploited (CISA KEV) findings.
+	KevOnly *bool `json:"kev_only,omitempty"`
+
+	// MinCvss CVSS base score at least this (0–10).
+	MinCvss *float64 `json:"min_cvss,omitempty"`
+
+	// MinEpss EPSS probability at least this (0–1).
+	MinEpss *float64 `json:"min_epss,omitempty"`
+
+	// MinSeverity Finding severity, ordered so `>=` means "at least as severe".
+	MinSeverity *Severity `json:"min_severity,omitempty"`
+
+	// OlderThanDays Only findings published more than this many days ago (the fix SLA).
+	OlderThanDays *int32 `json:"older_than_days,omitempty"`
 }
 
 // FixableCounts defines model for FixableCounts.
@@ -13744,6 +15358,11 @@ type GetConsoleConfigResponse struct {
 	// `window.location.host` there.
 	PreviewHostSuffix *string `json:"preview_host_suffix,omitempty"`
 	SapienceApiUrl    string  `json:"sapience_api_url"`
+
+	// VolumeStorageCatalogue Whether the catalogue drives placement (ADR-0056 D8). One switch, from the
+	// Helm value `volumeStorage.catalogue`, read by the operator, the console
+	// and the cockpit.
+	VolumeStorageCatalogue *CatalogueMode `json:"volume_storage_catalogue,omitempty"`
 }
 
 // GetFakerFieldTypesResponse defines model for GetFakerFieldTypesResponse.
@@ -14491,6 +16110,74 @@ type Harbor struct {
 	Slug           string              `json:"slug"`
 }
 
+// HarborBudgetCell One harbor budget cell, with the organization's limit at the same level.
+type HarborBudgetCell struct {
+	Backend *string `json:"backend,omitempty"`
+
+	// Budget The budget, GiB, `-1` = unlimited.
+	Budget int64 `json:"budget"`
+
+	// Clipped The organization's limit is the tighter one, so it clips the budget
+	// (an org limit lowered below a budget never rewrites the budget).
+	Clipped bool `json:"clipped"`
+
+	// Effective `min(budget, organization limit)`: what actually bounds the harbor at
+	// this level. `-1` = unlimited.
+	Effective int64 `json:"effective"`
+
+	// Key `total_gb`, `by_backend.<backend>` or `by_product.<Product>`.
+	Key string `json:"key"`
+
+	// OrganizationLimit The organization's effective limit at the same level, when it has one
+	// (`-1` = unlimited). `total_gb` has none: it counts Kafka, which
+	// `max_storage_gb` does not, so the two are not compared.
+	OrganizationLimit *int64 `json:"organization_limit,omitempty"`
+	OverLimit         bool   `json:"over_limit"`
+
+	// Product A product whose volumes the catalogue places. The wire form is the variant
+	// name (PascalCase, no `rename_all`).
+	Product *VolumeProduct `json:"product,omitempty"`
+
+	// Scope The level a cell sits at.
+	Scope  StorageLimitScope `json:"scope"`
+	Status QuotaStatus       `json:"status"`
+
+	// Usage GiB the harbor holds at this level.
+	Usage int64 `json:"usage"`
+}
+
+// HarborBudgetResponse A harbor's storage budget.
+type HarborBudgetResponse struct {
+	// Budget An org admin's budget for one harbor (`harbor_storage_budgets.budget`),
+	// inside the organization's limits. GiB values, `-1` = unlimited, absent =
+	// the harbor shares the organization's limits at that level.
+	Budget   HarborStorageBudget `json:"budget"`
+	HarborId openapi_types.UUID  `json:"harbor_id"`
+
+	// HarborSlug The environment's slug.
+	HarborSlug string    `json:"harbor_slug"`
+	UpdatedAt  time.Time `json:"updated_at"`
+
+	// UpdatedBy Who wrote the budget last (`user:<id>` or `serviceaccount:<id>`).
+	UpdatedBy string `json:"updated_by"`
+}
+
+// HarborBudgetView A harbor's budget with its usage.
+type HarborBudgetView struct {
+	// Budget An org admin's budget for one harbor (`harbor_storage_budgets.budget`),
+	// inside the organization's limits. GiB values, `-1` = unlimited, absent =
+	// the harbor shares the organization's limits at that level.
+	Budget     HarborStorageBudget `json:"budget"`
+	Cells      []HarborBudgetCell  `json:"cells"`
+	HarborId   openapi_types.UUID  `json:"harbor_id"`
+	HarborSlug string              `json:"harbor_slug"`
+}
+
+// HarborBudgetsResponse defines model for HarborBudgetsResponse.
+type HarborBudgetsResponse struct {
+	Budgets []HarborBudgetResponse `json:"budgets"`
+}
+
 // HarborNetworkIsolationResponse defines model for HarborNetworkIsolationResponse.
 type HarborNetworkIsolationResponse struct {
 	// NetworkIsolation East-west posture of a harbor, surfaced to the UI so the topology page can
@@ -14555,6 +16242,20 @@ type HarborStorageBindingView struct {
 	ZoneId string `json:"zone_id"`
 }
 
+// HarborStorageBudget An org admin's budget for one harbor (`harbor_storage_budgets.budget`),
+// inside the organization's limits. GiB values, `-1` = unlimited, absent =
+// the harbor shares the organization's limits at that level.
+type HarborStorageBudget struct {
+	// ByBackend GiB per backend id.
+	ByBackend *map[string]int64 `json:"by_backend,omitempty"`
+
+	// ByProduct GiB per product.
+	ByProduct *map[string]int64 `json:"by_product,omitempty"`
+
+	// TotalGb GiB across every counted volume of the harbor.
+	TotalGb *int64 `json:"total_gb,omitempty"`
+}
+
 // HealthThresholds What "too small", "too many deletes" and "too much history" currently mean
 // for this catalog.
 type HealthThresholds struct {
@@ -14613,6 +16314,61 @@ type HfKeyValueCacheResponse struct {
 	Slug                  string             `json:"slug"`
 	Tags                  []string           `json:"tags"`
 	UpdatedAt             time.Time          `json:"updated_at"`
+}
+
+// HfRabbitMqCrdSpecResponse defines model for HfRabbitMqCrdSpecResponse.
+type HfRabbitMqCrdSpecResponse struct {
+	// Image The image the broker runs: the operator's resolved image once it has
+	// reconciled, otherwise the pinned `spec.image`. Absent only before the
+	// first reconcile of a broker that pins none.
+	Image   *string          `json:"image,omitempty"`
+	Plugins []RabbitMqPlugin `json:"plugins"`
+
+	// ReadyReplicas Nodes that are ready, from the CR status.
+	ReadyReplicas *int32 `json:"ready_replicas,omitempty"`
+
+	// Replicas Pinned node count; absent when the broker tracks the platform default.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Pinned volume size; absent when the broker tracks the platform default.
+	Storage *string `json:"storage,omitempty"`
+}
+
+// HfRabbitMqResponse defines model for HfRabbitMqResponse.
+type HfRabbitMqResponse struct {
+	AmqpPort    *int32             `json:"amqp_port,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	Description *string            `json:"description,omitempty"`
+	HarborId    openapi_types.UUID `json:"harbor_id"`
+	Host        *string            `json:"host,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+
+	// Image Pinned image; absent when the broker tracks the platform default.
+	Image          *string            `json:"image,omitempty"`
+	ManagementPort *int32             `json:"management_port,omitempty"`
+	Message        *string            `json:"message,omitempty"`
+	Name           string             `json:"name"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+	Phase          *string            `json:"phase,omitempty"`
+	Plugins        []RabbitMqPlugin   `json:"plugins"`
+	ReadyReplicas  *int32             `json:"ready_replicas,omitempty"`
+
+	// Replicas Pinned node count; absent when the user did not set it.
+	Replicas *int32 `json:"replicas,omitempty"`
+	Slug     string `json:"slug"`
+
+	// Storage Pinned volume size; absent when the user did not set it.
+	Storage   *string   `json:"storage,omitempty"`
+	Tags      []string  `json:"tags"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // HfTable defines model for HfTable.
@@ -14738,10 +16494,9 @@ type IcebergOptimizeConfig struct {
 	MaxDurationMinutes *int32 `json:"max_duration_minutes,omitempty"`
 
 	// MaxParallelTables How many tables the runner may optimize concurrently.
-	MaxParallelTables          int32   `json:"max_parallel_tables"`
-	RemoveOrphanFilesEnabled   bool    `json:"remove_orphan_files_enabled"`
-	RemoveOrphanFilesRetention *string `json:"remove_orphan_files_retention,omitempty"`
-	Schedule                   string  `json:"schedule"`
+	MaxParallelTables        int32  `json:"max_parallel_tables"`
+	RemoveOrphanFilesEnabled bool   `json:"remove_orphan_files_enabled"`
+	Schedule                 string `json:"schedule"`
 
 	// SkipUnchanged Skip a table whose current snapshot is the one a previous run already
 	// left it optimized at.
@@ -15001,20 +16756,42 @@ type IcebergTableResponseData struct {
 // is deliberately absent — it is write-only and lives only in Keycloak.
 type IdentityProvider struct {
 	// Alias Stable identifier and Keycloak alias (e.g. `github`).
-	Alias       string `json:"alias"`
-	ClientId    string `json:"client_id"`
-	DisplayName string `json:"display_name"`
-	Enabled     bool   `json:"enabled"`
+	Alias string `json:"alias"`
+
+	// ClientId OAuth client ID; absent for a SAML provider.
+	ClientId    *string `json:"client_id,omitempty"`
+	DisplayName string  `json:"display_name"`
+	Enabled     bool    `json:"enabled"`
 
 	// Kind Which external identity provider a broker federates to.
 	Kind IdentityProviderKind `json:"kind"`
 
+	// ManagedByPlatform Pushed into the organization by the platform administrator: shown, but
+	// it cannot be edited or deleted here.
+	ManagedByPlatform bool `json:"managed_by_platform"`
+
 	// OidcBaseUrl Issuer/base URL, present only for a custom OIDC provider.
 	OidcBaseUrl *string `json:"oidc_base_url,omitempty"`
+
+	// Saml A SAML 2.0 upstream provider (Microsoft Entra ID, ADFS, Okta…).
+	Saml *SamlSettings `json:"saml,omitempty"`
+
+	// SuspendedByPlatform Disabled by the platform while one of its providers owns this
+	// organization's sign-in; re-enabled by the platform when it lets go.
+	SuspendedByPlatform bool `json:"suspended_by_platform"`
 }
 
 // IdentityProviderKind Which external identity provider a broker federates to.
 type IdentityProviderKind string
+
+// IdentityProviderList The organization's brokers, and whether it may change them.
+type IdentityProviderList struct {
+	Providers []IdentityProvider `json:"providers"`
+
+	// SignInEnforcedByPlatform A platform provider owns this organization's sign-in exclusively: its
+	// own brokers cannot be created, edited or enabled until it lets go.
+	SignInEnforcedByPlatform bool `json:"sign_in_enforced_by_platform"`
+}
 
 // ImagePosture One digest's cross-workload posture, the `top_images`/`stale` row shape.
 type ImagePosture struct {
@@ -15080,22 +16857,28 @@ type ImageScan struct {
 type ImageScanDetail struct {
 	// Counts Per-severity finding counts for one scanned digest. v1 is informational only
 	// (the blocking quality gate is a v2.x follow-up).
-	Counts            VulnerabilityCounts `json:"counts"`
-	Digest            string              `json:"digest"`
-	Error             *string             `json:"error,omitempty"`
-	Findings          *[]Finding          `json:"findings,omitempty"`
-	FindingsTruncated bool                `json:"findings_truncated"`
-	Fixable           FixableCounts       `json:"fixable"`
-	ImageRef          string              `json:"image_ref"`
-	RunningIn         []WorkloadRef       `json:"running_in"`
+	Counts VulnerabilityCounts `json:"counts"`
+
+	// CvssMax Highest CVSS score among the stored findings.
+	CvssMax           *float64      `json:"cvss_max,omitempty"`
+	Digest            string        `json:"digest"`
+	Error             *string       `json:"error,omitempty"`
+	Findings          *[]Finding    `json:"findings,omitempty"`
+	FindingsTruncated bool          `json:"findings_truncated"`
+	Fixable           FixableCounts `json:"fixable"`
+	ImageRef          string        `json:"image_ref"`
+	RunningIn         []WorkloadRef `json:"running_in"`
 
 	// ScanState The lifecycle of a scanned digest as the UI should read it — derived, not
 	// stored (see [`crate::hf_console::domain::workload_security::risk::scan_state`]).
-	ScanState              ScanState  `json:"scan_state"`
-	ScannedAt              *time.Time `json:"scanned_at,omitempty"`
-	ScannerVersion         *string    `json:"scanner_version,omitempty"`
-	SeverityMax            *string    `json:"severity_max,omitempty"`
-	SharedFromRegistryScan *bool      `json:"shared_from_registry_scan,omitempty"`
+	ScanState ScanState  `json:"scan_state"`
+	ScannedAt *time.Time `json:"scanned_at,omitempty"`
+
+	// Scanner `trivy` | `grype` — the backend of the last scan (ADR-0055 §4).
+	Scanner                *string `json:"scanner,omitempty"`
+	ScannerVersion         *string `json:"scanner_version,omitempty"`
+	SeverityMax            *string `json:"severity_max,omitempty"`
+	SharedFromRegistryScan *bool   `json:"shared_from_registry_scan,omitempty"`
 
 	// Status Lifecycle of an image scan row (DB `scan_status` ENUM). Mirrors the
 	// `registry_role` mapping pattern (`sqlx::Type` + `#[sqlx(type_name = ...)]`).
@@ -15250,6 +17033,13 @@ type ImportColumnType string
 
 // ImportFileFormat The file format, as the API names it.
 type ImportFileFormat string
+
+// ImportSamlMetadataRequest defines model for ImportSamlMetadataRequest.
+type ImportSamlMetadataRequest struct {
+	// MetadataXml The provider's SAML metadata document (an `EntityDescriptor`), e.g. the
+	// "Federation Metadata XML" of a Microsoft Entra ID application. At most 256 KiB.
+	MetadataXml string `json:"metadata_xml"`
+}
 
 // ImportedColumn defines model for ImportedColumn.
 type ImportedColumn struct {
@@ -15477,12 +17267,32 @@ type IntendedUse string
 // verified.
 type InternetExposureState string
 
+// InvitationDelivery How an invitation's token reaches the invitee.
+type InvitationDelivery string
+
+// InvitationEmailStatus Outcome of the latest attempt to e-mail an invitation.
+//
+// Records *our* attempt only: `sent` means the SMTP relay accepted the
+// message, not that it reached the mailbox (bounces are not tracked).
+type InvitationEmailStatus string
+
 // InvitationIdentityProvider An identity provider offered on the invitation page, so the invitee can
 // sign in through it instead of setting a password. Only the fields the public
 // invite page needs — never any secret.
 type InvitationIdentityProvider struct {
 	Alias       string `json:"alias"`
 	DisplayName string `json:"display_name"`
+
+	// Enforced The organization signs in only through this provider (a platform
+	// provider in exclusive mode): the invite page offers no password form.
+	Enforced bool `json:"enforced"`
+}
+
+// InvitationLink A shareable link minted for an existing invitation. Generating it replaces
+// the invitation's token, so any link sent or copied earlier stops working.
+type InvitationLink struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	InviteUrl string    `json:"invite_url"`
 }
 
 // InvitationPreview defines model for InvitationPreview.
@@ -15524,6 +17334,45 @@ type IssueScopedS3KeyRequest struct {
 	// the frontend enforces this by only offering same-zone buckets.
 	Scopes []ScopedBucketRequest `json:"scopes"`
 	ZoneId *string               `json:"zone_id,omitempty"`
+}
+
+// IssuedInvitation defines model for IssuedInvitation.
+type IssuedInvitation struct {
+	CreatedAt time.Time `json:"created_at"`
+
+	// Delivery How an invitation's token reaches the invitee.
+	Delivery *InvitationDelivery `json:"delivery,omitempty"`
+	Email    string              `json:"email"`
+
+	// EmailError Why the latest attempt failed, set only when `email_status` is `failed`.
+	EmailError *string `json:"email_error,omitempty"`
+
+	// EmailLastAttemptAt When the invitation e-mail was last attempted, `None` before any attempt.
+	EmailLastAttemptAt *time.Time `json:"email_last_attempt_at,omitempty"`
+
+	// EmailStatus Outcome of the latest attempt to e-mail an invitation.
+	//
+	// Records *our* attempt only: `sent` means the SMTP relay accepted the
+	// message, not that it reached the mailbox (bounces are not tracked).
+	EmailStatus InvitationEmailStatus `json:"email_status"`
+	ExpiresAt   time.Time             `json:"expires_at"`
+	Id          openapi_types.UUID    `json:"id"`
+	InviteUrl   *string               `json:"invite_url,omitempty"`
+
+	// InvitedBy `None` for owner-bootstrap invitations sent by the platform cockpit,
+	// whose admins are not console users.
+	InvitedBy *openapi_types.UUID `json:"invited_by,omitempty"`
+
+	// LinkGeneratedAt When a shareable link was last generated for this invitation.
+	LinkGeneratedAt *time.Time `json:"link_generated_at,omitempty"`
+
+	// LinkGeneratedBy Who last generated a shareable link: the console user's email, or the
+	// platform label for owner invitations (the admin is logged by the cockpit).
+	LinkGeneratedBy *string             `json:"link_generated_by,omitempty"`
+	OrganizationId  openapi_types.UUID  `json:"organization_id"`
+	RespondedAt     *time.Time          `json:"responded_at,omitempty"`
+	RoleId          *openapi_types.UUID `json:"role_id,omitempty"`
+	Status          string              `json:"status"`
 }
 
 // IssuedS3Key defines model for IssuedS3Key.
@@ -15570,31 +17419,34 @@ type KafkaConsumerGroup struct {
 
 // KafkaHFServiceResponse defines model for KafkaHFServiceResponse.
 type KafkaHFServiceResponse struct {
-	BootstrapServers         *string            `json:"bootstrap_servers,omitempty"`
-	BrokerReplicas           int32              `json:"broker_replicas"`
-	CpuLimit                 *string            `json:"cpu_limit,omitempty"`
-	CpuRequest               *string            `json:"cpu_request,omitempty"`
-	CreatedAt                time.Time          `json:"created_at"`
-	Description              string             `json:"description"`
-	ExternalBootstrapServers *string            `json:"external_bootstrap_servers,omitempty"`
-	HarborId                 openapi_types.UUID `json:"harbor_id"`
-	Id                       openapi_types.UUID `json:"id"`
-	InternalBootstrapServers *string            `json:"internal_bootstrap_servers,omitempty"`
-	KeycloakClientId         *string            `json:"keycloak_client_id,omitempty"`
-	MemoryLimit              *string            `json:"memory_limit,omitempty"`
-	MemoryRequest            *string            `json:"memory_request,omitempty"`
-	MinInsyncReplicas        int32              `json:"min_insync_replicas"`
-	Name                     string             `json:"name"`
-	OpaUri                   *string            `json:"opa_uri,omitempty"`
-	RefreshedAt              *time.Time         `json:"refreshed_at,omitempty"`
-	ReplicationFactor        int32              `json:"replication_factor"`
-	SchemaRegistryEnabled    bool               `json:"schema_registry_enabled"`
-	SchemaRegistryUrl        *string            `json:"schema_registry_url,omitempty"`
-	Slug                     string             `json:"slug"`
-	Status                   string             `json:"status"`
-	StorageSizeGb            int32              `json:"storage_size_gb"`
-	TokenIssuerEndpoint      *string            `json:"token_issuer_endpoint,omitempty"`
-	UpdatedAt                time.Time          `json:"updated_at"`
+	BootstrapServers *string   `json:"bootstrap_servers,omitempty"`
+	BrokerReplicas   int32     `json:"broker_replicas"`
+	CpuLimit         *string   `json:"cpu_limit,omitempty"`
+	CpuRequest       *string   `json:"cpu_request,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
+	Description      string    `json:"description"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend   *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
+	ExternalBootstrapServers *string                 `json:"external_bootstrap_servers,omitempty"`
+	HarborId                 openapi_types.UUID      `json:"harbor_id"`
+	Id                       openapi_types.UUID      `json:"id"`
+	InternalBootstrapServers *string                 `json:"internal_bootstrap_servers,omitempty"`
+	KeycloakClientId         *string                 `json:"keycloak_client_id,omitempty"`
+	MemoryLimit              *string                 `json:"memory_limit,omitempty"`
+	MemoryRequest            *string                 `json:"memory_request,omitempty"`
+	MinInsyncReplicas        int32                   `json:"min_insync_replicas"`
+	Name                     string                  `json:"name"`
+	OpaUri                   *string                 `json:"opa_uri,omitempty"`
+	RefreshedAt              *time.Time              `json:"refreshed_at,omitempty"`
+	ReplicationFactor        int32                   `json:"replication_factor"`
+	SchemaRegistryEnabled    bool                    `json:"schema_registry_enabled"`
+	SchemaRegistryUrl        *string                 `json:"schema_registry_url,omitempty"`
+	Slug                     string                  `json:"slug"`
+	Status                   string                  `json:"status"`
+	StorageSizeGb            int32                   `json:"storage_size_gb"`
+	TokenIssuerEndpoint      *string                 `json:"token_issuer_endpoint,omitempty"`
+	UpdatedAt                time.Time               `json:"updated_at"`
 }
 
 // KafkaHFTopicResponse defines model for KafkaHFTopicResponse.
@@ -15726,6 +17578,12 @@ type LaunchNextflowRunRequestBody struct {
 	// TimeoutMinutes Wall-clock ceiling of the head, in minutes. Omitted resolves to the
 	// platform default.
 	TimeoutMinutes *int32 `json:"timeout_minutes,omitempty"`
+}
+
+// LiftAgentVerdictBody defines model for LiftAgentVerdictBody.
+type LiftAgentVerdictBody struct {
+	// Reason Why the restriction is no longer needed; kept on the verdict.
+	Reason string `json:"reason"`
 }
 
 // LinkForgejoCredentialRequest defines model for LinkForgejoCredentialRequest.
@@ -15980,21 +17838,46 @@ type ManagedPostgresqlBackupsPage struct {
 
 // ManagedPostgresqlCrdSpecResponse defines model for ManagedPostgresqlCrdSpecResponse.
 type ManagedPostgresqlCrdSpecResponse struct {
-	BackupRetention       *string `json:"backup_retention,omitempty"`
-	BackupSchedule        *string `json:"backup_schedule,omitempty"`
-	CpuLimit              *string `json:"cpu_limit,omitempty"`
-	CpuRequest            *string `json:"cpu_request,omitempty"`
-	EnableSuperuserAccess bool    `json:"enable_superuser_access"`
-	Engine                string  `json:"engine"`
-	ExposeToInternet      bool    `json:"expose_to_internet"`
-	HasBackup             bool    `json:"has_backup"`
-	HasPooler             bool    `json:"has_pooler"`
-	Instances             int32   `json:"instances"`
-	MemoryLimit           *string `json:"memory_limit,omitempty"`
-	MemoryRequest         *string `json:"memory_request,omitempty"`
-	StorageClass          *string `json:"storage_class,omitempty"`
-	StorageSize           string  `json:"storage_size"`
-	Version               string  `json:"version"`
+	BackupRetention *string `json:"backup_retention,omitempty"`
+	BackupSchedule  *string `json:"backup_schedule,omitempty"`
+	CpuLimit        *string `json:"cpu_limit,omitempty"`
+	CpuRequest      *string `json:"cpu_request,omitempty"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
+	EnableSuperuserAccess  bool                    `json:"enable_superuser_access"`
+	Engine                 string                  `json:"engine"`
+	ExposeToInternet       bool                    `json:"expose_to_internet"`
+	HasBackup              bool                    `json:"has_backup"`
+
+	// HasBackupTarget Whether the database archives somewhere: its `spec.backupTarget`, or
+	// the target the platform placed it on. Without one, no backup can run.
+	HasBackupTarget bool    `json:"has_backup_target"`
+	HasPooler       bool    `json:"has_pooler"`
+	Instances       int32   `json:"instances"`
+	MemoryLimit     *string `json:"memory_limit,omitempty"`
+	MemoryRequest   *string `json:"memory_request,omitempty"`
+
+	// PlatformPlaced The platform chooses its backup target (`spec.backupPlacement:
+	// platform`), whether or not it has placed it on one yet.
+	PlatformPlaced bool    `json:"platform_placed"`
+	StorageClass   *string `json:"storage_class,omitempty"`
+	StorageSize    string  `json:"storage_size"`
+	Version        string  `json:"version"`
+}
+
+// ManagedPostgresqlExtensionsResponse defines model for ManagedPostgresqlExtensionsResponse.
+type ManagedPostgresqlExtensionsResponse struct {
+	// Engine The instance's engine: `postgresql`, `postgis` or `timescaledb`.
+	Engine string `json:"engine"`
+
+	// Extensions The whole catalog, in a stable order, each entry joined with this
+	// instance's declaration and observed state.
+	Extensions []ExtensionCatalogItem `json:"extensions"`
+
+	// Uncatalogued Observed entries that are not in the catalog (a manifest applied to the
+	// cluster named something the platform does not offer). Always `failed`.
+	Uncatalogued []ExtensionStatus `json:"uncatalogued"`
 }
 
 // ManagedPostgresqlImportCompression Compression wrapped around the dump. Absent means `none`.
@@ -16260,6 +18143,16 @@ type MapBadge struct {
 	SeverityMax *string   `json:"severity_max,omitempty"`
 }
 
+// MatchedFinding defines model for MatchedFinding.
+type MatchedFinding struct {
+	Classes []RiskClass `json:"classes"`
+	Cvss    *float64    `json:"cvss,omitempty"`
+	Id      string      `json:"id"`
+
+	// Severity Finding severity, ordered so `>=` means "at least as severe".
+	Severity Severity `json:"severity"`
+}
+
 // MatchingTag A tag the pattern matched, with the version it read.
 type MatchingTag struct {
 	Name    string `json:"name"`
@@ -16441,8 +18334,17 @@ type ModelCatalogResponse struct {
 
 // ModelConfig Extra configuration for the model serving instance.
 type ModelConfig struct {
+	// Decision Decision-specific serving options. Every field is an explicit override:
+	// absent means "the platform resolves it at reconcile".
+	Decision *DecisionServingConfig `json:"decision,omitempty"`
+
 	// ExtraArgs Extra CLI arguments passed to the runtime
 	ExtraArgs *[]string `json:"extraArgs,omitempty"`
+
+	// Image Container image override (decision servings). Absent means the
+	// platform default, resolved at reconcile time and never written here,
+	// so an image bump reaches existing servings.
+	Image *string `json:"image,omitempty"`
 
 	// MaxModelLen Maximum model context length (vLLM --max-model-len)
 	MaxModelLen *int32 `json:"maxModelLen,omitempty"`
@@ -16536,6 +18438,10 @@ type ModelServingResponse struct {
 	// Config Extra configuration for the model serving instance.
 	Config ModelConfig `json:"config"`
 
+	// DecisionSurfaces The decision surfaces this serving exposes, as published by the
+	// operator (decision servings only; `None` otherwise).
+	DecisionSurfaces *[]DecisionSurface `json:"decision_surfaces,omitempty"`
+
 	// DisplayName Human-readable display name
 	DisplayName string `json:"display_name"`
 
@@ -16585,6 +18491,8 @@ type ModelType string
 
 // ModelUsage Token totals grouped by model.
 type ModelUsage struct {
+	// Decisions Decisions this model answered in the window.
+	Decisions    int64  `json:"decisions"`
 	InputTokens  int64  `json:"input_tokens"`
 	Model        string `json:"model"`
 	OutputTokens int64  `json:"output_tokens"`
@@ -16610,6 +18518,9 @@ type MultipartPartUrl struct {
 	UploadUrl  string `json:"upload_url"`
 }
 
+// NetworkCondition The network situation a rule may require of the workload.
+type NetworkCondition string
+
 // NetworkIsolationView East-west posture of a harbor, surfaced to the UI so the topology page can
 // frame ServiceLinks as enforced (`strict`) or additive (`lenient`). Mirrors
 // `HarborSpec::network_isolation` on the Harbor CRD.
@@ -16622,6 +18533,9 @@ type NextflowCrdResponse struct {
 
 	// Config Nextflow config text applied to every run; empty = none set.
 	Config string `json:"config"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
 
 	// Egress Egress an environment's head and tasks are granted **on top of** the fixed
 	// platform baseline (DNS, the API server, the object store, the platform
@@ -16891,6 +18805,15 @@ type NextflowStorageRequest struct {
 	// StorageClassName `ReadWriteMany` StorageClass. Immutable once bound: a PATCH that would
 	// change it away from an already-set value is refused with a 400.
 	StorageClassName *string `json:"storage_class_name,omitempty"`
+
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends?product=NextflowWork`) for the
+	// work volume, which needs `ReadWriteMany`. Omitted, the platform
+	// resolves the default at reconcile time and nothing is stored. Mutually
+	// exclusive with `storage_class_name`; `403` when the backend is not
+	// granted to the environment, `422` when it is not ready or is not
+	// `ReadWriteMany`. Never returned: reads show the effective backend.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // NextflowTaskQuotaRequest Ceiling on the task namespace. `None` fields resolve to the platform
@@ -16970,6 +18893,15 @@ type NotificationChannelDto struct {
 	UrlMasked *string `json:"url_masked,omitempty"`
 }
 
+// NoulCriteria defines model for NoulCriteria.
+type NoulCriteria struct {
+	// False What counts as no.
+	False interface{} `json:"false,omitempty"`
+
+	// True What counts as yes.
+	True interface{} `json:"true,omitempty"`
+}
+
 // OPADecisionLog defines model for OPADecisionLog.
 type OPADecisionLog struct {
 	Bundles        *map[string]interface{} `json:"bundles,omitempty"`
@@ -17033,6 +18965,36 @@ type ObjectStorageOwnerKeyRevealedLog struct {
 
 	// SecretId Secret-Manager id of the revealed entry.
 	SecretId openapi_types.UUID `json:"secret_id"`
+}
+
+// ObjectStorageReplicatedLog Audit payload for one bucket of one replication run: who read (the
+// Replication Manager's principal), which bucket, what reached the backup
+// target and when; never an object key, its content or a credential.
+type ObjectStorageReplicatedLog struct {
+	// Bucket `<namespace>/<HFBucket name>`, or the audit lakehouse bucket's name.
+	Bucket      string `json:"bucket"`
+	BytesCopied int64  `json:"bytes_copied"`
+
+	// Complete Every step ran without a failure before the run's deadline.
+	Complete bool `json:"complete"`
+
+	// ConsistentAsOf The copy holds every object written before this, when `complete`.
+	ConsistentAsOf *time.Time `json:"consistent_as_of,omitempty"`
+	DeleteMarkers  int64      `json:"delete_markers"`
+
+	// Denied A failure was a 403: something denies the principal this bucket.
+	Denied        bool      `json:"denied"`
+	Failures      int64     `json:"failures"`
+	FinishedAt    time.Time `json:"finished_at"`
+	ObjectsCopied int64     `json:"objects_copied"`
+
+	// Principal Always [`OBJECT_REPLICATION_PRINCIPAL`].
+	Principal string `json:"principal"`
+
+	// Run The run's Job name.
+	Run       string    `json:"run"`
+	StartedAt time.Time `json:"started_at"`
+	Zone      *string   `json:"zone,omitempty"`
 }
 
 // ObjectStorageUsageCollectedLog Audit payload for one usage sweep over one organization's buckets on one
@@ -17309,12 +19271,24 @@ type Org struct {
 	Slug              string `json:"slug"`
 }
 
+// OrgCvePolicyView An organization's view: what applies to it, and its own rules.
+type OrgCvePolicyView struct {
+	// OrganizationRules The organization's own rules (it can only add to the platform's).
+	OrganizationRules []CveRule `json:"organization_rules"`
+
+	// Platform Platform-wide switches (cockpit).
+	Platform CvePlatformPolicy `json:"platform"`
+
+	// PlatformRules Preset + platform custom rules (read-only for the organization).
+	PlatformRules []CveRule `json:"platform_rules"`
+}
+
 // OrgFeature The per-org sellable feature entitlements.
 //
 // Every variant maps 1:1 onto a [`ConsoleConfigFeatureFlag`] variant — the
 // deployment-wide Helm flag stays the kill switch and the org entitlement
 // decides within it (`effective = global AND org`). Deployment-posture flags
-// (`ShowMarketing`, `ShowDemoBanner`, `VaubanPreview`) deliberately have no
+// (`ShowMarketing`, `ShowDemoBanner`) deliberately have no
 // counterpart here: they are unauthenticated-bootstrap state, not
 // entitlements.
 type OrgFeature string
@@ -17328,7 +19302,7 @@ type OrgFeatureState struct {
 	// Every variant maps 1:1 onto a [`ConsoleConfigFeatureFlag`] variant — the
 	// deployment-wide Helm flag stays the kill switch and the org entitlement
 	// decides within it (`effective = global AND org`). Deployment-posture flags
-	// (`ShowMarketing`, `ShowDemoBanner`, `VaubanPreview`) deliberately have no
+	// (`ShowMarketing`, `ShowDemoBanner`) deliberately have no
 	// counterpart here: they are unauthenticated-bootstrap state, not
 	// entitlements.
 	Feature OrgFeature `json:"feature"`
@@ -17463,21 +19437,44 @@ type OrgWorkloadScanSettingsResponse struct {
 // OrganizationInvitation An invitation row as returned to API callers.
 //
 // The token itself is deliberately absent: only its SHA-256 hash is persisted
-// (`token_hash`), and the raw token is delivered to the invitee by email. This
-// keeps the org-viewer-gated list endpoint from ever exposing a usable token.
+// (`token_hash`), and the raw token only ever leaves the console once, by
+// email or in the response that generated a link. This keeps the
+// org-viewer-gated list endpoint from ever exposing a usable token.
 type OrganizationInvitation struct {
-	CreatedAt time.Time          `json:"created_at"`
-	Email     string             `json:"email"`
-	ExpiresAt time.Time          `json:"expires_at"`
-	Id        openapi_types.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+
+	// Delivery How an invitation's token reaches the invitee.
+	Delivery *InvitationDelivery `json:"delivery,omitempty"`
+	Email    string              `json:"email"`
+
+	// EmailError Why the latest attempt failed, set only when `email_status` is `failed`.
+	EmailError *string `json:"email_error,omitempty"`
+
+	// EmailLastAttemptAt When the invitation e-mail was last attempted, `None` before any attempt.
+	EmailLastAttemptAt *time.Time `json:"email_last_attempt_at,omitempty"`
+
+	// EmailStatus Outcome of the latest attempt to e-mail an invitation.
+	//
+	// Records *our* attempt only: `sent` means the SMTP relay accepted the
+	// message, not that it reached the mailbox (bounces are not tracked).
+	EmailStatus InvitationEmailStatus `json:"email_status"`
+	ExpiresAt   time.Time             `json:"expires_at"`
+	Id          openapi_types.UUID    `json:"id"`
 
 	// InvitedBy `None` for owner-bootstrap invitations sent by the platform cockpit,
 	// whose admins are not console users.
-	InvitedBy      *openapi_types.UUID `json:"invited_by,omitempty"`
-	OrganizationId openapi_types.UUID  `json:"organization_id"`
-	RespondedAt    *time.Time          `json:"responded_at,omitempty"`
-	RoleId         *openapi_types.UUID `json:"role_id,omitempty"`
-	Status         string              `json:"status"`
+	InvitedBy *openapi_types.UUID `json:"invited_by,omitempty"`
+
+	// LinkGeneratedAt When a shareable link was last generated for this invitation.
+	LinkGeneratedAt *time.Time `json:"link_generated_at,omitempty"`
+
+	// LinkGeneratedBy Who last generated a shareable link: the console user's email, or the
+	// platform label for owner invitations (the admin is logged by the cockpit).
+	LinkGeneratedBy *string             `json:"link_generated_by,omitempty"`
+	OrganizationId  openapi_types.UUID  `json:"organization_id"`
+	RespondedAt     *time.Time          `json:"responded_at,omitempty"`
+	RoleId          *openapi_types.UUID `json:"role_id,omitempty"`
+	Status          string              `json:"status"`
 }
 
 // OrganizationOverviewResponse Per-service resource overview for an organization's home page.
@@ -17570,6 +19567,13 @@ type OrganizationOverviewResponse struct {
 	// dashboards, model servings) — their list pages are org-wide, so the home
 	// card links into the currently selected harbor.
 	Pipelines ResourceOverviewResponse `json:"pipelines"`
+
+	// Rabbitmqs One line of the org overview: the total across the organization plus the
+	// slugs of the harbors that hold at least one. `harbors` is empty and
+	// `is_org_wide` is `true` for resources that are not harbor-scoped (pipelines,
+	// dashboards, model servings) — their list pages are org-wide, so the home
+	// card links into the currently selected harbor.
+	Rabbitmqs ResourceOverviewResponse `json:"rabbitmqs"`
 
 	// RegistryProjects One line of the org overview: the total across the organization plus the
 	// slugs of the harbors that hold at least one. `harbors` is empty and
@@ -18072,14 +20076,47 @@ type PatchHfKeyValueCacheCrdRequestBody struct {
 	Tags *[]string `json:"tags,omitempty"`
 }
 
+// PatchHfRabbitMqCrdRequestBody defines model for PatchHfRabbitMqCrdRequestBody.
+type PatchHfRabbitMqCrdRequestBody struct {
+	// Description Optional description (DB-only, not in CRD).
+	Description *string `json:"description,omitempty"`
+
+	// Image RabbitMQ container image.
+	Image *string `json:"image,omitempty"`
+
+	// Plugins Plugins to enable, from the fixed allowlist. Replaces the current list.
+	Plugins *[]RabbitMqPlugin `json:"plugins,omitempty"`
+
+	// Replicas Number of broker nodes: 1, 3 or 5. Can only grow: a RabbitMQ cluster
+	// cannot be scaled down, and a lower value is rejected with a 400.
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Resources Resource requests and limits for the container.
+	//
+	// `limits.cpu` is intentionally omitted from most defaults: an unset CPU limit
+	// avoids CPU throttling (the kernel CFS scheduler throttles containers that
+	// hit their quota even when the node has spare capacity). Set it only when you
+	// need hard isolation guarantees.
+	Resources *ResourceRequirementsSpec `json:"resources,omitempty"`
+
+	// Storage Volume size per node (e.g. "20Gi"). Can only grow: a smaller value is
+	// rejected with a 400.
+	Storage *string `json:"storage,omitempty"`
+
+	// Tags User-defined tags (DB-only, not in CRD).
+	Tags *[]string `json:"tags,omitempty"`
+}
+
 // PatchManagedPostgresqlCrdRequestBody defines model for PatchManagedPostgresqlCrdRequestBody.
 type PatchManagedPostgresqlCrdRequestBody struct {
 	// BackupPlacement Who chooses a database's backup target when `backupTarget` names none.
 	BackupPlacement *BackupPlacement `json:"backup_placement,omitempty"`
 	BackupPolicy    *BackupPolicy    `json:"backup_policy,omitempty"`
 
-	// BackupTargetId Attach or change the backup target (by id). Enables on-demand backups on a
-	// previously target-less database. `None` leaves the current target unchanged.
+	// BackupTargetId Attach a backup target (by id) to a database that has none yet, which
+	// enables its backups. Refused with 409 once it archives somewhere: moving
+	// it would strand its backups on the old target. Re-sending the current
+	// target is a no-op. `None` leaves the current target unchanged.
 	BackupTargetId *openapi_types.UUID `json:"backup_target_id,omitempty"`
 	Configuration  *Configuration      `json:"configuration,omitempty"`
 
@@ -18365,8 +20402,19 @@ type PersistenceInput struct {
 	// Size K8s storage quantity, e.g. `"10Gi"`, `"500Mi"`.
 	Size string `json:"size"`
 
-	// StorageClass StorageClass name. When omitted, the cluster default is used.
+	// StorageClass StorageClass name. When omitted, the cluster default is used. Under
+	// the `Enforced` volume catalogue the class must belong to a backend
+	// granted to the environment (else 422); prefer `volume_backend`.
+	// Mutually exclusive with `volume_backend`.
 	StorageClass *string `json:"storage_class,omitempty"`
+
+	// VolumeBackend Volume backend (a `VolumeBackend` id, from
+	// `GET /organizations/{id}/volume-backends`) to place the volume on.
+	// Omitted, the platform resolves the default at reconcile time and
+	// nothing is stored. Mutually exclusive with `storage_class`; `403` when
+	// the backend is not granted to the environment, `422` when it is not
+	// ready or does not serve this volume's access mode.
+	VolumeBackend *string `json:"volume_backend,omitempty"`
 }
 
 // PersistenceResponse One persistent volume attached to the container, as returned to the UI.
@@ -18688,6 +20736,11 @@ type PitrRequest struct {
 	// recommended interval, resolved when the cluster is reconciled rather
 	// than frozen into the resource now.
 	//
+	// On a PATCH the three states differ: absent keeps whatever interval the
+	// database already pins, `null` clears that pin back to the platform's
+	// recommended interval (the resource then carries no interval at all),
+	// and a number pins it. On create, `null` and absent are the same thing.
+	//
 	// Five minutes is the recommended floor, not the enforced one: a shorter
 	// interval is a legitimate choice for a database whose writes are worth
 	// more than the segments. One minute is the hard floor, because below it
@@ -18725,6 +20778,9 @@ type PlatformAdminActionLog struct {
 	Actor   string                 `json:"actor"`
 	Details map[string]interface{} `json:"details"`
 }
+
+// PolicyMode defines model for PolicyMode.
+type PolicyMode string
 
 // PolicyPreset A named, one-click permission policy. `Default` mirrors the workstation's
 // provisioned policy (write-class → ask, read-class → allow); `AllowAll` is the
@@ -18968,6 +21024,8 @@ type PreviewPosture string
 // unknown sentinel or a principal that has since been deleted; `key_prefix` is
 // populated for API-key principals only.
 type PrincipalUsage struct {
+	// Decisions Decisions this principal asked in the window.
+	Decisions     int64   `json:"decisions"`
 	InputTokens   int64   `json:"input_tokens"`
 	KeyPrefix     *string `json:"key_prefix,omitempty"`
 	Name          *string `json:"name,omitempty"`
@@ -19258,6 +21316,15 @@ type QuotaProfileResponse struct {
 	MaxVcpu                 int32  `json:"max_vcpu"`
 	Name                    string `json:"name"`
 	Slug                    string `json:"slug"`
+
+	// StorageLimits Granular volume limits of an organization: on a plan
+	// (`quota_profiles.storage_limits`) and, merged per key on top of it, in the
+	// org's `custom_limits.storage_limits`. GiB values, `-1` = unlimited.
+	//
+	// Backend keys are backend ids (DNS-1123 labels). A key naming no backend of
+	// this cluster is inert: a plan is platform-wide. Product keys are the D5
+	// product names; only [`VolumeProduct::COUNTED`] products are accepted.
+	StorageLimits *StorageLimits `json:"storage_limits,omitempty"`
 }
 
 // QuotaResourceType defines model for QuotaResourceType.
@@ -19276,6 +21343,12 @@ type QuotaUsageItemResponse struct {
 	ResourceType QuotaResourceType `json:"resource_type"`
 	Status       QuotaStatus       `json:"status"`
 }
+
+// RabbitMqPlugin Optional RabbitMQ plugins a user can opt into. The management, Prometheus
+// and Kubernetes peer-discovery plugins are always on and are not listed here.
+// This is an allowlist: anything else could break the cluster or escape the
+// tenant.
+type RabbitMqPlugin string
 
 // Ref A reference to a file in a storage bucket
 // This reference is created upon scanning a bucket and is used to track the
@@ -19471,6 +21544,9 @@ type RescanResponse struct {
 // RescanScope What an organization-scoped rescan may target. Every scope is bounded by
 // the caller's organization.
 type RescanScope string
+
+// ResolutionSource The level that answered.
+type ResolutionSource string
 
 // ResolveFailureReason Why a check produced no image. The app keeps running the last good one.
 type ResolveFailureReason string
@@ -19906,6 +21982,10 @@ type RightsizingSuggestionResponse struct {
 	SuggestedTier *ResourceTier `json:"suggested_tier,omitempty"`
 }
 
+// RiskClass What a finding lets an attacker do, derived from its CWE, CVSS vector and
+// text — never stored, so a better classifier applies to every stored finding.
+type RiskClass string
+
 // Role defines model for Role.
 type Role struct {
 	Color          *string            `json:"color,omitempty"`
@@ -19917,6 +21997,30 @@ type Role struct {
 	OrganizationId openapi_types.UUID `json:"organization_id"`
 	UpdatedAt      time.Time          `json:"updated_at"`
 }
+
+// RuleConditions defines model for RuleConditions.
+type RuleConditions struct {
+	// Findings Which findings count. A finding counts when it passes every filter set.
+	Findings *FindingFilter `json:"findings,omitempty"`
+
+	// MinMatches At least this many findings must count (default 1).
+	MinMatches *int32 `json:"min_matches,omitempty"`
+
+	// Network The network situation a rule may require of the workload.
+	Network *NetworkCondition `json:"network,omitempty"`
+}
+
+// RuleMatch defines model for RuleMatch.
+type RuleMatch struct {
+	CvssMax    *float64 `json:"cvss_max,omitempty"`
+	MatchCount int32    `json:"match_count"`
+
+	// Sample The most severe matched findings, highest CVSS first.
+	Sample []MatchedFinding `json:"sample"`
+}
+
+// RuleOrigin Where a rule comes from.
+type RuleOrigin string
 
 // RunnerFlavorCatalogEntry One rung of the catalog.
 type RunnerFlavorCatalogEntry struct {
@@ -20090,6 +22194,42 @@ type RuntimeSecurityAlertLog struct {
 	Tags   []string `json:"tags"`
 }
 
+// S3GatewayAccessSummaryLog Allowed reads or lists of one platform service account, one session and one
+// operation on one bucket, that the S3 gateway folded into one record
+// (s0 ADR-011, hyperfluid ADR-0047 D6). It names the volume, not the objects.
+type S3GatewayAccessSummaryLog struct {
+	// AccessKeyId The access-key id the requests were signed with (never the secret).
+	AccessKeyId *string `json:"access_key_id,omitempty"`
+
+	// Action `read_objects` | `list_objects` | `read`.
+	Action    string `json:"action"`
+	BackendId string `json:"backend_id"`
+	Bucket    string `json:"bucket"`
+
+	// DecisionId The first folded request's decision id.
+	DecisionId string `json:"decision_id"`
+
+	// FirstAt RFC 3339: the earliest and latest decision times folded in.
+	FirstAt string `json:"first_at"`
+	LastAt  string `json:"last_at"`
+	Method  string `json:"method"`
+
+	// ObjectName The control plane's name for the bucket, when the bundle placed it.
+	ObjectName *string `json:"object_name,omitempty"`
+
+	// Operation The s3s operation, e.g. `GetObject`.
+	Operation      string             `json:"operation"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+	Presigned      bool               `json:"presigned"`
+	Requests       int64              `json:"requests"`
+	SpanId         *string            `json:"span_id,omitempty"`
+
+	// Subject The service account's client id.
+	Subject string  `json:"subject"`
+	Tenant  string  `json:"tenant"`
+	TraceId *string `json:"trace_id,omitempty"`
+}
+
 // S3GatewayDecisionLog defines model for S3GatewayDecisionLog.
 type S3GatewayDecisionLog struct {
 	Action         string                  `json:"action"`
@@ -20219,6 +22359,45 @@ type S3SessionCredentials struct {
 	Tenant          string `json:"tenant"`
 }
 
+// SamlMetadata What a SAML metadata document says about the provider, to prefill a form.
+type SamlMetadata struct {
+	IdpEntityId  *string           `json:"idp_entity_id,omitempty"`
+	NameIdFormat *SamlNameIdFormat `json:"name_id_format,omitempty"`
+
+	// SigningCertificates Base64 DER bodies.
+	SigningCertificates    []string `json:"signing_certificates"`
+	SingleLogoutServiceUrl *string  `json:"single_logout_service_url,omitempty"`
+	SingleSignOnServiceUrl *string  `json:"single_sign_on_service_url,omitempty"`
+}
+
+// SamlNameIdFormat defines model for SamlNameIdFormat.
+type SamlNameIdFormat string
+
+// SamlSettings A SAML 2.0 upstream provider (Microsoft Entra ID, ADFS, Okta…).
+type SamlSettings struct {
+	// EmailAttribute Assertion attribute imported as the user's email.
+	EmailAttribute     *string `json:"email_attribute,omitempty"`
+	FirstNameAttribute *string `json:"first_name_attribute,omitempty"`
+
+	// IdpEntityId The upstream provider's entity ID (Entra: `https://sts.windows.net/<tenant>/`).
+	IdpEntityId       string            `json:"idp_entity_id"`
+	LastNameAttribute *string           `json:"last_name_attribute,omitempty"`
+	NameIdFormat      *SamlNameIdFormat `json:"name_id_format,omitempty"`
+
+	// PrincipalAttribute Assertion attribute identifying the user. Absent means the Subject NameID.
+	PrincipalAttribute *string `json:"principal_attribute,omitempty"`
+
+	// SigningCertificates X.509 certificates the assertions are signed with, as PEM or base64 DER.
+	// At least one: unsigned assertions are refused. Read back as base64 DER.
+	SigningCertificates    []string `json:"signing_certificates"`
+	SingleLogoutServiceUrl *string  `json:"single_logout_service_url,omitempty"`
+	SingleSignOnServiceUrl string   `json:"single_sign_on_service_url"`
+
+	// SpEntityId Entity ID presented to the provider. Absent means the organization realm's
+	// issuer URL (`<keycloak>/realms/<organization>`).
+	SpEntityId *string `json:"sp_entity_id,omitempty"`
+}
+
 // SavedQueriesPage One page of `GET /api/v1/tiny-query/queries`.
 //
 // Shape mirrors `PipelinesPage` (`data`/`total`/`page`/`limit`) — same
@@ -20319,6 +22498,9 @@ type ScanSummary struct {
 // `ScanTrigger` carried on the `RegistryScan` CRD (`hf_lib_domain_core`); kept
 // as a separate console-DB enum so the domain crate takes no console dep.
 type ScanTrigger string
+
+// ScannerKind The vulnerability scanner backend a scan runs with.
+type ScannerKind string
 
 // ScheduleState A saved query's cron schedule and everything about its scheduled
 // execution — grouped into one type so "does this query have a schedule"
@@ -20499,6 +22681,12 @@ type SecretMetadataResponse struct {
 	Tags       []string   `json:"tags"`
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
+
+// SecretOrigin Who created a secret, as a list filter. Separates the credentials the
+// operator provisions for platform services (DBaaS users, Ceph keys, KV cache,
+// mail accounts) from the ones people add, which `secret_type` cannot: both
+// are `plaintext`.
+type SecretOrigin string
 
 // SecretRef A Passe-Partout secret, addressed the way the secret store addresses one:
 // `organizations/{organization_id}/{secret_id}`.
@@ -20903,6 +23091,13 @@ type SetKeyBudgetBody struct {
 	Window SpendWindow `json:"window"`
 }
 
+// SetManagedPostgresqlExtensionsRequestBody defines model for SetManagedPostgresqlExtensionsRequestBody.
+type SetManagedPostgresqlExtensionsRequestBody struct {
+	// Extensions The complete declared list. An installed extension left out of it stays
+	// installed and is reported `unmanaged`; dropping is `ensure: absent`.
+	Extensions []ExtensionRequestItem `json:"extensions"`
+}
+
 // SetOrgSettingsBody defines model for SetOrgSettingsBody.
 type SetOrgSettingsBody struct {
 	ScanIntervalHours *int32 `json:"scan_interval_hours,omitempty"`
@@ -20950,6 +23145,9 @@ type SetUserAttributesRequest struct {
 
 // SetupOutcome Verdict on the LATEST template-setup run of the workstation's pod.
 type SetupOutcome string
+
+// Severity Finding severity, ordered so `>=` means "at least as severe".
+type Severity string
 
 // Sha256HashDedupingStrategy defines model for Sha256HashDedupingStrategy.
 type Sha256HashDedupingStrategy struct {
@@ -21025,6 +23223,19 @@ type SharedModelResponse struct {
 
 	// Cpu CPU resources
 	Cpu string `json:"cpu"`
+
+	// DecisionPriceMicroCredits Price of one decision in micro-credits, as the gateway bills it: the
+	// serving's own price, else the gateway default for a decision model. A
+	// decision flavor carries its active target's. `null` when no decision
+	// price applies to the row.
+	DecisionPriceMicroCredits *int64 `json:"decision_price_micro_credits,omitempty"`
+
+	// DecisionSurfaces Decision surfaces the serving declares (`systemone`, `chat-logprobs`,
+	// `score`); a decision flavor carries its active target's. Empty for a
+	// model that declares none — a generation model still answers decisions
+	// through `chat-logprobs` without declaring it. `serde(default)` so a
+	// gateway that predates decision models parses as "none declared".
+	DecisionSurfaces *[]DecisionSurface `json:"decision_surfaces,omitempty"`
 
 	// Endpoint Endpoint URL
 	Endpoint *string `json:"endpoint,omitempty"`
@@ -21176,7 +23387,7 @@ type SignalThresholdsDto struct {
 	CriticalIsOverride bool  `json:"critical_is_override"`
 	CriticalPct        int32 `json:"critical_pct"`
 
-	// Signal `pvc_disk` | `bucket_quota`. `cfs_throttling` never appears here — its
+	// Signal `pvc_disk` | `bucket_quota` | `storage_limit`. `cfs_throttling` never appears here — its
 	// threshold is fixed platform-wide (see `AlertSignal::is_overridable`).
 	Signal            string `json:"signal"`
 	WarningIsOverride bool   `json:"warning_is_override"`
@@ -21420,6 +23631,95 @@ type StartHealthScanResponse struct {
 	Scan IcebergHealthScan `json:"scan"`
 }
 
+// StorageLimitCell One cell of the organization's limits.
+type StorageLimitCell struct {
+	Backend *string `json:"backend,omitempty"`
+
+	// Effective What applies, `-1` = unlimited. Absent: no limit at this cell.
+	Effective *int64 `json:"effective,omitempty"`
+
+	// Inert The key names a backend this cluster does not have: the limit is
+	// inert (a plan is platform-wide, so this is legal, just worth a look).
+	Inert bool `json:"inert"`
+
+	// Key The key in `storage_limits`, e.g. `by_backend.ceph-block`.
+	Key string `json:"key"`
+
+	// OverLimit Usage is above the effective limit (a limit lowered below what is in
+	// use). Nothing is deleted; the cell just cannot grow.
+	OverLimit bool `json:"over_limit"`
+
+	// OverrideLimit The organization's override, `-1` = unlimited. Absent: none, or the
+	// view carries no plan provenance.
+	OverrideLimit *int64 `json:"override_limit,omitempty"`
+
+	// Plan The plan's value, `-1` = unlimited. Absent: the plan sets none, or the
+	// view carries no plan provenance.
+	Plan *int64 `json:"plan,omitempty"`
+
+	// Product A product whose volumes the catalogue places. The wire form is the variant
+	// name (PascalCase, no `rename_all`).
+	Product *VolumeProduct `json:"product,omitempty"`
+
+	// Scope The level a cell sits at.
+	Scope  StorageLimitScope `json:"scope"`
+	Status QuotaStatus       `json:"status"`
+
+	// Unit `GiB` or `volumes`.
+	Unit string `json:"unit"`
+
+	// Usage What is in use at this cell. Absent for `max_volume_gb` (a per-volume
+	// ceiling has no running total).
+	Usage *int64 `json:"usage,omitempty"`
+}
+
+// StorageLimitMatrix The matrix of one organization.
+type StorageLimitMatrix struct {
+	// Backends Every backend a row is shown for, in order: the cluster's backends,
+	// then any other backend a limit or a volume names.
+	Backends []string           `json:"backends"`
+	Cells    []StorageLimitCell `json:"cells"`
+
+	// Harbors One entry per budgeted harbor.
+	Harbors        []HarborBudgetView `json:"harbors"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// Products The products counted in storage limits.
+	Products []VolumeProduct `json:"products"`
+
+	// UnplacedGib GiB of volumes whose backend is not resolved yet (a legacy class, or a
+	// row the operator has not registered). They count in every level that
+	// names no backend.
+	UnplacedGib int64 `json:"unplaced_gib"`
+}
+
+// StorageLimitScope The level a cell sits at.
+type StorageLimitScope string
+
+// StorageLimits Granular volume limits of an organization: on a plan
+// (`quota_profiles.storage_limits`) and, merged per key on top of it, in the
+// org's `custom_limits.storage_limits`. GiB values, `-1` = unlimited.
+//
+// Backend keys are backend ids (DNS-1123 labels). A key naming no backend of
+// this cluster is inert: a plan is platform-wide. Product keys are the D5
+// product names; only [`VolumeProduct::COUNTED`] products are accepted.
+type StorageLimits struct {
+	// ByBackend GiB per backend id, every counted product together.
+	ByBackend *map[string]int64 `json:"by_backend,omitempty"`
+
+	// ByBackendProduct GiB per product on one backend: `{ backend: { product: GiB } }`.
+	ByBackendProduct *map[string]map[string]int64 `json:"by_backend_product,omitempty"`
+
+	// ByProduct GiB per product, every backend together.
+	ByProduct *map[string]int64 `json:"by_product,omitempty"`
+
+	// MaxVolumeGb Largest single volume, in GiB (no instance/replica multiplier).
+	MaxVolumeGb *int64 `json:"max_volume_gb,omitempty"`
+
+	// MaxVolumes Number of volumes (each instance, broker or per-replica claim counts).
+	MaxVolumes *int64 `json:"max_volumes,omitempty"`
+}
+
 // StorageZoneView A `cephZones` catalog entry joined with whether the org has enabled it.
 type StorageZoneView struct {
 	Description *string       `json:"description,omitempty"`
@@ -21573,6 +23873,129 @@ type SyncImageSourceResponse struct {
 // SyncPolicy Whether a check rolls a changed entry out on its own (Argo CD's automated
 // vs manual sync). Absent means `auto`.
 type SyncPolicy string
+
+// SystemOneAnswer defines model for SystemOneAnswer.
+type SystemOneAnswer struct {
+	union json.RawMessage
+}
+
+// SystemOneAnswer0 defines model for .
+type SystemOneAnswer0 struct {
+	// Choice The most probable choice name (the first one on a tie).
+	Choice     string  `json:"choice"`
+	Confidence float64 `json:"confidence"`
+
+	// Probabilities Every choice of the question, keyed by name, summing to 1.
+	Probabilities map[string]float64   `json:"probabilities"`
+	Type          SystemOneAnswer0Type `json:"type"`
+}
+
+// SystemOneAnswer0Type defines model for SystemOneAnswer.0.Type.
+type SystemOneAnswer0Type string
+
+// SystemOneAnswer1 defines model for .
+type SystemOneAnswer1 struct {
+	// Noul P(yes).
+	Noul float64              `json:"noul"`
+	Type SystemOneAnswer1Type `json:"type"`
+}
+
+// SystemOneAnswer1Type defines model for SystemOneAnswer.1.Type.
+type SystemOneAnswer1Type string
+
+// SystemOneAnswer2 defines model for .
+type SystemOneAnswer2 struct {
+	Confidence float64 `json:"confidence"`
+
+	// Legend Level index (`"0"`, `"1"`, …) → the requested level.
+	Legend map[string]interface{} `json:"legend"`
+
+	// Probabilities Level index → probability, summing to 1.
+	Probabilities map[string]float64 `json:"probabilities"`
+
+	// Score Expected level: the probability-weighted average of the level indexes.
+	Score float64              `json:"score"`
+	Type  SystemOneAnswer2Type `json:"type"`
+}
+
+// SystemOneAnswer2Type defines model for SystemOneAnswer.2.Type.
+type SystemOneAnswer2Type string
+
+// SystemOneQuestion `instructions` and every description accept a string, an object or an
+// array; a non-string is read as its JSON text.
+type SystemOneQuestion struct {
+	union json.RawMessage
+}
+
+// SystemOneQuestion0 defines model for .
+type SystemOneQuestion0 struct {
+	// Criteria Choice name → description of when it applies (`null`: the name alone).
+	Criteria     *map[string]interface{} `json:"criteria,omitempty"`
+	Instructions interface{}             `json:"instructions,omitempty"`
+	Type         SystemOneQuestion0Type  `json:"type"`
+}
+
+// SystemOneQuestion0Type defines model for SystemOneQuestion.0.Type.
+type SystemOneQuestion0Type string
+
+// SystemOneQuestion1 defines model for .
+type SystemOneQuestion1 struct {
+	Criteria     *NoulCriteria          `json:"criteria,omitempty"`
+	Instructions interface{}            `json:"instructions,omitempty"`
+	Type         SystemOneQuestion1Type `json:"type"`
+}
+
+// SystemOneQuestion1Type defines model for SystemOneQuestion.1.Type.
+type SystemOneQuestion1Type string
+
+// SystemOneQuestion2 defines model for .
+type SystemOneQuestion2 struct {
+	// Criteria Rubric levels, lowest first: a level's position is its score.
+	Criteria     *[]interface{}         `json:"criteria,omitempty"`
+	Instructions interface{}            `json:"instructions,omitempty"`
+	Type         SystemOneQuestion2Type `json:"type"`
+}
+
+// SystemOneQuestion2Type defines model for SystemOneQuestion.2.Type.
+type SystemOneQuestion2Type string
+
+// SystemOneRequest TypeSafe's `SystemOneRequest`: named questions about one state.
+type SystemOneRequest struct {
+	// Assets Not supported: a request carrying assets is refused.
+	Assets interface{} `json:"assets,omitempty"`
+
+	// Model Required on the org-scoped surface; ignored on per-model routes.
+	Model *string `json:"model,omitempty"`
+
+	// Questions Question name → question, asked and answered in this order.
+	Questions map[string]SystemOneQuestion `json:"questions"`
+
+	// State A string, or an object or array sent to the model as its JSON text.
+	State interface{} `json:"state"`
+}
+
+// SystemOneResponse TypeSafe's `SystemOneResponse`, plus Hyperfluid's `id`, `object` and
+// `usage.decisions`.
+type SystemOneResponse struct {
+	// Answers Keyed by question name, in request order.
+	Answers map[string]SystemOneAnswer `json:"answers"`
+
+	// Id Hyperfluid: `dec-<uuid v4>`, the gateway request id.
+	Id    *string `json:"id,omitempty"`
+	Model string  `json:"model"`
+
+	// Object Hyperfluid: always `decision`.
+	Object *string        `json:"object,omitempty"`
+	Usage  SystemOneUsage `json:"usage"`
+}
+
+// SystemOneUsage defines model for SystemOneUsage.
+type SystemOneUsage struct {
+	// Decisions Hyperfluid: the number of answered questions, the billed unit.
+	Decisions    *int32 `json:"decisions,omitempty"`
+	InputTokens  int64  `json:"input_tokens"`
+	OutputTokens int64  `json:"output_tokens"`
+}
 
 // TableClassificationResponse Response for a table classification.
 type TableClassificationResponse struct {
@@ -22195,7 +24618,14 @@ type UpdateAiAgentRequest struct {
 	Budgets     *AiAgentBudgetsDto      `json:"budgets,omitempty"`
 	Context     *string                 `json:"context,omitempty"`
 	DataSources *[]AiAgentDataSourceDto `json:"data_sources,omitempty"`
-	Description *string                 `json:"description,omitempty"`
+
+	// Decisions Decision models the agent consults (decision-models.md section 6.2).
+	//
+	// `routing` is accepted on a routing agent only, `grounding` on an agent that can
+	// retrieve content (`search` or `query`). A threshold left out is the runtime's
+	// constant (routing 0.80, grounding 0.50) and is never filled in here.
+	Decisions   *AiAgentDecisionsDto `json:"decisions,omitempty"`
+	Description *string              `json:"description,omitempty"`
 
 	// DesiredState Whether the agent should be running. Stopping and starting is user-driven,
 	// exactly like a container app: there is no autoscaler and no wake-on-request,
@@ -22574,7 +25004,8 @@ type UpdateGroupRequestBody struct {
 
 // UpdateIdentityProviderRequest defines model for UpdateIdentityProviderRequest.
 type UpdateIdentityProviderRequest struct {
-	ClientId string `json:"client_id"`
+	// ClientId Required for `github`, `google` and `oidc`; must be absent for `saml`.
+	ClientId *string `json:"client_id,omitempty"`
 
 	// ClientSecret Optional on update — when omitted or empty, the secret already stored in
 	// Keycloak is left untouched.
@@ -22582,6 +25013,9 @@ type UpdateIdentityProviderRequest struct {
 	DisplayName  string  `json:"display_name"`
 	Enabled      *bool   `json:"enabled,omitempty"`
 	OidcBaseUrl  *string `json:"oidc_base_url,omitempty"`
+
+	// Saml A SAML 2.0 upstream provider (Microsoft Entra ID, ADFS, Okta…).
+	Saml *SamlSettings `json:"saml,omitempty"`
 }
 
 // UpdateKafkaHFServiceRequest defines model for UpdateKafkaHFServiceRequest.
@@ -23014,20 +25448,19 @@ type UploadManagedPostgresqlImportResponse struct {
 // UpsertOptimizeConfigRequest defines model for UpsertOptimizeConfigRequest.
 type UpsertOptimizeConfigRequest struct {
 	// AnalyzeStatisticsEnabled Collect table statistics with `ANALYZE` on every run. Off by default.
-	AnalyzeStatisticsEnabled   *bool     `json:"analyze_statistics_enabled,omitempty"`
-	CompactFilesEnabled        *bool     `json:"compact_files_enabled,omitempty"`
-	CompactFilesSizeThreshold  *string   `json:"compact_files_size_threshold,omitempty"`
-	ExcludePatterns            *[]string `json:"exclude_patterns,omitempty"`
-	ExpireSnapshotsEnabled     *bool     `json:"expire_snapshots_enabled,omitempty"`
-	ExpireSnapshotsRetention   *string   `json:"expire_snapshots_retention,omitempty"`
-	IncludePatterns            *[]string `json:"include_patterns,omitempty"`
-	MaxDurationMinutes         *int32    `json:"max_duration_minutes,omitempty"`
-	MaxParallelTables          *int32    `json:"max_parallel_tables,omitempty"`
-	RemoveOrphanFilesEnabled   *bool     `json:"remove_orphan_files_enabled,omitempty"`
-	RemoveOrphanFilesRetention *string   `json:"remove_orphan_files_retention,omitempty"`
-	Schedule                   *string   `json:"schedule,omitempty"`
-	SkipUnchanged              *bool     `json:"skip_unchanged,omitempty"`
-	Suspend                    *bool     `json:"suspend,omitempty"`
+	AnalyzeStatisticsEnabled  *bool     `json:"analyze_statistics_enabled,omitempty"`
+	CompactFilesEnabled       *bool     `json:"compact_files_enabled,omitempty"`
+	CompactFilesSizeThreshold *string   `json:"compact_files_size_threshold,omitempty"`
+	ExcludePatterns           *[]string `json:"exclude_patterns,omitempty"`
+	ExpireSnapshotsEnabled    *bool     `json:"expire_snapshots_enabled,omitempty"`
+	ExpireSnapshotsRetention  *string   `json:"expire_snapshots_retention,omitempty"`
+	IncludePatterns           *[]string `json:"include_patterns,omitempty"`
+	MaxDurationMinutes        *int32    `json:"max_duration_minutes,omitempty"`
+	MaxParallelTables         *int32    `json:"max_parallel_tables,omitempty"`
+	RemoveOrphanFilesEnabled  *bool     `json:"remove_orphan_files_enabled,omitempty"`
+	Schedule                  *string   `json:"schedule,omitempty"`
+	SkipUnchanged             *bool     `json:"skip_unchanged,omitempty"`
+	Suspend                   *bool     `json:"suspend,omitempty"`
 }
 
 // UsageSource Which store backs a consumption read.
@@ -23040,6 +25473,9 @@ type UsageSource string
 
 // UsageSummary Aggregate token totals for a query window.
 type UsageSummary struct {
+	// Decisions Decisions answered in the window: one per question of a successful
+	// decision request.
+	Decisions    int64 `json:"decisions"`
 	InputTokens  int64 `json:"input_tokens"`
 	OutputTokens int64 `json:"output_tokens"`
 	RequestCount int64 `json:"request_count"`
@@ -23093,6 +25529,53 @@ type Value = interface{}
 
 // ValueFormat How a numeric cell is displayed (issue #2959).
 type ValueFormat string
+
+// VerdictEvidence What a detector saw. Counts, the window and query fingerprint hashes only:
+// never SQL text and never table names.
+type VerdictEvidence struct {
+	union json.RawMessage
+}
+
+// VerdictEvidence0 defines model for .
+type VerdictEvidence0 struct {
+	// Count How many times it ran inside the window.
+	Count int32 `json:"count"`
+
+	// Fingerprint `sql_fingerprint_hash` of the repeated query.
+	Fingerprint string               `json:"fingerprint"`
+	Rule        VerdictEvidence0Rule `json:"rule"`
+
+	// Threshold The `loop_per_minute` threshold in force.
+	Threshold   int32     `json:"threshold"`
+	WindowEnd   time.Time `json:"window_end"`
+	WindowStart time.Time `json:"window_start"`
+}
+
+// VerdictEvidence0Rule defines model for VerdictEvidence.0.Rule.
+type VerdictEvidence0Rule string
+
+// VerdictEvidence1 defines model for .
+type VerdictEvidence1 struct {
+	// Baseline Mean distinct tables per ten-minute window over the previous seven
+	// days (0 when the account has no history).
+	Baseline float64 `json:"baseline"`
+
+	// DistinctTables Distinct tables touched inside the window.
+	DistinctTables int32                `json:"distinct_tables"`
+	Rule           VerdictEvidence1Rule `json:"rule"`
+
+	// Threshold `max(sweep_floor, ceil(sweep_factor × baseline))`.
+	Threshold   int32     `json:"threshold"`
+	WindowEnd   time.Time `json:"window_end"`
+	WindowStart time.Time `json:"window_start"`
+}
+
+// VerdictEvidence1Rule defines model for VerdictEvidence.1.Rule.
+type VerdictEvidence1Rule string
+
+// VerdictRule The detector that produced a verdict. The wire names are the `rule` column
+// and what OPA reports in `agent_verdicts[<subject>].rule`.
+type VerdictRule string
 
 // VerifySignupRequestBody defines model for VerifySignupRequestBody.
 type VerifySignupRequestBody struct {
@@ -23252,6 +25735,70 @@ type VirtualMachinesPage struct {
 
 // VmImageKind How a VM uses an image.
 type VmImageKind string
+
+// VolumeAccessMode An access mode a StorageClass's driver serves, Kubernetes spelling on the
+// wire.
+type VolumeAccessMode string
+
+// VolumeBackendDefault The backend a volume of the product lands on when the request names none.
+type VolumeBackendDefault struct {
+	Backend string `json:"backend"`
+
+	// Level The catalogue level a default comes from (ADR-0056 D5 levels 2-4). Levels
+	// 5-6 (Helm fallback, cluster default) are reported as no default: the
+	// platform chooses.
+	Level VolumeDefaultLevel `json:"level"`
+}
+
+// VolumeBackendListing What `GET …/volume-backends` answers.
+type VolumeBackendListing struct {
+	// Catalogue Whether the catalogue drives placement (ADR-0056 D8). One switch, from the
+	// Helm value `volumeStorage.catalogue`, read by the operator, the console
+	// and the cockpit.
+	Catalogue CatalogueMode `json:"catalogue"`
+
+	// Default The backend a volume of the product lands on when the request names none.
+	Default *VolumeBackendDefault `json:"default,omitempty"`
+
+	// Items The backends granted to the organization (in the harbor, when one is
+	// named) that fit the product (any product when none is named), by id.
+	Items []VolumeBackendView `json:"items"`
+}
+
+// VolumeBackendView One backend a tenant may pick.
+type VolumeBackendView struct {
+	AccessModes []VolumeAccessMode `json:"access_modes"`
+
+	// Description Written by the platform administrator, shown as is.
+	Description *string `json:"description,omitempty"`
+	DisplayName string  `json:"display_name"`
+
+	// Harbors The organization's harbors (slugs) the grant restricts the backend
+	// to; `null` means every harbor.
+	Harbors *[]string `json:"harbors,omitempty"`
+	Id      string    `json:"id"`
+
+	// IsDefault The backend is the `default` below.
+	IsDefault bool `json:"is_default"`
+
+	// Ready The operator declared the backend `Ready`. A backend that is not is
+	// listed, but a create naming it is refused.
+	Ready       bool         `json:"ready"`
+	VolumeModes []VolumeMode `json:"volume_modes"`
+}
+
+// VolumeDefaultLevel The catalogue level a default comes from (ADR-0056 D5 levels 2-4). Levels
+// 5-6 (Helm fallback, cluster default) are reported as no default: the
+// platform chooses.
+type VolumeDefaultLevel string
+
+// VolumeMode A volume mode a StorageClass's driver serves, Kubernetes spelling on the
+// wire.
+type VolumeMode string
+
+// VolumeProduct A product whose volumes the catalogue places. The wire form is the variant
+// name (PascalCase, no `rename_all`).
+type VolumeProduct string
 
 // VulnerabilityCounts Per-severity finding counts for one scanned digest. v1 is informational only
 // (the blocking quality gate is a v2.x follow-up).
@@ -23455,6 +26002,12 @@ type WorkstationAgentRequestLog struct {
 // (the shape opencode's `/find/file` returns); `name` is the basename, derived
 // here so the frontend doesn't have to split paths.
 type WorkstationFile struct {
+	// IsDir True for an EMPTY folder. The tree infers every other folder from the
+	// file paths nested under it, so only a folder with nothing inside (just
+	// created from the tree, say) needs its own entry. Always false in search
+	// results.
+	IsDir *bool `json:"is_dir,omitempty"`
+
 	// Name Basename, e.g. `main.rs`.
 	Name string `json:"name"`
 
@@ -23612,7 +26165,12 @@ type WriteFileRequest struct {
 	// has diverged since (the agent or terminal edited it). Omit to force-write.
 	BaseHash *string `json:"base_hash,omitempty"`
 	Content  string  `json:"content"`
-	Path     string  `json:"path"`
+
+	// CreateOnly Create a NEW file: the write is rejected with 409 when anything already
+	// exists at `path`, so "new file" in the tree can never clobber a file the
+	// listing does not show (an ignored `.env`, say).
+	CreateOnly *bool  `json:"create_only,omitempty"`
+	Path       string `json:"path"`
 
 	// Repo Clone directory of the repository `path` is relative to. Absent = the
 	// primary repository.
@@ -23656,6 +26214,17 @@ type ListScmRepositoriesParams struct {
 	// active ones, and the picker is a closed list with no way to type the path
 	// in by hand.
 	Q *string `form:"q,omitempty" json:"q,omitempty"`
+}
+
+// DeletePathParams defines parameters for DeletePath.
+type DeletePathParams struct {
+	// Path Repo-relative path.
+	Path string `form:"path" json:"path"`
+
+	// Repo Clone directory of the repository the path is relative to, as returned by
+	// `GET /api/dev/workstations/{id}/repositories`. Absent = the primary
+	// repository, which is what a single-repo workstation always resolves to.
+	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
 }
 
 // ReadFileParams defines parameters for ReadFile.
@@ -24675,6 +27244,58 @@ type GetHfKeyValueCacheMetricsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
 }
 
+// GetHfRabbitmqLogsParams defines parameters for GetHfRabbitmqLogs.
+type GetHfRabbitmqLogsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+
+	// Search Optional free-text search term, matched against the log message.
+	// Embedded as an escaped, case-insensitive LogsQL regex filter — never
+	// raw query syntax. Interpreted according to `search_mode`.
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+
+	// SearchMode How to interpret `search`: `text` (default, case-insensitive substring)
+	// or `regex` (a validated RE2 pattern). Ignored when `search` is empty.
+	SearchMode *SearchMode `form:"search_mode,omitempty" json:"search_mode,omitempty"`
+
+	// Pod Optional exact `kubernetes.pod_name` source filter (one entry from the
+	// `sources` facet). Validated as a plausible k8s name and embedded as an
+	// exact `:=` filter.
+	Pod *string `form:"pod,omitempty" json:"pod,omitempty"`
+
+	// Container Optional exact `kubernetes.container_name` source filter (one entry from
+	// the `sources` facet). Validated as a plausible k8s name and embedded as
+	// an exact `:=` filter.
+	Container *string `form:"container,omitempty" json:"container,omitempty"`
+
+	// Stream Optional CRI stream filter (`stdout` | `stderr`). Maps to a static exact
+	// `stream:="…"` LogsQL filter.
+	Stream *LogStream `form:"stream,omitempty" json:"stream,omitempty"`
+
+	// Level Optional severity filter. Maps to a static case-insensitive
+	// prefix-token LogsQL clause over the unstructured message text
+	// (heuristic — see ADR-0020; false positives accepted).
+	Level *LogLevel `form:"level,omitempty" json:"level,omitempty"`
+
+	// Start Optional custom window start (unix epoch SECONDS). When BOTH `start`
+	// and `end` are provided they define the query window and `range` is
+	// ignored; otherwise `range` applies. The effective (possibly
+	// org-retention-clamped) window is echoed back in the response
+	// `start`/`end` fields.
+	Start *int64 `form:"start,omitempty" json:"start,omitempty"`
+
+	// End Optional custom window end (unix epoch SECONDS). See `start`. May be
+	// slightly in the future (client clock slack); it is clamped to "now".
+	End *int64 `form:"end,omitempty" json:"end,omitempty"`
+
+	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetHfRabbitmqMetricsParams defines parameters for GetHfRabbitmqMetrics.
+type GetHfRabbitmqMetricsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+}
+
 // GetKafkaLogsParams defines parameters for GetKafkaLogs.
 type GetKafkaLogsParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
@@ -25097,8 +27718,13 @@ type ListSecretsParams struct {
 	// secrets directly in it; its sub-folders come back as `common_prefixes`.
 	Prefix     *string     `form:"prefix,omitempty" json:"prefix,omitempty"`
 	SecretType *SecretType `form:"secret_type,omitempty" json:"secret_type,omitempty"`
-	Limit      *int64      `form:"limit,omitempty" json:"limit,omitempty"`
-	Offset     *int64      `form:"offset,omitempty" json:"offset,omitempty"`
+
+	// Origin `user` keeps the secrets people created; `platform` keeps the
+	// credentials the operator provisions for platform services (DBaaS, Ceph,
+	// KV cache, mail). Omitted = both.
+	Origin *SecretOrigin `form:"origin,omitempty" json:"origin,omitempty"`
+	Limit  *int64        `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset *int64        `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // CountSecretsParams defines parameters for CountSecrets.
@@ -25108,7 +27734,13 @@ type CountSecretsParams struct {
 
 	// Prefix Folder to count (e.g. `my-app/staging`, trailing `/` optional): only the
 	// secrets directly in it, not those of its sub-folders.
-	Prefix *string `form:"prefix,omitempty" json:"prefix,omitempty"`
+	Prefix     *string     `form:"prefix,omitempty" json:"prefix,omitempty"`
+	SecretType *SecretType `form:"secret_type,omitempty" json:"secret_type,omitempty"`
+
+	// Origin `user` counts the secrets people created; `platform` the credentials
+	// the operator provisions. Omitted = both. Same filters, same semantics
+	// as `list_secrets`'s `total`.
+	Origin *SecretOrigin `form:"origin,omitempty" json:"origin,omitempty"`
 }
 
 // DeleteDirectoryParams defines parameters for DeleteDirectory.
@@ -25175,6 +27807,23 @@ type ListVirtualMachineUsersParams struct {
 	// Search Case-insensitive substring match on the username. Absent matches every
 	// username.
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
+}
+
+// ListVolumeBackendsParams defines parameters for ListVolumeBackends.
+type ListVolumeBackendsParams struct {
+	// Harbor Harbor id. Absent: every backend granted to the organization, each
+	// with the harbors its grant restricts it to.
+	Harbor *openapi_types.UUID `form:"harbor,omitempty" json:"harbor,omitempty"`
+
+	// Product Keep only the backends whose declared modes serve this product, and
+	// report its default. Absent: no mode filter and no default.
+	Product *VolumeProduct `form:"product,omitempty" json:"product,omitempty"`
+}
+
+// ListOrgCveEnforcementsParams defines parameters for ListOrgCveEnforcements.
+type ListOrgCveEnforcementsParams struct {
+	// IncludeReleased Only violations still open (default true).
+	IncludeReleased *bool `form:"include_released,omitempty" json:"include_released,omitempty"`
 }
 
 // GetAuditLogHandlerParams defines parameters for GetAuditLogHandler.
@@ -25421,6 +28070,9 @@ type UpdateDevWorkstationJSONRequestBody = UpdateDevWorkstationRequest
 // WriteFileJSONRequestBody defines body for WriteFile for application/json ContentType.
 type WriteFileJSONRequestBody = WriteFileRequest
 
+// CreateFolderJSONRequestBody defines body for CreateFolder for application/json ContentType.
+type CreateFolderJSONRequestBody = CreateFolderRequest
+
 // GitCheckoutJSONRequestBody defines body for GitCheckout for application/json ContentType.
 type GitCheckoutJSONRequestBody = CheckoutRequest
 
@@ -25465,6 +28117,9 @@ type UpdateDevWorkstationSkillRegistriesJSONRequestBody = UpdateWorkstationSkill
 
 // RenameDevWorkstationTerminalJSONRequestBody defines body for RenameDevWorkstationTerminal for application/json ContentType.
 type RenameDevWorkstationTerminalJSONRequestBody = RenameTerminalRequest
+
+// AcknowledgeChangelogsHandlerJSONRequestBody defines body for AcknowledgeChangelogsHandler for application/json ContentType.
+type AcknowledgeChangelogsHandlerJSONRequestBody = AcknowledgeChangelogsRequest
 
 // UpdateContextProviderHandlerJSONRequestBody defines body for UpdateContextProviderHandler for application/json ContentType.
 type UpdateContextProviderHandlerJSONRequestBody = UpdateContextProviderBody
@@ -25603,6 +28258,9 @@ type CreateKafkaHfServiceJSONRequestBody = CreateKafkaHFServiceRequest
 
 // CheckAccessJSONRequestBody defines body for CheckAccess for application/json ContentType.
 type CheckAccessJSONRequestBody = AccessCheckRequestBody
+
+// LiftAgentVerdictJSONRequestBody defines body for LiftAgentVerdict for application/json ContentType.
+type LiftAgentVerdictJSONRequestBody = LiftAgentVerdictBody
 
 // CreateAiAgentJSONRequestBody defines body for CreateAiAgent for application/json ContentType.
 type CreateAiAgentJSONRequestBody = CreateAiAgentRequest
@@ -25748,6 +28406,9 @@ type UpdateGithubRunnerJSONRequestBody = UpdateGithubRunnerRequest
 // CreateHfKeyValueCacheCrdJSONRequestBody defines body for CreateHfKeyValueCacheCrd for application/json ContentType.
 type CreateHfKeyValueCacheCrdJSONRequestBody = CreateHfKeyValueCacheCrdRequestBody
 
+// CreateHfRabbitmqCrdJSONRequestBody defines body for CreateHfRabbitmqCrd for application/json ContentType.
+type CreateHfRabbitmqCrdJSONRequestBody = CreateHfRabbitMqCrdRequestBody
+
 // CreateManagedPostgresqlCrdJSONRequestBody defines body for CreateManagedPostgresqlCrd for application/json ContentType.
 type CreateManagedPostgresqlCrdJSONRequestBody = CreateManagedPostgresqlCrdRequestBody
 
@@ -25760,14 +28421,23 @@ type CreateRegistryProjectJSONRequestBody = CreateRegistryProjectRequestBody
 // CreateServiceLinkJSONRequestBody defines body for CreateServiceLink for application/json ContentType.
 type CreateServiceLinkJSONRequestBody = CreateServiceLinkRequestBody
 
+// PutStorageBudgetJSONRequestBody defines body for PutStorageBudget for application/json ContentType.
+type PutStorageBudgetJSONRequestBody = HarborStorageBudget
+
 // CreateVirtualMachineCrdJSONRequestBody defines body for CreateVirtualMachineCrd for application/json ContentType.
 type CreateVirtualMachineCrdJSONRequestBody = CreateVirtualMachineCrdRequestBody
 
 // PatchHfKeyValueCacheCrdJSONRequestBody defines body for PatchHfKeyValueCacheCrd for application/json ContentType.
 type PatchHfKeyValueCacheCrdJSONRequestBody = PatchHfKeyValueCacheCrdRequestBody
 
+// PatchHfRabbitmqCrdJSONRequestBody defines body for PatchHfRabbitmqCrd for application/json ContentType.
+type PatchHfRabbitmqCrdJSONRequestBody = PatchHfRabbitMqCrdRequestBody
+
 // CreateIdentityProviderJSONRequestBody defines body for CreateIdentityProvider for application/json ContentType.
 type CreateIdentityProviderJSONRequestBody = CreateIdentityProviderRequest
+
+// ImportSamlMetadataJSONRequestBody defines body for ImportSamlMetadata for application/json ContentType.
+type ImportSamlMetadataJSONRequestBody = ImportSamlMetadataRequest
 
 // UpdateIdentityProviderJSONRequestBody defines body for UpdateIdentityProvider for application/json ContentType.
 type UpdateIdentityProviderJSONRequestBody = UpdateIdentityProviderRequest
@@ -25786,6 +28456,9 @@ type PatchManagedPostgresqlUserCrdJSONRequestBody = PatchManagedPostgresqlUserCr
 
 // PatchManagedPostgresqlCrdJSONRequestBody defines body for PatchManagedPostgresqlCrd for application/json ContentType.
 type PatchManagedPostgresqlCrdJSONRequestBody = PatchManagedPostgresqlCrdRequestBody
+
+// SetManagedPostgresqlExtensionsJSONRequestBody defines body for SetManagedPostgresqlExtensions for application/json ContentType.
+type SetManagedPostgresqlExtensionsJSONRequestBody = SetManagedPostgresqlExtensionsRequestBody
 
 // CreateManagedPostgresqlBackupCrdJSONRequestBody defines body for CreateManagedPostgresqlBackupCrd for application/json ContentType.
 type CreateManagedPostgresqlBackupCrdJSONRequestBody = CreateManagedPostgresqlBackupCrdRequestBody
@@ -25807,6 +28480,9 @@ type CreateModelServingJSONRequestBody = CreateModelServingRequest
 
 // PatchModelServingJSONRequestBody defines body for PatchModelServing for application/json ContentType.
 type PatchModelServingJSONRequestBody = PatchModelServingRequest
+
+// DecideModelServingJSONRequestBody defines body for DecideModelServing for application/json ContentType.
+type DecideModelServingJSONRequestBody = SystemOneRequest
 
 // QueryContainerAppCustomMetricsJSONRequestBody defines body for QueryContainerAppCustomMetrics for application/json ContentType.
 type QueryContainerAppCustomMetricsJSONRequestBody = CustomMetricsQueryRequest
@@ -25853,6 +28529,9 @@ type SetServiceAccountAttributesHandlerJSONRequestBody = SetServiceAccountAttrib
 // CreateServiceAccountGrantJSONRequestBody defines body for CreateServiceAccountGrant for application/json ContentType.
 type CreateServiceAccountGrantJSONRequestBody = CreateGrantRequestBody
 
+// DecideSharedModelJSONRequestBody defines body for DecideSharedModel for application/json ContentType.
+type DecideSharedModelJSONRequestBody = SystemOneRequest
+
 // PatchOrgStorageJSONRequestBody defines body for PatchOrgStorage for application/json ContentType.
 type PatchOrgStorageJSONRequestBody = PatchOrgStorageRequest
 
@@ -25885,6 +28564,12 @@ type PatchVirtualMachineCrdJSONRequestBody = PatchVirtualMachineCrdRequestBody
 
 // CreateVirtualMachineUserCrdJSONRequestBody defines body for CreateVirtualMachineUserCrd for application/json ContentType.
 type CreateVirtualMachineUserCrdJSONRequestBody = CreateVirtualMachineUserCrdRequestBody
+
+// CreateOrgCvePolicyRuleJSONRequestBody defines body for CreateOrgCvePolicyRule for application/json ContentType.
+type CreateOrgCvePolicyRuleJSONRequestBody = CveRuleInput
+
+// UpdateOrgCvePolicyRuleJSONRequestBody defines body for UpdateOrgCvePolicyRule for application/json ContentType.
+type UpdateOrgCvePolicyRuleJSONRequestBody = CveRuleInput
 
 // RequestWorkloadRescanJSONRequestBody defines body for RequestWorkloadRescan for application/json ContentType.
 type RequestWorkloadRescanJSONRequestBody = OrgRescanRequestBody
@@ -26484,6 +29169,58 @@ func (t *AuditLogEvent) FromAuditLogEvent18(v AuditLogEvent18) error {
 
 // MergeAuditLogEvent18 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent18
 func (t *AuditLogEvent) MergeAuditLogEvent18(v AuditLogEvent18) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent19 returns the union data inside the AuditLogEvent as a AuditLogEvent19
+func (t AuditLogEvent) AsAuditLogEvent19() (AuditLogEvent19, error) {
+	var body AuditLogEvent19
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent19 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent19
+func (t *AuditLogEvent) FromAuditLogEvent19(v AuditLogEvent19) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent19 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent19
+func (t *AuditLogEvent) MergeAuditLogEvent19(v AuditLogEvent19) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent20 returns the union data inside the AuditLogEvent as a AuditLogEvent20
+func (t AuditLogEvent) AsAuditLogEvent20() (AuditLogEvent20, error) {
+	var body AuditLogEvent20
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent20 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent20
+func (t *AuditLogEvent) FromAuditLogEvent20(v AuditLogEvent20) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent20 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent20
+func (t *AuditLogEvent) MergeAuditLogEvent20(v AuditLogEvent20) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -27142,6 +29879,32 @@ func (t *CreatePipelineRequestV2) FromCreatePipelineRequestV210(v CreatePipeline
 
 // MergeCreatePipelineRequestV210 performs a merge with any union data inside the CreatePipelineRequestV2, using the provided CreatePipelineRequestV210
 func (t *CreatePipelineRequestV2) MergeCreatePipelineRequestV210(v CreatePipelineRequestV210) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsCreatePipelineRequestV211 returns the union data inside the CreatePipelineRequestV2 as a CreatePipelineRequestV211
+func (t CreatePipelineRequestV2) AsCreatePipelineRequestV211() (CreatePipelineRequestV211, error) {
+	var body CreatePipelineRequestV211
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromCreatePipelineRequestV211 overwrites any union data inside the CreatePipelineRequestV2 as the provided CreatePipelineRequestV211
+func (t *CreatePipelineRequestV2) FromCreatePipelineRequestV211(v CreatePipelineRequestV211) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeCreatePipelineRequestV211 performs a merge with any union data inside the CreatePipelineRequestV2, using the provided CreatePipelineRequestV211
+func (t *CreatePipelineRequestV2) MergeCreatePipelineRequestV211(v CreatePipelineRequestV211) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -28841,6 +31604,182 @@ func (t *SecurityPolicyValue) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsSystemOneAnswer0 returns the union data inside the SystemOneAnswer as a SystemOneAnswer0
+func (t SystemOneAnswer) AsSystemOneAnswer0() (SystemOneAnswer0, error) {
+	var body SystemOneAnswer0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneAnswer0 overwrites any union data inside the SystemOneAnswer as the provided SystemOneAnswer0
+func (t *SystemOneAnswer) FromSystemOneAnswer0(v SystemOneAnswer0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneAnswer0 performs a merge with any union data inside the SystemOneAnswer, using the provided SystemOneAnswer0
+func (t *SystemOneAnswer) MergeSystemOneAnswer0(v SystemOneAnswer0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSystemOneAnswer1 returns the union data inside the SystemOneAnswer as a SystemOneAnswer1
+func (t SystemOneAnswer) AsSystemOneAnswer1() (SystemOneAnswer1, error) {
+	var body SystemOneAnswer1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneAnswer1 overwrites any union data inside the SystemOneAnswer as the provided SystemOneAnswer1
+func (t *SystemOneAnswer) FromSystemOneAnswer1(v SystemOneAnswer1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneAnswer1 performs a merge with any union data inside the SystemOneAnswer, using the provided SystemOneAnswer1
+func (t *SystemOneAnswer) MergeSystemOneAnswer1(v SystemOneAnswer1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSystemOneAnswer2 returns the union data inside the SystemOneAnswer as a SystemOneAnswer2
+func (t SystemOneAnswer) AsSystemOneAnswer2() (SystemOneAnswer2, error) {
+	var body SystemOneAnswer2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneAnswer2 overwrites any union data inside the SystemOneAnswer as the provided SystemOneAnswer2
+func (t *SystemOneAnswer) FromSystemOneAnswer2(v SystemOneAnswer2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneAnswer2 performs a merge with any union data inside the SystemOneAnswer, using the provided SystemOneAnswer2
+func (t *SystemOneAnswer) MergeSystemOneAnswer2(v SystemOneAnswer2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SystemOneAnswer) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SystemOneAnswer) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSystemOneQuestion0 returns the union data inside the SystemOneQuestion as a SystemOneQuestion0
+func (t SystemOneQuestion) AsSystemOneQuestion0() (SystemOneQuestion0, error) {
+	var body SystemOneQuestion0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneQuestion0 overwrites any union data inside the SystemOneQuestion as the provided SystemOneQuestion0
+func (t *SystemOneQuestion) FromSystemOneQuestion0(v SystemOneQuestion0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneQuestion0 performs a merge with any union data inside the SystemOneQuestion, using the provided SystemOneQuestion0
+func (t *SystemOneQuestion) MergeSystemOneQuestion0(v SystemOneQuestion0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSystemOneQuestion1 returns the union data inside the SystemOneQuestion as a SystemOneQuestion1
+func (t SystemOneQuestion) AsSystemOneQuestion1() (SystemOneQuestion1, error) {
+	var body SystemOneQuestion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneQuestion1 overwrites any union data inside the SystemOneQuestion as the provided SystemOneQuestion1
+func (t *SystemOneQuestion) FromSystemOneQuestion1(v SystemOneQuestion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneQuestion1 performs a merge with any union data inside the SystemOneQuestion, using the provided SystemOneQuestion1
+func (t *SystemOneQuestion) MergeSystemOneQuestion1(v SystemOneQuestion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSystemOneQuestion2 returns the union data inside the SystemOneQuestion as a SystemOneQuestion2
+func (t SystemOneQuestion) AsSystemOneQuestion2() (SystemOneQuestion2, error) {
+	var body SystemOneQuestion2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSystemOneQuestion2 overwrites any union data inside the SystemOneQuestion as the provided SystemOneQuestion2
+func (t *SystemOneQuestion) FromSystemOneQuestion2(v SystemOneQuestion2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSystemOneQuestion2 performs a merge with any union data inside the SystemOneQuestion, using the provided SystemOneQuestion2
+func (t *SystemOneQuestion) MergeSystemOneQuestion2(v SystemOneQuestion2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SystemOneQuestion) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SystemOneQuestion) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsUpdateDataDockRequestKind0 returns the union data inside the UpdateDataDockRequestKind as a UpdateDataDockRequestKind0
 func (t UpdateDataDockRequestKind) AsUpdateDataDockRequestKind0() (UpdateDataDockRequestKind0, error) {
 	var body UpdateDataDockRequestKind0
@@ -28935,6 +31874,68 @@ func (t UpdatePipelineConfigRequest) MarshalJSON() ([]byte, error) {
 }
 
 func (t *UpdatePipelineConfigRequest) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsVerdictEvidence0 returns the union data inside the VerdictEvidence as a VerdictEvidence0
+func (t VerdictEvidence) AsVerdictEvidence0() (VerdictEvidence0, error) {
+	var body VerdictEvidence0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromVerdictEvidence0 overwrites any union data inside the VerdictEvidence as the provided VerdictEvidence0
+func (t *VerdictEvidence) FromVerdictEvidence0(v VerdictEvidence0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeVerdictEvidence0 performs a merge with any union data inside the VerdictEvidence, using the provided VerdictEvidence0
+func (t *VerdictEvidence) MergeVerdictEvidence0(v VerdictEvidence0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsVerdictEvidence1 returns the union data inside the VerdictEvidence as a VerdictEvidence1
+func (t VerdictEvidence) AsVerdictEvidence1() (VerdictEvidence1, error) {
+	var body VerdictEvidence1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromVerdictEvidence1 overwrites any union data inside the VerdictEvidence as the provided VerdictEvidence1
+func (t *VerdictEvidence) FromVerdictEvidence1(v VerdictEvidence1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeVerdictEvidence1 performs a merge with any union data inside the VerdictEvidence, using the provided VerdictEvidence1
+func (t *VerdictEvidence) MergeVerdictEvidence1(v VerdictEvidence1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t VerdictEvidence) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *VerdictEvidence) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -29100,6 +32101,9 @@ type ClientInterface interface {
 	// ListCatalog request
 	ListCatalog(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeletePath request
+	DeletePath(ctx context.Context, id openapi_types.UUID, params *DeletePathParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ReadFile request
 	ReadFile(ctx context.Context, id openapi_types.UUID, params *ReadFileParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -29110,6 +32114,11 @@ type ClientInterface interface {
 
 	// ListFiles request
 	ListFiles(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateFolderWithBody request with any body
+	CreateFolderWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFolder(ctx context.Context, id openapi_types.UUID, body CreateFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GitBranches request
 	GitBranches(ctx context.Context, id openapi_types.UUID, params *GitBranchesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -29299,6 +32308,11 @@ type ClientInterface interface {
 
 	// ListChangelogsHandler request
 	ListChangelogsHandler(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcknowledgeChangelogsHandlerWithBody request with any body
+	AcknowledgeChangelogsHandlerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AcknowledgeChangelogsHandler(ctx context.Context, body AcknowledgeChangelogsHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListRunnerFlavors request
 	ListRunnerFlavors(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -29817,6 +32831,14 @@ type ClientInterface interface {
 
 	CheckAccess(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAgentVerdicts request
+	ListAgentVerdicts(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// LiftAgentVerdictWithBody request with any body
+	LiftAgentVerdictWithBody(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	LiftAgentVerdict(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, body LiftAgentVerdictJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAiAgents request
 	ListAiAgents(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30327,6 +33349,14 @@ type ClientInterface interface {
 
 	CreateHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListHfRabbitmqs request
+	ListHfRabbitmqs(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateHfRabbitmqCrdWithBody request with any body
+	CreateHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListManagedPostgresqls request
 	ListManagedPostgresqls(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30413,6 +33443,17 @@ type ClientInterface interface {
 	// DeleteServiceLink request
 	DeleteServiceLink(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteStorageBudget request
+	DeleteStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStorageBudget request
+	GetStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutStorageBudgetWithBody request with any body
+	PutStorageBudgetWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body PutStorageBudgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListVirtualMachines request
 	ListVirtualMachines(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVirtualMachinesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30456,6 +33497,23 @@ type ClientInterface interface {
 
 	PatchHfKeyValueCacheCrd(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetHfRabbitmq request
+	GetHfRabbitmq(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteHfRabbitmqCrd request
+	DeleteHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqCrd request
+	GetHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchHfRabbitmqCrdWithBody request with any body
+	PatchHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateHfRabbitmqCredentials request
+	RotateHfRabbitmqCredentials(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListIdentityProviders request
 	ListIdentityProviders(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30463,6 +33521,11 @@ type ClientInterface interface {
 	CreateIdentityProviderWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateIdentityProvider(ctx context.Context, organizationId openapi_types.UUID, body CreateIdentityProviderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ImportSamlMetadataWithBody request with any body
+	ImportSamlMetadataWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ImportSamlMetadata(ctx context.Context, organizationId openapi_types.UUID, body ImportSamlMetadataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteIdentityProvider request
 	DeleteIdentityProvider(ctx context.Context, organizationId openapi_types.UUID, alias string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -30485,6 +33548,9 @@ type ClientInterface interface {
 
 	// RevokeInvitation request
 	RevokeInvitation(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateInvitationLink request
+	CreateInvitationLink(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResendInvitation request
 	ResendInvitation(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -30548,6 +33614,14 @@ type ClientInterface interface {
 
 	PatchManagedPostgresqlCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchManagedPostgresqlCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetManagedPostgresqlExtensions request
+	GetManagedPostgresqlExtensions(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetManagedPostgresqlExtensionsWithBody request with any body
+	SetManagedPostgresqlExtensionsWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetManagedPostgresqlExtensions(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body SetManagedPostgresqlExtensionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// StreamPostgresLogs request
 	StreamPostgresLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamPostgresLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30606,6 +33680,11 @@ type ClientInterface interface {
 	PatchModelServingWithBody(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchModelServing(ctx context.Context, organizationId openapi_types.UUID, name string, body PatchModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DecideModelServingWithBody request with any body
+	DecideModelServingWithBody(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DecideModelServing(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAiAgentMetrics request
 	GetAiAgentMetrics(ctx context.Context, organizationId openapi_types.UUID, agentId openapi_types.UUID, params *GetAiAgentMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -30680,6 +33759,12 @@ type ClientInterface interface {
 
 	// GetHfKeyValueCacheMetrics request
 	GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqLogs request
+	GetHfRabbitmqLogs(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetHfRabbitmqMetrics request
+	GetHfRabbitmqMetrics(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetKafkaLogs request
 	GetKafkaLogs(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -30946,6 +34031,11 @@ type ClientInterface interface {
 	// BindRoleToServiceAccount request
 	BindRoleToServiceAccount(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToServiceAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DecideSharedModelWithBody request with any body
+	DecideSharedModelWithBody(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DecideSharedModel(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideSharedModelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetOrgStorage request
 	GetOrgStorage(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -30953,6 +34043,12 @@ type ClientInterface interface {
 	PatchOrgStorageWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchOrgStorage(ctx context.Context, organizationId openapi_types.UUID, body PatchOrgStorageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStorageBudgets request
+	ListStorageBudgets(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStorageLimits request
+	GetStorageLimits(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListHarborBindings request
 	ListHarborBindings(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -31075,6 +34171,28 @@ type ClientInterface interface {
 
 	// DeleteVirtualMachineUserCrd request
 	DeleteVirtualMachineUserCrd(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListVolumeBackends request
+	ListVolumeBackends(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetOrgCvePolicies request
+	GetOrgCvePolicies(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListOrgCveEnforcements request
+	ListOrgCveEnforcements(ctx context.Context, organizationId openapi_types.UUID, params *ListOrgCveEnforcementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateOrgCvePolicyRuleWithBody request with any body
+	CreateOrgCvePolicyRuleWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, body CreateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteOrgCvePolicyRule request
+	DeleteOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateOrgCvePolicyRuleWithBody request with any body
+	UpdateOrgCvePolicyRuleWithBody(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, body UpdateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOrgImageDetail request
 	GetOrgImageDetail(ctx context.Context, organizationId openapi_types.UUID, digest string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -31864,6 +34982,18 @@ func (c *Client) ListCatalog(ctx context.Context, id openapi_types.UUID, reqEdit
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeletePath(ctx context.Context, id openapi_types.UUID, params *DeletePathParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePathRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ReadFile(ctx context.Context, id openapi_types.UUID, params *ReadFileParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewReadFileRequest(c.Server, id, params)
 	if err != nil {
@@ -31902,6 +35032,30 @@ func (c *Client) WriteFile(ctx context.Context, id openapi_types.UUID, body Writ
 
 func (c *Client) ListFiles(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListFilesRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFolderWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFolderRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFolder(ctx context.Context, id openapi_types.UUID, body CreateFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFolderRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -32718,6 +35872,30 @@ func (c *Client) ListResourceTiers(ctx context.Context, reqEditors ...RequestEdi
 
 func (c *Client) ListChangelogsHandler(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListChangelogsHandlerRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcknowledgeChangelogsHandlerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcknowledgeChangelogsHandlerRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcknowledgeChangelogsHandler(ctx context.Context, body AcknowledgeChangelogsHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcknowledgeChangelogsHandlerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -34972,6 +38150,42 @@ func (c *Client) CheckAccess(ctx context.Context, organizationId openapi_types.U
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAgentVerdicts(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAgentVerdictsRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LiftAgentVerdictWithBody(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLiftAgentVerdictRequestWithBody(c.Server, organizationId, verdictId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LiftAgentVerdict(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, body LiftAgentVerdictJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLiftAgentVerdictRequest(c.Server, organizationId, verdictId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListAiAgents(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListAiAgentsRequest(c.Server, organizationId)
 	if err != nil {
@@ -37204,6 +40418,42 @@ func (c *Client) CreateHfKeyValueCacheCrd(ctx context.Context, organizationId op
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListHfRabbitmqs(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListHfRabbitmqsRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfRabbitmqCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHfRabbitmqCrdRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListManagedPostgresqls(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListManagedPostgresqlsRequest(c.Server, organizationId, harborId)
 	if err != nil {
@@ -37564,6 +40814,54 @@ func (c *Client) DeleteServiceLink(ctx context.Context, organizationId openapi_t
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeleteStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStorageBudgetRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStorageBudgetRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutStorageBudgetWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutStorageBudgetRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutStorageBudget(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body PutStorageBudgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutStorageBudgetRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListVirtualMachines(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVirtualMachinesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListVirtualMachinesRequest(c.Server, organizationId, harborId, params)
 	if err != nil {
@@ -37744,6 +41042,78 @@ func (c *Client) PatchHfKeyValueCacheCrd(ctx context.Context, organizationId ope
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetHfRabbitmq(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchHfRabbitmqCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfRabbitmqCrdRequestWithBody(c.Server, organizationId, rabbitmqId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchHfRabbitmqCrd(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchHfRabbitmqCrdRequest(c.Server, organizationId, rabbitmqId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateHfRabbitmqCredentials(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateHfRabbitmqCredentialsRequest(c.Server, organizationId, rabbitmqId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListIdentityProviders(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListIdentityProvidersRequest(c.Server, organizationId)
 	if err != nil {
@@ -37770,6 +41140,30 @@ func (c *Client) CreateIdentityProviderWithBody(ctx context.Context, organizatio
 
 func (c *Client) CreateIdentityProvider(ctx context.Context, organizationId openapi_types.UUID, body CreateIdentityProviderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateIdentityProviderRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ImportSamlMetadataWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewImportSamlMetadataRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ImportSamlMetadata(ctx context.Context, organizationId openapi_types.UUID, body ImportSamlMetadataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewImportSamlMetadataRequest(c.Server, organizationId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -37866,6 +41260,18 @@ func (c *Client) CreateInvitation(ctx context.Context, organizationId openapi_ty
 
 func (c *Client) RevokeInvitation(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeInvitationRequest(c.Server, organizationId, invitationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateInvitationLink(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateInvitationLinkRequest(c.Server, organizationId, invitationId)
 	if err != nil {
 		return nil, err
 	}
@@ -38140,6 +41546,42 @@ func (c *Client) PatchManagedPostgresqlCrd(ctx context.Context, organizationId o
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetManagedPostgresqlExtensions(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetManagedPostgresqlExtensionsRequest(c.Server, organizationId, instanceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetManagedPostgresqlExtensionsWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetManagedPostgresqlExtensionsRequestWithBody(c.Server, organizationId, instanceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetManagedPostgresqlExtensions(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body SetManagedPostgresqlExtensionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetManagedPostgresqlExtensionsRequest(c.Server, organizationId, instanceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) StreamPostgresLogs(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamPostgresLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewStreamPostgresLogsRequest(c.Server, organizationId, instanceId, params)
 	if err != nil {
@@ -38394,6 +41836,30 @@ func (c *Client) PatchModelServingWithBody(ctx context.Context, organizationId o
 
 func (c *Client) PatchModelServing(ctx context.Context, organizationId openapi_types.UUID, name string, body PatchModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchModelServingRequest(c.Server, organizationId, name, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DecideModelServingWithBody(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDecideModelServingRequestWithBody(c.Server, organizationId, name, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DecideModelServing(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDecideModelServingRequest(c.Server, organizationId, name, body)
 	if err != nil {
 		return nil, err
 	}
@@ -38694,6 +42160,30 @@ func (c *Client) GetHfKeyValueCacheLogs(ctx context.Context, organizationId open
 
 func (c *Client) GetHfKeyValueCacheMetrics(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHfKeyValueCacheMetricsRequest(c.Server, organizationId, cacheId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqLogs(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqLogsRequest(c.Server, organizationId, rabbitmqId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHfRabbitmqMetrics(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHfRabbitmqMetricsRequest(c.Server, organizationId, rabbitmqId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -39820,6 +43310,30 @@ func (c *Client) BindRoleToServiceAccount(ctx context.Context, organizationId op
 	return c.Client.Do(req)
 }
 
+func (c *Client) DecideSharedModelWithBody(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDecideSharedModelRequestWithBody(c.Server, organizationId, name, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DecideSharedModel(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideSharedModelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDecideSharedModelRequest(c.Server, organizationId, name, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetOrgStorage(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOrgStorageRequest(c.Server, organizationId)
 	if err != nil {
@@ -39846,6 +43360,30 @@ func (c *Client) PatchOrgStorageWithBody(ctx context.Context, organizationId ope
 
 func (c *Client) PatchOrgStorage(ctx context.Context, organizationId openapi_types.UUID, body PatchOrgStorageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchOrgStorageRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListStorageBudgets(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStorageBudgetsRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetStorageLimits(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStorageLimitsRequest(c.Server, organizationId)
 	if err != nil {
 		return nil, err
 	}
@@ -40374,6 +43912,102 @@ func (c *Client) GetVirtualMachineUser(ctx context.Context, organizationId opena
 
 func (c *Client) DeleteVirtualMachineUserCrd(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteVirtualMachineUserCrdRequest(c.Server, organizationId, vmId, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListVolumeBackends(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVolumeBackendsRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetOrgCvePolicies(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOrgCvePoliciesRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListOrgCveEnforcements(ctx context.Context, organizationId openapi_types.UUID, params *ListOrgCveEnforcementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListOrgCveEnforcementsRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrgCvePolicyRuleWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrgCvePolicyRuleRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, body CreateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrgCvePolicyRuleRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteOrgCvePolicyRuleRequest(c.Server, organizationId, ruleId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateOrgCvePolicyRuleWithBody(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOrgCvePolicyRuleRequestWithBody(c.Server, organizationId, ruleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateOrgCvePolicyRule(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, body UpdateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOrgCvePolicyRuleRequest(c.Server, organizationId, ruleId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -43229,6 +46863,75 @@ func NewListCatalogRequest(server string, id openapi_types.UUID) (*http.Request,
 	return req, nil
 }
 
+// NewDeletePathRequest generates requests for DeletePath
+func NewDeletePathRequest(server string, id openapi_types.UUID, params *DeletePathParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/file", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path", params.Path, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Repo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewReadFileRequest generates requests for ReadFile
 func NewReadFileRequest(server string, id openapi_types.UUID, params *ReadFileParams) (*http.Request, error) {
 	var err error
@@ -43414,6 +47117,53 @@ func NewListFilesRequest(server string, id openapi_types.UUID, params *ListFiles
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewCreateFolderRequest calls the generic CreateFolder builder with application/json body
+func NewCreateFolderRequest(server string, id openapi_types.UUID, body CreateFolderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFolderRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewCreateFolderRequestWithBody generates requests for CreateFolder with any type of body
+func NewCreateFolderRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/folder", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -45968,6 +49718,46 @@ func NewListChangelogsHandlerRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewAcknowledgeChangelogsHandlerRequest calls the generic AcknowledgeChangelogsHandler builder with application/json body
+func NewAcknowledgeChangelogsHandlerRequest(server string, body AcknowledgeChangelogsHandlerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAcknowledgeChangelogsHandlerRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAcknowledgeChangelogsHandlerRequestWithBody generates requests for AcknowledgeChangelogsHandler with any type of body
+func NewAcknowledgeChangelogsHandlerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/changelogs/acknowledgements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -52888,6 +56678,94 @@ func NewCheckAccessRequestWithBody(server string, organizationId openapi_types.U
 	return req, nil
 }
 
+// NewListAgentVerdictsRequest generates requests for ListAgentVerdicts
+func NewListAgentVerdictsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/agent-verdicts", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewLiftAgentVerdictRequest calls the generic LiftAgentVerdict builder with application/json body
+func NewLiftAgentVerdictRequest(server string, organizationId openapi_types.UUID, verdictId openapi_types.UUID, body LiftAgentVerdictJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewLiftAgentVerdictRequestWithBody(server, organizationId, verdictId, "application/json", bodyReader)
+}
+
+// NewLiftAgentVerdictRequestWithBody generates requests for LiftAgentVerdict with any type of body
+func NewLiftAgentVerdictRequestWithBody(server string, organizationId openapi_types.UUID, verdictId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "verdict_id", verdictId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/agent-verdicts/%s/lift", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListAiAgentsRequest generates requests for ListAiAgents
 func NewListAiAgentsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -59643,6 +63521,101 @@ func NewCreateHfKeyValueCacheCrdRequestWithBody(server string, organizationId op
 	return req, nil
 }
 
+// NewListHfRabbitmqsRequest generates requests for ListHfRabbitmqs
+func NewListHfRabbitmqsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-rabbitmqs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateHfRabbitmqCrdRequest calls the generic CreateHfRabbitmqCrd builder with application/json body
+func NewCreateHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateHfRabbitmqCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateHfRabbitmqCrdRequestWithBody generates requests for CreateHfRabbitmqCrd with any type of body
+func NewCreateHfRabbitmqCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/hf-rabbitmqs/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListManagedPostgresqlsRequest generates requests for ListManagedPostgresqls
 func NewListManagedPostgresqlsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -60913,6 +64886,142 @@ func NewDeleteServiceLinkRequest(server string, organizationId openapi_types.UUI
 	return req, nil
 }
 
+// NewDeleteStorageBudgetRequest generates requests for DeleteStorageBudget
+func NewDeleteStorageBudgetRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/storage-budget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStorageBudgetRequest generates requests for GetStorageBudget
+func NewGetStorageBudgetRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/storage-budget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutStorageBudgetRequest calls the generic PutStorageBudget builder with application/json body
+func NewPutStorageBudgetRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body PutStorageBudgetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutStorageBudgetRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewPutStorageBudgetRequestWithBody generates requests for PutStorageBudget with any type of body
+func NewPutStorageBudgetRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/storage-budget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListVirtualMachinesRequest generates requests for ListVirtualMachines
 func NewListVirtualMachinesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVirtualMachinesParams) (*http.Request, error) {
 	var err error
@@ -61571,6 +65680,224 @@ func NewPatchHfKeyValueCacheCrdRequestWithBody(server string, organizationId ope
 	return req, nil
 }
 
+// NewGetHfRabbitmqRequest generates requests for GetHfRabbitmq
+func NewGetHfRabbitmqRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteHfRabbitmqCrdRequest generates requests for DeleteHfRabbitmqCrd
+func NewDeleteHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqCrdRequest generates requests for GetHfRabbitmqCrd
+func NewGetHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchHfRabbitmqCrdRequest calls the generic PatchHfRabbitmqCrd builder with application/json body
+func NewPatchHfRabbitmqCrdRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchHfRabbitmqCrdRequestWithBody(server, organizationId, rabbitmqId, "application/json", bodyReader)
+}
+
+// NewPatchHfRabbitmqCrdRequestWithBody generates requests for PatchHfRabbitmqCrd with any type of body
+func NewPatchHfRabbitmqCrdRequestWithBody(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRotateHfRabbitmqCredentialsRequest generates requests for RotateHfRabbitmqCredentials
+func NewRotateHfRabbitmqCredentialsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/hf-rabbitmqs/%s/rotate-credentials", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListIdentityProvidersRequest generates requests for ListIdentityProviders
 func NewListIdentityProvidersRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -61633,6 +65960,53 @@ func NewCreateIdentityProviderRequestWithBody(server string, organizationId open
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/organizations/%s/identity-providers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewImportSamlMetadataRequest calls the generic ImportSamlMetadata builder with application/json body
+func NewImportSamlMetadataRequest(server string, organizationId openapi_types.UUID, body ImportSamlMetadataJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewImportSamlMetadataRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewImportSamlMetadataRequestWithBody generates requests for ImportSamlMetadata with any type of body
+func NewImportSamlMetadataRequestWithBody(server string, organizationId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/identity-providers/saml-metadata", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -61903,6 +66277,47 @@ func NewRevokeInvitationRequest(server string, organizationId openapi_types.UUID
 	}
 
 	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateInvitationLinkRequest generates requests for CreateInvitationLink
+func NewCreateInvitationLinkRequest(server string, organizationId openapi_types.UUID, invitationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "invitation_id", invitationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/invitations/%s/link", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -62712,6 +67127,101 @@ func NewPatchManagedPostgresqlCrdRequestWithBody(server string, organizationId o
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetManagedPostgresqlExtensionsRequest generates requests for GetManagedPostgresqlExtensions
+func NewGetManagedPostgresqlExtensionsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/managed-postgresqls/%s/extensions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetManagedPostgresqlExtensionsRequest calls the generic SetManagedPostgresqlExtensions builder with application/json body
+func NewSetManagedPostgresqlExtensionsRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body SetManagedPostgresqlExtensionsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetManagedPostgresqlExtensionsRequestWithBody(server, organizationId, instanceId, "application/json", bodyReader)
+}
+
+// NewSetManagedPostgresqlExtensionsRequestWithBody generates requests for SetManagedPostgresqlExtensions with any type of body
+func NewSetManagedPostgresqlExtensionsRequestWithBody(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/managed-postgresqls/%s/extensions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -63555,6 +68065,60 @@ func NewPatchModelServingRequestWithBody(server string, organizationId openapi_t
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDecideModelServingRequest calls the generic DecideModelServing builder with application/json body
+func NewDecideModelServingRequest(server string, organizationId openapi_types.UUID, name string, body DecideModelServingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDecideModelServingRequestWithBody(server, organizationId, name, "application/json", bodyReader)
+}
+
+// NewDecideModelServingRequestWithBody generates requests for DecideModelServing with any type of body
+func NewDecideModelServingRequestWithBody(server string, organizationId openapi_types.UUID, name string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/model-servings/%s/decisions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -65921,6 +70485,250 @@ func NewGetHfKeyValueCacheMetricsRequest(server string, organizationId openapi_t
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-key-value-caches/%s/metrics", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqLogsRequest generates requests for GetHfRabbitmqLogs
+func NewGetHfRabbitmqLogsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-rabbitmqs/%s/logs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SearchMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search_mode", *params.SearchMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Pod != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "pod", *params.Pod, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Container != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "container", *params.Container, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Stream != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "stream", *params.Stream, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Level != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "level", *params.Level, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Start != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "start", *params.Start, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.End != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "end", *params.End, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetHfRabbitmqMetricsRequest generates requests for GetHfRabbitmqMetrics
+func NewGetHfRabbitmqMetricsRequest(server string, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rabbitmq_id", rabbitmqId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/hf-rabbitmqs/%s/metrics", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -69966,6 +74774,18 @@ func NewListSecretsRequest(server string, organizationId openapi_types.UUID, par
 
 		}
 
+		if params.Origin != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "origin", *params.Origin, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
@@ -70113,6 +74933,30 @@ func NewCountSecretsRequest(server string, organizationId openapi_types.UUID, pa
 		if params.Prefix != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "prefix", *params.Prefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SecretType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "secret_type", *params.SecretType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Origin != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "origin", *params.Origin, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -71084,6 +75928,60 @@ func NewBindRoleToServiceAccountRequest(server string, organizationId openapi_ty
 	return req, nil
 }
 
+// NewDecideSharedModelRequest calls the generic DecideSharedModel builder with application/json body
+func NewDecideSharedModelRequest(server string, organizationId openapi_types.UUID, name string, body DecideSharedModelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDecideSharedModelRequestWithBody(server, organizationId, name, "application/json", bodyReader)
+}
+
+// NewDecideSharedModelRequestWithBody generates requests for DecideSharedModel with any type of body
+func NewDecideSharedModelRequestWithBody(server string, organizationId openapi_types.UUID, name string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/shared-models/%s/decisions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetOrgStorageRequest generates requests for GetOrgStorage
 func NewGetOrgStorageRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -71161,6 +76059,74 @@ func NewPatchOrgStorageRequestWithBody(server string, organizationId openapi_typ
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListStorageBudgetsRequest generates requests for ListStorageBudgets
+func NewListStorageBudgetsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/storage-budgets", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStorageLimitsRequest generates requests for GetStorageLimits
+func NewGetStorageLimitsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/storage-limits", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -72834,6 +77800,316 @@ func NewDeleteVirtualMachineUserCrdRequest(server string, organizationId openapi
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewListVolumeBackendsRequest generates requests for ListVolumeBackends
+func NewListVolumeBackendsRequest(server string, organizationId openapi_types.UUID, params *ListVolumeBackendsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/volume-backends", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Harbor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "harbor", *params.Harbor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Product != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "product", *params.Product, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetOrgCvePoliciesRequest generates requests for GetOrgCvePolicies
+func NewGetOrgCvePoliciesRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/workload-security/cve-policies", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListOrgCveEnforcementsRequest generates requests for ListOrgCveEnforcements
+func NewListOrgCveEnforcementsRequest(server string, organizationId openapi_types.UUID, params *ListOrgCveEnforcementsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/workload-security/cve-policies/enforcements", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.IncludeReleased != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include_released", *params.IncludeReleased, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateOrgCvePolicyRuleRequest calls the generic CreateOrgCvePolicyRule builder with application/json body
+func NewCreateOrgCvePolicyRuleRequest(server string, organizationId openapi_types.UUID, body CreateOrgCvePolicyRuleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOrgCvePolicyRuleRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewCreateOrgCvePolicyRuleRequestWithBody generates requests for CreateOrgCvePolicyRule with any type of body
+func NewCreateOrgCvePolicyRuleRequestWithBody(server string, organizationId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/workload-security/cve-policies/rules", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteOrgCvePolicyRuleRequest generates requests for DeleteOrgCvePolicyRule
+func NewDeleteOrgCvePolicyRuleRequest(server string, organizationId openapi_types.UUID, ruleId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rule_id", ruleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/workload-security/cve-policies/rules/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateOrgCvePolicyRuleRequest calls the generic UpdateOrgCvePolicyRule builder with application/json body
+func NewUpdateOrgCvePolicyRuleRequest(server string, organizationId openapi_types.UUID, ruleId openapi_types.UUID, body UpdateOrgCvePolicyRuleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateOrgCvePolicyRuleRequestWithBody(server, organizationId, ruleId, "application/json", bodyReader)
+}
+
+// NewUpdateOrgCvePolicyRuleRequestWithBody generates requests for UpdateOrgCvePolicyRule with any type of body
+func NewUpdateOrgCvePolicyRuleRequestWithBody(server string, organizationId openapi_types.UUID, ruleId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "rule_id", ruleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/workload-security/cve-policies/rules/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -78109,6 +83385,9 @@ type ClientWithResponsesInterface interface {
 	// ListCatalogWithResponse request
 	ListCatalogWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListCatalogHTTPResp, error)
 
+	// DeletePathWithResponse request
+	DeletePathWithResponse(ctx context.Context, id openapi_types.UUID, params *DeletePathParams, reqEditors ...RequestEditorFn) (*DeletePathHTTPResp, error)
+
 	// ReadFileWithResponse request
 	ReadFileWithResponse(ctx context.Context, id openapi_types.UUID, params *ReadFileParams, reqEditors ...RequestEditorFn) (*ReadFileHTTPResp, error)
 
@@ -78119,6 +83398,11 @@ type ClientWithResponsesInterface interface {
 
 	// ListFilesWithResponse request
 	ListFilesWithResponse(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*ListFilesHTTPResp, error)
+
+	// CreateFolderWithBodyWithResponse request with any body
+	CreateFolderWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFolderHTTPResp, error)
+
+	CreateFolderWithResponse(ctx context.Context, id openapi_types.UUID, body CreateFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFolderHTTPResp, error)
 
 	// GitBranchesWithResponse request
 	GitBranchesWithResponse(ctx context.Context, id openapi_types.UUID, params *GitBranchesParams, reqEditors ...RequestEditorFn) (*GitBranchesHTTPResp, error)
@@ -78308,6 +83592,11 @@ type ClientWithResponsesInterface interface {
 
 	// ListChangelogsHandlerWithResponse request
 	ListChangelogsHandlerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListChangelogsHandlerHTTPResp, error)
+
+	// AcknowledgeChangelogsHandlerWithBodyWithResponse request with any body
+	AcknowledgeChangelogsHandlerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcknowledgeChangelogsHandlerHTTPResp, error)
+
+	AcknowledgeChangelogsHandlerWithResponse(ctx context.Context, body AcknowledgeChangelogsHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*AcknowledgeChangelogsHandlerHTTPResp, error)
 
 	// ListRunnerFlavorsWithResponse request
 	ListRunnerFlavorsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRunnerFlavorsHTTPResp, error)
@@ -78826,6 +84115,14 @@ type ClientWithResponsesInterface interface {
 
 	CheckAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CheckAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*CheckAccessHTTPResp, error)
 
+	// ListAgentVerdictsWithResponse request
+	ListAgentVerdictsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAgentVerdictsHTTPResp, error)
+
+	// LiftAgentVerdictWithBodyWithResponse request with any body
+	LiftAgentVerdictWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LiftAgentVerdictHTTPResp, error)
+
+	LiftAgentVerdictWithResponse(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, body LiftAgentVerdictJSONRequestBody, reqEditors ...RequestEditorFn) (*LiftAgentVerdictHTTPResp, error)
+
 	// ListAiAgentsWithResponse request
 	ListAiAgentsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAiAgentsHTTPResp, error)
 
@@ -79336,6 +84633,14 @@ type ClientWithResponsesInterface interface {
 
 	CreateHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfKeyValueCacheCrdHTTPResp, error)
 
+	// ListHfRabbitmqsWithResponse request
+	ListHfRabbitmqsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfRabbitmqsHTTPResp, error)
+
+	// CreateHfRabbitmqCrdWithBodyWithResponse request with any body
+	CreateHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error)
+
+	CreateHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error)
+
 	// ListManagedPostgresqlsWithResponse request
 	ListManagedPostgresqlsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListManagedPostgresqlsHTTPResp, error)
 
@@ -79422,6 +84727,17 @@ type ClientWithResponsesInterface interface {
 	// DeleteServiceLinkWithResponse request
 	DeleteServiceLinkWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*DeleteServiceLinkHTTPResp, error)
 
+	// DeleteStorageBudgetWithResponse request
+	DeleteStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteStorageBudgetHTTPResp, error)
+
+	// GetStorageBudgetWithResponse request
+	GetStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetStorageBudgetHTTPResp, error)
+
+	// PutStorageBudgetWithBodyWithResponse request with any body
+	PutStorageBudgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutStorageBudgetHTTPResp, error)
+
+	PutStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body PutStorageBudgetJSONRequestBody, reqEditors ...RequestEditorFn) (*PutStorageBudgetHTTPResp, error)
+
 	// ListVirtualMachinesWithResponse request
 	ListVirtualMachinesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVirtualMachinesParams, reqEditors ...RequestEditorFn) (*ListVirtualMachinesHTTPResp, error)
 
@@ -79465,6 +84781,23 @@ type ClientWithResponsesInterface interface {
 
 	PatchHfKeyValueCacheCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, body PatchHfKeyValueCacheCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfKeyValueCacheCrdHTTPResp, error)
 
+	// GetHfRabbitmqWithResponse request
+	GetHfRabbitmqWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqHTTPResp, error)
+
+	// DeleteHfRabbitmqCrdWithResponse request
+	DeleteHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfRabbitmqCrdHTTPResp, error)
+
+	// GetHfRabbitmqCrdWithResponse request
+	GetHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqCrdHTTPResp, error)
+
+	// PatchHfRabbitmqCrdWithBodyWithResponse request with any body
+	PatchHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error)
+
+	PatchHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error)
+
+	// RotateHfRabbitmqCredentialsWithResponse request
+	RotateHfRabbitmqCredentialsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateHfRabbitmqCredentialsHTTPResp, error)
+
 	// ListIdentityProvidersWithResponse request
 	ListIdentityProvidersWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListIdentityProvidersHTTPResp, error)
 
@@ -79472,6 +84805,11 @@ type ClientWithResponsesInterface interface {
 	CreateIdentityProviderWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityProviderHTTPResp, error)
 
 	CreateIdentityProviderWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateIdentityProviderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityProviderHTTPResp, error)
+
+	// ImportSamlMetadataWithBodyWithResponse request with any body
+	ImportSamlMetadataWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportSamlMetadataHTTPResp, error)
+
+	ImportSamlMetadataWithResponse(ctx context.Context, organizationId openapi_types.UUID, body ImportSamlMetadataJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportSamlMetadataHTTPResp, error)
 
 	// DeleteIdentityProviderWithResponse request
 	DeleteIdentityProviderWithResponse(ctx context.Context, organizationId openapi_types.UUID, alias string, reqEditors ...RequestEditorFn) (*DeleteIdentityProviderHTTPResp, error)
@@ -79494,6 +84832,9 @@ type ClientWithResponsesInterface interface {
 
 	// RevokeInvitationWithResponse request
 	RevokeInvitationWithResponse(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RevokeInvitationHTTPResp, error)
+
+	// CreateInvitationLinkWithResponse request
+	CreateInvitationLinkWithResponse(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*CreateInvitationLinkHTTPResp, error)
 
 	// ResendInvitationWithResponse request
 	ResendInvitationWithResponse(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ResendInvitationHTTPResp, error)
@@ -79557,6 +84898,14 @@ type ClientWithResponsesInterface interface {
 
 	PatchManagedPostgresqlCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchManagedPostgresqlCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchManagedPostgresqlCrdHTTPResp, error)
 
+	// GetManagedPostgresqlExtensionsWithResponse request
+	GetManagedPostgresqlExtensionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetManagedPostgresqlExtensionsHTTPResp, error)
+
+	// SetManagedPostgresqlExtensionsWithBodyWithResponse request with any body
+	SetManagedPostgresqlExtensionsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetManagedPostgresqlExtensionsHTTPResp, error)
+
+	SetManagedPostgresqlExtensionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body SetManagedPostgresqlExtensionsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetManagedPostgresqlExtensionsHTTPResp, error)
+
 	// StreamPostgresLogsWithResponse request
 	StreamPostgresLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamPostgresLogsParams, reqEditors ...RequestEditorFn) (*StreamPostgresLogsHTTPResp, error)
 
@@ -79615,6 +84964,11 @@ type ClientWithResponsesInterface interface {
 	PatchModelServingWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchModelServingHTTPResp, error)
 
 	PatchModelServingWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, body PatchModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchModelServingHTTPResp, error)
+
+	// DecideModelServingWithBodyWithResponse request with any body
+	DecideModelServingWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DecideModelServingHTTPResp, error)
+
+	DecideModelServingWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*DecideModelServingHTTPResp, error)
 
 	// GetAiAgentMetricsWithResponse request
 	GetAiAgentMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, agentId openapi_types.UUID, params *GetAiAgentMetricsParams, reqEditors ...RequestEditorFn) (*GetAiAgentMetricsHTTPResp, error)
@@ -79689,6 +85043,12 @@ type ClientWithResponsesInterface interface {
 
 	// GetHfKeyValueCacheMetricsWithResponse request
 	GetHfKeyValueCacheMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheMetricsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheMetricsHTTPResp, error)
+
+	// GetHfRabbitmqLogsWithResponse request
+	GetHfRabbitmqLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqLogsHTTPResp, error)
+
+	// GetHfRabbitmqMetricsWithResponse request
+	GetHfRabbitmqMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqMetricsHTTPResp, error)
 
 	// GetKafkaLogsWithResponse request
 	GetKafkaLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, kafkaServiceId openapi_types.UUID, params *GetKafkaLogsParams, reqEditors ...RequestEditorFn) (*GetKafkaLogsHTTPResp, error)
@@ -79955,6 +85315,11 @@ type ClientWithResponsesInterface interface {
 	// BindRoleToServiceAccountWithResponse request
 	BindRoleToServiceAccountWithResponse(ctx context.Context, organizationId openapi_types.UUID, serviceAccountId openapi_types.UUID, roleId openapi_types.UUID, params *BindRoleToServiceAccountParams, reqEditors ...RequestEditorFn) (*BindRoleToServiceAccountHTTPResp, error)
 
+	// DecideSharedModelWithBodyWithResponse request with any body
+	DecideSharedModelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DecideSharedModelHTTPResp, error)
+
+	DecideSharedModelWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideSharedModelJSONRequestBody, reqEditors ...RequestEditorFn) (*DecideSharedModelHTTPResp, error)
+
 	// GetOrgStorageWithResponse request
 	GetOrgStorageWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrgStorageHTTPResp, error)
 
@@ -79962,6 +85327,12 @@ type ClientWithResponsesInterface interface {
 	PatchOrgStorageWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchOrgStorageHTTPResp, error)
 
 	PatchOrgStorageWithResponse(ctx context.Context, organizationId openapi_types.UUID, body PatchOrgStorageJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchOrgStorageHTTPResp, error)
+
+	// ListStorageBudgetsWithResponse request
+	ListStorageBudgetsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListStorageBudgetsHTTPResp, error)
+
+	// GetStorageLimitsWithResponse request
+	GetStorageLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetStorageLimitsHTTPResp, error)
 
 	// ListHarborBindingsWithResponse request
 	ListHarborBindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHarborBindingsHTTPResp, error)
@@ -80084,6 +85455,28 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteVirtualMachineUserCrdWithResponse request
 	DeleteVirtualMachineUserCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, userId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteVirtualMachineUserCrdHTTPResp, error)
+
+	// ListVolumeBackendsWithResponse request
+	ListVolumeBackendsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*ListVolumeBackendsHTTPResp, error)
+
+	// GetOrgCvePoliciesWithResponse request
+	GetOrgCvePoliciesWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrgCvePoliciesHTTPResp, error)
+
+	// ListOrgCveEnforcementsWithResponse request
+	ListOrgCveEnforcementsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListOrgCveEnforcementsParams, reqEditors ...RequestEditorFn) (*ListOrgCveEnforcementsHTTPResp, error)
+
+	// CreateOrgCvePolicyRuleWithBodyWithResponse request with any body
+	CreateOrgCvePolicyRuleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrgCvePolicyRuleHTTPResp, error)
+
+	CreateOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrgCvePolicyRuleHTTPResp, error)
+
+	// DeleteOrgCvePolicyRuleWithResponse request
+	DeleteOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteOrgCvePolicyRuleHTTPResp, error)
+
+	// UpdateOrgCvePolicyRuleWithBodyWithResponse request with any body
+	UpdateOrgCvePolicyRuleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrgCvePolicyRuleHTTPResp, error)
+
+	UpdateOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, body UpdateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrgCvePolicyRuleHTTPResp, error)
 
 	// GetOrgImageDetailWithResponse request
 	GetOrgImageDetailWithResponse(ctx context.Context, organizationId openapi_types.UUID, digest string, reqEditors ...RequestEditorFn) (*GetOrgImageDetailHTTPResp, error)
@@ -81280,6 +86673,38 @@ func (r ListCatalogHTTPResp) ContentType() string {
 	return ""
 }
 
+type DeletePathHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeletePathHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeletePathHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeletePathHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ReadFileHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -81371,6 +86796,38 @@ func (r ListFilesHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListFilesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateFolderHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateFolderHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateFolderHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateFolderHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -83091,6 +88548,37 @@ func (r ListChangelogsHandlerHTTPResp) ContentType() string {
 	return ""
 }
 
+type AcknowledgeChangelogsHandlerHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r AcknowledgeChangelogsHandlerHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcknowledgeChangelogsHandlerHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AcknowledgeChangelogsHandlerHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListRunnerFlavorsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -83969,6 +89457,7 @@ type CreateSchemaHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -84002,6 +89491,7 @@ type DeleteSchemaHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -86585,6 +92075,7 @@ type EnableSqlEngineHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON429      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
@@ -87558,6 +93049,7 @@ type CreateKafkaHfServiceHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -87706,6 +93198,70 @@ func (r CheckAccessHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CheckAccessHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListAgentVerdictsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AgentVerdictDto
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAgentVerdictsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAgentVerdictsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAgentVerdictsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type LiftAgentVerdictHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AgentVerdictDto
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r LiftAgentVerdictHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LiftAgentVerdictHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r LiftAgentVerdictHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -89468,6 +95024,7 @@ type PatchComputeDockCrdHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -89667,6 +95224,7 @@ type PatchContainerAppCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -91524,6 +97082,7 @@ type CreateComputeDockCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -91590,6 +97149,7 @@ type CreateContainerAppCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -92220,6 +97780,73 @@ func (r CreateHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListHfRabbitmqsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]HfRabbitMqResponse
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListHfRabbitmqsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListHfRabbitmqsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListHfRabbitmqsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *HfRabbitMqResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListManagedPostgresqlsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -92260,6 +97887,7 @@ type CreateManagedPostgresqlCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -92360,6 +97988,7 @@ type CreateNextflowCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -93076,6 +98705,105 @@ func (r DeleteServiceLinkHTTPResp) ContentType() string {
 	return ""
 }
 
+type DeleteStorageBudgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStorageBudgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStorageBudgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteStorageBudgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetStorageBudgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HarborBudgetResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStorageBudgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStorageBudgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetStorageBudgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutStorageBudgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HarborBudgetResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r PutStorageBudgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutStorageBudgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutStorageBudgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListVirtualMachinesHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -93502,10 +99230,173 @@ func (r PatchHfKeyValueCacheCrdHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetHfRabbitmqHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HfRabbitMqResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HfRabbitMqCrdSpecResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchHfRabbitmqCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchHfRabbitmqCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchHfRabbitmqCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchHfRabbitmqCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RotateHfRabbitmqCredentialsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateHfRabbitmqCredentialsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateHfRabbitmqCredentialsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RotateHfRabbitmqCredentialsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListIdentityProvidersHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]IdentityProvider
+	JSON200      *IdentityProviderList
 	JSON403      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
@@ -93568,10 +99459,44 @@ func (r CreateIdentityProviderHTTPResp) ContentType() string {
 	return ""
 }
 
+type ImportSamlMetadataHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SamlMetadata
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ImportSamlMetadataHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ImportSamlMetadataHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ImportSamlMetadataHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteIdentityProviderHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -93639,6 +99564,7 @@ type UpdateIdentityProviderHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -93701,7 +99627,7 @@ func (r ListInvitationsHTTPResp) ContentType() string {
 type CreateInvitationHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *OrganizationInvitation
+	JSON201      *IssuedInvitation
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
@@ -93765,9 +99691,43 @@ func (r RevokeInvitationHTTPResp) ContentType() string {
 	return ""
 }
 
+type CreateInvitationLinkHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *InvitationLink
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateInvitationLinkHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateInvitationLinkHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateInvitationLinkHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ResendInvitationHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *OrganizationInvitation
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
@@ -94263,6 +100223,7 @@ type DeleteManagedPostgresqlCrdHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -94329,6 +100290,8 @@ type PatchManagedPostgresqlCrdHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -94350,6 +100313,72 @@ func (r PatchManagedPostgresqlCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchManagedPostgresqlCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetManagedPostgresqlExtensionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ManagedPostgresqlExtensionsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetManagedPostgresqlExtensionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetManagedPostgresqlExtensionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetManagedPostgresqlExtensionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetManagedPostgresqlExtensionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetManagedPostgresqlExtensionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetManagedPostgresqlExtensionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetManagedPostgresqlExtensionsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -94694,6 +100723,7 @@ type CreateModelServingHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *ModelServingResponse
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
@@ -94848,6 +100878,44 @@ func (r PatchModelServingHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchModelServingHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DecideModelServingHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SystemOneResponse
+	JSON400      *ApiErrorBody
+	JSON402      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON502      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DecideModelServingHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DecideModelServingHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DecideModelServingHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -95653,6 +101721,72 @@ func (r GetHfKeyValueCacheMetricsHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetHfRabbitmqLogsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceLogsResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqLogsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqLogsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqLogsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHfRabbitmqMetricsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ResourceMetricsResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHfRabbitmqMetricsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHfRabbitmqMetricsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHfRabbitmqMetricsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetKafkaLogsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -96090,6 +102224,7 @@ type PatchNextflowCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -98224,6 +104359,44 @@ func (r BindRoleToServiceAccountHTTPResp) ContentType() string {
 	return ""
 }
 
+type DecideSharedModelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SystemOneResponse
+	JSON400      *ApiErrorBody
+	JSON402      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON502      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DecideSharedModelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DecideSharedModelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DecideSharedModelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetOrgStorageHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -98282,6 +104455,71 @@ func (r PatchOrgStorageHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchOrgStorageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListStorageBudgetsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HarborBudgetsResponse
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStorageBudgetsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStorageBudgetsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListStorageBudgetsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetStorageLimitsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *StorageLimitMatrix
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStorageLimitsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStorageLimitsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetStorageLimitsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -99384,6 +105622,202 @@ func (r DeleteVirtualMachineUserCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r DeleteVirtualMachineUserCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListVolumeBackendsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumeBackendListing
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVolumeBackendsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVolumeBackendsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListVolumeBackendsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetOrgCvePoliciesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OrgCvePolicyView
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOrgCvePoliciesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOrgCvePoliciesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetOrgCvePoliciesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListOrgCveEnforcementsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]CveEnforcement
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListOrgCveEnforcementsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListOrgCveEnforcementsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListOrgCveEnforcementsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateOrgCvePolicyRuleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *CveRule
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOrgCvePolicyRuleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOrgCvePolicyRuleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateOrgCvePolicyRuleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteOrgCvePolicyRuleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteOrgCvePolicyRuleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteOrgCvePolicyRuleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteOrgCvePolicyRuleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateOrgCvePolicyRuleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CveRule
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateOrgCvePolicyRuleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateOrgCvePolicyRuleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateOrgCvePolicyRuleHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -102485,6 +108919,7 @@ type UnlinkMyIdentityProviderHTTPResp struct {
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON503      *ApiErrorBody
 }
 
@@ -103183,6 +109618,15 @@ func (c *ClientWithResponses) ListCatalogWithResponse(ctx context.Context, id op
 	return ParseListCatalogHTTPResp(rsp)
 }
 
+// DeletePathWithResponse request returning *DeletePathHTTPResp
+func (c *ClientWithResponses) DeletePathWithResponse(ctx context.Context, id openapi_types.UUID, params *DeletePathParams, reqEditors ...RequestEditorFn) (*DeletePathHTTPResp, error) {
+	rsp, err := c.DeletePath(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeletePathHTTPResp(rsp)
+}
+
 // ReadFileWithResponse request returning *ReadFileHTTPResp
 func (c *ClientWithResponses) ReadFileWithResponse(ctx context.Context, id openapi_types.UUID, params *ReadFileParams, reqEditors ...RequestEditorFn) (*ReadFileHTTPResp, error) {
 	rsp, err := c.ReadFile(ctx, id, params, reqEditors...)
@@ -103216,6 +109660,23 @@ func (c *ClientWithResponses) ListFilesWithResponse(ctx context.Context, id open
 		return nil, err
 	}
 	return ParseListFilesHTTPResp(rsp)
+}
+
+// CreateFolderWithBodyWithResponse request with arbitrary body returning *CreateFolderHTTPResp
+func (c *ClientWithResponses) CreateFolderWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFolderHTTPResp, error) {
+	rsp, err := c.CreateFolderWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFolderHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateFolderWithResponse(ctx context.Context, id openapi_types.UUID, body CreateFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFolderHTTPResp, error) {
+	rsp, err := c.CreateFolder(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFolderHTTPResp(rsp)
 }
 
 // GitBranchesWithResponse request returning *GitBranchesHTTPResp
@@ -103813,6 +110274,23 @@ func (c *ClientWithResponses) ListChangelogsHandlerWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseListChangelogsHandlerHTTPResp(rsp)
+}
+
+// AcknowledgeChangelogsHandlerWithBodyWithResponse request with arbitrary body returning *AcknowledgeChangelogsHandlerHTTPResp
+func (c *ClientWithResponses) AcknowledgeChangelogsHandlerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcknowledgeChangelogsHandlerHTTPResp, error) {
+	rsp, err := c.AcknowledgeChangelogsHandlerWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcknowledgeChangelogsHandlerHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) AcknowledgeChangelogsHandlerWithResponse(ctx context.Context, body AcknowledgeChangelogsHandlerJSONRequestBody, reqEditors ...RequestEditorFn) (*AcknowledgeChangelogsHandlerHTTPResp, error) {
+	rsp, err := c.AcknowledgeChangelogsHandler(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcknowledgeChangelogsHandlerHTTPResp(rsp)
 }
 
 // ListRunnerFlavorsWithResponse request returning *ListRunnerFlavorsHTTPResp
@@ -105454,6 +111932,32 @@ func (c *ClientWithResponses) CheckAccessWithResponse(ctx context.Context, organ
 	return ParseCheckAccessHTTPResp(rsp)
 }
 
+// ListAgentVerdictsWithResponse request returning *ListAgentVerdictsHTTPResp
+func (c *ClientWithResponses) ListAgentVerdictsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAgentVerdictsHTTPResp, error) {
+	rsp, err := c.ListAgentVerdicts(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAgentVerdictsHTTPResp(rsp)
+}
+
+// LiftAgentVerdictWithBodyWithResponse request with arbitrary body returning *LiftAgentVerdictHTTPResp
+func (c *ClientWithResponses) LiftAgentVerdictWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LiftAgentVerdictHTTPResp, error) {
+	rsp, err := c.LiftAgentVerdictWithBody(ctx, organizationId, verdictId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLiftAgentVerdictHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) LiftAgentVerdictWithResponse(ctx context.Context, organizationId openapi_types.UUID, verdictId openapi_types.UUID, body LiftAgentVerdictJSONRequestBody, reqEditors ...RequestEditorFn) (*LiftAgentVerdictHTTPResp, error) {
+	rsp, err := c.LiftAgentVerdict(ctx, organizationId, verdictId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLiftAgentVerdictHTTPResp(rsp)
+}
+
 // ListAiAgentsWithResponse request returning *ListAiAgentsHTTPResp
 func (c *ClientWithResponses) ListAiAgentsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAiAgentsHTTPResp, error) {
 	rsp, err := c.ListAiAgents(ctx, organizationId, reqEditors...)
@@ -107080,6 +113584,32 @@ func (c *ClientWithResponses) CreateHfKeyValueCacheCrdWithResponse(ctx context.C
 	return ParseCreateHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
+// ListHfRabbitmqsWithResponse request returning *ListHfRabbitmqsHTTPResp
+func (c *ClientWithResponses) ListHfRabbitmqsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListHfRabbitmqsHTTPResp, error) {
+	rsp, err := c.ListHfRabbitmqs(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListHfRabbitmqsHTTPResp(rsp)
+}
+
+// CreateHfRabbitmqCrdWithBodyWithResponse request with arbitrary body returning *CreateHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) CreateHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.CreateHfRabbitmqCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfRabbitmqCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.CreateHfRabbitmqCrd(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHfRabbitmqCrdHTTPResp(rsp)
+}
+
 // ListManagedPostgresqlsWithResponse request returning *ListManagedPostgresqlsHTTPResp
 func (c *ClientWithResponses) ListManagedPostgresqlsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListManagedPostgresqlsHTTPResp, error) {
 	rsp, err := c.ListManagedPostgresqls(ctx, organizationId, harborId, reqEditors...)
@@ -107346,6 +113876,41 @@ func (c *ClientWithResponses) DeleteServiceLinkWithResponse(ctx context.Context,
 	return ParseDeleteServiceLinkHTTPResp(rsp)
 }
 
+// DeleteStorageBudgetWithResponse request returning *DeleteStorageBudgetHTTPResp
+func (c *ClientWithResponses) DeleteStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteStorageBudgetHTTPResp, error) {
+	rsp, err := c.DeleteStorageBudget(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStorageBudgetHTTPResp(rsp)
+}
+
+// GetStorageBudgetWithResponse request returning *GetStorageBudgetHTTPResp
+func (c *ClientWithResponses) GetStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetStorageBudgetHTTPResp, error) {
+	rsp, err := c.GetStorageBudget(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStorageBudgetHTTPResp(rsp)
+}
+
+// PutStorageBudgetWithBodyWithResponse request with arbitrary body returning *PutStorageBudgetHTTPResp
+func (c *ClientWithResponses) PutStorageBudgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutStorageBudgetHTTPResp, error) {
+	rsp, err := c.PutStorageBudgetWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutStorageBudgetHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PutStorageBudgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body PutStorageBudgetJSONRequestBody, reqEditors ...RequestEditorFn) (*PutStorageBudgetHTTPResp, error) {
+	rsp, err := c.PutStorageBudget(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutStorageBudgetHTTPResp(rsp)
+}
+
 // ListVirtualMachinesWithResponse request returning *ListVirtualMachinesHTTPResp
 func (c *ClientWithResponses) ListVirtualMachinesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVirtualMachinesParams, reqEditors ...RequestEditorFn) (*ListVirtualMachinesHTTPResp, error) {
 	rsp, err := c.ListVirtualMachines(ctx, organizationId, harborId, params, reqEditors...)
@@ -107479,6 +114044,59 @@ func (c *ClientWithResponses) PatchHfKeyValueCacheCrdWithResponse(ctx context.Co
 	return ParsePatchHfKeyValueCacheCrdHTTPResp(rsp)
 }
 
+// GetHfRabbitmqWithResponse request returning *GetHfRabbitmqHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmq(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqHTTPResp(rsp)
+}
+
+// DeleteHfRabbitmqCrdWithResponse request returning *DeleteHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) DeleteHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.DeleteHfRabbitmqCrd(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// GetHfRabbitmqCrdWithResponse request returning *GetHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqCrd(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// PatchHfRabbitmqCrdWithBodyWithResponse request with arbitrary body returning *PatchHfRabbitmqCrdHTTPResp
+func (c *ClientWithResponses) PatchHfRabbitmqCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.PatchHfRabbitmqCrdWithBody(ctx, organizationId, rabbitmqId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchHfRabbitmqCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PatchHfRabbitmqCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, body PatchHfRabbitmqCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	rsp, err := c.PatchHfRabbitmqCrd(ctx, organizationId, rabbitmqId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchHfRabbitmqCrdHTTPResp(rsp)
+}
+
+// RotateHfRabbitmqCredentialsWithResponse request returning *RotateHfRabbitmqCredentialsHTTPResp
+func (c *ClientWithResponses) RotateHfRabbitmqCredentialsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateHfRabbitmqCredentialsHTTPResp, error) {
+	rsp, err := c.RotateHfRabbitmqCredentials(ctx, organizationId, rabbitmqId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateHfRabbitmqCredentialsHTTPResp(rsp)
+}
+
 // ListIdentityProvidersWithResponse request returning *ListIdentityProvidersHTTPResp
 func (c *ClientWithResponses) ListIdentityProvidersWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListIdentityProvidersHTTPResp, error) {
 	rsp, err := c.ListIdentityProviders(ctx, organizationId, reqEditors...)
@@ -107503,6 +114121,23 @@ func (c *ClientWithResponses) CreateIdentityProviderWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseCreateIdentityProviderHTTPResp(rsp)
+}
+
+// ImportSamlMetadataWithBodyWithResponse request with arbitrary body returning *ImportSamlMetadataHTTPResp
+func (c *ClientWithResponses) ImportSamlMetadataWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportSamlMetadataHTTPResp, error) {
+	rsp, err := c.ImportSamlMetadataWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseImportSamlMetadataHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) ImportSamlMetadataWithResponse(ctx context.Context, organizationId openapi_types.UUID, body ImportSamlMetadataJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportSamlMetadataHTTPResp, error) {
+	rsp, err := c.ImportSamlMetadata(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseImportSamlMetadataHTTPResp(rsp)
 }
 
 // DeleteIdentityProviderWithResponse request returning *DeleteIdentityProviderHTTPResp
@@ -107573,6 +114208,15 @@ func (c *ClientWithResponses) RevokeInvitationWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseRevokeInvitationHTTPResp(rsp)
+}
+
+// CreateInvitationLinkWithResponse request returning *CreateInvitationLinkHTTPResp
+func (c *ClientWithResponses) CreateInvitationLinkWithResponse(ctx context.Context, organizationId openapi_types.UUID, invitationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*CreateInvitationLinkHTTPResp, error) {
+	rsp, err := c.CreateInvitationLink(ctx, organizationId, invitationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateInvitationLinkHTTPResp(rsp)
 }
 
 // ResendInvitationWithResponse request returning *ResendInvitationHTTPResp
@@ -107769,6 +114413,32 @@ func (c *ClientWithResponses) PatchManagedPostgresqlCrdWithResponse(ctx context.
 	return ParsePatchManagedPostgresqlCrdHTTPResp(rsp)
 }
 
+// GetManagedPostgresqlExtensionsWithResponse request returning *GetManagedPostgresqlExtensionsHTTPResp
+func (c *ClientWithResponses) GetManagedPostgresqlExtensionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetManagedPostgresqlExtensionsHTTPResp, error) {
+	rsp, err := c.GetManagedPostgresqlExtensions(ctx, organizationId, instanceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetManagedPostgresqlExtensionsHTTPResp(rsp)
+}
+
+// SetManagedPostgresqlExtensionsWithBodyWithResponse request with arbitrary body returning *SetManagedPostgresqlExtensionsHTTPResp
+func (c *ClientWithResponses) SetManagedPostgresqlExtensionsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetManagedPostgresqlExtensionsHTTPResp, error) {
+	rsp, err := c.SetManagedPostgresqlExtensionsWithBody(ctx, organizationId, instanceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetManagedPostgresqlExtensionsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetManagedPostgresqlExtensionsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body SetManagedPostgresqlExtensionsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetManagedPostgresqlExtensionsHTTPResp, error) {
+	rsp, err := c.SetManagedPostgresqlExtensions(ctx, organizationId, instanceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetManagedPostgresqlExtensionsHTTPResp(rsp)
+}
+
 // StreamPostgresLogsWithResponse request returning *StreamPostgresLogsHTTPResp
 func (c *ClientWithResponses) StreamPostgresLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, params *StreamPostgresLogsParams, reqEditors ...RequestEditorFn) (*StreamPostgresLogsHTTPResp, error) {
 	rsp, err := c.StreamPostgresLogs(ctx, organizationId, instanceId, params, reqEditors...)
@@ -107958,6 +114628,23 @@ func (c *ClientWithResponses) PatchModelServingWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParsePatchModelServingHTTPResp(rsp)
+}
+
+// DecideModelServingWithBodyWithResponse request with arbitrary body returning *DecideModelServingHTTPResp
+func (c *ClientWithResponses) DecideModelServingWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DecideModelServingHTTPResp, error) {
+	rsp, err := c.DecideModelServingWithBody(ctx, organizationId, name, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDecideModelServingHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) DecideModelServingWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideModelServingJSONRequestBody, reqEditors ...RequestEditorFn) (*DecideModelServingHTTPResp, error) {
+	rsp, err := c.DecideModelServing(ctx, organizationId, name, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDecideModelServingHTTPResp(rsp)
 }
 
 // GetAiAgentMetricsWithResponse request returning *GetAiAgentMetricsHTTPResp
@@ -108182,6 +114869,24 @@ func (c *ClientWithResponses) GetHfKeyValueCacheMetricsWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseGetHfKeyValueCacheMetricsHTTPResp(rsp)
+}
+
+// GetHfRabbitmqLogsWithResponse request returning *GetHfRabbitmqLogsHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqLogsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqLogsHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqLogs(ctx, organizationId, rabbitmqId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqLogsHTTPResp(rsp)
+}
+
+// GetHfRabbitmqMetricsWithResponse request returning *GetHfRabbitmqMetricsHTTPResp
+func (c *ClientWithResponses) GetHfRabbitmqMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, rabbitmqId openapi_types.UUID, params *GetHfRabbitmqMetricsParams, reqEditors ...RequestEditorFn) (*GetHfRabbitmqMetricsHTTPResp, error) {
+	rsp, err := c.GetHfRabbitmqMetrics(ctx, organizationId, rabbitmqId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHfRabbitmqMetricsHTTPResp(rsp)
 }
 
 // GetKafkaLogsWithResponse request returning *GetKafkaLogsHTTPResp
@@ -109007,6 +115712,23 @@ func (c *ClientWithResponses) BindRoleToServiceAccountWithResponse(ctx context.C
 	return ParseBindRoleToServiceAccountHTTPResp(rsp)
 }
 
+// DecideSharedModelWithBodyWithResponse request with arbitrary body returning *DecideSharedModelHTTPResp
+func (c *ClientWithResponses) DecideSharedModelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DecideSharedModelHTTPResp, error) {
+	rsp, err := c.DecideSharedModelWithBody(ctx, organizationId, name, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDecideSharedModelHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) DecideSharedModelWithResponse(ctx context.Context, organizationId openapi_types.UUID, name string, body DecideSharedModelJSONRequestBody, reqEditors ...RequestEditorFn) (*DecideSharedModelHTTPResp, error) {
+	rsp, err := c.DecideSharedModel(ctx, organizationId, name, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDecideSharedModelHTTPResp(rsp)
+}
+
 // GetOrgStorageWithResponse request returning *GetOrgStorageHTTPResp
 func (c *ClientWithResponses) GetOrgStorageWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrgStorageHTTPResp, error) {
 	rsp, err := c.GetOrgStorage(ctx, organizationId, reqEditors...)
@@ -109031,6 +115753,24 @@ func (c *ClientWithResponses) PatchOrgStorageWithResponse(ctx context.Context, o
 		return nil, err
 	}
 	return ParsePatchOrgStorageHTTPResp(rsp)
+}
+
+// ListStorageBudgetsWithResponse request returning *ListStorageBudgetsHTTPResp
+func (c *ClientWithResponses) ListStorageBudgetsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListStorageBudgetsHTTPResp, error) {
+	rsp, err := c.ListStorageBudgets(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStorageBudgetsHTTPResp(rsp)
+}
+
+// GetStorageLimitsWithResponse request returning *GetStorageLimitsHTTPResp
+func (c *ClientWithResponses) GetStorageLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetStorageLimitsHTTPResp, error) {
+	rsp, err := c.GetStorageLimits(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStorageLimitsHTTPResp(rsp)
 }
 
 // ListHarborBindingsWithResponse request returning *ListHarborBindingsHTTPResp
@@ -109417,6 +116157,76 @@ func (c *ClientWithResponses) DeleteVirtualMachineUserCrdWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseDeleteVirtualMachineUserCrdHTTPResp(rsp)
+}
+
+// ListVolumeBackendsWithResponse request returning *ListVolumeBackendsHTTPResp
+func (c *ClientWithResponses) ListVolumeBackendsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*ListVolumeBackendsHTTPResp, error) {
+	rsp, err := c.ListVolumeBackends(ctx, organizationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVolumeBackendsHTTPResp(rsp)
+}
+
+// GetOrgCvePoliciesWithResponse request returning *GetOrgCvePoliciesHTTPResp
+func (c *ClientWithResponses) GetOrgCvePoliciesWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrgCvePoliciesHTTPResp, error) {
+	rsp, err := c.GetOrgCvePolicies(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOrgCvePoliciesHTTPResp(rsp)
+}
+
+// ListOrgCveEnforcementsWithResponse request returning *ListOrgCveEnforcementsHTTPResp
+func (c *ClientWithResponses) ListOrgCveEnforcementsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListOrgCveEnforcementsParams, reqEditors ...RequestEditorFn) (*ListOrgCveEnforcementsHTTPResp, error) {
+	rsp, err := c.ListOrgCveEnforcements(ctx, organizationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListOrgCveEnforcementsHTTPResp(rsp)
+}
+
+// CreateOrgCvePolicyRuleWithBodyWithResponse request with arbitrary body returning *CreateOrgCvePolicyRuleHTTPResp
+func (c *ClientWithResponses) CreateOrgCvePolicyRuleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrgCvePolicyRuleHTTPResp, error) {
+	rsp, err := c.CreateOrgCvePolicyRuleWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrgCvePolicyRuleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrgCvePolicyRuleHTTPResp, error) {
+	rsp, err := c.CreateOrgCvePolicyRule(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrgCvePolicyRuleHTTPResp(rsp)
+}
+
+// DeleteOrgCvePolicyRuleWithResponse request returning *DeleteOrgCvePolicyRuleHTTPResp
+func (c *ClientWithResponses) DeleteOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteOrgCvePolicyRuleHTTPResp, error) {
+	rsp, err := c.DeleteOrgCvePolicyRule(ctx, organizationId, ruleId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteOrgCvePolicyRuleHTTPResp(rsp)
+}
+
+// UpdateOrgCvePolicyRuleWithBodyWithResponse request with arbitrary body returning *UpdateOrgCvePolicyRuleHTTPResp
+func (c *ClientWithResponses) UpdateOrgCvePolicyRuleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOrgCvePolicyRuleHTTPResp, error) {
+	rsp, err := c.UpdateOrgCvePolicyRuleWithBody(ctx, organizationId, ruleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateOrgCvePolicyRuleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateOrgCvePolicyRuleWithResponse(ctx context.Context, organizationId openapi_types.UUID, ruleId openapi_types.UUID, body UpdateOrgCvePolicyRuleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOrgCvePolicyRuleHTTPResp, error) {
+	rsp, err := c.UpdateOrgCvePolicyRule(ctx, organizationId, ruleId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateOrgCvePolicyRuleHTTPResp(rsp)
 }
 
 // GetOrgImageDetailWithResponse request returning *GetOrgImageDetailHTTPResp
@@ -111825,6 +118635,46 @@ func ParseListCatalogHTTPResp(rsp *http.Response) (*ListCatalogHTTPResp, error) 
 	return response, nil
 }
 
+// ParseDeletePathHTTPResp parses an HTTP response from a DeletePathWithResponse call
+func ParseDeletePathHTTPResp(rsp *http.Response) (*DeletePathHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeletePathHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseReadFileHTTPResp parses an HTTP response from a ReadFileWithResponse call
 func ParseReadFileHTTPResp(rsp *http.Response) (*ReadFileHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -111946,6 +118796,46 @@ func ParseListFilesHTTPResp(rsp *http.Response) (*ListFilesHTTPResp, error) {
 			return nil, err
 		}
 		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateFolderHTTPResp parses an HTTP response from a CreateFolderWithResponse call
+func ParseCreateFolderHTTPResp(rsp *http.Response) (*CreateFolderHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateFolderHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -114198,6 +121088,39 @@ func ParseListChangelogsHandlerHTTPResp(rsp *http.Response) (*ListChangelogsHand
 	return response, nil
 }
 
+// ParseAcknowledgeChangelogsHandlerHTTPResp parses an HTTP response from a AcknowledgeChangelogsHandlerWithResponse call
+func ParseAcknowledgeChangelogsHandlerHTTPResp(rsp *http.Response) (*AcknowledgeChangelogsHandlerHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcknowledgeChangelogsHandlerHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListRunnerFlavorsHTTPResp parses an HTTP response from a ListRunnerFlavorsWithResponse call
 func ParseListRunnerFlavorsHTTPResp(rsp *http.Response) (*ListRunnerFlavorsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -115369,6 +122292,13 @@ func ParseCreateSchemaHTTPResp(rsp *http.Response) (*CreateSchemaHTTPResp, error
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -115415,6 +122345,13 @@ func ParseDeleteSchemaHTTPResp(rsp *http.Response) (*DeleteSchemaHTTPResp, error
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -118777,6 +125714,13 @@ func ParseEnableSqlEngineHTTPResp(rsp *http.Response) (*EnableSqlEngineHTTPResp,
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -120068,6 +127012,13 @@ func ParseCreateKafkaHfServiceHTTPResp(rsp *http.Response) (*CreateKafkaHfServic
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -120227,6 +127178,86 @@ func ParseCheckAccessHTTPResp(rsp *http.Response) (*CheckAccessHTTPResp, error) 
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAgentVerdictsHTTPResp parses an HTTP response from a ListAgentVerdictsWithResponse call
+func ParseListAgentVerdictsHTTPResp(rsp *http.Response) (*ListAgentVerdictsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAgentVerdictsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AgentVerdictDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLiftAgentVerdictHTTPResp parses an HTTP response from a LiftAgentVerdictWithResponse call
+func ParseLiftAgentVerdictHTTPResp(rsp *http.Response) (*LiftAgentVerdictHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LiftAgentVerdictHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AgentVerdictDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 
@@ -122582,6 +129613,13 @@ func ParsePatchComputeDockCrdHTTPResp(rsp *http.Response) (*PatchComputeDockCrdH
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -122870,6 +129908,13 @@ func ParsePatchContainerAppCrdHTTPResp(rsp *http.Response) (*PatchContainerAppCr
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -125382,6 +132427,13 @@ func ParseCreateComputeDockCrdHTTPResp(rsp *http.Response) (*CreateComputeDockCr
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -125475,6 +132527,13 @@ func ParseCreateContainerAppCrdHTTPResp(rsp *http.Response) (*CreateContainerApp
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -126397,6 +133456,107 @@ func ParseCreateHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*CreateHfKeyValu
 	return response, nil
 }
 
+// ParseListHfRabbitmqsHTTPResp parses an HTTP response from a ListHfRabbitmqsWithResponse call
+func ParseListHfRabbitmqsHTTPResp(rsp *http.Response) (*ListHfRabbitmqsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListHfRabbitmqsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateHfRabbitmqCrdHTTPResp parses an HTTP response from a CreateHfRabbitmqCrdWithResponse call
+func ParseCreateHfRabbitmqCrdHTTPResp(rsp *http.Response) (*CreateHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListManagedPostgresqlsHTTPResp parses an HTTP response from a ListManagedPostgresqlsWithResponse call
 func ParseListManagedPostgresqlsHTTPResp(rsp *http.Response) (*ListManagedPostgresqlsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -126485,6 +133645,13 @@ func ParseCreateManagedPostgresqlCrdHTTPResp(rsp *http.Response) (*CreateManaged
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -126633,6 +133800,13 @@ func ParseCreateNextflowCrdHTTPResp(rsp *http.Response) (*CreateNextflowCrdHTTPR
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -127605,6 +134779,147 @@ func ParseDeleteServiceLinkHTTPResp(rsp *http.Response) (*DeleteServiceLinkHTTPR
 	return response, nil
 }
 
+// ParseDeleteStorageBudgetHTTPResp parses an HTTP response from a DeleteStorageBudgetWithResponse call
+func ParseDeleteStorageBudgetHTTPResp(rsp *http.Response) (*DeleteStorageBudgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStorageBudgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetStorageBudgetHTTPResp parses an HTTP response from a GetStorageBudgetWithResponse call
+func ParseGetStorageBudgetHTTPResp(rsp *http.Response) (*GetStorageBudgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStorageBudgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HarborBudgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutStorageBudgetHTTPResp parses an HTTP response from a PutStorageBudgetWithResponse call
+func ParsePutStorageBudgetHTTPResp(rsp *http.Response) (*PutStorageBudgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutStorageBudgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HarborBudgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListVirtualMachinesHTTPResp parses an HTTP response from a ListVirtualMachinesWithResponse call
 func ParseListVirtualMachinesHTTPResp(rsp *http.Response) (*ListVirtualMachinesHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -128195,6 +135510,227 @@ func ParsePatchHfKeyValueCacheCrdHTTPResp(rsp *http.Response) (*PatchHfKeyValueC
 	return response, nil
 }
 
+// ParseGetHfRabbitmqHTTPResp parses an HTTP response from a GetHfRabbitmqWithResponse call
+func ParseGetHfRabbitmqHTTPResp(rsp *http.Response) (*GetHfRabbitmqHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HfRabbitMqResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteHfRabbitmqCrdHTTPResp parses an HTTP response from a DeleteHfRabbitmqCrdWithResponse call
+func ParseDeleteHfRabbitmqCrdHTTPResp(rsp *http.Response) (*DeleteHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqCrdHTTPResp parses an HTTP response from a GetHfRabbitmqCrdWithResponse call
+func ParseGetHfRabbitmqCrdHTTPResp(rsp *http.Response) (*GetHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HfRabbitMqCrdSpecResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchHfRabbitmqCrdHTTPResp parses an HTTP response from a PatchHfRabbitmqCrdWithResponse call
+func ParsePatchHfRabbitmqCrdHTTPResp(rsp *http.Response) (*PatchHfRabbitmqCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchHfRabbitmqCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateHfRabbitmqCredentialsHTTPResp parses an HTTP response from a RotateHfRabbitmqCredentialsWithResponse call
+func ParseRotateHfRabbitmqCredentialsHTTPResp(rsp *http.Response) (*RotateHfRabbitmqCredentialsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateHfRabbitmqCredentialsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListIdentityProvidersHTTPResp parses an HTTP response from a ListIdentityProvidersWithResponse call
 func ParseListIdentityProvidersHTTPResp(rsp *http.Response) (*ListIdentityProvidersHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -128210,7 +135746,7 @@ func ParseListIdentityProvidersHTTPResp(rsp *http.Response) (*ListIdentityProvid
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []IdentityProvider
+		var dest IdentityProviderList
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -128289,6 +135825,53 @@ func ParseCreateIdentityProviderHTTPResp(rsp *http.Response) (*CreateIdentityPro
 	return response, nil
 }
 
+// ParseImportSamlMetadataHTTPResp parses an HTTP response from a ImportSamlMetadataWithResponse call
+func ParseImportSamlMetadataHTTPResp(rsp *http.Response) (*ImportSamlMetadataHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ImportSamlMetadataHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SamlMetadata
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteIdentityProviderHTTPResp parses an HTTP response from a DeleteIdentityProviderWithResponse call
 func ParseDeleteIdentityProviderHTTPResp(rsp *http.Response) (*DeleteIdentityProviderHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -128309,6 +135892,13 @@ func ParseDeleteIdentityProviderHTTPResp(rsp *http.Response) (*DeleteIdentityPro
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -128411,6 +136001,13 @@ func ParseUpdateIdentityProviderHTTPResp(rsp *http.Response) (*UpdateIdentityPro
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -128478,7 +136075,7 @@ func ParseCreateInvitationHTTPResp(rsp *http.Response) (*CreateInvitationHTTPRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest OrganizationInvitation
+		var dest IssuedInvitation
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -128564,6 +136161,53 @@ func ParseRevokeInvitationHTTPResp(rsp *http.Response) (*RevokeInvitationHTTPRes
 	return response, nil
 }
 
+// ParseCreateInvitationLinkHTTPResp parses an HTTP response from a CreateInvitationLinkWithResponse call
+func ParseCreateInvitationLinkHTTPResp(rsp *http.Response) (*CreateInvitationLinkHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateInvitationLinkHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest InvitationLink
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseResendInvitationHTTPResp parses an HTTP response from a ResendInvitationWithResponse call
 func ParseResendInvitationHTTPResp(rsp *http.Response) (*ResendInvitationHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -128578,6 +136222,13 @@ func ParseResendInvitationHTTPResp(rsp *http.Response) (*ResendInvitationHTTPRes
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OrganizationInvitation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -129283,6 +136934,13 @@ func ParseDeleteManagedPostgresqlCrdHTTPResp(rsp *http.Response) (*DeleteManaged
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -129351,6 +137009,114 @@ func ParsePatchManagedPostgresqlCrdHTTPResp(rsp *http.Response) (*PatchManagedPo
 	}
 
 	response := &PatchManagedPostgresqlCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetManagedPostgresqlExtensionsHTTPResp parses an HTTP response from a GetManagedPostgresqlExtensionsWithResponse call
+func ParseGetManagedPostgresqlExtensionsHTTPResp(rsp *http.Response) (*GetManagedPostgresqlExtensionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetManagedPostgresqlExtensionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManagedPostgresqlExtensionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetManagedPostgresqlExtensionsHTTPResp parses an HTTP response from a SetManagedPostgresqlExtensionsWithResponse call
+func ParseSetManagedPostgresqlExtensionsHTTPResp(rsp *http.Response) (*SetManagedPostgresqlExtensionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetManagedPostgresqlExtensionsHTTPResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -129908,6 +137674,13 @@ func ParseCreateModelServingHTTPResp(rsp *http.Response) (*CreateModelServingHTT
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -130109,6 +137882,88 @@ func ParsePatchModelServingHTTPResp(rsp *http.Response) (*PatchModelServingHTTPR
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDecideModelServingHTTPResp parses an HTTP response from a DecideModelServingWithResponse call
+func ParseDecideModelServingHTTPResp(rsp *http.Response) (*DecideModelServingHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DecideModelServingHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SystemOneResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -131292,6 +139147,100 @@ func ParseGetHfKeyValueCacheMetricsHTTPResp(rsp *http.Response) (*GetHfKeyValueC
 	return response, nil
 }
 
+// ParseGetHfRabbitmqLogsHTTPResp parses an HTTP response from a GetHfRabbitmqLogsWithResponse call
+func ParseGetHfRabbitmqLogsHTTPResp(rsp *http.Response) (*GetHfRabbitmqLogsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqLogsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceLogsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHfRabbitmqMetricsHTTPResp parses an HTTP response from a GetHfRabbitmqMetricsWithResponse call
+func ParseGetHfRabbitmqMetricsHTTPResp(rsp *http.Response) (*GetHfRabbitmqMetricsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHfRabbitmqMetricsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceMetricsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetKafkaLogsHTTPResp parses an HTTP response from a GetKafkaLogsWithResponse call
 func ParseGetKafkaLogsHTTPResp(rsp *http.Response) (*GetKafkaLogsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -131951,6 +139900,13 @@ func ParsePatchNextflowCrdHTTPResp(rsp *http.Response) (*PatchNextflowCrdHTTPRes
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -134753,6 +142709,88 @@ func ParseBindRoleToServiceAccountHTTPResp(rsp *http.Response) (*BindRoleToServi
 	return response, nil
 }
 
+// ParseDecideSharedModelHTTPResp parses an HTTP response from a DecideSharedModelWithResponse call
+func ParseDecideSharedModelHTTPResp(rsp *http.Response) (*DecideSharedModelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DecideSharedModelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SystemOneResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetOrgStorageHTTPResp parses an HTTP response from a GetOrgStorageWithResponse call
 func ParseGetOrgStorageHTTPResp(rsp *http.Response) (*GetOrgStorageHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -134827,6 +142865,93 @@ func ParsePatchOrgStorageHTTPResp(rsp *http.Response) (*PatchOrgStorageHTTPResp,
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStorageBudgetsHTTPResp parses an HTTP response from a ListStorageBudgetsWithResponse call
+func ParseListStorageBudgetsHTTPResp(rsp *http.Response) (*ListStorageBudgetsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStorageBudgetsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HarborBudgetsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetStorageLimitsHTTPResp parses an HTTP response from a GetStorageLimitsWithResponse call
+func ParseGetStorageLimitsHTTPResp(rsp *http.Response) (*GetStorageLimitsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStorageLimitsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest StorageLimitMatrix
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 
@@ -136265,6 +144390,274 @@ func ParseDeleteVirtualMachineUserCrdHTTPResp(rsp *http.Response) (*DeleteVirtua
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVolumeBackendsHTTPResp parses an HTTP response from a ListVolumeBackendsWithResponse call
+func ParseListVolumeBackendsHTTPResp(rsp *http.Response) (*ListVolumeBackendsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVolumeBackendsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeBackendListing
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetOrgCvePoliciesHTTPResp parses an HTTP response from a GetOrgCvePoliciesWithResponse call
+func ParseGetOrgCvePoliciesHTTPResp(rsp *http.Response) (*GetOrgCvePoliciesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOrgCvePoliciesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OrgCvePolicyView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListOrgCveEnforcementsHTTPResp parses an HTTP response from a ListOrgCveEnforcementsWithResponse call
+func ParseListOrgCveEnforcementsHTTPResp(rsp *http.Response) (*ListOrgCveEnforcementsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListOrgCveEnforcementsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []CveEnforcement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOrgCvePolicyRuleHTTPResp parses an HTTP response from a CreateOrgCvePolicyRuleWithResponse call
+func ParseCreateOrgCvePolicyRuleHTTPResp(rsp *http.Response) (*CreateOrgCvePolicyRuleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOrgCvePolicyRuleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest CveRule
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteOrgCvePolicyRuleHTTPResp parses an HTTP response from a DeleteOrgCvePolicyRuleWithResponse call
+func ParseDeleteOrgCvePolicyRuleHTTPResp(rsp *http.Response) (*DeleteOrgCvePolicyRuleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteOrgCvePolicyRuleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateOrgCvePolicyRuleHTTPResp parses an HTTP response from a UpdateOrgCvePolicyRuleWithResponse call
+func ParseUpdateOrgCvePolicyRuleHTTPResp(rsp *http.Response) (*UpdateOrgCvePolicyRuleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateOrgCvePolicyRuleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CveRule
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -140284,6 +148677,13 @@ func ParseUnlinkMyIdentityProviderHTTPResp(rsp *http.Response) (*UnlinkMyIdentit
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
 		var dest ApiErrorBody

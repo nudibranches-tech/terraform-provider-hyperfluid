@@ -40,6 +40,33 @@ resource "hyperfluid_managed_postgresql" "db" {
     enabled                  = true
     archive_interval_seconds = 300
   }
+
+  # Extensions from the platform catalog. Once set, this is the whole declared
+  # list: an entry removed from it stays installed (reported `unmanaged` in
+  # extension_status), and dropping one takes ensure = "absent".
+  # pg_stat_statements is preloaded, so enabling it restarts the cluster.
+  extensions = [
+    { name = "postgres_fdw" },
+    { name = "pg_stat_statements" },
+    { name = "citext", version = "1.6" },
+    { name = "hstore", ensure = "absent" },
+  ]
+}
+
+# PostGIS extensions ship in the postgis image only.
+resource "hyperfluid_managed_postgresql" "geo" {
+  env              = data.hyperfluid_environment.default.id
+  name             = "geodb"
+  database_name    = "geodb"
+  engine           = "postgis"
+  version          = "17"
+  node_tier        = "nano"
+  storage_capacity = 5
+
+  extensions = [
+    { name = "postgis" },
+    { name = "postgis_topology" },
+  ]
 }
 
 # A second database recovered from the first one's archive, as it stood at a
@@ -66,6 +93,12 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   # change. Change this token alongside it to ask for the restore again; that
   # replaces the database, which is the only moment a restore happens.
   restore_wo_version = "1"
+}
+
+# What the operator reports for every extension: installing, installed,
+# failed (with a message), absent or unmanaged.
+output "extensions" {
+  value = hyperfluid_managed_postgresql.db.extension_status
 }
 
 output "write_endpoint" {

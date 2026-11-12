@@ -72,6 +72,7 @@ type managedPostgresqlModel struct {
 	Pitr             types.Object `tfsdk:"pitr"`
 	Restore          types.Object `tfsdk:"restore"`
 	RestoreWoVersion types.String `tfsdk:"restore_wo_version"`
+	Extensions       types.Set    `tfsdk:"extensions"`
 
 	// computed
 	Phase            types.String `tfsdk:"phase"`
@@ -81,6 +82,7 @@ type managedPostgresqlModel struct {
 	ReadEndpoint     types.String `tfsdk:"read_endpoint"`
 	ExternalEndpoint types.String `tfsdk:"external_endpoint"`
 	Slug             types.String `tfsdk:"slug"`
+	ExtensionStatus  types.List   `tfsdk:"extension_status"`
 
 	ArchiveIntervalSeconds   types.Int64  `tfsdk:"archive_interval_seconds"`
 	FirstRecoverabilityPoint types.String `tfsdk:"first_recoverability_point"`
@@ -122,11 +124,14 @@ func restoreType() basetypes.ObjectType {
 // refresh keeps what the configuration asked for instead of nulling it: the
 // status view reports neither the backup target or placement a database ships
 // to nor its recovery policy, and the CRD spec view exposes none of them either.
+// Extensions is the prior value of the declared set: null means Terraform does
+// not manage the list, and it stays null.
 type managedPostgresqlKeep struct {
 	Pitr             types.Object
 	BackupTargetID   types.String
 	BackupPlacement  types.String
 	RestoreWoVersion types.String
+	Extensions       types.Set
 }
 
 func (r *managedPostgresqlResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -276,6 +281,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				Validators:          []validator.String{stringvalidator.AlsoRequires(path.MatchRoot("restore"))},
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
+			"extensions":       extensionsSchema(),
+			"extension_status": extensionStatusSchema(),
 
 			"phase":             computedStr("Current lifecycle phase."),
 			"instances":         schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired instance count."},
@@ -385,6 +392,16 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	}
 	body.Restore = restore
 
+	extensions, manageExtensions, d := extensionRequestsFrom(ctx, plan.Extensions)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	names, inCreate := createExtensionNames(extensions)
+	if manageExtensions && inCreate && len(names) > 0 {
+		body.Extensions = &names
+	}
+
 	created, err := r.p.API.CreateManagedPostgresql(ctx, r.p.OrgID, plan.Env.ValueString(), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create managed postgresql", err.Error())
@@ -396,11 +413,31 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
+	if manageExtensions && !inCreate {
+		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
+			resp.Diagnostics.AddError("Failed to set managed postgresql extensions", err.Error())
+			return
+		}
+	}
+	// A failed extension is a warning here, not an error: an error after the
+	// cluster exists would taint it, and the next apply would replace the
+	// database, data included, to retry an extension.
+	if manageExtensions {
+		if err := r.waitExtensions(ctx, id, extensions); err != nil {
+			resp.Diagnostics.AddWarning("Extensions did not settle",
+				"The cluster was created, but its extensions are not all installed: "+err.Error()+
+					". See `extension_status`; fix the declaration and apply again.")
+		} else if err := r.waitReady(ctx, id); err != nil {
+			resp.Diagnostics.AddError("Cluster did not become ready after enabling extensions", err.Error())
+			return
+		}
+	}
 	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
 		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
+		Extensions:       plan.Extensions,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after create", err.Error())
@@ -420,6 +457,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 		BackupTargetID:   prior.BackupTargetID,
 		BackupPlacement:  prior.BackupPlacement,
 		RestoreWoVersion: prior.RestoreWoVersion,
+		Extensions:       prior.Extensions,
 	})
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
@@ -484,11 +522,34 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		resp.Diagnostics.AddError("Cluster did not become ready after update", err.Error())
 		return
 	}
+
+	// Sent only when the declared set changes. A set removed from the
+	// configuration stops being managed here and is left as it is.
+	extensions, manageExtensions, d := extensionRequestsFrom(ctx, plan.Extensions)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var extensionErr error
+	if manageExtensions && !plan.Extensions.Equal(state.Extensions) {
+		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
+			resp.Diagnostics.AddError("Failed to set managed postgresql extensions", err.Error())
+			return
+		}
+		if extensionErr = r.waitExtensions(ctx, id, extensions); extensionErr == nil {
+			if err := r.waitReady(ctx, id); err != nil {
+				resp.Diagnostics.AddError("Cluster did not become ready after changing extensions", err.Error())
+				return
+			}
+		}
+	}
+
 	newState, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
 		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
+		Extensions:       plan.Extensions,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after update", err.Error())
@@ -511,7 +572,15 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		newState.Tags = plan.Tags
 	}
 	newState.Description = plan.Description
+	if !plan.Extensions.IsUnknown() {
+		newState.Extensions = plan.Extensions
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
+	// Reported after the state is saved, so the declaration is kept and the
+	// failure stays visible in `extension_status` rather than re-planned.
+	if extensionErr != nil {
+		resp.Diagnostics.AddError("Extensions did not settle", extensionErr.Error()+". See `extension_status`.")
+	}
 }
 
 func (r *managedPostgresqlResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -578,6 +647,22 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 	if d.HasError() {
 		return managedPostgresqlModel{}, errors.New("failed to convert tags")
 	}
+	managed := !keep.Extensions.IsNull() && !keep.Extensions.IsUnknown()
+	ext, err := r.readExtensions(ctx, id, managed)
+	if err != nil {
+		return managedPostgresqlModel{}, err
+	}
+	extensions, d := extensionsFromDeclared(ctx, ext, keep.Extensions)
+	if d.HasError() {
+		return managedPostgresqlModel{}, errors.New("failed to convert extensions")
+	}
+	if extensions.IsUnknown() {
+		extensions = types.SetNull(extensionObjectType())
+	}
+	extensionStatus, d := extensionStatusFrom(ctx, ext)
+	if d.HasError() {
+		return managedPostgresqlModel{}, errors.New("failed to convert extension_status")
+	}
 
 	m := managedPostgresqlModel{
 		ID:               types.StringValue(id),
@@ -606,6 +691,8 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 		Pitr:                     keep.Pitr,
 		Restore:                  types.ObjectNull(restoreType().AttrTypes),
 		RestoreWoVersion:         keep.RestoreWoVersion,
+		Extensions:               extensions,
+		ExtensionStatus:          extensionStatus,
 		ArchiveIntervalSeconds:   optInt64FromInt32(c.ArchiveIntervalSeconds),
 		FirstRecoverabilityPoint: optTimeString(c.FirstRecoverabilityPoint),
 		LastSuccessfulBackupTime: optTimeString(c.LastSuccessfulBackupTime),
