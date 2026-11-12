@@ -51,12 +51,11 @@ resource "hyperfluid_managed_postgresql" "db" {
   ]
 }
 
-# PostGIS extensions need the postgis engine.
+# The engine follows the extensions: this one runs PostGIS.
 resource "hyperfluid_managed_postgresql" "geo" {
   env              = data.hyperfluid_environment.default.id
   name             = "geodb"
   database_name    = "geodb"
-  engine           = "postgis"
   version          = "17"
   node_tier        = "nano"
   storage_capacity = 5
@@ -75,9 +74,7 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   name          = "appdb-recovered"
   database_name = "appdb"
 
-  # A restore refuses any engine or version but the source's, and an omitted one
-  # is read as postgresql / 17 rather than inherited.
-  engine           = "postgresql"
+  # The engine is the source's. The version must match it.
   version          = "17"
   node_tier        = "nano"
   storage_capacity = 5

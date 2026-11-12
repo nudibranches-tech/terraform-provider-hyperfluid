@@ -69,12 +69,11 @@ resource "hyperfluid_managed_postgresql" "db" {
   ]
 }
 
-# PostGIS extensions need the postgis engine.
+# The engine follows the extensions: this one runs PostGIS.
 resource "hyperfluid_managed_postgresql" "geo" {
   env              = data.hyperfluid_environment.default.id
   name             = "geodb"
   database_name    = "geodb"
-  engine           = "postgis"
   version          = "17"
   node_tier        = "nano"
   storage_capacity = 5
@@ -93,9 +92,7 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   name          = "appdb-recovered"
   database_name = "appdb"
 
-  # A restore refuses any engine or version but the source's, and an omitted one
-  # is read as postgresql / 17 rather than inherited.
-  engine           = "postgresql"
+  # The engine is the source's. The version must match it.
   version          = "17"
   node_tier        = "nano"
   storage_capacity = 5
@@ -148,12 +145,12 @@ output "recovery_window" {
 - `backup_target_id` (String) Id of the backup target that receives backups. Conflicts with `backup_placement`; `automated` backups and `pitr` need one of the two. Not recovered by import. Changing this forces a new cluster.
 - `configuration` (String) Topology: `standalone` or `high-availability`.
 - `description` (String) Free-form description.
-- `engine` (String) Engine: `postgresql` or `postgis`. PostGIS extensions need `postgis`. Changing this forces a new cluster.
+- `engine` (String) Engine: `postgresql` or `postgis`. Defaults to the one `extensions` need, or the source's on a `restore`. Changing this forces a new cluster.
 - `expose_to_internet` (Boolean) Whether the cluster gets an external endpoint reachable from the internet. Defaults to false.
 - `extensions` (Attributes Set) PostgreSQL extensions to enable. Removing an entry does not uninstall the extension: set `ensure = "absent"` to drop it. Enabling `pg_stat_statements` or `pgaudit` restarts the cluster. (see [below for nested schema](#nestedatt--extensions))
 - `node_tier` (String) Size: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`.
 - `pitr` (Attributes) Point-in-time recovery policy; needs `backup_target_id` or `backup_placement`. Removing it does not turn recovery off (set `enabled = false`), and import does not recover it. (see [below for nested schema](#nestedatt--pitr))
-- `restore` (Attributes, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Create the database from a backup or another database's archive. Write-only (Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, `version` and enough `storage_capacity` must match the source. (see [below for nested schema](#nestedatt--restore))
+- `restore` (Attributes, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Create the database from a backup or another database's archive. Write-only (Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `version` and enough `storage_capacity` must match the source. (see [below for nested schema](#nestedatt--restore))
 - `restore_wo_version` (String) Any value; change it together with `restore` to restore again. Changing this forces a new cluster.
 - `storage_capacity` (Number) Storage capacity in GB, 1 to 30. It can grow in place but not shrink.
 - `tags` (List of String) User-defined tags.

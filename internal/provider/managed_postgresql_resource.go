@@ -172,8 +172,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"engine": func() schema.StringAttribute {
-				a := forceNewStr("Engine: `postgresql` or `postgis`. PostGIS extensions need `postgis`. " +
-					"Changing this forces a new cluster.")
+				a := forceNewStr("Engine: `postgresql` or `postgis`. Defaults to the one `extensions` need, or the " +
+					"source's on a `restore`. Changing this forces a new cluster.")
 				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis")}
 				return a
 			}(),
@@ -244,8 +244,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 			"restore": schema.SingleNestedAttribute{
 				Optional: true, WriteOnly: true,
 				MarkdownDescription: "Create the database from a backup or another database's archive. Write-only " +
-					"(Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, " +
-					"`version` and enough `storage_capacity` must match the source.",
+					"(Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `version` " +
+					"and enough `storage_capacity` must match the source.",
 				Attributes: map[string]schema.Attribute{
 					"backup_id": schema.StringAttribute{
 						Optional: true, WriteOnly: true,
