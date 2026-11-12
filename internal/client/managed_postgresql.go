@@ -4,7 +4,9 @@
 package client
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -112,7 +114,17 @@ func (c *Client) FindManagedPostgresql(ctx context.Context, orgID, harborID, nam
 	return m.Id.String(), nil
 }
 
-func (c *Client) PatchManagedPostgresql(ctx context.Context, orgID, instanceID string, body console.PatchManagedPostgresqlCrdRequestBody) error {
+// PatchManagedPostgresqlOptions says what a PATCH body cannot: the generated
+// type drops a nil field, and the API reads an absent field and a `null` one
+// differently.
+type PatchManagedPostgresqlOptions struct {
+	// ClearArchiveInterval sends `pitr.archive_interval_seconds: null`, which
+	// clears a pinned interval back to the platform's recommended one. An
+	// absent interval keeps whatever the database pins. Needs body.Pitr.
+	ClearArchiveInterval bool
+}
+
+func (c *Client) PatchManagedPostgresql(ctx context.Context, orgID, instanceID string, body console.PatchManagedPostgresqlCrdRequestBody, opts PatchManagedPostgresqlOptions) error {
 	org, err := parseUUID("organization_id", orgID)
 	if err != nil {
 		return err
@@ -121,11 +133,46 @@ func (c *Client) PatchManagedPostgresql(ctx context.Context, orgID, instanceID s
 	if err != nil {
 		return err
 	}
-	resp, err := c.api.PatchManagedPostgresqlCrdWithResponse(ctx, org, inst, body)
+	raw, err := patchManagedPostgresqlBody(body, opts)
+	if err != nil {
+		return err
+	}
+	resp, err := c.api.PatchManagedPostgresqlCrdWithBodyWithResponse(ctx, org, inst, "application/json", bytes.NewReader(raw))
 	if err != nil {
 		return err
 	}
 	return statusErr("patch managed postgresql", resp.StatusCode(), resp.Body)
+}
+
+// patchManagedPostgresqlBody marshals body, then writes the explicit nulls
+// opts asks for.
+func patchManagedPostgresqlBody(body console.PatchManagedPostgresqlCrdRequestBody, opts PatchManagedPostgresqlOptions) ([]byte, error) {
+	raw, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	if !opts.ClearArchiveInterval {
+		return raw, nil
+	}
+	if body.Pitr == nil {
+		return nil, fmt.Errorf("hyperfluid: patch managed postgresql: clearing the archive interval needs a pitr block")
+	}
+	if body.Pitr.ArchiveIntervalSeconds != nil {
+		return nil, fmt.Errorf("hyperfluid: patch managed postgresql: archive interval both set and cleared")
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return nil, err
+	}
+	var pitr map[string]json.RawMessage
+	if err := json.Unmarshal(fields["pitr"], &pitr); err != nil {
+		return nil, err
+	}
+	pitr["archive_interval_seconds"] = json.RawMessage("null")
+	if fields["pitr"], err = json.Marshal(pitr); err != nil {
+		return nil, err
+	}
+	return json.Marshal(fields)
 }
 
 func (c *Client) DeleteManagedPostgresql(ctx context.Context, orgID, instanceID string) error {

@@ -172,7 +172,9 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"engine": func() schema.StringAttribute {
-				a := forceNewStr("Engine: `postgresql`, `postgis` or `timescaledb`. Changing this forces a new cluster.")
+				a := forceNewStr("Engine, the image the cluster runs: `postgresql`, `postgis` or `timescaledb`. It sets which " +
+					"`extensions` are available (PostGIS extensions ship in the `postgis` image only); enabling an extension " +
+					"never changes it. Changing this forces a new cluster.")
 				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis", "timescaledb")}
 				return a
 			}(),
@@ -236,7 +238,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 						Optional:   true,
 						Validators: []validator.Int64{int64validator.Between(60, 86400)},
 						MarkdownDescription: "Seconds between forced WAL switches, 60 to 86400: the worst-case recovery " +
-							"point on an idle database. Defaults to the platform's interval; once set, removing it keeps the last value.",
+							"point on an idle database. Left out, the database follows the platform's recommended interval, " +
+							"so removing a pinned value clears the pin (platforms before 2.56 keep the last value).",
 					},
 				},
 			},
@@ -514,7 +517,11 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	id := state.ID.ValueString()
-	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body); err != nil {
+	opts := client.PatchManagedPostgresqlOptions{ClearArchiveInterval: clearsArchiveInterval(ctx, plan.Pitr, &resp.Diagnostics)}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body, opts); err != nil {
 		resp.Diagnostics.AddError("Failed to update managed postgresql", err.Error())
 		return
 	}
@@ -718,6 +725,19 @@ func pitrRequestFrom(ctx context.Context, obj types.Object) (*console.PitrReques
 		Enabled:                m.Enabled.ValueBool(),
 		ArchiveIntervalSeconds: int32PtrFromInt64(m.ArchiveIntervalSeconds),
 	}, d
+}
+
+// clearsArchiveInterval reports whether an update must send an explicit null
+// interval: a configured `pitr` that pins none follows the platform's
+// recommended interval, so a pin left on the database (by an earlier apply,
+// the console or hfctl) is cleared. An absent interval would keep it.
+func clearsArchiveInterval(ctx context.Context, obj types.Object, diags *diag.Diagnostics) bool {
+	if obj.IsNull() || obj.IsUnknown() {
+		return false
+	}
+	var m pitrModel
+	diags.Append(obj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	return !diags.HasError() && m.ArchiveIntervalSeconds.IsNull()
 }
 
 // restoreFrom converts a configured `restore` into the API input, parsing the

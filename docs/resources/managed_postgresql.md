@@ -152,7 +152,7 @@ output "recovery_window" {
 - `backup_target_id` (String) Id of the backup target that receives backups. Conflicts with `backup_placement`; `automated` backups and `pitr` need one of the two. Not recovered by import. Changing this forces a new cluster.
 - `configuration` (String) Topology: `standalone` or `high-availability`.
 - `description` (String) Free-form description.
-- `engine` (String) Engine: `postgresql`, `postgis` or `timescaledb`. Changing this forces a new cluster.
+- `engine` (String) Engine, the image the cluster runs: `postgresql`, `postgis` or `timescaledb`. It sets which `extensions` are available (PostGIS extensions ship in the `postgis` image only); enabling an extension never changes it. Changing this forces a new cluster.
 - `expose_to_internet` (Boolean) Whether the cluster gets an external endpoint reachable from the internet. Defaults to false.
 - `extensions` (Attributes Set) Extensions to enable from the platform catalog. When set, it is the complete declared list. An extension removed from it stays installed (reported `unmanaged`); drop it with `ensure = "absent"`. Leaving the attribute out does not manage extensions at all. Some extensions (`pg_stat_statements`, `pgaudit`) restart the cluster, and PostGIS extensions need `engine = "postgis"`. Import does not recover it. (see [below for nested schema](#nestedatt--extensions))
 - `node_tier` (String) Size: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`.
@@ -201,7 +201,7 @@ Required:
 
 Optional:
 
-- `archive_interval_seconds` (Number) Seconds between forced WAL switches, 60 to 86400: the worst-case recovery point on an idle database. Defaults to the platform's interval; once set, removing it keeps the last value.
+- `archive_interval_seconds` (Number) Seconds between forced WAL switches, 60 to 86400: the worst-case recovery point on an idle database. Left out, the database follows the platform's recommended interval, so removing a pinned value clears the pin (platforms before 2.56 keep the last value).
 
 
 <a id="nestedatt--restore"></a>

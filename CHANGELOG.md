@@ -8,6 +8,7 @@ FEATURES:
 
 BUG FIXES:
 
+* resource/hyperfluid_managed_postgresql: removing `pitr.archive_interval_seconds` now clears the pinned interval, and the database goes back to the platform's recommended one. An update with a `pitr` block that pins no interval sends it as `null`, which the platform reads as "clear the pin" since 2.56; it used to leave it out, which keeps whatever the database pins, so a value set by an earlier apply, the console or `hfctl` stayed in force. A configuration without a `pitr` block still sends nothing and keeps the policy as it is. Platforms before 2.56 read the `null` as absent and keep the last value, as before.
 * resource/hyperfluid_pipeline: a `schedule` left out of the configuration no longer replaces the pipeline when something else changes (`suspended`, `max_duration_minutes`, or the first apply after an import). The framework marks such a schedule unknown before the plan modifiers run, and the replacement check ran before the prior value was restored.
 
 ## 0.11.0 (October 28, 2026)
