@@ -72,6 +72,7 @@ type managedPostgresqlModel struct {
 	Pitr             types.Object `tfsdk:"pitr"`
 	Restore          types.Object `tfsdk:"restore"`
 	RestoreWoVersion types.String `tfsdk:"restore_wo_version"`
+	Extensions       types.Set    `tfsdk:"extensions"`
 
 	// computed
 	Phase            types.String `tfsdk:"phase"`
@@ -81,6 +82,7 @@ type managedPostgresqlModel struct {
 	ReadEndpoint     types.String `tfsdk:"read_endpoint"`
 	ExternalEndpoint types.String `tfsdk:"external_endpoint"`
 	Slug             types.String `tfsdk:"slug"`
+	ExtensionStatus  types.List   `tfsdk:"extension_status"`
 
 	ArchiveIntervalSeconds   types.Int64  `tfsdk:"archive_interval_seconds"`
 	FirstRecoverabilityPoint types.String `tfsdk:"first_recoverability_point"`
@@ -122,11 +124,14 @@ func restoreType() basetypes.ObjectType {
 // refresh keeps what the configuration asked for instead of nulling it: the
 // status view reports neither the backup target or placement a database ships
 // to nor its recovery policy, and the CRD spec view exposes none of them either.
+// Extensions is the prior value of the declared set: null means Terraform does
+// not manage the list, and it stays null.
 type managedPostgresqlKeep struct {
 	Pitr             types.Object
 	BackupTargetID   types.String
 	BackupPlacement  types.String
 	RestoreWoVersion types.String
+	Extensions       types.Set
 }
 
 func (r *managedPostgresqlResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -167,8 +172,9 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"engine": func() schema.StringAttribute {
-				a := forceNewStr("Engine: `postgresql`, `postgis` or `timescaledb`. Changing this forces a new cluster.")
-				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis", "timescaledb")}
+				a := forceNewStr("Engine: `postgresql` or `postgis`. Defaults to the one `extensions` need, or the " +
+					"source's on a `restore`. Changing this forces a new cluster.")
+				a.Validators = []validator.String{stringvalidator.OneOf("postgresql", "postgis")}
 				return a
 			}(),
 			"version": forceNewStr("PostgreSQL major version, e.g. `17`. Changing this forces a new cluster."),
@@ -231,15 +237,15 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 						Optional:   true,
 						Validators: []validator.Int64{int64validator.Between(60, 86400)},
 						MarkdownDescription: "Seconds between forced WAL switches, 60 to 86400: the worst-case recovery " +
-							"point on an idle database. Defaults to the platform's interval; once set, removing it keeps the last value.",
+							"point on an idle database. Defaults to the platform's interval.",
 					},
 				},
 			},
 			"restore": schema.SingleNestedAttribute{
 				Optional: true, WriteOnly: true,
 				MarkdownDescription: "Create the database from a backup or another database's archive. Write-only " +
-					"(Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `engine`, " +
-					"`version` and enough `storage_capacity` must match the source.",
+					"(Terraform 1.11 or later) and read at create only: change `restore_wo_version` with it. `version` " +
+					"and enough `storage_capacity` must match the source.",
 				Attributes: map[string]schema.Attribute{
 					"backup_id": schema.StringAttribute{
 						Optional: true, WriteOnly: true,
@@ -276,6 +282,8 @@ func (r *managedPostgresqlResource) Schema(_ context.Context, _ resource.SchemaR
 				Validators:          []validator.String{stringvalidator.AlsoRequires(path.MatchRoot("restore"))},
 				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
+			"extensions":       extensionsSchema(),
+			"extension_status": extensionStatusSchema(),
 
 			"phase":             computedStr("Current lifecycle phase."),
 			"instances":         schema.Int64Attribute{Computed: true, MarkdownDescription: "Desired instance count."},
@@ -385,6 +393,16 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 	}
 	body.Restore = restore
 
+	extensions, manageExtensions, d := extensionRequestsFrom(ctx, plan.Extensions)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	names, inCreate := createExtensionNames(extensions)
+	if manageExtensions && inCreate && len(names) > 0 {
+		body.Extensions = &names
+	}
+
 	created, err := r.p.API.CreateManagedPostgresql(ctx, r.p.OrgID, plan.Env.ValueString(), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create managed postgresql", err.Error())
@@ -396,11 +414,23 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
+	// From here the cluster exists, so an extension problem is a warning, never
+	// an error: an error would either lose the cluster from state or taint it,
+	// and the next apply would replace the database to retry an extension. The
+	// state then reads back what was actually declared, so the next plan shows
+	// the difference and the update reports the reason as an error.
+	if manageExtensions {
+		if err := r.applyCreateExtensions(ctx, id, extensions, !inCreate); err != nil {
+			resp.Diagnostics.AddWarning("Extensions not installed",
+				"The cluster was created, but its extensions were not: "+err.Error()+".")
+		}
+	}
 	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
 		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
+		Extensions:       plan.Extensions,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after create", err.Error())
@@ -420,6 +450,7 @@ func (r *managedPostgresqlResource) Read(ctx context.Context, req resource.ReadR
 		BackupTargetID:   prior.BackupTargetID,
 		BackupPlacement:  prior.BackupPlacement,
 		RestoreWoVersion: prior.RestoreWoVersion,
+		Extensions:       prior.Extensions,
 	})
 	if errors.Is(err, client.ErrNotFound) {
 		resp.State.RemoveResource(ctx)
@@ -476,7 +507,11 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	id := state.ID.ValueString()
-	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body); err != nil {
+	opts := client.PatchManagedPostgresqlOptions{ClearArchiveInterval: clearsArchiveInterval(ctx, plan.Pitr, &resp.Diagnostics)}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if err := r.p.API.PatchManagedPostgresql(ctx, r.p.OrgID, id, body, opts); err != nil {
 		resp.Diagnostics.AddError("Failed to update managed postgresql", err.Error())
 		return
 	}
@@ -484,11 +519,34 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		resp.Diagnostics.AddError("Cluster did not become ready after update", err.Error())
 		return
 	}
+
+	// Sent only when the declared set changes. A set removed from the
+	// configuration stops being managed here and is left as it is.
+	extensions, manageExtensions, d := extensionRequestsFrom(ctx, plan.Extensions)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var extensionErr error
+	if manageExtensions && !plan.Extensions.Equal(state.Extensions) {
+		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
+			resp.Diagnostics.AddError("Failed to set managed postgresql extensions", err.Error())
+			return
+		}
+		if extensionErr = r.waitExtensions(ctx, id, extensions); extensionErr == nil {
+			if err := r.waitReady(ctx, id); err != nil {
+				resp.Diagnostics.AddError("Cluster did not become ready after changing extensions", err.Error())
+				return
+			}
+		}
+	}
+
 	newState, err := r.readInto(ctx, id, managedPostgresqlKeep{
 		Pitr:             plan.Pitr,
 		BackupTargetID:   plan.BackupTargetID,
 		BackupPlacement:  plan.BackupPlacement,
 		RestoreWoVersion: plan.RestoreWoVersion,
+		Extensions:       plan.Extensions,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read cluster after update", err.Error())
@@ -511,7 +569,15 @@ func (r *managedPostgresqlResource) Update(ctx context.Context, req resource.Upd
 		newState.Tags = plan.Tags
 	}
 	newState.Description = plan.Description
+	if !plan.Extensions.IsUnknown() {
+		newState.Extensions = plan.Extensions
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
+	// Reported after the state is saved, so the declaration is kept and the
+	// failure stays visible in `extension_status` rather than re-planned.
+	if extensionErr != nil {
+		resp.Diagnostics.AddError("Extensions not installed", extensionErr.Error()+".")
+	}
 }
 
 func (r *managedPostgresqlResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -535,6 +601,20 @@ func (r *managedPostgresqlResource) Delete(ctx context.Context, req resource.Del
 
 func (r *managedPostgresqlResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// applyCreateExtensions declares the extensions of a cluster just created
+// (when the create request could not carry them) and waits for them.
+func (r *managedPostgresqlResource) applyCreateExtensions(ctx context.Context, id string, extensions []console.ExtensionRequestItem, put bool) error {
+	if put {
+		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
+			return err
+		}
+	}
+	if err := r.waitExtensions(ctx, id, extensions); err != nil {
+		return err
+	}
+	return r.waitReady(ctx, id)
 }
 
 func (r *managedPostgresqlResource) waitReady(ctx context.Context, id string) error {
@@ -578,6 +658,22 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 	if d.HasError() {
 		return managedPostgresqlModel{}, errors.New("failed to convert tags")
 	}
+	managed := !keep.Extensions.IsNull() && !keep.Extensions.IsUnknown()
+	ext, err := r.readExtensions(ctx, id, managed)
+	if err != nil {
+		return managedPostgresqlModel{}, err
+	}
+	extensions, d := extensionsFromDeclared(ctx, ext, keep.Extensions)
+	if d.HasError() {
+		return managedPostgresqlModel{}, errors.New("failed to convert extensions")
+	}
+	if extensions.IsUnknown() {
+		extensions = types.SetNull(extensionObjectType())
+	}
+	extensionStatus, d := extensionStatusFrom(ctx, ext)
+	if d.HasError() {
+		return managedPostgresqlModel{}, errors.New("failed to convert extension_status")
+	}
 
 	m := managedPostgresqlModel{
 		ID:               types.StringValue(id),
@@ -606,6 +702,8 @@ func (r *managedPostgresqlResource) readInto(ctx context.Context, id string, kee
 		Pitr:                     keep.Pitr,
 		Restore:                  types.ObjectNull(restoreType().AttrTypes),
 		RestoreWoVersion:         keep.RestoreWoVersion,
+		Extensions:               extensions,
+		ExtensionStatus:          extensionStatus,
 		ArchiveIntervalSeconds:   optInt64FromInt32(c.ArchiveIntervalSeconds),
 		FirstRecoverabilityPoint: optTimeString(c.FirstRecoverabilityPoint),
 		LastSuccessfulBackupTime: optTimeString(c.LastSuccessfulBackupTime),
@@ -631,6 +729,19 @@ func pitrRequestFrom(ctx context.Context, obj types.Object) (*console.PitrReques
 		Enabled:                m.Enabled.ValueBool(),
 		ArchiveIntervalSeconds: int32PtrFromInt64(m.ArchiveIntervalSeconds),
 	}, d
+}
+
+// clearsArchiveInterval reports whether an update must send an explicit null
+// interval: a configured `pitr` that pins none follows the platform's
+// recommended interval, so a pin left on the database (by an earlier apply,
+// the console or hfctl) is cleared. An absent interval would keep it.
+func clearsArchiveInterval(ctx context.Context, obj types.Object, diags *diag.Diagnostics) bool {
+	if obj.IsNull() || obj.IsUnknown() {
+		return false
+	}
+	var m pitrModel
+	diags.Append(obj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	return !diags.HasError() && m.ArchiveIntervalSeconds.IsNull()
 }
 
 // restoreFrom converts a configured `restore` into the API input, parsing the

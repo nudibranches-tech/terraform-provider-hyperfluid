@@ -30,6 +30,7 @@ func fakeDatabases(t *testing.T) (*fakeAPI, *managedPostgresqlResource) {
 	})
 	f.on("GET", `/managed-postgresqls/[^/]+`, func(string, []byte) (int, any) { return 200, db })
 	f.on("PATCH", `/managed-postgresqls/[^/]+/crd`, func(string, []byte) (int, any) { return 200, nil })
+	fakeExtensionsOn(f)
 	return f, &managedPostgresqlResource{p: pd}
 }
 
@@ -38,6 +39,7 @@ func databasePlan(f *fakeAPI) managedPostgresqlModel {
 		Env: types.StringValue(f.env.String()), Name: types.StringValue("orders"), DatabaseName: types.StringValue("orders"),
 		ExposeToInternet: types.BoolValue(false), Tags: types.ListNull(types.StringType),
 		Pitr: types.ObjectNull(pitrType().AttrTypes), Restore: types.ObjectNull(restoreType().AttrTypes),
+		Extensions: types.SetNull(extensionObjectType()), ExtensionStatus: types.ListUnknown(extensionStatusObjectType()),
 	}
 }
 

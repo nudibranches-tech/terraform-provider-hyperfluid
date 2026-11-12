@@ -40,6 +40,30 @@ resource "hyperfluid_managed_postgresql" "db" {
     enabled                  = true
     archive_interval_seconds = 300
   }
+
+  # Removing an entry does not uninstall the extension: use ensure = "absent".
+  # Enabling pg_stat_statements restarts the cluster.
+  extensions = [
+    { name = "postgres_fdw" },
+    { name = "pg_stat_statements" },
+    { name = "citext", version = "1.6" },
+    { name = "hstore", ensure = "absent" },
+  ]
+}
+
+# The engine follows the extensions: this one runs PostGIS.
+resource "hyperfluid_managed_postgresql" "geo" {
+  env              = data.hyperfluid_environment.default.id
+  name             = "geodb"
+  database_name    = "geodb"
+  version          = "17"
+  node_tier        = "nano"
+  storage_capacity = 5
+
+  extensions = [
+    { name = "postgis" },
+    { name = "postgis_topology" },
+  ]
 }
 
 # A second database recovered from the first one's archive, as it stood at a
@@ -50,9 +74,7 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   name          = "appdb-recovered"
   database_name = "appdb"
 
-  # A restore refuses any engine or version but the source's, and an omitted one
-  # is read as postgresql / 17 rather than inherited.
-  engine           = "postgresql"
+  # The engine is the source's. The version must match it.
   version          = "17"
   node_tier        = "nano"
   storage_capacity = 5
@@ -66,6 +88,10 @@ resource "hyperfluid_managed_postgresql" "db_recovered" {
   # change. Change this token alongside it to ask for the restore again; that
   # replaces the database, which is the only moment a restore happens.
   restore_wo_version = "1"
+}
+
+output "extensions" {
+  value = hyperfluid_managed_postgresql.db.extension_status
 }
 
 output "write_endpoint" {
