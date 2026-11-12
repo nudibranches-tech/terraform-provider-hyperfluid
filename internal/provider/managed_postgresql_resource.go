@@ -414,22 +414,15 @@ func (r *managedPostgresqlResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Cluster did not become ready", err.Error())
 		return
 	}
-	if manageExtensions && !inCreate {
-		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
-			resp.Diagnostics.AddError("Failed to set managed postgresql extensions", err.Error())
-			return
-		}
-	}
-	// A failed extension is a warning here, not an error: an error after the
-	// cluster exists would taint it, and the next apply would replace the
-	// database, data included, to retry an extension.
+	// From here the cluster exists, so an extension problem is a warning, never
+	// an error: an error would either lose the cluster from state or taint it,
+	// and the next apply would replace the database to retry an extension. The
+	// state then reads back what was actually declared, so the next plan shows
+	// the difference and the update reports the reason as an error.
 	if manageExtensions {
-		if err := r.waitExtensions(ctx, id, extensions); err != nil {
+		if err := r.applyCreateExtensions(ctx, id, extensions, !inCreate); err != nil {
 			resp.Diagnostics.AddWarning("Extensions not installed",
-				"The cluster was created, but some extensions failed: "+err.Error()+".")
-		} else if err := r.waitReady(ctx, id); err != nil {
-			resp.Diagnostics.AddError("Cluster did not become ready after enabling extensions", err.Error())
-			return
+				"The cluster was created, but its extensions were not: "+err.Error()+".")
 		}
 	}
 	state, err := r.readInto(ctx, id, managedPostgresqlKeep{
@@ -608,6 +601,20 @@ func (r *managedPostgresqlResource) Delete(ctx context.Context, req resource.Del
 
 func (r *managedPostgresqlResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// applyCreateExtensions declares the extensions of a cluster just created
+// (when the create request could not carry them) and waits for them.
+func (r *managedPostgresqlResource) applyCreateExtensions(ctx context.Context, id string, extensions []console.ExtensionRequestItem, put bool) error {
+	if put {
+		if err := r.p.API.SetManagedPostgresqlExtensions(ctx, r.p.OrgID, id, extensions); err != nil {
+			return err
+		}
+	}
+	if err := r.waitExtensions(ctx, id, extensions); err != nil {
+		return err
+	}
+	return r.waitReady(ctx, id)
 }
 
 func (r *managedPostgresqlResource) waitReady(ctx context.Context, id string) error {

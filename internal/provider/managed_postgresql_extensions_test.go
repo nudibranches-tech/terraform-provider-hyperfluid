@@ -25,7 +25,8 @@ type fakeExtensions struct {
 	mu       sync.Mutex
 	declared []console.ExtensionRequestItem
 	failing  map[string]string
-	missing  bool // the console predates the endpoint: 404
+	refused  map[string]string // the console answers 400 for a list naming one
+	missing  bool              // the console predates the endpoint: 404
 }
 
 var fakeExtensionCatalog = []string{"citext", "pg_stat_statements", "postgis", "postgres_fdw"}
@@ -44,7 +45,7 @@ func extensionsOf(f *fakeAPI) *fakeExtensions {
 // fakeExtensionsOn serves the extensions endpoints, and records the names a
 // create request enables as the declared list.
 func fakeExtensionsOn(f *fakeAPI) {
-	x := &fakeExtensions{failing: map[string]string{}}
+	x := &fakeExtensions{failing: map[string]string{}, refused: map[string]string{}}
 	fakeExtensionStores.Store(f, x)
 	f.t.Cleanup(func() { fakeExtensionStores.Delete(f) })
 
@@ -60,6 +61,11 @@ func fakeExtensionsOn(f *fakeAPI) {
 		body := decodeInto[console.SetManagedPostgresqlExtensionsRequestBody](f.t, raw)
 		x.mu.Lock()
 		defer x.mu.Unlock()
+		for _, e := range body.Extensions {
+			if reason, refused := x.refused[e.Name]; refused {
+				return 400, map[string]string{"error": reason}
+			}
+		}
 		x.declared = body.Extensions
 		return 204, nil
 	})
@@ -398,5 +404,29 @@ func TestExtensionNamesAreUnique(t *testing.T) {
 	}
 	if check(extensionSet(t, ext("citext"), ext("postgis"))) {
 		t.Error("distinct names were refused")
+	}
+}
+
+// A list the console refuses once the cluster exists keeps the cluster in
+// state: the declared set reads back empty, so the next plan retries it.
+func TestManagedPostgresqlCreateExtensionsRefused(t *testing.T) {
+	f, r := fakeDatabases(t)
+	l := newLifecycle[managedPostgresqlModel](t, r)
+	extensionsOf(f).refused["postgis"] = "extension 'postgis' requires the postgis engine, this database is postgresql"
+	plan := databasePlan(f)
+	plan.Extensions = extensionSet(t, extVersion("postgis", "3.5.0"))
+
+	created, d := l.create(plan)
+	if d.HasError() {
+		t.Fatalf("create errored, which loses or taints the cluster: %v", d)
+	}
+	if d.WarningsCount() == 0 || !strings.Contains(d.Warnings()[0].Detail(), "requires the postgis engine") {
+		t.Errorf("warnings = %v, want the console's reason", d.Warnings())
+	}
+	if created.ID.IsNull() {
+		t.Fatal("the created cluster is not in state")
+	}
+	if want := extensionSet(t); !created.Extensions.Equal(want) {
+		t.Errorf("extensions = %v, want the empty set actually declared", created.Extensions)
 	}
 }
