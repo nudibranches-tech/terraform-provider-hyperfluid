@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -114,7 +115,7 @@ func (r *agentWidgetResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"but it changes when the widget is rotated: rotation is never a side effect, only a new `rotation_trigger` value does it, " +
 			"and the tag on your sites must then be updated. Disabling (destroy) and enabling again keeps the same id. " +
 			"A widget disabled outside Terraform leaves the state, and the next apply enables it again. " +
-			"Changing the configuration later sends all of it again: an argument removed from the configuration is cleared. " +
+			"Changing the configuration later sends all of it again, without ever turning the widget back on: an argument removed from the configuration is cleared. " +
 			"While the widget is on, the platform also refuses agent changes that would make it ineligible (general `hfctl`, an account that can write).",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -250,7 +251,7 @@ func (m widgetKeepModifier) PlanModifyString(ctx context.Context, req planmodifi
 	var planTrigger, stateTrigger types.String
 	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("rotation_trigger"), &planTrigger)...)
 	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("rotation_trigger"), &stateTrigger)...)
-	if resp.Diagnostics.HasError() || widgetRotationRequested(planTrigger, stateTrigger) {
+	if resp.Diagnostics.HasError() || triggerRequested(planTrigger, stateTrigger) {
 		return
 	}
 	if m.followsLang {
@@ -264,9 +265,9 @@ func (m widgetKeepModifier) PlanModifyString(ctx context.Context, req planmodifi
 	resp.PlanValue = req.StateValue
 }
 
-// widgetRotationRequested: the trigger moved to a new value. Unknown counts,
+// triggerRequested: a rotation or re-login trigger moved to a new value. Unknown counts,
 // since it may turn out new; removing the trigger does not rotate.
-func widgetRotationRequested(plan, state types.String) bool {
+func triggerRequested(plan, state types.String) bool {
 	if plan.IsUnknown() {
 		return true
 	}
@@ -361,15 +362,24 @@ func (r *agentWidgetResource) Update(ctx context.Context, req resource.UpdateReq
 		w   *console.AiAgentWidgetResponse
 		err error
 	)
-	// PUT replaces the whole configuration: a field left out of it is cleared,
-	// which is what removing it from the configuration means.
+	// PATCH replaces the whole configuration (a field left out of it is
+	// cleared, which is what removing it from the configuration means) and,
+	// unlike PUT, never turns the widget on: one disabled outside Terraform
+	// since the refresh stays off.
 	if !reflect.DeepEqual(body, before) {
-		if w, err = r.p.API.EnableAiAgentWidget(ctx, r.p.OrgID, agentID, body); err != nil {
+		if w, err = r.p.API.UpdateAiAgentWidget(ctx, r.p.OrgID, agentID, body); err != nil {
+			var refused *client.RefusedError
+			if errors.As(err, &refused) && refused.Status == http.StatusConflict && !client.IsConflict(err) {
+				resp.Diagnostics.AddError("The agent widget is off",
+					refused.Message+"\n\nIt was disabled outside Terraform after the plan was made. An update never turns it "+
+						"back on: the next plan reads it as gone and enables it again.")
+				return
+			}
 			addWidgetError(&resp.Diagnostics, "Failed to update the agent widget", err)
 			return
 		}
 	}
-	if widgetRotationRequested(plan.RotationTrigger, prior.RotationTrigger) {
+	if triggerRequested(plan.RotationTrigger, prior.RotationTrigger) {
 		if w, err = r.p.API.RotateAiAgentWidget(ctx, r.p.OrgID, agentID); err != nil {
 			addWidgetError(&resp.Diagnostics, "Failed to rotate the agent widget", err)
 			return
@@ -417,6 +427,9 @@ func (r *agentWidgetResource) ImportState(ctx context.Context, req resource.Impo
 // verdict on this agent or this configuration, so it is shown in the
 // platform's words, with what usually fixes it.
 func addWidgetError(diags *diag.Diagnostics, summary string, err error) {
+	if addAgentWriteError(diags, err) {
+		return
+	}
 	var refused *client.RefusedError
 	if errors.As(err, &refused) {
 		diags.AddError("The platform refused the agent widget",

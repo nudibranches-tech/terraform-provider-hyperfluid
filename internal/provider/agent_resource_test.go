@@ -4,11 +4,15 @@
 package provider
 
 import (
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -70,6 +74,12 @@ func newFakeAgent(t *testing.T) (*fakeAgent, *agentResource) {
 		if req.DesiredState != nil {
 			fa.agent.DesiredState = *req.DesiredState
 			fa.phase = string(*req.DesiredState)
+		}
+		if req.Interfaces != nil {
+			fa.agent.Interfaces = *req.Interfaces
+		}
+		if req.AllowPlatformTools != nil {
+			fa.agent.AllowPlatformTools = req.AllowPlatformTools
 		}
 		return 200, fa.agent
 	})
@@ -216,5 +226,111 @@ func TestAgentPermissionDeniedIsNotAFeatureError(t *testing.T) {
 		if e.Summary() != "Failed to create agent" {
 			t.Errorf("summary = %q", e.Summary())
 		}
+	}
+}
+
+// The chat channels' interfaces belong to their own resources: the agent's
+// `interfaces` does not report them (so a channel never plans a change on the
+// agent), and an update sends the configured list as it is, since the
+// platform ignores channel interfaces in the PATCH and keeps its own.
+func TestAgentInterfacesLeaveChannelsOut(t *testing.T) {
+	f, r := newFakeAgent(t)
+	l := newLifecycle[agentModel](t, r)
+	plan := agentPlan(f.fakeAPI)
+	plan.Interfaces = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("web")})
+	created, d := l.create(plan)
+	mustSucceed(t, d)
+
+	f.agent.Interfaces = append(f.agent.Interfaces, "matrix", "slack") // set by the channel resources
+	refreshed, _, d := l.read(created)
+	mustSucceed(t, d)
+	if !refreshed.Interfaces.Equal(plan.Interfaces) {
+		t.Errorf("interfaces = %s: the channels' interfaces are reported", refreshed.Interfaces)
+	}
+
+	next := refreshed
+	next.Interfaces = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("web"), types.StringValue("mail")})
+	_, d = l.update(next, refreshed)
+	mustSucceed(t, d)
+	sent, _ := f.calls("PATCH", `/ai-agents/[^/]+`)[0].body["interfaces"].([]any)
+	if len(sent) != 2 {
+		t.Errorf("PATCH interfaces = %v, want exactly the configured web and mail", sent)
+	}
+
+	// The schema no longer offers the channel values.
+	s := resourceSchema(t, NewAgentResource()).Schema
+	cfg := nullConfig(t, s, nil)
+	attrSchema, _ := s.AttributeAtPath(t.Context(), path.Root("interfaces"))
+	setAttr, ok := attrSchema.(schema.SetAttribute)
+	if !ok {
+		t.Fatal("interfaces is not a set attribute")
+	}
+	for _, v := range []string{"slack", "matrix"} {
+		resp := &validator.SetResponse{}
+		req := validator.SetRequest{
+			Path: path.Root("interfaces"), PathExpression: path.Root("interfaces").Expression(), Config: cfg,
+			ConfigValue: types.SetValueMust(types.StringType, []attr.Value{types.StringValue(v)}),
+		}
+		for _, val := range setAttr.Validators {
+			val.ValidateSet(t.Context(), req, resp)
+		}
+		if !resp.Diagnostics.HasError() {
+			t.Errorf("interfaces accepts %q", v)
+		}
+	}
+}
+
+// Turning allow_platform_tools on needs a permission on service accounts; the
+// diagnostic names the one the platform reports, whichever it is.
+func TestAgentAllowPlatformToolsPermission(t *testing.T) {
+	for _, permission := range []string{"service_account:update", "service_account:read"} {
+		t.Run(permission, func(t *testing.T) {
+			f, r := newFakeAgent(t)
+			l := newLifecycle[agentModel](t, r)
+			created, d := l.create(agentPlan(f.fakeAPI))
+			mustSucceed(t, d)
+			f.on("PATCH", `/ai-agents/[^/]+`, func(string, []byte) (int, any) {
+				return 403, map[string]string{"message": "Missing permission '" + permission + "'"}
+			})
+			// The first PATCH route still answers: route the refusal first.
+			f.routes = append(f.routes[len(f.routes)-1:], f.routes[:len(f.routes)-1]...)
+			next := created
+			next.AllowPlatformTools = types.BoolValue(true)
+			_, d = l.update(next, created)
+			mustFail(t, d, "Missing permission `"+permission+"`")
+			if !strings.Contains(d.Errors()[0].Detail(), "allow_platform_tools") {
+				t.Errorf("detail = %s", d.Errors()[0].Detail())
+			}
+		})
+	}
+}
+
+// allow_platform_tools is set right after create (the create request has no
+// field for it), changed in place, and left alone when omitted.
+func TestAgentAllowPlatformTools(t *testing.T) {
+	f, r := newFakeAgent(t)
+	l := newLifecycle[agentModel](t, r)
+	plan := agentPlan(f.fakeAPI)
+	plan.AllowPlatformTools = types.BoolValue(true)
+	created, d := l.create(plan)
+	mustSucceed(t, d)
+	patches := f.calls("PATCH", `/ai-agents/[^/]+`)
+	if len(patches) != 1 || patches[0].body["allow_platform_tools"] != true || !created.AllowPlatformTools.ValueBool() {
+		t.Fatalf("patches = %v, state = %s", patches, created.AllowPlatformTools)
+	}
+
+	next := created
+	next.AllowPlatformTools = types.BoolValue(false)
+	updated, d := l.update(next, created)
+	mustSucceed(t, d)
+	if f.calls("PATCH", `/ai-agents/[^/]+`)[1].body["allow_platform_tools"] != false || updated.AllowPlatformTools.ValueBool() {
+		t.Errorf("updated = %s", updated.AllowPlatformTools)
+	}
+
+	f2, r2 := newFakeAgent(t)
+	got, d := newLifecycle[agentModel](t, r2).create(agentPlan(f2.fakeAPI))
+	mustSucceed(t, d)
+	if n := len(f2.calls("PATCH", `/ai-agents/[^/]+`)); n != 0 || got.AllowPlatformTools.ValueBool() {
+		t.Errorf("an agent without the attribute was patched %d time(s)", n)
 	}
 }

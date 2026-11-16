@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,24 +51,25 @@ type agentResource struct {
 }
 
 type agentModel struct {
-	ID               types.String `tfsdk:"id"`
-	Env              types.String `tfsdk:"env"`
-	Name             types.String `tfsdk:"name"`
-	Description      types.String `tfsdk:"description"`
-	SystemPrompt     types.String `tfsdk:"system_prompt"`
-	Mission          types.String `tfsdk:"mission"`
-	Context          types.String `tfsdk:"context"`
-	Speciality       types.String `tfsdk:"speciality"`
-	SubagentOf       types.String `tfsdk:"subagent_of"`
-	QuestionSet      types.List   `tfsdk:"question_set"`
-	Tools            types.List   `tfsdk:"tools"`
-	Inference        types.Object `tfsdk:"inference"`
-	Budgets          types.Object `tfsdk:"budgets"`
-	DataSources      types.List   `tfsdk:"data_sources"`
-	ServiceAccountID types.String `tfsdk:"service_account_id"`
-	DesiredState     types.String `tfsdk:"desired_state"`
-	Interfaces       types.Set    `tfsdk:"interfaces"`
-	Mail             types.Object `tfsdk:"mail"`
+	ID                 types.String `tfsdk:"id"`
+	Env                types.String `tfsdk:"env"`
+	Name               types.String `tfsdk:"name"`
+	Description        types.String `tfsdk:"description"`
+	SystemPrompt       types.String `tfsdk:"system_prompt"`
+	Mission            types.String `tfsdk:"mission"`
+	Context            types.String `tfsdk:"context"`
+	Speciality         types.String `tfsdk:"speciality"`
+	SubagentOf         types.String `tfsdk:"subagent_of"`
+	QuestionSet        types.List   `tfsdk:"question_set"`
+	Tools              types.List   `tfsdk:"tools"`
+	Inference          types.Object `tfsdk:"inference"`
+	Budgets            types.Object `tfsdk:"budgets"`
+	DataSources        types.List   `tfsdk:"data_sources"`
+	ServiceAccountID   types.String `tfsdk:"service_account_id"`
+	DesiredState       types.String `tfsdk:"desired_state"`
+	Interfaces         types.Set    `tfsdk:"interfaces"`
+	Mail               types.Object `tfsdk:"mail"`
+	AllowPlatformTools types.Bool   `tfsdk:"allow_platform_tools"`
 
 	Slug          types.String `tfsdk:"slug"`
 	Phase         types.String `tfsdk:"phase"`
@@ -232,10 +234,12 @@ func (r *agentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			},
 			"interfaces": schema.SetAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
-				MarkdownDescription: "Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`.",
+				MarkdownDescription: "Where the agent is reachable: `web` (when omitted) and `mail`. The chat channels are not " +
+					"listed here: they are managed by `hyperfluid_agent_matrix_channel`, `hyperfluid_agent_slack_channel` and " +
+					"`hyperfluid_agent_discord_channel`, and the platform ignores them in this list.",
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(1),
-					setvalidator.ValueStringsAre(stringvalidator.OneOf("web", "mail", "slack", "discord")),
+					setvalidator.ValueStringsAre(stringvalidator.OneOf("web", "mail")),
 				},
 				PlanModifiers: []planmodifier.Set{setplanmodifier.UseStateForUnknown()},
 			},
@@ -268,6 +272,14 @@ func (r *agentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						PlanModifiers: []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 					},
 				},
+			},
+
+			"allow_platform_tools": schema.BoolAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "Let the chat channels drive this agent although its tools include general `hfctl` (or every tool), " +
+					"that is the organization's service account, for everyone in the rooms it answers. Off by default; the web widget never allows it. " +
+					"Left out, it is not managed.",
+				PlanModifiers: []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 			},
 
 			"slug":           computedStr("Derived slug; capabilities name their agent by it in `subagent_of`."),
@@ -339,6 +351,15 @@ func (r *agentResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 	id := created.Id.String()
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	// The create request has no platform tools override: a new agent has no
+	// chat channel yet, so setting it right after is equivalent.
+	if !plan.AllowPlatformTools.IsNull() && !plan.AllowPlatformTools.IsUnknown() && plan.AllowPlatformTools.ValueBool() {
+		allow := true
+		if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, console.UpdateAiAgentRequest{AllowPlatformTools: &allow}); err != nil {
+			addPlatformToolsError(&resp.Diagnostics, "Failed to allow platform tools on the agent", err)
+			return
+		}
+	}
 	r.settle(ctx, id, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -383,7 +404,13 @@ func (r *agentResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 	id := state.ID.ValueString()
 	if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, body); err != nil {
-		addGatedError(&resp.Diagnostics, "Failed to update agent", featureAiAgents, err)
+		if body.AllowPlatformTools != nil {
+			addPlatformToolsError(&resp.Diagnostics, "Failed to update agent", err)
+			return
+		}
+		if !addAgentWriteError(&resp.Diagnostics, err) {
+			addGatedError(&resp.Diagnostics, "Failed to update agent", featureAiAgents, err)
+		}
 		return
 	}
 	r.settle(ctx, id, &resp.Diagnostics)
@@ -459,7 +486,7 @@ func (r *agentResource) readInto(ctx context.Context, id string) (agentModel, er
 	var diags diag.Diagnostics
 	tools, d := types.ListValueFrom(ctx, types.StringType, a.Tools)
 	diags.Append(d...)
-	interfaces, d := types.SetValueFrom(ctx, types.StringType, a.Interfaces)
+	interfaces, d := types.SetValueFrom(ctx, types.StringType, withoutChannelInterfaces(a.Interfaces))
 	diags.Append(d...)
 
 	sa := types.StringNull()
@@ -467,28 +494,29 @@ func (r *agentResource) readInto(ctx context.Context, id string) (agentModel, er
 		sa = types.StringValue(a.ServiceAccountId.String())
 	}
 	m := agentModel{
-		ID:               types.StringValue(id),
-		Env:              types.StringValue(a.HarborId.String()),
-		Name:             types.StringValue(a.Name),
-		Description:      optNonEmpty(a.Description),
-		SystemPrompt:     types.StringValue(a.SystemPrompt),
-		Mission:          optNonEmpty(a.Mission),
-		Context:          optNonEmpty(a.Context),
-		Speciality:       optNonEmpty(a.Speciality),
-		SubagentOf:       optNonEmpty(a.SubagentOf),
-		QuestionSet:      nullIfEmptyList(ctx, a.QuestionSet, &diags),
-		Tools:            tools,
-		Inference:        agentInferenceObject(ctx, a.Inference, &diags),
-		Budgets:          agentBudgetsObject(ctx, a.Budgets, &diags),
-		DataSources:      agentDataSourcesList(ctx, a.DataSources, &diags),
-		ServiceAccountID: sa,
-		DesiredState:     types.StringValue(string(a.DesiredState)),
-		Interfaces:       interfaces,
-		Mail:             agentMailObject(ctx, a.Mail, &diags),
-		Slug:             types.StringValue(a.Slug),
-		Phase:            types.StringValue(a.Status.Phase),
-		StatusMessage:    optString(a.Status.Message),
-		MailAddress:      types.StringNull(),
+		ID:                 types.StringValue(id),
+		Env:                types.StringValue(a.HarborId.String()),
+		Name:               types.StringValue(a.Name),
+		Description:        optNonEmpty(a.Description),
+		SystemPrompt:       types.StringValue(a.SystemPrompt),
+		Mission:            optNonEmpty(a.Mission),
+		Context:            optNonEmpty(a.Context),
+		Speciality:         optNonEmpty(a.Speciality),
+		SubagentOf:         optNonEmpty(a.SubagentOf),
+		QuestionSet:        nullIfEmptyList(ctx, a.QuestionSet, &diags),
+		Tools:              tools,
+		Inference:          agentInferenceObject(ctx, a.Inference, &diags),
+		Budgets:            agentBudgetsObject(ctx, a.Budgets, &diags),
+		DataSources:        agentDataSourcesList(ctx, a.DataSources, &diags),
+		ServiceAccountID:   sa,
+		DesiredState:       types.StringValue(string(a.DesiredState)),
+		Interfaces:         interfaces,
+		Mail:               agentMailObject(ctx, a.Mail, &diags),
+		AllowPlatformTools: types.BoolValue(a.AllowPlatformTools != nil && *a.AllowPlatformTools),
+		Slug:               types.StringValue(a.Slug),
+		Phase:              types.StringValue(a.Status.Phase),
+		StatusMessage:      optString(a.Status.Message),
+		MailAddress:        types.StringNull(),
 	}
 	if a.Status.Mail != nil {
 		m.MailAddress = optString(a.Status.Mail.Address)
@@ -556,7 +584,46 @@ func agentPatch(ctx context.Context, plan, state agentModel) (console.UpdateAiAg
 	if set(plan.Mail, state.Mail) {
 		body.Mail = agentMailRequest(ctx, plan.Mail, &diags)
 	}
+	if set(plan.AllowPlatformTools, state.AllowPlatformTools) {
+		body.AllowPlatformTools = boolPtr(plan.AllowPlatformTools)
+	}
 	return body, diags
+}
+
+// channelInterfaces are the interfaces of the chat channels, which their own
+// resources manage: the platform ignores them in the agent's PATCH, and the
+// agent's `interfaces` does not report them.
+var channelInterfaces = []string{"matrix", "slack", "discord"}
+
+func withoutChannelInterfaces(values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		if !slices.Contains(channelInterfaces, v) {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+// addPlatformToolsError reports a refused change of allow_platform_tools.
+// Turning it on needs a permission on service accounts, because it hands the
+// organization's service account to chat audiences; which one is the
+// platform's to say, so the diagnostic names the one the platform reports.
+func addPlatformToolsError(diags *diag.Diagnostics, summary string, err error) {
+	if errors.Is(err, client.ErrForbidden) {
+		var d diag.Diagnostics
+		if addAgentWriteError(&d, err) {
+			for _, e := range d.Errors() {
+				diags.AddAttributeError(path.Root("allow_platform_tools"), e.Summary(),
+					e.Detail()+" Turning `allow_platform_tools` on lets the chat channels drive general `hfctl` with the "+
+						"organization's service account, so the platform reserves it to those who may change service accounts.")
+			}
+			return
+		}
+	}
+	if !addAgentWriteError(diags, err) {
+		addGatedError(diags, summary, featureAiAgents, err)
+	}
 }
 
 // ── request builders ───────────────────────────────────────────────────────

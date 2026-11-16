@@ -8088,6 +8088,26 @@
               }
             }
           },
+          "400": {
+            "description": "`s3_bucket` is not an existing bucket of the data dock's environment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data dock not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Invalid name: not a lowercase RFC 1123 name",
             "content": {
@@ -10156,7 +10176,7 @@
             }
           },
           "400": {
-            "description": "Invalid request: bad name format, missing bucket_name for Iceberg kind, no or ambiguous credential source, an unusable connection bundle, or a non-viewer managed PostgreSQL user",
+            "description": "Invalid request: bad name format, missing bucket_name for Iceberg kind or one that is not an existing bucket of the DataDock's environment, no or ambiguous credential source, an unusable connection bundle, or a non-viewer managed PostgreSQL user",
             "content": {
               "application/json": {
                 "schema": {
@@ -16741,6 +16761,748 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channel-limits": {
+      "put": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "set_ai_agent_channel_limits",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentChannelLimitsDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Limits replaced: a field left out returns to the runtime's default",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A zero, or max_question_length above 4000",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "reset_ai_agent_channel_limits",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Limits removed: the runtime's defaults apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels": {
+      "get": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "get_ai_agent_channels",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The agent's chat channels, their state and limits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels/discord": {
+      "put": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "set_ai_agent_discord_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentDiscordChannelConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Discord channel set (block replaced, interface listed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration (allowed_guilds is required), a capability agent, general hfctl without allow_platform_tools, a secret that is not plaintext, or an agent named <name>-gw in the way",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent or secret not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "remove_ai_agent_discord_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discord channel removed (block nulled and interface dropped in one write)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels/matrix": {
+      "put": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "set_ai_agent_matrix_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentMatrixChannelConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matrix channel set (block replaced, interface listed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration, a capability agent, general hfctl without allow_platform_tools, a Tchap bot on an external model, a secret that is not plaintext, or an agent named <name>-gw in the way",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent or secret not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "remove_ai_agent_matrix_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matrix channel removed (block nulled and interface dropped in one write); the operator tears the gateway part down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels/matrix/relogin": {
+      "post": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "relogin_ai_agent_matrix_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Re-login requested: a new hyperfluid.io/matrix-relogin value, so the operator mounts the password and recovery key for one login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No Matrix channel, or the bot has not completed its first login yet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels/slack": {
+      "put": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "set_ai_agent_slack_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentSlackChannelConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Slack channel set (block replaced, interface listed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration, a capability agent, general hfctl without allow_platform_tools, a secret that is not plaintext, or an agent named <name>-gw in the way",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent or secret not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "remove_ai_agent_slack_channel",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Slack channel removed (block nulled and interface dropped in one write)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentChannelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/channels/slack/manifest": {
+      "get": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "get_ai_agent_slack_manifest",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Slack app manifest for this agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentSlackManifestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/ai-agents/{id}/mail-stats": {
       "get": {
         "tags": [
@@ -17287,6 +18049,94 @@
           },
           "404": {
             "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "update_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentWidgetConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The configuration of a widget that is on, replaced; the widget stays on (this route never turns one on)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration (origins, privacy_url, colour, bounds)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found, or it has no widget",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The widget is off: enabling it is PUT, which this route never does",
             "content": {
               "application/json": {
                 "schema": {
@@ -18798,6 +19648,16 @@
           },
           "404": {
             "description": "no such channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The channel is the only one some alert rules or signals deliver to; the message names them",
             "content": {
               "application/json": {
                 "schema": {
@@ -54254,6 +55114,135 @@
           }
         }
       },
+      "AiAgentChannelLimitsDto": {
+        "type": "object",
+        "description": "Limits the agent enforces on its channels (`widget`, `matrix`, `slack`,\n`discord`). Each unset field is the runtime's default and is never stored.",
+        "properties": {
+          "max_concurrent": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Channel questions answered at once. Default 4.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "max_question_length": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Longest channel question, in characters, at most 4000. Default 2000.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "per_sender_burst": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Questions one sender may ask back to back. Default 6.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "per_sender_refill_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Seconds for one sender to earn one more question. Default 20.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "questions_per_day": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Questions answered per sliding 24 hours, per pool. Default 1000.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "questions_per_hour": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Questions answered per sliding hour, per pool (the widget's, and the chat\nchannels' together). Default 200.",
+            "minimum": 0,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AiAgentChannelPhaseDto": {
+        "type": "string",
+        "description": "A channel's phase, as its gateway reports it.",
+        "enum": [
+          "Connecting",
+          "Connected",
+          "NeedsLogin",
+          "Degraded",
+          "Disabled"
+        ]
+      },
+      "AiAgentChannelStateDto": {
+        "type": "object",
+        "description": "One channel's state: `configured` is the block present AND its interface\nlisted; the rest is `status.channels.<channel>` as the operator stored it.",
+        "required": [
+          "configured",
+          "settled"
+        ],
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "description": "Matrix only: the device the bot lives on.",
+            "nullable": true
+          },
+          "identity": {
+            "type": "string",
+            "description": "The bot's identity on the network (MXID, `<bot user>@<team>`…), once known.",
+            "nullable": true
+          },
+          "last_event_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "phase": {
+            "$ref": "#/components/schemas/AiAgentChannelPhaseDto",
+            "nullable": true
+          },
+          "settled": {
+            "type": "boolean",
+            "description": "The state below answers the agent's current spec: the operator has\nreconciled it, and the channel gateway runs the configuration rendered for\nit (or the operator decided this channel's state itself, e.g. refused it).\nUntil then `phase` may describe the configuration from before the last\nwrite. Wait for this, then read `phase`."
+          }
+        }
+      },
+      "AiAgentChannelsResponse": {
+        "type": "object",
+        "description": "Every chat channel of an agent, what every channel route returns.",
+        "required": [
+          "matrix",
+          "slack",
+          "discord",
+          "allow_platform_tools"
+        ],
+        "properties": {
+          "allow_platform_tools": {
+            "type": "boolean",
+            "description": "The chat channels may drive general `hfctl` (set through `PATCH` on the agent)."
+          },
+          "channel_limits": {
+            "$ref": "#/components/schemas/AiAgentChannelLimitsDto",
+            "nullable": true
+          },
+          "discord": {
+            "$ref": "#/components/schemas/AiAgentDiscordChannelView"
+          },
+          "matrix": {
+            "$ref": "#/components/schemas/AiAgentMatrixChannelView"
+          },
+          "slack": {
+            "$ref": "#/components/schemas/AiAgentSlackChannelView"
+          }
+        }
+      },
       "AiAgentDataSourceDto": {
         "type": "object",
         "description": "A data dock the agent may read.",
@@ -54299,6 +55288,60 @@
           "Running",
           "Stopped"
         ]
+      },
+      "AiAgentDiscordChannelConfig": {
+        "type": "object",
+        "description": "The Discord channel: an application bot token, no privileged intent.",
+        "properties": {
+          "allowed_channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Channel ids the bot answers in; a thread counts when its parent is listed."
+          },
+          "allowed_guilds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Guild (server) ids, digits. Required and non-empty: the bot leaves every\nother server."
+          },
+          "allowed_users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User ids the bot answers."
+          },
+          "bot_token_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of a `plaintext` secret holding the bot token. Required.",
+            "nullable": true
+          },
+          "direct_messages": {
+            "type": "boolean",
+            "description": "Answer direct messages; takes effect only with `allowed_users`. Absent: off.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AiAgentDiscordChannelView": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/AiAgentDiscordChannelConfig",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/AiAgentChannelStateDto"
+          }
+        }
       },
       "AiAgentInferenceDto": {
         "type": "object",
@@ -54488,6 +55531,130 @@
           "error"
         ]
       },
+      "AiAgentMatrixChannelConfig": {
+        "type": "object",
+        "description": "The Matrix / Tchap channel. The same document is sent to set the channel and\nreturned when it is read, so a client can round-trip it. An unset option is the\ngateway's default and is never stored; an empty list does not restrict.",
+        "properties": {
+          "allow_external_inference": {
+            "type": "boolean",
+            "description": "Lets a Tchap bot hand decrypted messages to a model outside the cluster.",
+            "nullable": true
+          },
+          "allowed_rooms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Room ids (`!opaque:server.name`) the bot answers in."
+          },
+          "allowed_users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "MXID globs (`*`, `?`) of the people the bot answers."
+          },
+          "auto_join": {
+            "$ref": "#/components/schemas/MatrixAutoJoinDto",
+            "nullable": true
+          },
+          "direct_messages": {
+            "type": "boolean",
+            "description": "Answer direct messages; needs a non-empty `allowed_users`. Absent: `true`\nwith an `allowed_users`, else off.",
+            "nullable": true
+          },
+          "extra_auth_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Extra MAS hosts, for the gateway's `.well-known` check."
+          },
+          "homeserver_url": {
+            "type": "string",
+            "description": "Client-server API base URL, `https://`. Required with `generic`; with `tchap`\nit overrides `https://matrix.<server name>`.",
+            "nullable": true
+          },
+          "password_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of a `plaintext` Passe Partout secret of this organization holding the\nbot's password. Required. Used only while the bot has no device.",
+            "nullable": true
+          },
+          "preset": {
+            "$ref": "#/components/schemas/MatrixPresetDto",
+            "nullable": true
+          },
+          "recovery_key_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of a `plaintext` secret holding the recovery key Tchap web showed at\naccount setup. Required. Used only while the bot has no device.",
+            "nullable": true
+          },
+          "unencrypted_rooms": {
+            "$ref": "#/components/schemas/MatrixUnencryptedRoomsDto",
+            "nullable": true
+          },
+          "user_id": {
+            "type": "string",
+            "description": "The bot's MXID (`@localpart:server.name`). Required.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AiAgentMatrixChannelView": {
+        "type": "object",
+        "required": [
+          "state",
+          "relogin_required",
+          "relogin_pending"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/AiAgentMatrixChannelConfig",
+            "nullable": true
+          },
+          "relogin_pending": {
+            "type": "boolean",
+            "description": "A re-login was requested and the bot has not reconnected since."
+          },
+          "relogin_required": {
+            "type": "boolean",
+            "description": "The bot's session ended after its first device and logging in again needs\na request: `POST …/channels/matrix/relogin`."
+          },
+          "state": {
+            "$ref": "#/components/schemas/AiAgentChannelStateDto"
+          }
+        }
+      },
+      "AiAgentMatrixReloginRequestedLog": {
+        "type": "object",
+        "description": "Audit payload for a Matrix re-login request on an AI agent. The actor is the\nenclosing request's `oauth_id`.",
+        "required": [
+          "ai_agent_id",
+          "agent",
+          "secret_ids"
+        ],
+        "properties": {
+          "agent": {
+            "type": "string",
+            "description": "The agent's object name (`AiAgent` CR)."
+          },
+          "ai_agent_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "secret_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The secrets the gateway is given again: the bot's password and its\nrecovery key."
+          }
+        }
+      },
       "AiAgentMemoryResponse": {
         "type": "object",
         "description": "Whether this agent has its conversation memory, as the POD reports it.\n\nDeliberately not read from `AiAgent.status.sessions`, which the operator\npublishes: that says what the platform provisioned and mounted, this says\nwhether the pod can use it, and the two have been measured disagreeing in both\ndirections — a Ready database and role no pod could reach, and unreadable\ncredentials on pods that were connected and remembering fine. The console asks\nthe pod, because the pod is the only one that knows.\n`Default` is \"no memory reported\", which is what an agent pod from before this\nblock existed means — see `RuntimeStats::sessions`.",
@@ -54524,6 +55691,10 @@
           "updated_at"
         ],
         "properties": {
+          "allow_platform_tools": {
+            "type": "boolean",
+            "description": "The chat channels may drive general `hfctl` (ADR-0058 §3)."
+          },
           "budgets": {
             "$ref": "#/components/schemas/AiAgentBudgetsDto"
           },
@@ -54714,6 +55885,90 @@
             "items": {
               "$ref": "#/components/schemas/AiAgentSessionSummary"
             }
+          }
+        }
+      },
+      "AiAgentSlackChannelConfig": {
+        "type": "object",
+        "description": "The Slack channel: a per-agent Slack app in Socket Mode, created from\n`GET …/channels/slack/manifest`.",
+        "properties": {
+          "allowed_channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Channel ids (`C…`, `G…`) the bot answers in."
+          },
+          "allowed_users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User ids (`U…`, `W…`) the bot answers."
+          },
+          "app_token_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of a `plaintext` secret holding the app-level token (`xapp-…`, scope\n`connections:write`). Required.",
+            "nullable": true
+          },
+          "bot_token_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of a `plaintext` secret holding the bot token (`xoxb-…`). Required.",
+            "nullable": true
+          },
+          "direct_messages": {
+            "type": "boolean",
+            "description": "Answer direct messages; takes effect only with `allowed_users`. Absent: off.",
+            "nullable": true
+          },
+          "team_id": {
+            "type": "string",
+            "description": "The workspace id (`T0123…`). Required: every other workspace is dropped.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AiAgentSlackChannelView": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/AiAgentSlackChannelConfig",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/AiAgentChannelStateDto"
+          }
+        }
+      },
+      "AiAgentSlackManifestResponse": {
+        "type": "object",
+        "description": "What a Slack workspace needs to host this agent's app.",
+        "required": [
+          "manifest",
+          "app_token_scope",
+          "notes"
+        ],
+        "properties": {
+          "app_token_scope": {
+            "type": "string",
+            "description": "The scope of the app-level token to create by hand (a manifest cannot)."
+          },
+          "manifest": {
+            "type": "string",
+            "description": "The app manifest, YAML, named after the agent: paste it in \"Create New App →\nFrom a manifest\"."
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "What the workspace admin should know before installing it."
           }
         }
       },
@@ -55639,6 +56894,15 @@
           "comparator"
         ],
         "properties": {
+          "channel_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification channels of the organization this rule delivers to.\nOmitted: unchanged on update, none on create. `[]`: the rule follows\nits signal's routing again.",
+            "nullable": true
+          },
           "comparator": {
             "$ref": "#/components/schemas/Comparator"
           },
@@ -55689,11 +56953,20 @@
           "comparator",
           "for_seconds",
           "enabled",
+          "channel_ids",
           "created_at",
           "updated_at",
           "state"
         ],
         "properties": {
+          "channel_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification channels this rule delivers to. Empty: the rule follows\nits signal's routing (the bindings, else every enabled channel)."
+          },
           "comparator": {
             "$ref": "#/components/schemas/Comparator"
           },
@@ -57590,6 +58863,25 @@
                 ]
               }
             }
+          },
+          {
+            "type": "object",
+            "description": "A user asked for an agent's Matrix bot to log in again (ADR-0058 §6): the\noperator then mounts the bot's password and recovery key in its channel\ngateway for a bounded time. Always recorded: it hands long-term credentials\nto a workload again. Names the agent and the secrets, never a value.",
+            "required": [
+              "data",
+              "type"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/AiAgentMatrixReloginRequestedLog"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "ai_agent_matrix_relogin_requested"
+                ]
+              }
+            }
           }
         ]
       },
@@ -57618,7 +58910,8 @@
           "object_storage_owner_key_revealed",
           "object_storage_usage_collected",
           "object_storage_replicated",
-          "scm_credential_changed"
+          "scm_credential_changed",
+          "ai_agent_matrix_relogin_requested"
         ]
       },
       "AuditLogFreshness": {
@@ -67744,7 +69037,8 @@
         "properties": {
           "bucket_name": {
             "type": "string",
-            "description": "Name of the HFBucket to create/reuse for the Iceberg warehouse\n(only used when `seed_demo_catalog = true`). Defaults to\n`\"demo-iceberg\"`."
+            "description": "Name of the HFBucket to create/reuse for the Iceberg warehouse\n(only used when `seed_demo_catalog = true`). Defaults to the\nenvironment's own `\"<environment slug>-demo-iceberg\"`, under the\norganization prefix on an `s3` zone.",
+            "nullable": true
           },
           "catalog_name": {
             "type": "string",
@@ -69065,7 +70359,7 @@
         "properties": {
           "last_gc_result": {
             "type": "string",
-            "description": "Result of the most-recent GC job: `\"Running\"`, `\"Succeeded\"`, or\n`\"Failed\"`. `null` until the first GC run is recorded.",
+            "description": "Result of the most-recent GC job: `\"WaitingForBackup\"`, `\"Running\"`,\n`\"Succeeded\"`, or `\"Failed\"`. `null` until the first GC run is recorded.",
             "nullable": true
           },
           "last_gc_time": {
@@ -74934,6 +76228,32 @@
             "type": "string"
           }
         }
+      },
+      "MatrixAutoJoinDto": {
+        "type": "string",
+        "description": "Which invitations the bot accepts.",
+        "enum": [
+          "allowlisted",
+          "invited",
+          "never"
+        ]
+      },
+      "MatrixPresetDto": {
+        "type": "string",
+        "description": "`tchap` (hosts derived from the MXID; decrypted messages stay in the cluster\nunless `allow_external_inference`) or `generic` (any homeserver: `homeserver_url`\nand an allowlist are required).",
+        "enum": [
+          "tchap",
+          "generic"
+        ]
+      },
+      "MatrixUnencryptedRoomsDto": {
+        "type": "string",
+        "description": "Whether the bot answers in unencrypted rooms.",
+        "enum": [
+          "never",
+          "allowlisted",
+          "any"
+        ]
       },
       "MedallionTier": {
         "type": "string",
@@ -80912,6 +82232,7 @@
           "max_service_accounts",
           "max_kafka_services",
           "max_nextflow_environments",
+          "max_virtual_machines",
           "max_storage_gb",
           "max_vcpu",
           "max_ram_gb",
@@ -80920,7 +82241,8 @@
           "max_llm_tokens_monthly",
           "max_llm_rpm",
           "max_llm_tpm",
-          "max_api_calls_daily"
+          "max_api_calls_daily",
+          "is_default"
         ],
         "properties": {
           "description": {
@@ -80930,6 +82252,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "The plan organizations created without one are placed on."
           },
           "max_api_calls_daily": {
             "type": "integer",
@@ -81003,6 +82329,10 @@
             "format": "int32"
           },
           "max_vcpu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max_virtual_machines": {
             "type": "integer",
             "format": "int32"
           },
@@ -84602,7 +85932,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "Channels that receive this signal. Empty = every enabled channel."
+            "description": "Channels that receive this signal. Empty = every enabled channel. An\nalert rule that names its own channels ignores these."
           }
         }
       },
@@ -87472,6 +88802,11 @@
         "type": "object",
         "description": "Partial update. Only present fields are applied. Empty strings clear\n`description` / `context` / `inference.model`.",
         "properties": {
+          "allow_platform_tools": {
+            "type": "boolean",
+            "description": "Let the chat channels (Matrix, Slack, Discord) drive this agent although its\ntools include general `hfctl` (or every tool), i.e. the organization's\nservice account (ADR-0058 §3). `false` removes the override; a channel that\nneeds it is then refused.",
+            "nullable": true
+          },
           "budgets": {
             "$ref": "#/components/schemas/AiAgentBudgetsDto",
             "nullable": true

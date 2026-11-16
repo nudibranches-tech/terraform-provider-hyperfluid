@@ -51,7 +51,7 @@ func (fw *fakeWidget) routes(t *testing.T) {
 		}
 		return 200, fw.response()
 	})
-	fw.on("PUT", `/ai-agents/[^/]+/widget`, func(_ string, raw []byte) (int, any) {
+	write := func(_ string, raw []byte) (int, any) {
 		if fw.agentGone {
 			return notFound()
 		}
@@ -83,6 +83,14 @@ func (fw *fakeWidget) routes(t *testing.T) {
 			fw.id = "wa_first"
 		}
 		return 200, fw.response()
+	}
+	fw.on("PUT", `/ai-agents/[^/]+/widget`, write)
+	// PATCH updates a widget that is on and never turns one on.
+	fw.on("PATCH", `/ai-agents/[^/]+/widget`, func(p string, raw []byte) (int, any) {
+		if fw.cfg != nil && !fw.enabled && !fw.agentGone {
+			return 409, map[string]string{"message": "the widget is off: an update never turns it on; enable it with PUT"}
+		}
+		return write(p, raw)
 	})
 	fw.on("POST", `/ai-agents/[^/]+/widget/rotate`, func(string, []byte) (int, any) {
 		if fw.cfg == nil {
@@ -217,16 +225,19 @@ func TestAgentWidgetUpdate(t *testing.T) {
 	next.Lang = types.StringNull()
 	updated, d := l.update(next, created)
 	mustSucceed(t, d)
-	puts := fw.calls("PUT", `/ai-agents/[^/]+/widget`)
-	if len(puts) != 2 {
-		t.Fatalf("PUT calls = %d, want 2", len(puts))
+	if n := len(fw.calls("PUT", `/ai-agents/[^/]+/widget`)); n != 1 {
+		t.Errorf("the update used PUT, which turns the widget on (%d PUTs)", n)
 	}
-	body := puts[1].body
+	patches := fw.calls("PATCH", `/ai-agents/[^/]+/widget`)
+	if len(patches) != 1 {
+		t.Fatalf("PATCH calls = %d, want 1", len(patches))
+	}
+	body := patches[0].body
 	if _, ok := body["greeting"]; ok {
-		t.Errorf("PUT still carries greeting, which was removed: %v", body)
+		t.Errorf("PATCH still carries greeting, which was removed: %v", body)
 	}
 	if body["title"] != "Open data assistant" {
-		t.Errorf("PUT body = %v", body)
+		t.Errorf("PATCH body = %v", body)
 	}
 	if n := len(fw.calls("POST", `/widget/rotate`)); n != 0 {
 		t.Errorf("an update rotated the widget %d time(s)", n)
@@ -238,8 +249,8 @@ func TestAgentWidgetUpdate(t *testing.T) {
 	// Nothing but computed values differing: nothing is sent.
 	again, d := l.update(updated, updated)
 	mustSucceed(t, d)
-	if n := len(fw.calls("PUT", `/ai-agents/[^/]+/widget`)); n != 2 {
-		t.Errorf("an unchanged configuration was sent again (%d PUTs)", n)
+	if n := len(fw.calls("PATCH", `/ai-agents/[^/]+/widget`)); n != 1 {
+		t.Errorf("an unchanged configuration was sent again (%d PATCHes)", n)
 	}
 	if !again.WidgetID.Equal(updated.WidgetID) {
 		t.Errorf("widget id moved: %s", again.WidgetID)
@@ -269,8 +280,8 @@ func TestAgentWidgetRotate(t *testing.T) {
 	if !strings.Contains(rotated.EmbedSnippet.ValueString(), `data-agent="wa_rotated1"`) {
 		t.Errorf("the snippet still names the old id: %s", rotated.EmbedSnippet)
 	}
-	if n := len(fw.calls("PUT", `/ai-agents/[^/]+/widget`)); n != 1 {
-		t.Errorf("a rotation alone re-sent the configuration (%d PUTs)", n)
+	if n := len(fw.calls("PUT", `/ai-agents/[^/]+/widget`)) + len(fw.calls("PATCH", `/ai-agents/[^/]+/widget`)); n != 1 {
+		t.Errorf("a rotation alone re-sent the configuration (%d writes)", n)
 	}
 
 	removed := rotated
@@ -441,7 +452,7 @@ func TestWidgetRotationRequested(t *testing.T) {
 		{"unknown", types.StringUnknown(), s("a"), true},
 	}
 	for _, tc := range cases {
-		if got := widgetRotationRequested(tc.plan, tc.state); got != tc.want {
+		if got := triggerRequested(tc.plan, tc.state); got != tc.want {
 			t.Errorf("%s: got %v, want %v", tc.name, got, tc.want)
 		}
 	}
@@ -482,5 +493,38 @@ func TestWidgetSnippet(t *testing.T) {
 	}
 	if got := widgetSnippet("https://console.example.org", "/widget/v1/agent.js", "wa_1", nil); strings.Contains(got, "data-lang") {
 		t.Errorf("snippet without lang = %s", got)
+	}
+}
+
+// A widget disabled outside Terraform after the plan is not turned back on by
+// an update: the PATCH answers 409 and the apply says why.
+func TestAgentWidgetUpdateNeverEnables(t *testing.T) {
+	fw, r := newFakeWidget(t)
+	l := newLifecycle[agentWidgetModel](t, r)
+	created, d := l.create(widgetPlan(fw))
+	mustSucceed(t, d)
+
+	fw.enabled = false // disabled in the console between the plan and the apply
+	next := created
+	next.Title = types.StringValue("Open data assistant")
+	_, d = l.update(next, created)
+	mustFail(t, d, "the widget is off")
+	if fw.enabled || len(fw.calls("PUT", `/ai-agents/[^/]+/widget`)) != 1 {
+		t.Error("an update turned the widget back on")
+	}
+}
+
+// A write the console gave up on because the agent kept changing is reported
+// as such, after the client's retries.
+func TestAgentWidgetConcurrentWrite(t *testing.T) {
+	f, pd := newFakeAPI(t)
+	f.on("PUT", `/ai-agents/[^/]+/widget`, func(string, []byte) (int, any) {
+		return 409, map[string]string{"message": "the agent was changed by someone else while this change was being written; try again"}
+	})
+	l := newLifecycle[agentWidgetModel](t, &agentWidgetResource{p: pd})
+	_, d := l.create(widgetPlan(&fakeWidget{fakeAPI: f, agent: uuid.New()}))
+	mustFail(t, d, "Apply again")
+	if n := len(f.calls("PUT", `/ai-agents/[^/]+/widget`)); n != 4 {
+		t.Errorf("PUTs = %d, want the first try and three retries", n)
 	}
 }
