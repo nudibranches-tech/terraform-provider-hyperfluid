@@ -1909,6 +1909,352 @@
         }
       }
     },
+    "/api/dev/workstations/{id}/agent/file/download": {
+      "get": {
+        "tags": [
+          "Dev Workstations — Files"
+        ],
+        "summary": "Download a file, or a folder as a `.tar.gz`.",
+        "description": "Buffered (the answer carries its `Content-Length`), under the same read\nconfinement as a file view: a symlinked file or directory that leaves the\nclone is refused. Never served as `text/*`, so the bytes cannot run as script\non the console's origin.",
+        "operationId": "download_workstation_path",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "description": "Repo-relative path of the file or folder.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "description": "Clone directory `path` is relative to. Absent = the primary repository.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file (application/octet-stream), or the folder as a .tar.gz (application/gzip)",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "The raw file, documented as `string`/`binary` so the generated client takes a\n`Blob` and not a JSON array of integers."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid path, or not a regular file or folder",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing exists at this path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Larger than 25 MiB (256 MiB unpacked for a folder)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many transfers in flight (Retry-After: 2)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The download did not finish in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/file/move": {
+      "post": {
+        "tags": [
+          "Dev Workstations — Files"
+        ],
+        "summary": "Rename or move a file or folder, inside one clone or into another.",
+        "operationId": "move_workstation_path",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveWorkstationPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Moved"
+          },
+          "400": {
+            "description": "Invalid path (outside the repository, its root or .git), the destination is the source, or a folder moved into itself",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing exists at the source",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Something already exists at the destination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The move did not finish in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/file/upload": {
+      "post": {
+        "tags": [
+          "Dev Workstations — Files"
+        ],
+        "summary": "Upload one file into a clone, streamed.",
+        "description": "Two execs, as a write is (a kube exec fed stdin drops its stdout when stdin\ncloses): the body streams into a temp file whose sha256 is computed on the\nway, then a stdin-less exec verifies it, applies the same confinement and\nconflict rules as a create or a save, and moves it into place.",
+        "operationId": "upload_workstation_file",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "description": "Repo-relative path the file is written to (its name included).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "description": "Clone directory `path` is relative to. Absent = the primary repository.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "overwrite",
+            "in": "query",
+            "description": "Replace the file when one is already there. Off by default: anything at\n`path` is then a 409.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The raw file, at most 25 MiB, streamed into the workstation",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "description": "The raw file, documented as `string`/`binary` so the generated client takes a\n`Blob` and not a JSON array of integers."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "File written",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteFileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid path (outside the repository, its root or .git)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "The upload stopped sending data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Something already exists at the path (and overwrite is off)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The file is larger than 25 MiB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many transfers in flight (Retry-After: 2)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The upload did not finish in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/dev/workstations/{id}/agent/files": {
       "get": {
         "tags": [
@@ -1979,8 +2325,173 @@
               }
             }
           },
+          "409": {
+            "description": "The clone's origin is not the registered repository (`fields[0]` = `origin_mismatch`, `fields[1]` = the folder's real origin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many listings or searches are already running on this workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "502": {
-            "description": "Opencode upstream error",
+            "description": "Opencode upstream error, or the listing output was too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The listing did not finish in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/files/find": {
+      "get": {
+        "tags": [
+          "Dev Workstations — Agent Chat"
+        ],
+        "summary": "The quick-open fallback: the files of one clone whose path contains the\nquery's characters in order (`git ls-files -co --exclude-standard`, so\n`.gitignore` is honoured).",
+        "description": "The browser ranks the listing it already holds and calls this only for a\nroot whose listing came back truncated (D10.4). The query is data: it is\nturned into a case-insensitive subsequence pattern here, every character\nescaped, so nothing the user types is ever a regex. The permit, the origin\ncheck and the hardened git are the listing's.",
+        "operationId": "find_workstation_files",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "What the user typed: its characters must appear in this order in the\npath, case-insensitively (VS Code's fuzzy file match). Never a regex:\n1 to 128 characters, no control character.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "description": "Clone directory of the repository to search, as returned by\n`GET /api/dev/workstations/{id}/repositories`. Absent = the primary one.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Most matches to return: 200 by default, 500 at most.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Files of the clone whose path matches the query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkstationFileFindResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query (empty, too long, control character) or a clone that resolves outside /workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workstation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The clone's origin is not the registered repository (`fields[0]` = `origin_mismatch`, `fields[1]` = the folder's real origin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many listings or searches are already running on this workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The output was too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The search did not finish in time",
             "content": {
               "application/json": {
                 "schema": {
@@ -2434,7 +2945,7 @@
             }
           },
           "409": {
-            "description": "A pull request is already open for the pushed branch",
+            "description": "A pull request is already open for the pushed branch, or the clone's origin is not the registered repository (`fields[0]` = `origin_mismatch`, `fields[1]` = the folder's real origin; nothing was pushed)",
             "content": {
               "application/json": {
                 "schema": {
@@ -3189,6 +3700,188 @@
           },
           "502": {
             "description": "Opencode upstream error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/agent/search": {
+      "get": {
+        "tags": [
+          "Dev Workstations — Files"
+        ],
+        "summary": "Search the text of the files of one clone.",
+        "description": "One read-exec permit per workstation is held for the whole search; a\nrequest waits up to 5 s for it before it is answered 429, so a fan-out over\nseveral clones queues instead of failing. The clone must still be the\nregistered repository.",
+        "operationId": "search_workstation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "The text to find: 1 to 256 characters, no line break. A plain string\nunless `regex` is set.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "description": "Clone directory of the repository to search, as returned by\n`GET /api/dev/workstations/{id}/repositories`. Absent = the primary one.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "regex",
+            "in": "query",
+            "description": "Read `q` as an extended regular expression (POSIX ERE). Back-references\n(`\\1`-`\\9`) are refused.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "case_sensitive",
+            "in": "query",
+            "description": "Match the case exactly. Off by default.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whole_word",
+            "in": "query",
+            "description": "Match whole words only.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Comma-separated globs a file must match to be searched (at most 8, 128\ncharacters each). A glob without `/` matches at any depth, one ending in\n`/` the whole folder: `*.ts`, `src/`, `src/**/*.rs`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "exclude",
+            "in": "query",
+            "description": "Comma-separated globs of files to leave out, same rules as `include`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Most matches to return: 500 by default, 2000 at most.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching lines of the clone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkstationSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query, glob or pattern, or a clone that resolves outside /workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workstation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The clone's origin is not the registered repository (`fields[0]` = `origin_mismatch`, `fields[1]` = the folder's real origin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many listings or searches are already running on this workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The output was too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The search did not finish in time",
             "content": {
               "application/json": {
                 "schema": {
@@ -4756,6 +5449,375 @@
           },
           "404": {
             "description": "No such repository on this workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/scm-credential": {
+      "put": {
+        "tags": [
+          "Dev Workstations — SCM credential"
+        ],
+        "operationId": "replace_scm_credential",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceWorkstationScmCredentialRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The workstation now uses the credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevWorkstationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not an scm_credential, or it does not serve the workstation's repositories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller does not own the workstation, or may not reference the secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such workstation, or no such secret in its organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The cluster refused the change; the workstation keeps its previous credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/scm-credential/health": {
+      "get": {
+        "tags": [
+          "Dev Workstations — SCM credential"
+        ],
+        "operationId": "get_scm_credential_health",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "description": "Bypass the 60 s cache and ask the forge and the pod again. At most once\nper 10 s per workstation; inside that window the cached answer is\nreturned.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The health of the workstation's git credential. A token the forge rejects is a 200 with `state = rejected`, never a 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkstationScmCredentialHealth"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller does not own the workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/scm-credential/refresh": {
+      "post": {
+        "tags": [
+          "Dev Workstations — SCM credential"
+        ],
+        "operationId": "refresh_scm_credential",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshWorkstationScmCredentialRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "The operator was asked to re-apply the credential Secret, or to mint a new token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkstationScmCredentialRefreshResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`remint` on a workstation whose credential is a stored secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller does not own the workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "A request of this kind is younger than 15 s (60 s for a re-mint)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/scm-credential/restart": {
+      "post": {
+        "tags": [
+          "Dev Workstations — SCM credential"
+        ],
+        "operationId": "restart_scm_credential_pod",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The operator was asked to recreate the pod. The workspace volume is kept; terminal and agent sessions end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkstationScmCredentialRefreshResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller does not own the workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "A restart was requested less than 60 s ago",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/workstations/{id}/scm-credential/verify": {
+      "post": {
+        "tags": [
+          "Dev Workstations — SCM credential"
+        ],
+        "operationId": "verify_scm_token",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dev workstation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyScmTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the forge says of the candidate token. Nothing is stored and the token is never echoed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScmTokenVerification"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a usable token, or the workstation has no stored credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller does not own the workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such workstation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "One verification per 2 s per workstation",
             "content": {
               "application/json": {
                 "schema": {
@@ -15656,6 +16718,16 @@
               }
             }
           },
+          "503": {
+            "description": "The agent's API credentials are not provisioned yet, or are being rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden",
             "content": {
@@ -15728,6 +16800,16 @@
           },
           "500": {
             "description": "Agent unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The agent's API credentials are not provisioned yet, or are being rotated",
             "content": {
               "application/json": {
                 "schema": {
@@ -15816,6 +16898,16 @@
               }
             }
           },
+          "503": {
+            "description": "The agent's API credentials are not provisioned yet, or are being rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden",
             "content": {
@@ -15887,7 +16979,7 @@
             }
           },
           "503": {
-            "description": "Conversation history is not configured for this agent",
+            "description": "Conversation history is not configured for this agent, or its API credentials are not provisioned yet or being rotated",
             "content": {
               "application/json": {
                 "schema": {
@@ -15975,6 +17067,16 @@
               }
             }
           },
+          "503": {
+            "description": "The agent's API credentials are not provisioned yet, or are being rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden",
             "content": {
@@ -16037,6 +17139,274 @@
           },
           "409": {
             "description": "Agent is not running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The agent's API credentials are not provisioned yet, or are being rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/widget": {
+      "get": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "get_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The agent's public web widget",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "enable_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentWidgetConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Widget enabled with this configuration (the id is minted on the first enable and kept after)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration (origins, privacy_url, colour, bounds), or the agent may not have a public widget (a capability, an empty tool list, general hfctl)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/widget/disable": {
+      "post": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "disable_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Widget disabled: every copy of the tag gets 404. The id and configuration are kept; enabling again revives the same tag",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found, or it has no widget",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/ai-agents/{id}/widget/rotate": {
+      "post": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "rotate_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A new widget id; every copy of the old tag now gets 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found, or it has no widget",
             "content": {
               "application/json": {
                 "schema": {
@@ -53368,6 +54738,158 @@
           }
         }
       },
+      "AiAgentWidgetConfig": {
+        "type": "object",
+        "description": "A widget configuration. Unset optional fields stay unset on the agent: their\ndefaults are applied where they are used, never stored.",
+        "required": [
+          "privacy_url"
+        ],
+        "properties": {
+          "allow_any_origin": {
+            "type": "boolean",
+            "description": "Accept any origin. Deliberately explicit; the console flags it."
+          },
+          "allowed_origins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Origins allowed to embed the widget, each `https://host[:port]`\n(`http://` only for localhost). Required unless `allow_any_origin`."
+          },
+          "colour": {
+            "type": "string",
+            "description": "`#rrggbb`. Refused when neither dark nor white text reaches WCAG AA on it.",
+            "nullable": true
+          },
+          "greeting": {
+            "type": "string",
+            "nullable": true
+          },
+          "lang": {
+            "type": "string",
+            "description": "`fr` or `en`.",
+            "nullable": true
+          },
+          "max_question_length": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Longest visitor question, 1-4000 characters. Unset: 800.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "privacy_url": {
+            "type": "string",
+            "description": "The customer's privacy notice, `https://`. Required."
+          },
+          "session_retention_hours": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Idle widget conversations are kept this long, 1-720 hours. Unset: 24.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 6 suggestion chips, 200 characters each."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AiAgentWidgetPhaseDto": {
+        "type": "string",
+        "enum": [
+          "NotConfigured",
+          "Active",
+          "Disabled",
+          "AgentStopped"
+        ]
+      },
+      "AiAgentWidgetResponse": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "phase",
+          "effective_max_question_length",
+          "warnings"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/AiAgentWidgetConfig",
+            "nullable": true
+          },
+          "effective_max_question_length": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The question cap visitors get, with the default applied.",
+            "minimum": 0
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "ineligible_reason": {
+            "type": "string",
+            "description": "Why this agent cannot have a widget (a capability, no explicit tool list,\ngeneral hfctl), when it cannot: enabling is refused with this message.",
+            "nullable": true
+          },
+          "phase": {
+            "$ref": "#/components/schemas/AiAgentWidgetPhaseDto"
+          },
+          "script": {
+            "$ref": "#/components/schemas/AiAgentWidgetScript",
+            "nullable": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "What the owner should know before exposing this agent to anonymous visitors:\nwhat it can read, its service account's rights, and a proxy configuration\nthat makes every visitor share one rate limit. Never blocks on its own."
+          },
+          "widget_id": {
+            "type": "string",
+            "description": "`wa_…`, the snippet's `data-agent`. Absent until the first enable.",
+            "nullable": true
+          }
+        }
+      },
+      "AiAgentWidgetScript": {
+        "type": "object",
+        "description": "The script this console serves, for the snippet. Paths are relative to the\nconsole's own origin.",
+        "required": [
+          "floating_path",
+          "pinned_path",
+          "version",
+          "build",
+          "integrity"
+        ],
+        "properties": {
+          "build": {
+            "type": "string",
+            "description": "The content id in `pinned_path` (16 hex characters of the bundle's sha256)."
+          },
+          "floating_path": {
+            "type": "string",
+            "description": "`/widget/v1/agent.js`: follows fixes."
+          },
+          "integrity": {
+            "type": "string",
+            "description": "`sha384-…`, the `integrity` attribute of the pinned tag."
+          },
+          "pinned_path": {
+            "type": "string",
+            "description": "`/widget/v<version>/<build>/agent.js`: immutable, for the SRI form. Content\naddressed: a new build is a new path, and this console serves only its own\nbuild, so a pinned tag must be copied again after a console upgrade. The\nfloating path is the default to offer."
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "AiClassificationResultResponse": {
         "type": "object",
         "description": "Response for AI classification result.",
@@ -55919,6 +57441,25 @@
           },
           {
             "type": "object",
+            "description": "An IDE file operation on a dev workstation (read, write, upload,\ndownload, move, delete, search), recorded as metadata only because the\norganization is in workstation audit mode (ADR-0058 D0.4, D10.6). Same\naudience and same exclusion as [`Self::WorkstationAgentRequest`]: owner\ntranscript only, never a tenant `audit_log:read` listing.",
+            "required": [
+              "data",
+              "type"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/WorkstationFileAccessLog"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "workstation_file_access"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
             "description": "A principal started loading a staged dump into a managed PostgreSQL\ninstance. Recorded because the import replays arbitrary SQL as the\nchosen database role, which is a write no other trail attributes to a\nperson.",
             "required": [
               "data",
@@ -56030,6 +57571,25 @@
                 ]
               }
             }
+          },
+          {
+            "type": "object",
+            "description": "The git credential of a dev workstation was rotated, re-picked,\nrefreshed or re-minted (ADR-0058 D10.10). Always recorded, workstation\naudit mode or not: a credential change is a tenant-level security\nevent, unlike the workstation transcript events. Names secrets and\nlogins, never a token.",
+            "required": [
+              "data",
+              "type"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ScmCredentialChangedLog"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "scm_credential_changed"
+                ]
+              }
+            }
           }
         ]
       },
@@ -56051,12 +57611,14 @@
           "workstation_agent_request",
           "workstation_terminal_command",
           "workstation_preview_session",
+          "workstation_file_access",
           "managed_postgresql_import_created",
           "virtual_machine_console_session",
           "container_app_image_synced",
           "object_storage_owner_key_revealed",
           "object_storage_usage_collected",
-          "object_storage_replicated"
+          "object_storage_replicated",
+          "scm_credential_changed"
         ]
       },
       "AuditLogFreshness": {
@@ -65377,12 +66939,17 @@
           "recording",
           "agent_requests_recorded",
           "terminal_commands_recorded",
+          "file_access_recorded",
           "preview_posture"
         ],
         "properties": {
           "agent_requests_recorded": {
             "type": "boolean",
             "description": "Requests sent to the agent are recorded."
+          },
+          "file_access_recorded": {
+            "type": "boolean",
+            "description": "The IDE's file operations (read, write, upload, download, move, delete,\nsearch) are recorded as metadata: who touched which path, how many\nbytes, never the content."
           },
           "preview_posture": {
             "$ref": "#/components/schemas/PreviewPosture"
@@ -66713,7 +68280,7 @@
           },
           "reason": {
             "type": "string",
-            "description": "Why the file is view-only / unavailable when `editable` is false:\n`missing` | `directory` | `binary` | `too_large`. `None` when editable.",
+            "description": "Why the file is view-only / unavailable when `editable` is false:\n`missing` | `directory` | `binary` | `too_large` | `outside_repository`\n(the path resolves outside the clone through a symlink). `None` when\neditable.",
             "nullable": true
           },
           "size": {
@@ -74011,6 +75578,38 @@
           }
         }
       },
+      "MoveWorkstationPathRequest": {
+        "type": "object",
+        "description": "Rename or move a file or folder, inside one clone or between two.",
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Repo-relative path of the entry to move."
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Replace `to` when it is a file and `from` is a file too. Otherwise\nanything already at `to` is a 409."
+          },
+          "repo": {
+            "type": "string",
+            "description": "Clone directory `from` is relative to. Absent = the primary repository.",
+            "nullable": true
+          },
+          "to": {
+            "type": "string",
+            "description": "Repo-relative path it should have afterwards (its new name included)."
+          },
+          "to_repo": {
+            "type": "string",
+            "description": "Clone directory `to` is relative to. Absent = the same clone as `from`.",
+            "nullable": true
+          }
+        }
+      },
       "MultipartPartUrl": {
         "type": "object",
         "required": [
@@ -78311,6 +79910,11 @@
           "title"
         ],
         "properties": {
+          "allow_origin_mismatch": {
+            "type": "boolean",
+            "description": "Push even though the clone's `origin` is not the repository registered\nfor this directory (a reused folder, or a deliberate repoint such as a\nfork). Without it such a push answers 409 `origin_mismatch`, with the real\norigin in `fields[1]`; resend with `true` only after the user confirmed\nthat origin. Local commits never need it.",
+            "nullable": true
+          },
           "body": {
             "type": "string"
           },
@@ -79597,6 +81201,15 @@
           }
         }
       },
+      "RefreshWorkstationScmCredentialRequest": {
+        "type": "object",
+        "properties": {
+          "remint": {
+            "type": "boolean",
+            "description": "Mint a new Forgejo token instead of re-applying the stored one. Minted\ncredentials only; the previous token stays valid (#3603)."
+          }
+        }
+      },
       "RefusalReason": {
         "type": "string",
         "description": "Why the dock's policy refuses a request.",
@@ -79824,6 +81437,18 @@
           "name": {
             "type": "string",
             "description": "New tmux session name. Must match the same charset as creation\n(`[A-Za-z0-9_-]`, max 64); the server re-sanitizes regardless."
+          }
+        }
+      },
+      "ReplaceWorkstationScmCredentialRequest": {
+        "type": "object",
+        "required": [
+          "scm_secret_id"
+        ],
+        "properties": {
+          "scm_secret_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -81781,6 +83406,207 @@
           }
         }
       },
+      "ScmCredentialChangeAction": {
+        "type": "string",
+        "description": "What was done to a workstation's git credential.",
+        "enum": [
+          "rotate",
+          "replace",
+          "refresh",
+          "remint",
+          "restart"
+        ]
+      },
+      "ScmCredentialChangedLog": {
+        "type": "object",
+        "description": "Audit payload for a change to a dev workstation's git credential. The actor\nis the enclosing request's `oauth_id`.\n\nNever carries a token, a username or a base URL: only the ids of the\nsecrets involved and, when known, the forge logins, which are what a\nreviewer needs to see that a credential moved to another identity.",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ScmCredentialChangeAction"
+          },
+          "bound_workstations": {
+            "type": "integer",
+            "format": "int32",
+            "description": "`rotate` only: how many live workstations of the organization use the\nsecret. A count, never names.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "login_after": {
+            "type": "string",
+            "nullable": true
+          },
+          "login_before": {
+            "type": "string",
+            "description": "`rotate` only: the login the console last verified for the secret.",
+            "nullable": true
+          },
+          "old_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "`replace` only: the secret the workstation was bound to before.",
+            "nullable": true
+          },
+          "secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The secret the workstation is bound to after the change (the rotated\nsecret for `rotate`). Absent for a minted token, which has none.",
+            "nullable": true
+          },
+          "workstation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The workstation concerned. Absent on `rotate`, which acts on the\nsecret and so on every workstation bound to it.",
+            "nullable": true
+          }
+        }
+      },
+      "ScmCredentialCheck": {
+        "type": "object",
+        "required": [
+          "state",
+          "missing_scopes",
+          "sso_required",
+          "repositories"
+        ],
+        "properties": {
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "http_status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The forge's HTTP status, when it answered.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "login": {
+            "type": "string",
+            "nullable": true
+          },
+          "missing_scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScmRepositoryAccess"
+            }
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "sso_required": {
+            "type": "boolean",
+            "description": "GitHub says the token must be authorised for the organisation's SSO."
+          },
+          "state": {
+            "$ref": "#/components/schemas/ScmCredentialState"
+          }
+        }
+      },
+      "ScmCredentialSource": {
+        "type": "string",
+        "enum": [
+          "secret",
+          "minted"
+        ]
+      },
+      "ScmCredentialState": {
+        "type": "string",
+        "description": "What the console, or the pod, found out about the credential.",
+        "enum": [
+          "valid",
+          "expiring_soon",
+          "expired",
+          "rejected",
+          "insufficient_scope",
+          "restricted",
+          "unreachable",
+          "rate_limited",
+          "missing",
+          "not_checkable"
+        ]
+      },
+      "ScmPodCheck": {
+        "type": "object",
+        "required": [
+          "state",
+          "image_has_token_shim",
+          "repositories"
+        ],
+        "properties": {
+          "image_has_token_shim": {
+            "type": "boolean",
+            "description": "The image has the `gh`/`glab` shim that re-reads the token file."
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScmPodRepoCheck"
+            }
+          },
+          "state": {
+            "$ref": "#/components/schemas/ScmPodState"
+          },
+          "token_current": {
+            "type": "boolean",
+            "description": "Whether the token in the pod is the stored one. `None` for a minted\ntoken, or when the pod could not say.",
+            "nullable": true
+          }
+        }
+      },
+      "ScmPodRepoCheck": {
+        "type": "object",
+        "required": [
+          "dir",
+          "state"
+        ],
+        "properties": {
+          "dir": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ScmPodState"
+          }
+        }
+      },
+      "ScmPodState": {
+        "type": "string",
+        "description": "What the workstation's pod holds.",
+        "enum": [
+          "ok",
+          "propagating",
+          "stale",
+          "auth_failed",
+          "unreachable",
+          "no_helper",
+          "no_token",
+          "not_running",
+          "origin_mismatch",
+          "unknown"
+        ]
+      },
+      "ScmRepoAccess": {
+        "type": "string",
+        "enum": [
+          "push",
+          "read",
+          "none",
+          "unknown"
+        ]
+      },
       "ScmRepository": {
         "type": "object",
         "description": "A repository the user can pick to clone into a dev-workstation.",
@@ -81820,6 +83646,69 @@
           "updated_at": {
             "type": "string",
             "description": "ISO-8601 timestamp of the last push, used to sort and label the picker\nrows (\"Updated 3 days ago\")."
+          }
+        }
+      },
+      "ScmRepositoryAccess": {
+        "type": "object",
+        "required": [
+          "dir",
+          "access"
+        ],
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/ScmRepoAccess"
+          },
+          "dir": {
+            "type": "string",
+            "description": "Clone directory, as returned by `GET …/repositories`."
+          }
+        }
+      },
+      "ScmSecretScope": {
+        "type": "string",
+        "enum": [
+          "private",
+          "organization"
+        ]
+      },
+      "ScmTokenVerification": {
+        "type": "object",
+        "description": "What the forge says of a candidate token. Nothing is persisted.",
+        "required": [
+          "state",
+          "missing_scopes",
+          "login_changed"
+        ],
+        "properties": {
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "login": {
+            "type": "string",
+            "nullable": true
+          },
+          "login_changed": {
+            "type": "boolean",
+            "description": "The candidate belongs to another forge login than the one last recorded\nfor the stored secret."
+          },
+          "missing_scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/ScmCredentialState"
           }
         }
       },
@@ -86608,6 +88497,12 @@
             "description": "`null` clears the description; absent keeps the current value.",
             "nullable": true
           },
+          "scm_token": {
+            "type": "string",
+            "description": "Rotate the token of an `scm_credential` secret and keep everything else\nit holds (provider, username, instance URL, environment). Write-only:\nthe browser never reads the stored credential back, so a rotation does\nnot need to rebuild the object it replaces. Mutually exclusive with\n`value`, accepted alone, and only for `scm_credential` secrets. 1 to\n4096 bytes with no whitespace or control characters.",
+            "writeOnly": true,
+            "nullable": true
+          },
           "tags": {
             "type": "array",
             "items": {
@@ -87203,6 +89098,19 @@
           "looping_agent",
           "catalogue_sweep"
         ]
+      },
+      "VerifyScmTokenRequest": {
+        "type": "object",
+        "description": "The candidate token of the `verify` preflight. Write-only: never logged,\nnever echoed.",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
       },
       "VerifySignupRequestBody": {
         "type": "object",
@@ -88198,6 +90106,115 @@
           }
         }
       },
+      "WorkstationFileAccessLog": {
+        "type": "object",
+        "description": "Audit payload for one IDE file operation on a dev workstation, recorded\nwhile the organization is in audit mode (ADR-0058 U-1).\n\nMETADATA ONLY, like [`WorkstationTerminalCommandLog`]: there is no field\nfor file content, a search query or a match line, so no defect in a capture\nsite can put a secret into the record. A search is identified by the\nsha256 of its query, which lets a reviewer match two searches without\nreading either.",
+        "required": [
+          "workstation_id",
+          "workstation_name",
+          "resource_id",
+          "op",
+          "repo",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Bytes that moved: the file read, the body written or uploaded, the\narchive downloaded, the preview text a search returned. 0 when none\nmoved (a delete, a move).",
+            "minimum": 0
+          },
+          "matches": {
+            "type": "integer",
+            "format": "int32",
+            "description": "`search` only: how many matches were returned.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "op": {
+            "$ref": "#/components/schemas/WorkstationFileOp"
+          },
+          "path": {
+            "type": "string",
+            "description": "Repo-relative path acted on (the source of a move). Absent for a\nsearch, which names no path.",
+            "nullable": true
+          },
+          "q_sha256": {
+            "type": "string",
+            "description": "`search` only: sha256 of the query text.",
+            "nullable": true
+          },
+          "repo": {
+            "type": "string",
+            "description": "The clone dir the path is relative to."
+          },
+          "resource_id": {
+            "type": "string",
+            "description": "See [`WorkstationAgentRequestLog::resource_id`]."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "sha256 of those bytes, when they are known.",
+            "nullable": true
+          },
+          "to_path": {
+            "type": "string",
+            "description": "`move` only: where the entry went.",
+            "nullable": true
+          },
+          "to_repo": {
+            "type": "string",
+            "description": "`move` only: the clone dir the entry went to.",
+            "nullable": true
+          },
+          "workstation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workstation_name": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkstationFileFindResponse": {
+        "type": "object",
+        "description": "The files of one clone whose path matches the query.",
+        "required": [
+          "repo",
+          "matches",
+          "truncated"
+        ],
+        "properties": {
+          "matches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkstationFile"
+            },
+            "description": "Repo-relative paths, in the order git lists them (the client ranks)."
+          },
+          "repo": {
+            "type": "string",
+            "description": "The clone dir the paths are relative to."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "More files matched than `limit`."
+          }
+        }
+      },
+      "WorkstationFileOp": {
+        "type": "string",
+        "description": "Which IDE file operation a [`WorkstationFileAccessLog`] records.",
+        "enum": [
+          "read",
+          "write",
+          "upload",
+          "download",
+          "move",
+          "delete",
+          "search"
+        ]
+      },
       "WorkstationPreviewSessionLog": {
         "type": "object",
         "description": "Audit payload for a preview session opened while the organization is in\naudit mode with `PreviewPosture::Record`.\n\nThe preview forwards arbitrary HTTP and WebSocket traffic to a port the\nuser chose, so its contents are outside every tap this feature installs.\nWhat is recordable, and what a reviewer needs, is that the channel was\nopened at all.",
@@ -88289,6 +90306,181 @@
           },
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "WorkstationScmCredentialHealth": {
+        "type": "object",
+        "required": [
+          "state",
+          "provider",
+          "source",
+          "can_rotate_in_place",
+          "refresh_observed",
+          "remint_observed",
+          "restart_observed",
+          "checked_at"
+        ],
+        "properties": {
+          "can_rotate_in_place": {
+            "type": "boolean",
+            "description": "The caller may rotate the token of this secret in place."
+          },
+          "checked_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the oldest part of this answer was computed."
+          },
+          "credential": {
+            "$ref": "#/components/schemas/ScmCredentialCheck",
+            "nullable": true
+          },
+          "pod": {
+            "$ref": "#/components/schemas/ScmPodCheck",
+            "nullable": true
+          },
+          "provider": {
+            "type": "string",
+            "description": "`github` | `gitlab` | `forgejo`."
+          },
+          "refresh_observed": {
+            "type": "boolean",
+            "description": "The operator applied the last refresh request."
+          },
+          "refresh_requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "remint_error": {
+            "type": "string",
+            "description": "A category, never a message from the forge, when the last re-mint failed.\nThe workstation keeps the token it had.",
+            "nullable": true
+          },
+          "remint_observed": {
+            "type": "boolean",
+            "description": "The operator handled the last re-mint request (it may have failed: see\n`remint_error`)."
+          },
+          "remint_requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the last re-mint of a minted token was requested.",
+            "nullable": true
+          },
+          "restart_observed": {
+            "type": "boolean",
+            "description": "The operator recreated the pod for the last restart request."
+          },
+          "restart_requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the last pod restart (\"Restart to apply\") was requested.",
+            "nullable": true
+          },
+          "scm_secret_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "secret_bound_workstations": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Workstations of the organization bound to the secret. A count only,\nnever names.",
+            "minimum": 0,
+            "nullable": true
+          },
+          "secret_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "secret_scope": {
+            "$ref": "#/components/schemas/ScmSecretScope",
+            "nullable": true
+          },
+          "source": {
+            "$ref": "#/components/schemas/ScmCredentialSource"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ScmCredentialState"
+          }
+        }
+      },
+      "WorkstationScmCredentialRefreshResponse": {
+        "type": "object",
+        "required": [
+          "requested_at"
+        ],
+        "properties": {
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WorkstationSearchMatch": {
+        "type": "object",
+        "description": "One line that matched.",
+        "required": [
+          "path",
+          "line",
+          "column",
+          "preview",
+          "preview_truncated"
+        ],
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1-based BYTE offset of the first match in the line (git's `--column`);\nthe client converts it for display.",
+            "minimum": 0
+          },
+          "line": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1-based line number.",
+            "minimum": 0
+          },
+          "path": {
+            "type": "string",
+            "description": "Repo-relative path of the file."
+          },
+          "preview": {
+            "type": "string",
+            "description": "The line, cut to 300 characters, without its line break."
+          },
+          "preview_truncated": {
+            "type": "boolean",
+            "description": "The line was longer than the preview."
+          }
+        }
+      },
+      "WorkstationSearchResponse": {
+        "type": "object",
+        "description": "The matches of one clone.",
+        "required": [
+          "repo",
+          "matches",
+          "truncated",
+          "timed_out"
+        ],
+        "properties": {
+          "matches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkstationSearchMatch"
+            }
+          },
+          "repo": {
+            "type": "string",
+            "description": "The clone dir the paths are relative to."
+          },
+          "timed_out": {
+            "type": "boolean",
+            "description": "The search ran out of time (10 s): `matches` is what it found so far."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "There were more matches than `limit`, or than the answer could hold."
           }
         }
       },
@@ -88630,7 +90822,11 @@
     },
     {
       "name": "Dev Workstations — Files",
-      "description": "Read, write, create and delete workstation files and folders"
+      "description": "Read, write, create, delete, move, upload and download workstation files and folders"
+    },
+    {
+      "name": "Dev Workstations — SCM credential",
+      "description": "Is the git token of a workstation alive, and does its pod hold the current one"
     },
     {
       "name": "Dev Workstations — AI",

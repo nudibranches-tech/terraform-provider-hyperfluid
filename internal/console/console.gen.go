@@ -106,6 +106,30 @@ func (e AiAgentMailboxPhaseDto) Valid() bool {
 	}
 }
 
+// Defines values for AiAgentWidgetPhaseDto.
+const (
+	AiAgentWidgetPhaseDtoActive        AiAgentWidgetPhaseDto = "Active"
+	AiAgentWidgetPhaseDtoAgentStopped  AiAgentWidgetPhaseDto = "AgentStopped"
+	AiAgentWidgetPhaseDtoDisabled      AiAgentWidgetPhaseDto = "Disabled"
+	AiAgentWidgetPhaseDtoNotConfigured AiAgentWidgetPhaseDto = "NotConfigured"
+)
+
+// Valid indicates whether the value is a known member of the AiAgentWidgetPhaseDto enum.
+func (e AiAgentWidgetPhaseDto) Valid() bool {
+	switch e {
+	case AiAgentWidgetPhaseDtoActive:
+		return true
+	case AiAgentWidgetPhaseDtoAgentStopped:
+		return true
+	case AiAgentWidgetPhaseDtoDisabled:
+		return true
+	case AiAgentWidgetPhaseDtoNotConfigured:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AirflowLinkKind.
 const (
 	AirflowLinkKindContainerApp      AirflowLinkKind = "ContainerApp"
@@ -606,13 +630,13 @@ func (e AuditLogEvent14Type) Valid() bool {
 
 // Defines values for AuditLogEvent15Type.
 const (
-	AuditLogEvent15TypeManagedPostgresqlImportCreated AuditLogEvent15Type = "managed_postgresql_import_created"
+	AuditLogEvent15TypeWorkstationFileAccess AuditLogEvent15Type = "workstation_file_access"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent15Type enum.
 func (e AuditLogEvent15Type) Valid() bool {
 	switch e {
-	case AuditLogEvent15TypeManagedPostgresqlImportCreated:
+	case AuditLogEvent15TypeWorkstationFileAccess:
 		return true
 	default:
 		return false
@@ -621,13 +645,13 @@ func (e AuditLogEvent15Type) Valid() bool {
 
 // Defines values for AuditLogEvent16Type.
 const (
-	AuditLogEvent16TypeVirtualMachineConsoleSession AuditLogEvent16Type = "virtual_machine_console_session"
+	AuditLogEvent16TypeManagedPostgresqlImportCreated AuditLogEvent16Type = "managed_postgresql_import_created"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent16Type enum.
 func (e AuditLogEvent16Type) Valid() bool {
 	switch e {
-	case AuditLogEvent16TypeVirtualMachineConsoleSession:
+	case AuditLogEvent16TypeManagedPostgresqlImportCreated:
 		return true
 	default:
 		return false
@@ -636,13 +660,13 @@ func (e AuditLogEvent16Type) Valid() bool {
 
 // Defines values for AuditLogEvent17Type.
 const (
-	AuditLogEvent17TypeContainerAppImageSynced AuditLogEvent17Type = "container_app_image_synced"
+	AuditLogEvent17TypeVirtualMachineConsoleSession AuditLogEvent17Type = "virtual_machine_console_session"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent17Type enum.
 func (e AuditLogEvent17Type) Valid() bool {
 	switch e {
-	case AuditLogEvent17TypeContainerAppImageSynced:
+	case AuditLogEvent17TypeVirtualMachineConsoleSession:
 		return true
 	default:
 		return false
@@ -651,13 +675,13 @@ func (e AuditLogEvent17Type) Valid() bool {
 
 // Defines values for AuditLogEvent18Type.
 const (
-	AuditLogEvent18TypeObjectStorageOwnerKeyRevealed AuditLogEvent18Type = "object_storage_owner_key_revealed"
+	AuditLogEvent18TypeContainerAppImageSynced AuditLogEvent18Type = "container_app_image_synced"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent18Type enum.
 func (e AuditLogEvent18Type) Valid() bool {
 	switch e {
-	case AuditLogEvent18TypeObjectStorageOwnerKeyRevealed:
+	case AuditLogEvent18TypeContainerAppImageSynced:
 		return true
 	default:
 		return false
@@ -666,13 +690,13 @@ func (e AuditLogEvent18Type) Valid() bool {
 
 // Defines values for AuditLogEvent19Type.
 const (
-	AuditLogEvent19TypeObjectStorageUsageCollected AuditLogEvent19Type = "object_storage_usage_collected"
+	AuditLogEvent19TypeObjectStorageOwnerKeyRevealed AuditLogEvent19Type = "object_storage_owner_key_revealed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent19Type enum.
 func (e AuditLogEvent19Type) Valid() bool {
 	switch e {
-	case AuditLogEvent19TypeObjectStorageUsageCollected:
+	case AuditLogEvent19TypeObjectStorageOwnerKeyRevealed:
 		return true
 	default:
 		return false
@@ -681,13 +705,43 @@ func (e AuditLogEvent19Type) Valid() bool {
 
 // Defines values for AuditLogEvent20Type.
 const (
-	AuditLogEvent20TypeObjectStorageReplicated AuditLogEvent20Type = "object_storage_replicated"
+	AuditLogEvent20TypeObjectStorageUsageCollected AuditLogEvent20Type = "object_storage_usage_collected"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent20Type enum.
 func (e AuditLogEvent20Type) Valid() bool {
 	switch e {
-	case AuditLogEvent20TypeObjectStorageReplicated:
+	case AuditLogEvent20TypeObjectStorageUsageCollected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent21Type.
+const (
+	AuditLogEvent21TypeObjectStorageReplicated AuditLogEvent21Type = "object_storage_replicated"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent21Type enum.
+func (e AuditLogEvent21Type) Valid() bool {
+	switch e {
+	case AuditLogEvent21TypeObjectStorageReplicated:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent22Type.
+const (
+	AuditLogEvent22TypeScmCredentialChanged AuditLogEvent22Type = "scm_credential_changed"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent22Type enum.
+func (e AuditLogEvent22Type) Valid() bool {
+	switch e {
+	case AuditLogEvent22TypeScmCredentialChanged:
 		return true
 	default:
 		return false
@@ -711,10 +765,12 @@ const (
 	AuditLogEventTypeS3GatewayDecision              AuditLogEventType = "s3_gateway_decision"
 	AuditLogEventTypeS3GatewayGateDenied            AuditLogEventType = "s3_gateway_gate_denied"
 	AuditLogEventTypeS3GatewaySessionIssued         AuditLogEventType = "s3_gateway_session_issued"
+	AuditLogEventTypeScmCredentialChanged           AuditLogEventType = "scm_credential_changed"
 	AuditLogEventTypeSecurityDecision               AuditLogEventType = "security_decision"
 	AuditLogEventTypeTrinoQueryCompleted            AuditLogEventType = "trino_query_completed"
 	AuditLogEventTypeVirtualMachineConsoleSession   AuditLogEventType = "virtual_machine_console_session"
 	AuditLogEventTypeWorkstationAgentRequest        AuditLogEventType = "workstation_agent_request"
+	AuditLogEventTypeWorkstationFileAccess          AuditLogEventType = "workstation_file_access"
 	AuditLogEventTypeWorkstationPreviewSession      AuditLogEventType = "workstation_preview_session"
 	AuditLogEventTypeWorkstationTerminalCommand     AuditLogEventType = "workstation_terminal_command"
 )
@@ -752,6 +808,8 @@ func (e AuditLogEventType) Valid() bool {
 		return true
 	case AuditLogEventTypeS3GatewaySessionIssued:
 		return true
+	case AuditLogEventTypeScmCredentialChanged:
+		return true
 	case AuditLogEventTypeSecurityDecision:
 		return true
 	case AuditLogEventTypeTrinoQueryCompleted:
@@ -759,6 +817,8 @@ func (e AuditLogEventType) Valid() bool {
 	case AuditLogEventTypeVirtualMachineConsoleSession:
 		return true
 	case AuditLogEventTypeWorkstationAgentRequest:
+		return true
+	case AuditLogEventTypeWorkstationFileAccess:
 		return true
 	case AuditLogEventTypeWorkstationPreviewSession:
 		return true
@@ -5323,6 +5383,177 @@ func (e ScheduledRunStatus) Valid() bool {
 	}
 }
 
+// Defines values for ScmCredentialChangeAction.
+const (
+	ScmCredentialChangeActionRefresh ScmCredentialChangeAction = "refresh"
+	ScmCredentialChangeActionRemint  ScmCredentialChangeAction = "remint"
+	ScmCredentialChangeActionReplace ScmCredentialChangeAction = "replace"
+	ScmCredentialChangeActionRestart ScmCredentialChangeAction = "restart"
+	ScmCredentialChangeActionRotate  ScmCredentialChangeAction = "rotate"
+)
+
+// Valid indicates whether the value is a known member of the ScmCredentialChangeAction enum.
+func (e ScmCredentialChangeAction) Valid() bool {
+	switch e {
+	case ScmCredentialChangeActionRefresh:
+		return true
+	case ScmCredentialChangeActionRemint:
+		return true
+	case ScmCredentialChangeActionReplace:
+		return true
+	case ScmCredentialChangeActionRestart:
+		return true
+	case ScmCredentialChangeActionRotate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ScmCredentialSource.
+const (
+	ScmCredentialSourceMinted ScmCredentialSource = "minted"
+	ScmCredentialSourceSecret ScmCredentialSource = "secret"
+)
+
+// Valid indicates whether the value is a known member of the ScmCredentialSource enum.
+func (e ScmCredentialSource) Valid() bool {
+	switch e {
+	case ScmCredentialSourceMinted:
+		return true
+	case ScmCredentialSourceSecret:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ScmCredentialState.
+const (
+	ScmCredentialStateExpired           ScmCredentialState = "expired"
+	ScmCredentialStateExpiringSoon      ScmCredentialState = "expiring_soon"
+	ScmCredentialStateInsufficientScope ScmCredentialState = "insufficient_scope"
+	ScmCredentialStateMissing           ScmCredentialState = "missing"
+	ScmCredentialStateNotCheckable      ScmCredentialState = "not_checkable"
+	ScmCredentialStateRateLimited       ScmCredentialState = "rate_limited"
+	ScmCredentialStateRejected          ScmCredentialState = "rejected"
+	ScmCredentialStateRestricted        ScmCredentialState = "restricted"
+	ScmCredentialStateUnreachable       ScmCredentialState = "unreachable"
+	ScmCredentialStateValid             ScmCredentialState = "valid"
+)
+
+// Valid indicates whether the value is a known member of the ScmCredentialState enum.
+func (e ScmCredentialState) Valid() bool {
+	switch e {
+	case ScmCredentialStateExpired:
+		return true
+	case ScmCredentialStateExpiringSoon:
+		return true
+	case ScmCredentialStateInsufficientScope:
+		return true
+	case ScmCredentialStateMissing:
+		return true
+	case ScmCredentialStateNotCheckable:
+		return true
+	case ScmCredentialStateRateLimited:
+		return true
+	case ScmCredentialStateRejected:
+		return true
+	case ScmCredentialStateRestricted:
+		return true
+	case ScmCredentialStateUnreachable:
+		return true
+	case ScmCredentialStateValid:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ScmPodState.
+const (
+	ScmPodStateAuthFailed     ScmPodState = "auth_failed"
+	ScmPodStateNoHelper       ScmPodState = "no_helper"
+	ScmPodStateNoToken        ScmPodState = "no_token"
+	ScmPodStateNotRunning     ScmPodState = "not_running"
+	ScmPodStateOk             ScmPodState = "ok"
+	ScmPodStateOriginMismatch ScmPodState = "origin_mismatch"
+	ScmPodStatePropagating    ScmPodState = "propagating"
+	ScmPodStateStale          ScmPodState = "stale"
+	ScmPodStateUnknown        ScmPodState = "unknown"
+	ScmPodStateUnreachable    ScmPodState = "unreachable"
+)
+
+// Valid indicates whether the value is a known member of the ScmPodState enum.
+func (e ScmPodState) Valid() bool {
+	switch e {
+	case ScmPodStateAuthFailed:
+		return true
+	case ScmPodStateNoHelper:
+		return true
+	case ScmPodStateNoToken:
+		return true
+	case ScmPodStateNotRunning:
+		return true
+	case ScmPodStateOk:
+		return true
+	case ScmPodStateOriginMismatch:
+		return true
+	case ScmPodStatePropagating:
+		return true
+	case ScmPodStateStale:
+		return true
+	case ScmPodStateUnknown:
+		return true
+	case ScmPodStateUnreachable:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ScmRepoAccess.
+const (
+	ScmRepoAccessNone    ScmRepoAccess = "none"
+	ScmRepoAccessPush    ScmRepoAccess = "push"
+	ScmRepoAccessRead    ScmRepoAccess = "read"
+	ScmRepoAccessUnknown ScmRepoAccess = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the ScmRepoAccess enum.
+func (e ScmRepoAccess) Valid() bool {
+	switch e {
+	case ScmRepoAccessNone:
+		return true
+	case ScmRepoAccessPush:
+		return true
+	case ScmRepoAccessRead:
+		return true
+	case ScmRepoAccessUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ScmSecretScope.
+const (
+	ScmSecretScopeOrganization ScmSecretScope = "organization"
+	ScmSecretScopePrivate      ScmSecretScope = "private"
+)
+
+// Valid indicates whether the value is a known member of the ScmSecretScope enum.
+func (e ScmSecretScope) Valid() bool {
+	switch e {
+	case ScmSecretScopeOrganization:
+		return true
+	case ScmSecretScopePrivate:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SearchMode.
 const (
 	SearchModeRegex SearchMode = "regex"
@@ -6592,6 +6823,39 @@ func (e WorkspaceMode) Valid() bool {
 	}
 }
 
+// Defines values for WorkstationFileOp.
+const (
+	WorkstationFileOpDelete   WorkstationFileOp = "delete"
+	WorkstationFileOpDownload WorkstationFileOp = "download"
+	WorkstationFileOpMove     WorkstationFileOp = "move"
+	WorkstationFileOpRead     WorkstationFileOp = "read"
+	WorkstationFileOpSearch   WorkstationFileOp = "search"
+	WorkstationFileOpUpload   WorkstationFileOp = "upload"
+	WorkstationFileOpWrite    WorkstationFileOp = "write"
+)
+
+// Valid indicates whether the value is a known member of the WorkstationFileOp enum.
+func (e WorkstationFileOp) Valid() bool {
+	switch e {
+	case WorkstationFileOpDelete:
+		return true
+	case WorkstationFileOpDownload:
+		return true
+	case WorkstationFileOpMove:
+		return true
+	case WorkstationFileOpRead:
+		return true
+	case WorkstationFileOpSearch:
+		return true
+	case WorkstationFileOpUpload:
+		return true
+	case WorkstationFileOpWrite:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for WorkstationTemplateScopeDto.
 const (
 	WorkstationTemplateScopeDtoOrg      WorkstationTemplateScopeDto = "org"
@@ -7288,6 +7552,88 @@ type AiAgentStatusResponse struct {
 	// Phase Operator-reported phase: Pending, Provisioning, AwaitingServiceAccount,
 	// AwaitingRuntime, Running, Failed, Terminating.
 	Phase string `json:"phase"`
+}
+
+// AiAgentWidgetConfig A widget configuration. Unset optional fields stay unset on the agent: their
+// defaults are applied where they are used, never stored.
+type AiAgentWidgetConfig struct {
+	// AllowAnyOrigin Accept any origin. Deliberately explicit; the console flags it.
+	AllowAnyOrigin *bool `json:"allow_any_origin,omitempty"`
+
+	// AllowedOrigins Origins allowed to embed the widget, each `https://host[:port]`
+	// (`http://` only for localhost). Required unless `allow_any_origin`.
+	AllowedOrigins *[]string `json:"allowed_origins,omitempty"`
+
+	// Colour `#rrggbb`. Refused when neither dark nor white text reaches WCAG AA on it.
+	Colour   *string `json:"colour,omitempty"`
+	Greeting *string `json:"greeting,omitempty"`
+
+	// Lang `fr` or `en`.
+	Lang *string `json:"lang,omitempty"`
+
+	// MaxQuestionLength Longest visitor question, 1-4000 characters. Unset: 800.
+	MaxQuestionLength *int32 `json:"max_question_length,omitempty"`
+
+	// PrivacyUrl The customer's privacy notice, `https://`. Required.
+	PrivacyUrl string `json:"privacy_url"`
+
+	// SessionRetentionHours Idle widget conversations are kept this long, 1-720 hours. Unset: 24.
+	SessionRetentionHours *int32 `json:"session_retention_hours,omitempty"`
+
+	// Suggestions Up to 6 suggestion chips, 200 characters each.
+	Suggestions *[]string `json:"suggestions,omitempty"`
+	Title       *string   `json:"title,omitempty"`
+}
+
+// AiAgentWidgetPhaseDto defines model for AiAgentWidgetPhaseDto.
+type AiAgentWidgetPhaseDto string
+
+// AiAgentWidgetResponse defines model for AiAgentWidgetResponse.
+type AiAgentWidgetResponse struct {
+	// Config A widget configuration. Unset optional fields stay unset on the agent: their
+	// defaults are applied where they are used, never stored.
+	Config *AiAgentWidgetConfig `json:"config,omitempty"`
+
+	// EffectiveMaxQuestionLength The question cap visitors get, with the default applied.
+	EffectiveMaxQuestionLength int32 `json:"effective_max_question_length"`
+	Enabled                    bool  `json:"enabled"`
+
+	// IneligibleReason Why this agent cannot have a widget (a capability, no explicit tool list,
+	// general hfctl), when it cannot: enabling is refused with this message.
+	IneligibleReason *string               `json:"ineligible_reason,omitempty"`
+	Phase            AiAgentWidgetPhaseDto `json:"phase"`
+
+	// Script The script this console serves, for the snippet. Paths are relative to the
+	// console's own origin.
+	Script *AiAgentWidgetScript `json:"script,omitempty"`
+
+	// Warnings What the owner should know before exposing this agent to anonymous visitors:
+	// what it can read, its service account's rights, and a proxy configuration
+	// that makes every visitor share one rate limit. Never blocks on its own.
+	Warnings []string `json:"warnings"`
+
+	// WidgetId `wa_…`, the snippet's `data-agent`. Absent until the first enable.
+	WidgetId *string `json:"widget_id,omitempty"`
+}
+
+// AiAgentWidgetScript The script this console serves, for the snippet. Paths are relative to the
+// console's own origin.
+type AiAgentWidgetScript struct {
+	// Build The content id in `pinned_path` (16 hex characters of the bundle's sha256).
+	Build string `json:"build"`
+
+	// FloatingPath `/widget/v1/agent.js`: follows fixes.
+	FloatingPath string `json:"floating_path"`
+
+	// Integrity `sha384-…`, the `integrity` attribute of the pinned tag.
+	Integrity string `json:"integrity"`
+
+	// PinnedPath `/widget/v<version>/<build>/agent.js`: immutable, for the SRI form. Content
+	// addressed: a new build is a new path, and this console serves only its own
+	// build, so a pinned tag must be copied again after a console upgrade. The
+	// floating path is the default to offer.
+	PinnedPath string `json:"pinned_path"`
+	Version    string `json:"version"`
 }
 
 // AiClassificationResultResponse Response for AI classification result.
@@ -8624,27 +8970,48 @@ type AuditLogEvent14 struct {
 // AuditLogEvent14Type defines model for AuditLogEvent.14.Type.
 type AuditLogEvent14Type string
 
-// AuditLogEvent15 A principal started loading a staged dump into a managed PostgreSQL
+// AuditLogEvent15 An IDE file operation on a dev workstation (read, write, upload,
+// download, move, delete, search), recorded as metadata only because the
+// organization is in workstation audit mode (ADR-0058 D0.4, D10.6). Same
+// audience and same exclusion as [`Self::WorkstationAgentRequest`]: owner
+// transcript only, never a tenant `audit_log:read` listing.
+type AuditLogEvent15 struct {
+	// Data Audit payload for one IDE file operation on a dev workstation, recorded
+	// while the organization is in audit mode (ADR-0058 U-1).
+	//
+	// METADATA ONLY, like [`WorkstationTerminalCommandLog`]: there is no field
+	// for file content, a search query or a match line, so no defect in a capture
+	// site can put a secret into the record. A search is identified by the
+	// sha256 of its query, which lets a reviewer match two searches without
+	// reading either.
+	Data WorkstationFileAccessLog `json:"data"`
+	Type AuditLogEvent15Type      `json:"type"`
+}
+
+// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
+type AuditLogEvent15Type string
+
+// AuditLogEvent16 A principal started loading a staged dump into a managed PostgreSQL
 // instance. Recorded because the import replays arbitrary SQL as the
 // chosen database role, which is a write no other trail attributes to a
 // person.
-type AuditLogEvent15 struct {
+type AuditLogEvent16 struct {
 	// Data Audit payload for an import started into a managed PostgreSQL instance.
 	// The actor is the enclosing request's `oauth_id`.
 	//
 	// Identifies what was loaded and as whom; never the object's contents or a
 	// presigned URL.
 	Data ManagedPostgresqlImportCreatedLog `json:"data"`
-	Type AuditLogEvent15Type               `json:"type"`
+	Type AuditLogEvent16Type               `json:"type"`
 }
 
-// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
-type AuditLogEvent15Type string
+// AuditLogEvent16Type defines model for AuditLogEvent.16.Type.
+type AuditLogEvent16Type string
 
-// AuditLogEvent16 A browser console session (VNC or serial) on a virtual machine was
+// AuditLogEvent17 A browser console session (VNC or serial) on a virtual machine was
 // opened or closed. Recorded at both ends so a session's duration and the
 // reason it ended are on the ledger.
-type AuditLogEvent16 struct {
+type AuditLogEvent17 struct {
 	// Data Audit payload for a browser console session on a virtual machine. The
 	// actor is the enclosing request's `oauth_id`.
 	//
@@ -8652,34 +9019,34 @@ type AuditLogEvent16 struct {
 	// records who attached to which VM and for how long; the bytes relayed are
 	// never captured.
 	Data VirtualMachineConsoleSessionLog `json:"data"`
-	Type AuditLogEvent16Type             `json:"type"`
-}
-
-// AuditLogEvent16Type defines model for AuditLogEvent.16.Type.
-type AuditLogEvent16Type string
-
-// AuditLogEvent17 A ContainerApp's Git source resolved a new image and rolled it out
-// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
-// every such change is attributed to the commit and its author.
-type AuditLogEvent17 struct {
-	// Data Audit payload for an image a Git source rolled out. Written by the console
-	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
-	// the person behind it is the commit author, as the provider reports it.
-	Data ContainerAppImageSyncedLog `json:"data"`
-	Type AuditLogEvent17Type        `json:"type"`
+	Type AuditLogEvent17Type             `json:"type"`
 }
 
 // AuditLogEvent17Type defines model for AuditLogEvent.17.Type.
 type AuditLogEvent17Type string
 
-// AuditLogEvent18 A console-mediated read returned the raw value of a Ceph RGW
+// AuditLogEvent18 A ContainerApp's Git source resolved a new image and rolled it out
+// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
+// every such change is attributed to the commit and its author.
+type AuditLogEvent18 struct {
+	// Data Audit payload for an image a Git source rolled out. Written by the console
+	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
+	// the person behind it is the commit author, as the provider reports it.
+	Data ContainerAppImageSyncedLog `json:"data"`
+	Type AuditLogEvent18Type        `json:"type"`
+}
+
+// AuditLogEvent18Type defines model for AuditLogEvent.18.Type.
+type AuditLogEvent18Type string
+
+// AuditLogEvent19 A console-mediated read returned the raw value of a Ceph RGW
 // tenant-owner key (a Secret-Manager entry named under
 // `services/ceph/<binding>/owner/` or tagged `ceph-harbor-owner-user`, by
 // `harbor_binding_reconciler.rs`'s `publish_owner_credentials_to_console`).
 // The only observability left once that credential leaves Secret Manager —
 // see `handlers::secrets::read_secret_value`. Recorded through the acked
 // emitter: a reveal that cannot be recorded is refused.
-type AuditLogEvent18 struct {
+type AuditLogEvent19 struct {
 	// Data Audit payload for a console-mediated reveal of a Ceph RGW tenant-owner
 	// key. The actor is the enclosing request's `oauth_id`: the caller for an
 	// externally-authenticated read, or a fixed system actor for the internal
@@ -8689,43 +9056,62 @@ type AuditLogEvent18 struct {
 	// only what identifies which entry was revealed and, when resolvable, which
 	// harbor it belongs to.
 	Data ObjectStorageOwnerKeyRevealedLog `json:"data"`
-	Type AuditLogEvent18Type              `json:"type"`
-}
-
-// AuditLogEvent18Type defines model for AuditLogEvent.18.Type.
-type AuditLogEvent18Type string
-
-// AuditLogEvent19 The platform's usage sweep read the organization's buckets on one
-// backend (ADR-0048 D5: the collector's principal is named, and it is
-// audited like every other job that reads object data). One event per
-// sweep per (organization, backend), reported by the operator through
-// the internal API.
-type AuditLogEvent19 struct {
-	// Data Audit payload for one usage sweep over one organization's buckets on one
-	// backend. It names who read (the collector's principal), where (the
-	// backend and its driver), how much (buckets read, and those whose read
-	// failed) and when; never a bucket's content, key or credential.
-	Data ObjectStorageUsageCollectedLog `json:"data"`
-	Type AuditLogEvent19Type            `json:"type"`
+	Type AuditLogEvent19Type              `json:"type"`
 }
 
 // AuditLogEvent19Type defines model for AuditLogEvent.19.Type.
 type AuditLogEvent19Type string
 
-// AuditLogEvent20 The Replication Manager read one bucket and copied it to the platform
-// backup target (ADR-0047 D6). Its identity reads every tenant's data, so
-// each run is recorded per bucket, reported by the operator once the run
-// ends; s0 records the reads themselves.
+// AuditLogEvent20 The platform's usage sweep read the organization's buckets on one
+// backend (ADR-0048 D5: the collector's principal is named, and it is
+// audited like every other job that reads object data). One event per
+// sweep per (organization, backend), reported by the operator through
+// the internal API.
 type AuditLogEvent20 struct {
-	// Data Audit payload for one bucket of one replication run: who read (the
-	// Replication Manager's principal), which bucket, what reached the backup
-	// target and when; never an object key, its content or a credential.
-	Data ObjectStorageReplicatedLog `json:"data"`
-	Type AuditLogEvent20Type        `json:"type"`
+	// Data Audit payload for one usage sweep over one organization's buckets on one
+	// backend. It names who read (the collector's principal), where (the
+	// backend and its driver), how much (buckets read, and those whose read
+	// failed) and when; never a bucket's content, key or credential.
+	Data ObjectStorageUsageCollectedLog `json:"data"`
+	Type AuditLogEvent20Type            `json:"type"`
 }
 
 // AuditLogEvent20Type defines model for AuditLogEvent.20.Type.
 type AuditLogEvent20Type string
+
+// AuditLogEvent21 The Replication Manager read one bucket and copied it to the platform
+// backup target (ADR-0047 D6). Its identity reads every tenant's data, so
+// each run is recorded per bucket, reported by the operator once the run
+// ends; s0 records the reads themselves.
+type AuditLogEvent21 struct {
+	// Data Audit payload for one bucket of one replication run: who read (the
+	// Replication Manager's principal), which bucket, what reached the backup
+	// target and when; never an object key, its content or a credential.
+	Data ObjectStorageReplicatedLog `json:"data"`
+	Type AuditLogEvent21Type        `json:"type"`
+}
+
+// AuditLogEvent21Type defines model for AuditLogEvent.21.Type.
+type AuditLogEvent21Type string
+
+// AuditLogEvent22 The git credential of a dev workstation was rotated, re-picked,
+// refreshed or re-minted (ADR-0058 D10.10). Always recorded, workstation
+// audit mode or not: a credential change is a tenant-level security
+// event, unlike the workstation transcript events. Names secrets and
+// logins, never a token.
+type AuditLogEvent22 struct {
+	// Data Audit payload for a change to a dev workstation's git credential. The actor
+	// is the enclosing request's `oauth_id`.
+	//
+	// Never carries a token, a username or a base URL: only the ids of the
+	// secrets involved and, when known, the forge logins, which are what a
+	// reviewer needs to see that a credential moved to another identity.
+	Data ScmCredentialChangedLog `json:"data"`
+	Type AuditLogEvent22Type     `json:"type"`
+}
+
+// AuditLogEvent22Type defines model for AuditLogEvent.22.Type.
+type AuditLogEvent22Type string
 
 // AuditLogEventType defines model for AuditLogEventType.
 type AuditLogEventType string
@@ -14110,6 +14496,11 @@ type DevWorkstationAuditStatus struct {
 	// AgentRequestsRecorded Requests sent to the agent are recorded.
 	AgentRequestsRecorded bool `json:"agent_requests_recorded"`
 
+	// FileAccessRecorded The IDE's file operations (read, write, upload, download, move, delete,
+	// search) are recorded as metadata: who touched which path, how many
+	// bytes, never the content.
+	FileAccessRecorded bool `json:"file_access_recorded"`
+
 	// PreviewPosture What audit mode does to the workstation preview proxy.
 	//
 	// The preview forwards arbitrary HTTP and WebSocket traffic to any
@@ -14777,7 +15168,9 @@ type FileContent struct {
 	Path string `json:"path"`
 
 	// Reason Why the file is view-only / unavailable when `editable` is false:
-	// `missing` | `directory` | `binary` | `too_large`. `None` when editable.
+	// `missing` | `directory` | `binary` | `too_large` | `outside_repository`
+	// (the path resolves outside the clone through a symlink). `None` when
+	// editable.
 	Reason *string `json:"reason,omitempty"`
 
 	// Size File size in bytes (0 when missing).
@@ -18512,6 +18905,25 @@ type ModelUsageTimePoint struct {
 	Ts           int64  `json:"ts"`
 }
 
+// MoveWorkstationPathRequest Rename or move a file or folder, inside one clone or between two.
+type MoveWorkstationPathRequest struct {
+	// From Repo-relative path of the entry to move.
+	From string `json:"from"`
+
+	// Overwrite Replace `to` when it is a file and `from` is a file too. Otherwise
+	// anything already at `to` is a 409.
+	Overwrite *bool `json:"overwrite,omitempty"`
+
+	// Repo Clone directory `from` is relative to. Absent = the primary repository.
+	Repo *string `json:"repo,omitempty"`
+
+	// To Repo-relative path it should have afterwards (its new name included).
+	To string `json:"to"`
+
+	// ToRepo Clone directory `to` is relative to. Absent = the same clone as `from`.
+	ToRepo *string `json:"to_repo,omitempty"`
+}
+
 // MultipartPartUrl defines model for MultipartPartUrl.
 type MultipartPartUrl struct {
 	PartNumber int32  `json:"part_number"`
@@ -20835,8 +21247,14 @@ type PrChecks string
 
 // PrRequest defines model for PrRequest.
 type PrRequest struct {
-	Body  *string `json:"body,omitempty"`
-	Title string  `json:"title"`
+	// AllowOriginMismatch Push even though the clone's `origin` is not the repository registered
+	// for this directory (a reused folder, or a deliberate repoint such as a
+	// fork). Without it such a push answers 409 `origin_mismatch`, with the real
+	// origin in `fields[1]`; resend with `true` only after the user confirmed
+	// that origin. Local commits never need it.
+	AllowOriginMismatch *bool   `json:"allow_origin_mismatch,omitempty"`
+	Body                *string `json:"body,omitempty"`
+	Title               string  `json:"title"`
 }
 
 // PrResponse defines model for PrResponse.
@@ -21399,6 +21817,13 @@ type RefreshDataDocksResponse struct {
 	TotalCount     int32  `json:"total_count"`
 }
 
+// RefreshWorkstationScmCredentialRequest defines model for RefreshWorkstationScmCredentialRequest.
+type RefreshWorkstationScmCredentialRequest struct {
+	// Remint Mint a new Forgejo token instead of re-applying the stored one. Minted
+	// credentials only; the previous token stays valid (#3603).
+	Remint *bool `json:"remint,omitempty"`
+}
+
 // RefusalReason Why the dock's policy refuses a request.
 type RefusalReason string
 
@@ -21523,6 +21948,11 @@ type RenameTerminalRequest struct {
 	// Name New tmux session name. Must match the same charset as creation
 	// (`[A-Za-z0-9_-]`, max 64); the server re-sanitizes regardless.
 	Name string `json:"name"`
+}
+
+// ReplaceWorkstationScmCredentialRequest defines model for ReplaceWorkstationScmCredentialRequest.
+type ReplaceWorkstationScmCredentialRequest struct {
+	ScmSecretId openapi_types.UUID `json:"scm_secret_id"`
 }
 
 // RequestedSize The trial tier requested on the public form; maps to the `trial-s` /
@@ -22594,6 +23024,91 @@ type ScmBranch struct {
 	Protected bool   `json:"protected"`
 }
 
+// ScmCredentialChangeAction What was done to a workstation's git credential.
+type ScmCredentialChangeAction string
+
+// ScmCredentialChangedLog Audit payload for a change to a dev workstation's git credential. The actor
+// is the enclosing request's `oauth_id`.
+//
+// Never carries a token, a username or a base URL: only the ids of the
+// secrets involved and, when known, the forge logins, which are what a
+// reviewer needs to see that a credential moved to another identity.
+type ScmCredentialChangedLog struct {
+	// Action What was done to a workstation's git credential.
+	Action ScmCredentialChangeAction `json:"action"`
+
+	// BoundWorkstations `rotate` only: how many live workstations of the organization use the
+	// secret. A count, never names.
+	BoundWorkstations *int32  `json:"bound_workstations,omitempty"`
+	LoginAfter        *string `json:"login_after,omitempty"`
+
+	// LoginBefore `rotate` only: the login the console last verified for the secret.
+	LoginBefore *string `json:"login_before,omitempty"`
+
+	// OldSecretId `replace` only: the secret the workstation was bound to before.
+	OldSecretId *openapi_types.UUID `json:"old_secret_id,omitempty"`
+
+	// SecretId The secret the workstation is bound to after the change (the rotated
+	// secret for `rotate`). Absent for a minted token, which has none.
+	SecretId *openapi_types.UUID `json:"secret_id,omitempty"`
+
+	// WorkstationId The workstation concerned. Absent on `rotate`, which acts on the
+	// secret and so on every workstation bound to it.
+	WorkstationId *openapi_types.UUID `json:"workstation_id,omitempty"`
+}
+
+// ScmCredentialCheck defines model for ScmCredentialCheck.
+type ScmCredentialCheck struct {
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+
+	// HttpStatus The forge's HTTP status, when it answered.
+	HttpStatus    *int32                `json:"http_status,omitempty"`
+	Login         *string               `json:"login,omitempty"`
+	MissingScopes []string              `json:"missing_scopes"`
+	Repositories  []ScmRepositoryAccess `json:"repositories"`
+	Scopes        *[]string             `json:"scopes,omitempty"`
+
+	// SsoRequired GitHub says the token must be authorised for the organisation's SSO.
+	SsoRequired bool `json:"sso_required"`
+
+	// State What the console, or the pod, found out about the credential.
+	State ScmCredentialState `json:"state"`
+}
+
+// ScmCredentialSource defines model for ScmCredentialSource.
+type ScmCredentialSource string
+
+// ScmCredentialState What the console, or the pod, found out about the credential.
+type ScmCredentialState string
+
+// ScmPodCheck defines model for ScmPodCheck.
+type ScmPodCheck struct {
+	// ImageHasTokenShim The image has the `gh`/`glab` shim that re-reads the token file.
+	ImageHasTokenShim bool              `json:"image_has_token_shim"`
+	Repositories      []ScmPodRepoCheck `json:"repositories"`
+
+	// State What the workstation's pod holds.
+	State ScmPodState `json:"state"`
+
+	// TokenCurrent Whether the token in the pod is the stored one. `None` for a minted
+	// token, or when the pod could not say.
+	TokenCurrent *bool `json:"token_current,omitempty"`
+}
+
+// ScmPodRepoCheck defines model for ScmPodRepoCheck.
+type ScmPodRepoCheck struct {
+	Dir string `json:"dir"`
+
+	// State What the workstation's pod holds.
+	State ScmPodState `json:"state"`
+}
+
+// ScmPodState What the workstation's pod holds.
+type ScmPodState string
+
+// ScmRepoAccess defines model for ScmRepoAccess.
+type ScmRepoAccess string
+
 // ScmRepository A repository the user can pick to clone into a dev-workstation.
 type ScmRepository struct {
 	// CloneUrl HTTPS clone URL, ready to use as the workstation's `repo_url`. Built
@@ -22622,6 +23137,32 @@ type ScmRepository struct {
 	// UpdatedAt ISO-8601 timestamp of the last push, used to sort and label the picker
 	// rows ("Updated 3 days ago").
 	UpdatedAt string `json:"updated_at"`
+}
+
+// ScmRepositoryAccess defines model for ScmRepositoryAccess.
+type ScmRepositoryAccess struct {
+	Access ScmRepoAccess `json:"access"`
+
+	// Dir Clone directory, as returned by `GET …/repositories`.
+	Dir string `json:"dir"`
+}
+
+// ScmSecretScope defines model for ScmSecretScope.
+type ScmSecretScope string
+
+// ScmTokenVerification What the forge says of a candidate token. Nothing is persisted.
+type ScmTokenVerification struct {
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	Login     *string    `json:"login,omitempty"`
+
+	// LoginChanged The candidate belongs to another forge login than the one last recorded
+	// for the stored secret.
+	LoginChanged  bool      `json:"login_changed"`
+	MissingScopes []string  `json:"missing_scopes"`
+	Scopes        *[]string `json:"scopes,omitempty"`
+
+	// State What the console, or the pod, found out about the credential.
+	State ScmCredentialState `json:"state"`
 }
 
 // ScopedBucketRequest defines model for ScopedBucketRequest.
@@ -25260,9 +25801,17 @@ type UpdateSavedQueryRequest struct {
 // UpdateSecretRequestBody defines model for UpdateSecretRequestBody.
 type UpdateSecretRequestBody struct {
 	// Description `null` clears the description; absent keeps the current value.
-	Description *string     `json:"description,omitempty"`
-	Tags        *[]string   `json:"tags,omitempty"`
-	Value       interface{} `json:"value,omitempty"`
+	Description *string `json:"description,omitempty"`
+
+	// ScmToken Rotate the token of an `scm_credential` secret and keep everything else
+	// it holds (provider, username, instance URL, environment). Write-only:
+	// the browser never reads the stored credential back, so a rotation does
+	// not need to rebuild the object it replaces. Mutually exclusive with
+	// `value`, accepted alone, and only for `scm_credential` secrets. 1 to
+	// 4096 bytes with no whitespace or control characters.
+	ScmToken *string     `json:"scm_token,omitempty"`
+	Tags     *[]string   `json:"tags,omitempty"`
+	Value    interface{} `json:"value,omitempty"`
 }
 
 // UpdateServiceAccountCrdRequestBody Editable Keycloak-client settings. `client_id` is not among them — the CRD
@@ -25576,6 +26125,12 @@ type VerdictEvidence1Rule string
 // VerdictRule The detector that produced a verdict. The wire names are the `rule` column
 // and what OPA reports in `agent_verdicts[<subject>].rule`.
 type VerdictRule string
+
+// VerifyScmTokenRequest The candidate token of the `verify` preflight. Write-only: never logged,
+// never echoed.
+type VerifyScmTokenRequest struct {
+	Token *string `json:"token,omitempty"`
+}
 
 // VerifySignupRequestBody defines model for VerifySignupRequestBody.
 type VerifySignupRequestBody struct {
@@ -26015,6 +26570,66 @@ type WorkstationFile struct {
 	Path string `json:"path"`
 }
 
+// WorkstationFileAccessLog Audit payload for one IDE file operation on a dev workstation, recorded
+// while the organization is in audit mode (ADR-0058 U-1).
+//
+// METADATA ONLY, like [`WorkstationTerminalCommandLog`]: there is no field
+// for file content, a search query or a match line, so no defect in a capture
+// site can put a secret into the record. A search is identified by the
+// sha256 of its query, which lets a reviewer match two searches without
+// reading either.
+type WorkstationFileAccessLog struct {
+	// Bytes Bytes that moved: the file read, the body written or uploaded, the
+	// archive downloaded, the preview text a search returned. 0 when none
+	// moved (a delete, a move).
+	Bytes int64 `json:"bytes"`
+
+	// Matches `search` only: how many matches were returned.
+	Matches *int32 `json:"matches,omitempty"`
+
+	// Op Which IDE file operation a [`WorkstationFileAccessLog`] records.
+	Op WorkstationFileOp `json:"op"`
+
+	// Path Repo-relative path acted on (the source of a move). Absent for a
+	// search, which names no path.
+	Path *string `json:"path,omitempty"`
+
+	// QSha256 `search` only: sha256 of the query text.
+	QSha256 *string `json:"q_sha256,omitempty"`
+
+	// Repo The clone dir the path is relative to.
+	Repo string `json:"repo"`
+
+	// ResourceId See [`WorkstationAgentRequestLog::resource_id`].
+	ResourceId string `json:"resource_id"`
+
+	// Sha256 sha256 of those bytes, when they are known.
+	Sha256 *string `json:"sha256,omitempty"`
+
+	// ToPath `move` only: where the entry went.
+	ToPath *string `json:"to_path,omitempty"`
+
+	// ToRepo `move` only: the clone dir the entry went to.
+	ToRepo          *string            `json:"to_repo,omitempty"`
+	WorkstationId   openapi_types.UUID `json:"workstation_id"`
+	WorkstationName string             `json:"workstation_name"`
+}
+
+// WorkstationFileFindResponse The files of one clone whose path matches the query.
+type WorkstationFileFindResponse struct {
+	// Matches Repo-relative paths, in the order git lists them (the client ranks).
+	Matches []WorkstationFile `json:"matches"`
+
+	// Repo The clone dir the paths are relative to.
+	Repo string `json:"repo"`
+
+	// Truncated More files matched than `limit`.
+	Truncated bool `json:"truncated"`
+}
+
+// WorkstationFileOp Which IDE file operation a [`WorkstationFileAccessLog`] records.
+type WorkstationFileOp string
+
 // WorkstationPreviewSessionLog Audit payload for a preview session opened while the organization is in
 // audit mode with `PreviewPosture::Record`.
 //
@@ -26066,6 +26681,90 @@ type WorkstationRepositoryResponse struct {
 	Provider  string              `json:"provider"`
 	RepoRef   string              `json:"repo_ref"`
 	Url       string              `json:"url"`
+}
+
+// WorkstationScmCredentialHealth defines model for WorkstationScmCredentialHealth.
+type WorkstationScmCredentialHealth struct {
+	// CanRotateInPlace The caller may rotate the token of this secret in place.
+	CanRotateInPlace bool `json:"can_rotate_in_place"`
+
+	// CheckedAt When the oldest part of this answer was computed.
+	CheckedAt  time.Time           `json:"checked_at"`
+	Credential *ScmCredentialCheck `json:"credential,omitempty"`
+	Pod        *ScmPodCheck        `json:"pod,omitempty"`
+
+	// Provider `github` | `gitlab` | `forgejo`.
+	Provider string `json:"provider"`
+
+	// RefreshObserved The operator applied the last refresh request.
+	RefreshObserved    bool       `json:"refresh_observed"`
+	RefreshRequestedAt *time.Time `json:"refresh_requested_at,omitempty"`
+
+	// RemintError A category, never a message from the forge, when the last re-mint failed.
+	// The workstation keeps the token it had.
+	RemintError *string `json:"remint_error,omitempty"`
+
+	// RemintObserved The operator handled the last re-mint request (it may have failed: see
+	// `remint_error`).
+	RemintObserved bool `json:"remint_observed"`
+
+	// RemintRequestedAt When the last re-mint of a minted token was requested.
+	RemintRequestedAt *time.Time `json:"remint_requested_at,omitempty"`
+
+	// RestartObserved The operator recreated the pod for the last restart request.
+	RestartObserved bool `json:"restart_observed"`
+
+	// RestartRequestedAt When the last pod restart ("Restart to apply") was requested.
+	RestartRequestedAt *time.Time          `json:"restart_requested_at,omitempty"`
+	ScmSecretId        *openapi_types.UUID `json:"scm_secret_id,omitempty"`
+
+	// SecretBoundWorkstations Workstations of the organization bound to the secret. A count only,
+	// never names.
+	SecretBoundWorkstations *int32              `json:"secret_bound_workstations,omitempty"`
+	SecretName              *string             `json:"secret_name,omitempty"`
+	SecretScope             *ScmSecretScope     `json:"secret_scope,omitempty"`
+	Source                  ScmCredentialSource `json:"source"`
+
+	// State What the console, or the pod, found out about the credential.
+	State ScmCredentialState `json:"state"`
+}
+
+// WorkstationScmCredentialRefreshResponse defines model for WorkstationScmCredentialRefreshResponse.
+type WorkstationScmCredentialRefreshResponse struct {
+	RequestedAt time.Time `json:"requested_at"`
+}
+
+// WorkstationSearchMatch One line that matched.
+type WorkstationSearchMatch struct {
+	// Column 1-based BYTE offset of the first match in the line (git's `--column`);
+	// the client converts it for display.
+	Column int32 `json:"column"`
+
+	// Line 1-based line number.
+	Line int32 `json:"line"`
+
+	// Path Repo-relative path of the file.
+	Path string `json:"path"`
+
+	// Preview The line, cut to 300 characters, without its line break.
+	Preview string `json:"preview"`
+
+	// PreviewTruncated The line was longer than the preview.
+	PreviewTruncated bool `json:"preview_truncated"`
+}
+
+// WorkstationSearchResponse The matches of one clone.
+type WorkstationSearchResponse struct {
+	Matches []WorkstationSearchMatch `json:"matches"`
+
+	// Repo The clone dir the paths are relative to.
+	Repo string `json:"repo"`
+
+	// TimedOut The search ran out of time (10 s): `matches` is what it found so far.
+	TimedOut bool `json:"timed_out"`
+
+	// Truncated There were more matches than `limit`, or than the answer could hold.
+	Truncated bool `json:"truncated"`
 }
 
 // WorkstationSkillRegistriesResponse A workstation's attached registries, as read back from its CR.
@@ -26238,6 +26937,28 @@ type ReadFileParams struct {
 	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
 }
 
+// DownloadWorkstationPathParams defines parameters for DownloadWorkstationPath.
+type DownloadWorkstationPathParams struct {
+	// Path Repo-relative path of the file or folder.
+	Path string `form:"path" json:"path"`
+
+	// Repo Clone directory `path` is relative to. Absent = the primary repository.
+	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
+}
+
+// UploadWorkstationFileParams defines parameters for UploadWorkstationFile.
+type UploadWorkstationFileParams struct {
+	// Path Repo-relative path the file is written to (its name included).
+	Path string `form:"path" json:"path"`
+
+	// Repo Clone directory `path` is relative to. Absent = the primary repository.
+	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
+
+	// Overwrite Replace the file when one is already there. Off by default: anything at
+	// `path` is then a 409.
+	Overwrite *bool `form:"overwrite,omitempty" json:"overwrite,omitempty"`
+}
+
 // ListFilesParams defines parameters for ListFiles.
 type ListFilesParams struct {
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
@@ -26247,6 +26968,21 @@ type ListFilesParams struct {
 	// repository. Returned paths are always relative to THIS repository, so they
 	// can be handed straight to the file and git endpoints with the same `repo`.
 	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
+}
+
+// FindWorkstationFilesParams defines parameters for FindWorkstationFiles.
+type FindWorkstationFilesParams struct {
+	// Q What the user typed: its characters must appear in this order in the
+	// path, case-insensitively (VS Code's fuzzy file match). Never a regex:
+	// 1 to 128 characters, no control character.
+	Q string `form:"q" json:"q"`
+
+	// Repo Clone directory of the repository to search, as returned by
+	// `GET /api/dev/workstations/{id}/repositories`. Absent = the primary one.
+	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
+
+	// Limit Most matches to return: 200 by default, 500 at most.
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // GitBranchesParams defines parameters for GitBranches.
@@ -26298,6 +27034,38 @@ type GitPrsParams struct {
 	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
 }
 
+// SearchWorkstationParams defines parameters for SearchWorkstation.
+type SearchWorkstationParams struct {
+	// Q The text to find: 1 to 256 characters, no line break. A plain string
+	// unless `regex` is set.
+	Q string `form:"q" json:"q"`
+
+	// Repo Clone directory of the repository to search, as returned by
+	// `GET /api/dev/workstations/{id}/repositories`. Absent = the primary one.
+	Repo *string `form:"repo,omitempty" json:"repo,omitempty"`
+
+	// Regex Read `q` as an extended regular expression (POSIX ERE). Back-references
+	// (`\1`-`\9`) are refused.
+	Regex *bool `form:"regex,omitempty" json:"regex,omitempty"`
+
+	// CaseSensitive Match the case exactly. Off by default.
+	CaseSensitive *bool `form:"case_sensitive,omitempty" json:"case_sensitive,omitempty"`
+
+	// WholeWord Match whole words only.
+	WholeWord *bool `form:"whole_word,omitempty" json:"whole_word,omitempty"`
+
+	// Include Comma-separated globs a file must match to be searched (at most 8, 128
+	// characters each). A glob without `/` matches at any depth, one ending in
+	// `/` the whole folder: `*.ts`, `src/`, `src/**/*.rs`.
+	Include *string `form:"include,omitempty" json:"include,omitempty"`
+
+	// Exclude Comma-separated globs of files to leave out, same rules as `include`.
+	Exclude *string `form:"exclude,omitempty" json:"exclude,omitempty"`
+
+	// Limit Most matches to return: 500 by default, 2000 at most.
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // ListAgentWorkspacesParams defines parameters for ListAgentWorkspaces.
 type ListAgentWorkspacesParams struct {
 	// Repo Clone directory under `/workspace`, as returned by
@@ -26323,6 +27091,14 @@ type GetDevWorkstationEgressFlowsParams struct {
 
 	// Verdict `all` (default) | `forwarded` | `dropped`. Any other value is a 400.
 	Verdict *string `form:"verdict,omitempty" json:"verdict,omitempty"`
+}
+
+// GetScmCredentialHealthParams defines parameters for GetScmCredentialHealth.
+type GetScmCredentialHealthParams struct {
+	// Refresh Bypass the 60 s cache and ask the forge and the pod again. At most once
+	// per 10 s per workstation; inside that window the cached answer is
+	// returned.
+	Refresh *bool `form:"refresh,omitempty" json:"refresh,omitempty"`
 }
 
 // GetAuditLogsHandlerParams defines parameters for GetAuditLogsHandler.
@@ -28070,6 +28846,9 @@ type UpdateDevWorkstationJSONRequestBody = UpdateDevWorkstationRequest
 // WriteFileJSONRequestBody defines body for WriteFile for application/json ContentType.
 type WriteFileJSONRequestBody = WriteFileRequest
 
+// MoveWorkstationPathJSONRequestBody defines body for MoveWorkstationPath for application/json ContentType.
+type MoveWorkstationPathJSONRequestBody = MoveWorkstationPathRequest
+
 // CreateFolderJSONRequestBody defines body for CreateFolder for application/json ContentType.
 type CreateFolderJSONRequestBody = CreateFolderRequest
 
@@ -28111,6 +28890,15 @@ type UpdateDevWorkstationNetworkJSONRequestBody = UpdateDevWorkstationNetworkReq
 
 // AddWorkstationRepositoryJSONRequestBody defines body for AddWorkstationRepository for application/json ContentType.
 type AddWorkstationRepositoryJSONRequestBody = WorkstationRepositoryInput
+
+// ReplaceScmCredentialJSONRequestBody defines body for ReplaceScmCredential for application/json ContentType.
+type ReplaceScmCredentialJSONRequestBody = ReplaceWorkstationScmCredentialRequest
+
+// RefreshScmCredentialJSONRequestBody defines body for RefreshScmCredential for application/json ContentType.
+type RefreshScmCredentialJSONRequestBody = RefreshWorkstationScmCredentialRequest
+
+// VerifyScmTokenJSONRequestBody defines body for VerifyScmToken for application/json ContentType.
+type VerifyScmTokenJSONRequestBody = VerifyScmTokenRequest
 
 // UpdateDevWorkstationSkillRegistriesJSONRequestBody defines body for UpdateDevWorkstationSkillRegistries for application/json ContentType.
 type UpdateDevWorkstationSkillRegistriesJSONRequestBody = UpdateWorkstationSkillRegistriesRequest
@@ -28270,6 +29058,9 @@ type UpdateAiAgentJSONRequestBody = UpdateAiAgentRequest
 
 // AskAiAgentJSONRequestBody defines body for AskAiAgent for application/json ContentType.
 type AskAiAgentJSONRequestBody = AskAiAgentRequest
+
+// EnableAiAgentWidgetJSONRequestBody defines body for EnableAiAgentWidget for application/json ContentType.
+type EnableAiAgentWidgetJSONRequestBody = AiAgentWidgetConfig
 
 // CreateAirflowConnectionJSONRequestBody defines body for CreateAirflowConnection for application/json ContentType.
 type CreateAirflowConnectionJSONRequestBody = CreateAirflowConnectionRequest
@@ -29221,6 +30012,58 @@ func (t *AuditLogEvent) FromAuditLogEvent20(v AuditLogEvent20) error {
 
 // MergeAuditLogEvent20 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent20
 func (t *AuditLogEvent) MergeAuditLogEvent20(v AuditLogEvent20) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent21 returns the union data inside the AuditLogEvent as a AuditLogEvent21
+func (t AuditLogEvent) AsAuditLogEvent21() (AuditLogEvent21, error) {
+	var body AuditLogEvent21
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent21 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent21
+func (t *AuditLogEvent) FromAuditLogEvent21(v AuditLogEvent21) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent21 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent21
+func (t *AuditLogEvent) MergeAuditLogEvent21(v AuditLogEvent21) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent22 returns the union data inside the AuditLogEvent as a AuditLogEvent22
+func (t AuditLogEvent) AsAuditLogEvent22() (AuditLogEvent22, error) {
+	var body AuditLogEvent22
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent22 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent22
+func (t *AuditLogEvent) FromAuditLogEvent22(v AuditLogEvent22) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent22 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent22
+func (t *AuditLogEvent) MergeAuditLogEvent22(v AuditLogEvent22) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -32112,8 +32955,22 @@ type ClientInterface interface {
 
 	WriteFile(ctx context.Context, id openapi_types.UUID, body WriteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DownloadWorkstationPath request
+	DownloadWorkstationPath(ctx context.Context, id openapi_types.UUID, params *DownloadWorkstationPathParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveWorkstationPathWithBody request with any body
+	MoveWorkstationPathWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	MoveWorkstationPath(ctx context.Context, id openapi_types.UUID, body MoveWorkstationPathJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UploadWorkstationFileWithBody request with any body
+	UploadWorkstationFileWithBody(ctx context.Context, id openapi_types.UUID, params *UploadWorkstationFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListFiles request
 	ListFiles(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindWorkstationFiles request
+	FindWorkstationFiles(ctx context.Context, id openapi_types.UUID, params *FindWorkstationFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateFolderWithBody request with any body
 	CreateFolderWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -32182,6 +33039,9 @@ type ClientInterface interface {
 	ReplyQuestionWithBody(ctx context.Context, id openapi_types.UUID, rid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ReplyQuestion(ctx context.Context, id openapi_types.UUID, rid string, body ReplyQuestionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SearchWorkstation request
+	SearchWorkstation(ctx context.Context, id openapi_types.UUID, params *SearchWorkstationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListSessions request
 	ListSessions(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -32265,6 +33125,27 @@ type ClientInterface interface {
 
 	// RemoveWorkstationRepository request
 	RemoveWorkstationRepository(ctx context.Context, id openapi_types.UUID, repoId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ReplaceScmCredentialWithBody request with any body
+	ReplaceScmCredentialWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ReplaceScmCredential(ctx context.Context, id openapi_types.UUID, body ReplaceScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetScmCredentialHealth request
+	GetScmCredentialHealth(ctx context.Context, id openapi_types.UUID, params *GetScmCredentialHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RefreshScmCredentialWithBody request with any body
+	RefreshScmCredentialWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RefreshScmCredential(ctx context.Context, id openapi_types.UUID, body RefreshScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestartScmCredentialPod request
+	RestartScmCredentialPod(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// VerifyScmTokenWithBody request with any body
+	VerifyScmTokenWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	VerifyScmToken(ctx context.Context, id openapi_types.UUID, body VerifyScmTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDevWorkstationSkillRegistries request
 	GetDevWorkstationSkillRegistries(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -32880,6 +33761,20 @@ type ClientInterface interface {
 
 	// GetAiAgentSession request
 	GetAiAgentSession(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, sessionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAiAgentWidget request
+	GetAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// EnableAiAgentWidgetWithBody request with any body
+	EnableAiAgentWidgetWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EnableAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body EnableAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DisableAiAgentWidget request
+	DisableAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateAiAgentWidget request
+	RotateAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAirflow request
 	GetAirflow(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -35030,8 +35925,68 @@ func (c *Client) WriteFile(ctx context.Context, id openapi_types.UUID, body Writ
 	return c.Client.Do(req)
 }
 
+func (c *Client) DownloadWorkstationPath(ctx context.Context, id openapi_types.UUID, params *DownloadWorkstationPathParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDownloadWorkstationPathRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MoveWorkstationPathWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveWorkstationPathRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MoveWorkstationPath(ctx context.Context, id openapi_types.UUID, body MoveWorkstationPathJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveWorkstationPathRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UploadWorkstationFileWithBody(ctx context.Context, id openapi_types.UUID, params *UploadWorkstationFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUploadWorkstationFileRequestWithBody(c.Server, id, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListFiles(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListFilesRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindWorkstationFiles(ctx context.Context, id openapi_types.UUID, params *FindWorkstationFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindWorkstationFilesRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -35332,6 +36287,18 @@ func (c *Client) ReplyQuestionWithBody(ctx context.Context, id openapi_types.UUI
 
 func (c *Client) ReplyQuestion(ctx context.Context, id openapi_types.UUID, rid string, body ReplyQuestionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewReplyQuestionRequest(c.Server, id, rid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchWorkstation(ctx context.Context, id openapi_types.UUID, params *SearchWorkstationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchWorkstationRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -35692,6 +36659,102 @@ func (c *Client) AddWorkstationRepository(ctx context.Context, id openapi_types.
 
 func (c *Client) RemoveWorkstationRepository(ctx context.Context, id openapi_types.UUID, repoId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRemoveWorkstationRepositoryRequest(c.Server, id, repoId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReplaceScmCredentialWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReplaceScmCredentialRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReplaceScmCredential(ctx context.Context, id openapi_types.UUID, body ReplaceScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReplaceScmCredentialRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetScmCredentialHealth(ctx context.Context, id openapi_types.UUID, params *GetScmCredentialHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetScmCredentialHealthRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RefreshScmCredentialWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefreshScmCredentialRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RefreshScmCredential(ctx context.Context, id openapi_types.UUID, body RefreshScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefreshScmCredentialRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestartScmCredentialPod(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestartScmCredentialPodRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) VerifyScmTokenWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyScmTokenRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) VerifyScmToken(ctx context.Context, id openapi_types.UUID, body VerifyScmTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyScmTokenRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -38356,6 +39419,66 @@ func (c *Client) DeleteAiAgentSession(ctx context.Context, organizationId openap
 
 func (c *Client) GetAiAgentSession(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, sessionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAiAgentSessionRequest(c.Server, organizationId, id, sessionId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAiAgentWidgetRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnableAiAgentWidgetWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnableAiAgentWidgetRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnableAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body EnableAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnableAiAgentWidgetRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DisableAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDisableAiAgentWidgetRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateAiAgentWidgetRequest(c.Server, organizationId, id)
 	if err != nil {
 		return nil, err
 	}
@@ -47048,6 +48171,205 @@ func NewWriteFileRequestWithBody(server string, id openapi_types.UUID, contentTy
 	return req, nil
 }
 
+// NewDownloadWorkstationPathRequest generates requests for DownloadWorkstationPath
+func NewDownloadWorkstationPathRequest(server string, id openapi_types.UUID, params *DownloadWorkstationPathParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/file/download", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path", params.Path, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Repo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMoveWorkstationPathRequest calls the generic MoveWorkstationPath builder with application/json body
+func NewMoveWorkstationPathRequest(server string, id openapi_types.UUID, body MoveWorkstationPathJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMoveWorkstationPathRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewMoveWorkstationPathRequestWithBody generates requests for MoveWorkstationPath with any type of body
+func NewMoveWorkstationPathRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/file/move", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUploadWorkstationFileRequestWithBody generates requests for UploadWorkstationFile with any type of body
+func NewUploadWorkstationFileRequestWithBody(server string, id openapi_types.UUID, params *UploadWorkstationFileParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/file/upload", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path", params.Path, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Repo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Overwrite != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "overwrite", *params.Overwrite, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListFilesRequest generates requests for ListFiles
 func NewListFilesRequest(server string, id openapi_types.UUID, params *ListFilesParams) (*http.Request, error) {
 	var err error
@@ -47098,6 +48420,87 @@ func NewListFilesRequest(server string, id openapi_types.UUID, params *ListFiles
 		if params.Repo != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFindWorkstationFilesRequest generates requests for FindWorkstationFiles
+func NewFindWorkstationFilesRequest(server string, id openapi_types.UUID, params *FindWorkstationFilesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/files/find", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "q", params.Q, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Repo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -48023,6 +49426,147 @@ func NewReplyQuestionRequestWithBody(server string, id openapi_types.UUID, rid s
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSearchWorkstationRequest generates requests for SearchWorkstation
+func NewSearchWorkstationRequest(server string, id openapi_types.UUID, params *SearchWorkstationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/agent/search", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "q", params.Q, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Repo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repo", *params.Repo, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Regex != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "regex", *params.Regex, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.CaseSensitive != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "case_sensitive", *params.CaseSensitive, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.WholeWord != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "whole_word", *params.WholeWord, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Exclude != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "exclude", *params.Exclude, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -49121,6 +50665,242 @@ func NewRemoveWorkstationRepositoryRequest(server string, id openapi_types.UUID,
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewReplaceScmCredentialRequest calls the generic ReplaceScmCredential builder with application/json body
+func NewReplaceScmCredentialRequest(server string, id openapi_types.UUID, body ReplaceScmCredentialJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewReplaceScmCredentialRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewReplaceScmCredentialRequestWithBody generates requests for ReplaceScmCredential with any type of body
+func NewReplaceScmCredentialRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/scm-credential", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetScmCredentialHealthRequest generates requests for GetScmCredentialHealth
+func NewGetScmCredentialHealthRequest(server string, id openapi_types.UUID, params *GetScmCredentialHealthParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/scm-credential/health", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Refresh != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "refresh", *params.Refresh, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRefreshScmCredentialRequest calls the generic RefreshScmCredential builder with application/json body
+func NewRefreshScmCredentialRequest(server string, id openapi_types.UUID, body RefreshScmCredentialJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRefreshScmCredentialRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewRefreshScmCredentialRequestWithBody generates requests for RefreshScmCredential with any type of body
+func NewRefreshScmCredentialRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/scm-credential/refresh", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRestartScmCredentialPodRequest generates requests for RestartScmCredentialPod
+func NewRestartScmCredentialPodRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/scm-credential/restart", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewVerifyScmTokenRequest calls the generic VerifyScmToken builder with application/json body
+func NewVerifyScmTokenRequest(server string, id openapi_types.UUID, body VerifyScmTokenJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewVerifyScmTokenRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewVerifyScmTokenRequestWithBody generates requests for VerifyScmToken with any type of body
+func NewVerifyScmTokenRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/dev/workstations/%s/scm-credential/verify", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -57283,6 +59063,183 @@ func NewGetAiAgentSessionRequest(server string, organizationId openapi_types.UUI
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAiAgentWidgetRequest generates requests for GetAiAgentWidget
+func NewGetAiAgentWidgetRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/widget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewEnableAiAgentWidgetRequest calls the generic EnableAiAgentWidget builder with application/json body
+func NewEnableAiAgentWidgetRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body EnableAiAgentWidgetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEnableAiAgentWidgetRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewEnableAiAgentWidgetRequestWithBody generates requests for EnableAiAgentWidget with any type of body
+func NewEnableAiAgentWidgetRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/widget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDisableAiAgentWidgetRequest generates requests for DisableAiAgentWidget
+func NewDisableAiAgentWidgetRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/widget/disable", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRotateAiAgentWidgetRequest generates requests for RotateAiAgentWidget
+func NewRotateAiAgentWidgetRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/widget/rotate", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83396,8 +85353,22 @@ type ClientWithResponsesInterface interface {
 
 	WriteFileWithResponse(ctx context.Context, id openapi_types.UUID, body WriteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*WriteFileHTTPResp, error)
 
+	// DownloadWorkstationPathWithResponse request
+	DownloadWorkstationPathWithResponse(ctx context.Context, id openapi_types.UUID, params *DownloadWorkstationPathParams, reqEditors ...RequestEditorFn) (*DownloadWorkstationPathHTTPResp, error)
+
+	// MoveWorkstationPathWithBodyWithResponse request with any body
+	MoveWorkstationPathWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveWorkstationPathHTTPResp, error)
+
+	MoveWorkstationPathWithResponse(ctx context.Context, id openapi_types.UUID, body MoveWorkstationPathJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveWorkstationPathHTTPResp, error)
+
+	// UploadWorkstationFileWithBodyWithResponse request with any body
+	UploadWorkstationFileWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, params *UploadWorkstationFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadWorkstationFileHTTPResp, error)
+
 	// ListFilesWithResponse request
 	ListFilesWithResponse(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*ListFilesHTTPResp, error)
+
+	// FindWorkstationFilesWithResponse request
+	FindWorkstationFilesWithResponse(ctx context.Context, id openapi_types.UUID, params *FindWorkstationFilesParams, reqEditors ...RequestEditorFn) (*FindWorkstationFilesHTTPResp, error)
 
 	// CreateFolderWithBodyWithResponse request with any body
 	CreateFolderWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFolderHTTPResp, error)
@@ -83466,6 +85437,9 @@ type ClientWithResponsesInterface interface {
 	ReplyQuestionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, rid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReplyQuestionHTTPResp, error)
 
 	ReplyQuestionWithResponse(ctx context.Context, id openapi_types.UUID, rid string, body ReplyQuestionJSONRequestBody, reqEditors ...RequestEditorFn) (*ReplyQuestionHTTPResp, error)
+
+	// SearchWorkstationWithResponse request
+	SearchWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, params *SearchWorkstationParams, reqEditors ...RequestEditorFn) (*SearchWorkstationHTTPResp, error)
 
 	// ListSessionsWithResponse request
 	ListSessionsWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListSessionsHTTPResp, error)
@@ -83549,6 +85523,27 @@ type ClientWithResponsesInterface interface {
 
 	// RemoveWorkstationRepositoryWithResponse request
 	RemoveWorkstationRepositoryWithResponse(ctx context.Context, id openapi_types.UUID, repoId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveWorkstationRepositoryHTTPResp, error)
+
+	// ReplaceScmCredentialWithBodyWithResponse request with any body
+	ReplaceScmCredentialWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReplaceScmCredentialHTTPResp, error)
+
+	ReplaceScmCredentialWithResponse(ctx context.Context, id openapi_types.UUID, body ReplaceScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*ReplaceScmCredentialHTTPResp, error)
+
+	// GetScmCredentialHealthWithResponse request
+	GetScmCredentialHealthWithResponse(ctx context.Context, id openapi_types.UUID, params *GetScmCredentialHealthParams, reqEditors ...RequestEditorFn) (*GetScmCredentialHealthHTTPResp, error)
+
+	// RefreshScmCredentialWithBodyWithResponse request with any body
+	RefreshScmCredentialWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RefreshScmCredentialHTTPResp, error)
+
+	RefreshScmCredentialWithResponse(ctx context.Context, id openapi_types.UUID, body RefreshScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*RefreshScmCredentialHTTPResp, error)
+
+	// RestartScmCredentialPodWithResponse request
+	RestartScmCredentialPodWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RestartScmCredentialPodHTTPResp, error)
+
+	// VerifyScmTokenWithBodyWithResponse request with any body
+	VerifyScmTokenWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyScmTokenHTTPResp, error)
+
+	VerifyScmTokenWithResponse(ctx context.Context, id openapi_types.UUID, body VerifyScmTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyScmTokenHTTPResp, error)
 
 	// GetDevWorkstationSkillRegistriesWithResponse request
 	GetDevWorkstationSkillRegistriesWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationSkillRegistriesHTTPResp, error)
@@ -84164,6 +86159,20 @@ type ClientWithResponsesInterface interface {
 
 	// GetAiAgentSessionWithResponse request
 	GetAiAgentSessionWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, sessionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentSessionHTTPResp, error)
+
+	// GetAiAgentWidgetWithResponse request
+	GetAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentWidgetHTTPResp, error)
+
+	// EnableAiAgentWidgetWithBodyWithResponse request with any body
+	EnableAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error)
+
+	EnableAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body EnableAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error)
+
+	// DisableAiAgentWidgetWithResponse request
+	DisableAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DisableAiAgentWidgetHTTPResp, error)
+
+	// RotateAiAgentWidgetWithResponse request
+	RotateAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateAiAgentWidgetHTTPResp, error)
 
 	// GetAirflowWithResponse request
 	GetAirflowWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAirflowHTTPResp, error)
@@ -86769,13 +88778,122 @@ func (r WriteFileHTTPResp) ContentType() string {
 	return ""
 }
 
+type DownloadWorkstationPathHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON413      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DownloadWorkstationPathHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DownloadWorkstationPathHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DownloadWorkstationPathHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type MoveWorkstationPathHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveWorkstationPathHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveWorkstationPathHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r MoveWorkstationPathHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UploadWorkstationFileHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *WriteFileResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON408      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON413      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UploadWorkstationFileHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UploadWorkstationFileHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UploadWorkstationFileHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListFilesHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]WorkstationFile
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON429      *ApiErrorBody
 	JSON502      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -86796,6 +88914,43 @@ func (r ListFilesHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListFilesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type FindWorkstationFilesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WorkstationFileFindResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON502      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r FindWorkstationFilesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindWorkstationFilesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r FindWorkstationFilesHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -87381,6 +89536,43 @@ func (r ReplyQuestionHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ReplyQuestionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SearchWorkstationHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WorkstationSearchResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON429      *ApiErrorBody
+	JSON502      *ApiErrorBody
+	JSON504      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchWorkstationHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchWorkstationHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SearchWorkstationHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -88125,6 +90317,173 @@ func (r RemoveWorkstationRepositoryHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r RemoveWorkstationRepositoryHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ReplaceScmCredentialHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DevWorkstationResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON502      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ReplaceScmCredentialHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ReplaceScmCredentialHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ReplaceScmCredentialHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetScmCredentialHealthHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WorkstationScmCredentialHealth
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetScmCredentialHealthHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetScmCredentialHealthHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetScmCredentialHealthHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RefreshScmCredentialHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *WorkstationScmCredentialRefreshResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON429      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RefreshScmCredentialHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RefreshScmCredentialHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RefreshScmCredentialHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RestartScmCredentialPodHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *WorkstationScmCredentialRefreshResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON429      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RestartScmCredentialPodHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestartScmCredentialPodHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RestartScmCredentialPodHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type VerifyScmTokenHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ScmTokenVerification
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON429      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r VerifyScmTokenHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r VerifyScmTokenHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r VerifyScmTokenHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -93474,6 +95833,7 @@ type AskAiAgentHTTPResp struct {
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON502      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93508,6 +95868,7 @@ type GetAiAgentMailStatsHTTPResp struct {
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93542,6 +95903,7 @@ type GetAiAgentMemoryHTTPResp struct {
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93608,6 +95970,7 @@ type DeleteAiAgentSessionHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93641,6 +96004,7 @@ type GetAiAgentSessionHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93661,6 +96025,135 @@ func (r GetAiAgentSessionHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetAiAgentSessionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAiAgentWidgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentWidgetResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAiAgentWidgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAiAgentWidgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAiAgentWidgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type EnableAiAgentWidgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentWidgetResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r EnableAiAgentWidgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EnableAiAgentWidgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r EnableAiAgentWidgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DisableAiAgentWidgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentWidgetResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DisableAiAgentWidgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DisableAiAgentWidgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DisableAiAgentWidgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RotateAiAgentWidgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentWidgetResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateAiAgentWidgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateAiAgentWidgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RotateAiAgentWidgetHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -109653,6 +112146,41 @@ func (c *ClientWithResponses) WriteFileWithResponse(ctx context.Context, id open
 	return ParseWriteFileHTTPResp(rsp)
 }
 
+// DownloadWorkstationPathWithResponse request returning *DownloadWorkstationPathHTTPResp
+func (c *ClientWithResponses) DownloadWorkstationPathWithResponse(ctx context.Context, id openapi_types.UUID, params *DownloadWorkstationPathParams, reqEditors ...RequestEditorFn) (*DownloadWorkstationPathHTTPResp, error) {
+	rsp, err := c.DownloadWorkstationPath(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDownloadWorkstationPathHTTPResp(rsp)
+}
+
+// MoveWorkstationPathWithBodyWithResponse request with arbitrary body returning *MoveWorkstationPathHTTPResp
+func (c *ClientWithResponses) MoveWorkstationPathWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveWorkstationPathHTTPResp, error) {
+	rsp, err := c.MoveWorkstationPathWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveWorkstationPathHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) MoveWorkstationPathWithResponse(ctx context.Context, id openapi_types.UUID, body MoveWorkstationPathJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveWorkstationPathHTTPResp, error) {
+	rsp, err := c.MoveWorkstationPath(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveWorkstationPathHTTPResp(rsp)
+}
+
+// UploadWorkstationFileWithBodyWithResponse request with arbitrary body returning *UploadWorkstationFileHTTPResp
+func (c *ClientWithResponses) UploadWorkstationFileWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, params *UploadWorkstationFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadWorkstationFileHTTPResp, error) {
+	rsp, err := c.UploadWorkstationFileWithBody(ctx, id, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUploadWorkstationFileHTTPResp(rsp)
+}
+
 // ListFilesWithResponse request returning *ListFilesHTTPResp
 func (c *ClientWithResponses) ListFilesWithResponse(ctx context.Context, id openapi_types.UUID, params *ListFilesParams, reqEditors ...RequestEditorFn) (*ListFilesHTTPResp, error) {
 	rsp, err := c.ListFiles(ctx, id, params, reqEditors...)
@@ -109660,6 +112188,15 @@ func (c *ClientWithResponses) ListFilesWithResponse(ctx context.Context, id open
 		return nil, err
 	}
 	return ParseListFilesHTTPResp(rsp)
+}
+
+// FindWorkstationFilesWithResponse request returning *FindWorkstationFilesHTTPResp
+func (c *ClientWithResponses) FindWorkstationFilesWithResponse(ctx context.Context, id openapi_types.UUID, params *FindWorkstationFilesParams, reqEditors ...RequestEditorFn) (*FindWorkstationFilesHTTPResp, error) {
+	rsp, err := c.FindWorkstationFiles(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindWorkstationFilesHTTPResp(rsp)
 }
 
 // CreateFolderWithBodyWithResponse request with arbitrary body returning *CreateFolderHTTPResp
@@ -109878,6 +112415,15 @@ func (c *ClientWithResponses) ReplyQuestionWithResponse(ctx context.Context, id 
 		return nil, err
 	}
 	return ParseReplyQuestionHTTPResp(rsp)
+}
+
+// SearchWorkstationWithResponse request returning *SearchWorkstationHTTPResp
+func (c *ClientWithResponses) SearchWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, params *SearchWorkstationParams, reqEditors ...RequestEditorFn) (*SearchWorkstationHTTPResp, error) {
+	rsp, err := c.SearchWorkstation(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchWorkstationHTTPResp(rsp)
 }
 
 // ListSessionsWithResponse request returning *ListSessionsHTTPResp
@@ -110141,6 +112687,75 @@ func (c *ClientWithResponses) RemoveWorkstationRepositoryWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseRemoveWorkstationRepositoryHTTPResp(rsp)
+}
+
+// ReplaceScmCredentialWithBodyWithResponse request with arbitrary body returning *ReplaceScmCredentialHTTPResp
+func (c *ClientWithResponses) ReplaceScmCredentialWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReplaceScmCredentialHTTPResp, error) {
+	rsp, err := c.ReplaceScmCredentialWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReplaceScmCredentialHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) ReplaceScmCredentialWithResponse(ctx context.Context, id openapi_types.UUID, body ReplaceScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*ReplaceScmCredentialHTTPResp, error) {
+	rsp, err := c.ReplaceScmCredential(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReplaceScmCredentialHTTPResp(rsp)
+}
+
+// GetScmCredentialHealthWithResponse request returning *GetScmCredentialHealthHTTPResp
+func (c *ClientWithResponses) GetScmCredentialHealthWithResponse(ctx context.Context, id openapi_types.UUID, params *GetScmCredentialHealthParams, reqEditors ...RequestEditorFn) (*GetScmCredentialHealthHTTPResp, error) {
+	rsp, err := c.GetScmCredentialHealth(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetScmCredentialHealthHTTPResp(rsp)
+}
+
+// RefreshScmCredentialWithBodyWithResponse request with arbitrary body returning *RefreshScmCredentialHTTPResp
+func (c *ClientWithResponses) RefreshScmCredentialWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RefreshScmCredentialHTTPResp, error) {
+	rsp, err := c.RefreshScmCredentialWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRefreshScmCredentialHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) RefreshScmCredentialWithResponse(ctx context.Context, id openapi_types.UUID, body RefreshScmCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*RefreshScmCredentialHTTPResp, error) {
+	rsp, err := c.RefreshScmCredential(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRefreshScmCredentialHTTPResp(rsp)
+}
+
+// RestartScmCredentialPodWithResponse request returning *RestartScmCredentialPodHTTPResp
+func (c *ClientWithResponses) RestartScmCredentialPodWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RestartScmCredentialPodHTTPResp, error) {
+	rsp, err := c.RestartScmCredentialPod(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestartScmCredentialPodHTTPResp(rsp)
+}
+
+// VerifyScmTokenWithBodyWithResponse request with arbitrary body returning *VerifyScmTokenHTTPResp
+func (c *ClientWithResponses) VerifyScmTokenWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyScmTokenHTTPResp, error) {
+	rsp, err := c.VerifyScmTokenWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyScmTokenHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) VerifyScmTokenWithResponse(ctx context.Context, id openapi_types.UUID, body VerifyScmTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyScmTokenHTTPResp, error) {
+	rsp, err := c.VerifyScmToken(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyScmTokenHTTPResp(rsp)
 }
 
 // GetDevWorkstationSkillRegistriesWithResponse request returning *GetDevWorkstationSkillRegistriesHTTPResp
@@ -112088,6 +114703,50 @@ func (c *ClientWithResponses) GetAiAgentSessionWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseGetAiAgentSessionHTTPResp(rsp)
+}
+
+// GetAiAgentWidgetWithResponse request returning *GetAiAgentWidgetHTTPResp
+func (c *ClientWithResponses) GetAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.GetAiAgentWidget(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAiAgentWidgetHTTPResp(rsp)
+}
+
+// EnableAiAgentWidgetWithBodyWithResponse request with arbitrary body returning *EnableAiAgentWidgetHTTPResp
+func (c *ClientWithResponses) EnableAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.EnableAiAgentWidgetWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnableAiAgentWidgetHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) EnableAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body EnableAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.EnableAiAgentWidget(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnableAiAgentWidgetHTTPResp(rsp)
+}
+
+// DisableAiAgentWidgetWithResponse request returning *DisableAiAgentWidgetHTTPResp
+func (c *ClientWithResponses) DisableAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DisableAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.DisableAiAgentWidget(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDisableAiAgentWidgetHTTPResp(rsp)
+}
+
+// RotateAiAgentWidgetWithResponse request returning *RotateAiAgentWidgetHTTPResp
+func (c *ClientWithResponses) RotateAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.RotateAiAgentWidget(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateAiAgentWidgetHTTPResp(rsp)
 }
 
 // GetAirflowWithResponse request returning *GetAirflowHTTPResp
@@ -118755,6 +121414,196 @@ func ParseWriteFileHTTPResp(rsp *http.Response) (*WriteFileHTTPResp, error) {
 	return response, nil
 }
 
+// ParseDownloadWorkstationPathHTTPResp parses an HTTP response from a DownloadWorkstationPathWithResponse call
+func ParseDownloadWorkstationPathHTTPResp(rsp *http.Response) (*DownloadWorkstationPathHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DownloadWorkstationPathHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 413:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON413 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMoveWorkstationPathHTTPResp parses an HTTP response from a MoveWorkstationPathWithResponse call
+func ParseMoveWorkstationPathHTTPResp(rsp *http.Response) (*MoveWorkstationPathHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveWorkstationPathHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUploadWorkstationFileHTTPResp parses an HTTP response from a UploadWorkstationFileWithResponse call
+func ParseUploadWorkstationFileHTTPResp(rsp *http.Response) (*UploadWorkstationFileHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UploadWorkstationFileHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest WriteFileResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 408:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON408 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 413:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON413 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListFilesHTTPResp parses an HTTP response from a ListFilesWithResponse call
 func ParseListFilesHTTPResp(rsp *http.Response) (*ListFilesHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -118790,12 +121639,108 @@ func ParseListFilesHTTPResp(rsp *http.Response) (*ListFilesHTTPResp, error) {
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindWorkstationFilesHTTPResp parses an HTTP response from a FindWorkstationFilesWithResponse call
+func ParseFindWorkstationFilesHTTPResp(rsp *http.Response) (*FindWorkstationFilesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindWorkstationFilesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WorkstationFileFindResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -119579,6 +122524,81 @@ func ParseReplyQuestionHTTPResp(rsp *http.Response) (*ReplyQuestionHTTPResp, err
 			return nil, err
 		}
 		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSearchWorkstationHTTPResp parses an HTTP response from a SearchWorkstationWithResponse call
+func ParseSearchWorkstationHTTPResp(rsp *http.Response) (*SearchWorkstationHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchWorkstationHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WorkstationSearchResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -120555,6 +123575,255 @@ func ParseRemoveWorkstationRepositoryHTTPResp(rsp *http.Response) (*RemoveWorkst
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseReplaceScmCredentialHTTPResp parses an HTTP response from a ReplaceScmCredentialWithResponse call
+func ParseReplaceScmCredentialHTTPResp(rsp *http.Response) (*ReplaceScmCredentialHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ReplaceScmCredentialHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DevWorkstationResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetScmCredentialHealthHTTPResp parses an HTTP response from a GetScmCredentialHealthWithResponse call
+func ParseGetScmCredentialHealthHTTPResp(rsp *http.Response) (*GetScmCredentialHealthHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetScmCredentialHealthHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WorkstationScmCredentialHealth
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRefreshScmCredentialHTTPResp parses an HTTP response from a RefreshScmCredentialWithResponse call
+func ParseRefreshScmCredentialHTTPResp(rsp *http.Response) (*RefreshScmCredentialHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RefreshScmCredentialHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest WorkstationScmCredentialRefreshResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestartScmCredentialPodHTTPResp parses an HTTP response from a RestartScmCredentialPodWithResponse call
+func ParseRestartScmCredentialPodHTTPResp(rsp *http.Response) (*RestartScmCredentialPodHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestartScmCredentialPodHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest WorkstationScmCredentialRefreshResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseVerifyScmTokenHTTPResp parses an HTTP response from a VerifyScmTokenWithResponse call
+func ParseVerifyScmTokenHTTPResp(rsp *http.Response) (*VerifyScmTokenHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &VerifyScmTokenHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ScmTokenVerification
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
 
 	}
 
@@ -127595,6 +130864,13 @@ func ParseAskAiAgentHTTPResp(rsp *http.Response) (*AskAiAgentHTTPResp, error) {
 		}
 		response.JSON502 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
 	}
 
 	return response, nil
@@ -127649,6 +130925,13 @@ func ParseGetAiAgentMailStatsHTTPResp(rsp *http.Response) (*GetAiAgentMailStatsH
 		}
 		response.JSON500 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
 	}
 
 	return response, nil
@@ -127702,6 +130985,13 @@ func ParseGetAiAgentMemoryHTTPResp(rsp *http.Response) (*GetAiAgentMemoryHTTPRes
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -127797,6 +131087,13 @@ func ParseDeleteAiAgentSessionHTTPResp(rsp *http.Response) (*DeleteAiAgentSessio
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
 	}
 
 	return response, nil
@@ -127843,6 +131140,180 @@ func ParseGetAiAgentSessionHTTPResp(rsp *http.Response) (*GetAiAgentSessionHTTPR
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAiAgentWidgetHTTPResp parses an HTTP response from a GetAiAgentWidgetWithResponse call
+func ParseGetAiAgentWidgetHTTPResp(rsp *http.Response) (*GetAiAgentWidgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAiAgentWidgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentWidgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseEnableAiAgentWidgetHTTPResp parses an HTTP response from a EnableAiAgentWidgetWithResponse call
+func ParseEnableAiAgentWidgetHTTPResp(rsp *http.Response) (*EnableAiAgentWidgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EnableAiAgentWidgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentWidgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDisableAiAgentWidgetHTTPResp parses an HTTP response from a DisableAiAgentWidgetWithResponse call
+func ParseDisableAiAgentWidgetHTTPResp(rsp *http.Response) (*DisableAiAgentWidgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DisableAiAgentWidgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentWidgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateAiAgentWidgetHTTPResp parses an HTTP response from a RotateAiAgentWidgetWithResponse call
+func ParseRotateAiAgentWidgetHTTPResp(rsp *http.Response) (*RotateAiAgentWidgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateAiAgentWidgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentWidgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 
