@@ -33,20 +33,29 @@ var ErrForbidden = errors.New("hyperfluid: forbidden")
 // (internal/console). Resources depend on this surface, not on the generated
 // code directly, so regenerating the client never churns the resource layer.
 type Client struct {
-	api *console.ClientWithResponses
+	api     *console.ClientWithResponses
+	baseURL string
 }
 
 // New builds a Client for the API at endpoint, sending its requests through
 // httpClient (which carries the authentication).
 func New(endpoint string, httpClient *http.Client) (*Client, error) {
+	base := strings.TrimRight(endpoint, "/")
 	api, err := console.NewClientWithResponses(
-		strings.TrimRight(endpoint, "/"),
+		base,
 		console.WithHTTPClient(withErrorBodyShim(httpClient)),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("build console client: %w", err)
 	}
-	return &Client{api: api}, nil
+	return &Client{api: api, baseURL: base}, nil
+}
+
+// BaseURL is the console URL the client sends its requests to, without a
+// trailing slash. Resources that print a URL a browser loads from the console
+// (the agent widget's script) build it from this.
+func (c *Client) BaseURL() string {
+	return c.baseURL
 }
 
 func parseUUID(field, s string) (openapi_types.UUID, error) {
