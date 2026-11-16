@@ -1,5 +1,5 @@
 # One public agent, declared in Git: the agent, its web widget on the public
-# site, and (once the provider supports chat channels) a Tchap room for staff.
+# site, a Tchap room for staff, and the limits both share.
 #
 # Every name below is a placeholder. Credentials come from `hfctl tf auth` or
 # HYPERFLUID_CREDENTIALS; no secret value appears in this configuration or in
@@ -78,16 +78,44 @@ output "widget_warnings" {
   value = hyperfluid_agent_widget.site.warnings
 }
 
-# Tchap (Matrix) room for staff: not in this provider release yet. The console
-# API for chat channels is being built; the intended shape, for review, is:
-#
-# resource "hyperfluid_agent_matrix_channel" "staff" {
-#   agent_id               = hyperfluid_agent.catalogue.id
-#   preset                 = "tchap"
-#   homeserver_url         = "https://matrix.example.org"
-#   user_id                = "@bot-catalogue:example.org"
-#   password_secret_id     = "00000000-0000-0000-0000-000000000000" # a hyperfluid_secret, never the value
-#   recovery_key_secret_id = "00000000-0000-0000-0000-000000000000"
-#   allowed_users          = ["@*:example.org"]
-#   relogin_trigger        = "1"
-# }
+# A Tchap (Matrix) room for staff. The bot account is created by hand in
+# Tchap; its password and recovery key are stored once as plaintext secrets
+# (for instance with `hfctl secrets create plaintext`), and Terraform only
+# references them by id.
+data "hyperfluid_secret" "tchap_password" {
+  name = "catalogue-bot-password"
+}
+
+data "hyperfluid_secret" "tchap_recovery_key" {
+  name = "catalogue-bot-recovery-key"
+}
+
+resource "hyperfluid_agent_matrix_channel" "staff" {
+  agent_id = hyperfluid_agent.catalogue.id
+  preset   = "tchap"
+  user_id  = "@bot-catalogue:example.org"
+
+  password_secret_id     = data.hyperfluid_secret.tchap_password.id
+  recovery_key_secret_id = data.hyperfluid_secret.tchap_recovery_key.id
+
+  allowed_users   = ["@*:example.org"]
+  direct_messages = true
+
+  # Bump when `relogin_required` turns true (the bot's session ended).
+  relogin_trigger = "1"
+}
+
+# Ceilings shared by the widget and the Tchap room, counted apart for each.
+resource "hyperfluid_agent_channel_limits" "catalogue" {
+  agent_id           = hyperfluid_agent.catalogue.id
+  questions_per_hour = 200
+  questions_per_day  = 1000
+}
+
+output "tchap_status" {
+  value = {
+    phase    = hyperfluid_agent_matrix_channel.staff.phase
+    identity = hyperfluid_agent_matrix_channel.staff.identity
+    message  = hyperfluid_agent_matrix_channel.staff.message
+  }
+}

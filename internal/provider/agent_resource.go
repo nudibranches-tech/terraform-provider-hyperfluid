@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,24 +51,25 @@ type agentResource struct {
 }
 
 type agentModel struct {
-	ID               types.String `tfsdk:"id"`
-	Env              types.String `tfsdk:"env"`
-	Name             types.String `tfsdk:"name"`
-	Description      types.String `tfsdk:"description"`
-	SystemPrompt     types.String `tfsdk:"system_prompt"`
-	Mission          types.String `tfsdk:"mission"`
-	Context          types.String `tfsdk:"context"`
-	Speciality       types.String `tfsdk:"speciality"`
-	SubagentOf       types.String `tfsdk:"subagent_of"`
-	QuestionSet      types.List   `tfsdk:"question_set"`
-	Tools            types.List   `tfsdk:"tools"`
-	Inference        types.Object `tfsdk:"inference"`
-	Budgets          types.Object `tfsdk:"budgets"`
-	DataSources      types.List   `tfsdk:"data_sources"`
-	ServiceAccountID types.String `tfsdk:"service_account_id"`
-	DesiredState     types.String `tfsdk:"desired_state"`
-	Interfaces       types.Set    `tfsdk:"interfaces"`
-	Mail             types.Object `tfsdk:"mail"`
+	ID                 types.String `tfsdk:"id"`
+	Env                types.String `tfsdk:"env"`
+	Name               types.String `tfsdk:"name"`
+	Description        types.String `tfsdk:"description"`
+	SystemPrompt       types.String `tfsdk:"system_prompt"`
+	Mission            types.String `tfsdk:"mission"`
+	Context            types.String `tfsdk:"context"`
+	Speciality         types.String `tfsdk:"speciality"`
+	SubagentOf         types.String `tfsdk:"subagent_of"`
+	QuestionSet        types.List   `tfsdk:"question_set"`
+	Tools              types.List   `tfsdk:"tools"`
+	Inference          types.Object `tfsdk:"inference"`
+	Budgets            types.Object `tfsdk:"budgets"`
+	DataSources        types.List   `tfsdk:"data_sources"`
+	ServiceAccountID   types.String `tfsdk:"service_account_id"`
+	DesiredState       types.String `tfsdk:"desired_state"`
+	Interfaces         types.Set    `tfsdk:"interfaces"`
+	Mail               types.Object `tfsdk:"mail"`
+	AllowPlatformTools types.Bool   `tfsdk:"allow_platform_tools"`
 
 	Slug          types.String `tfsdk:"slug"`
 	Phase         types.String `tfsdk:"phase"`
@@ -232,7 +234,9 @@ func (r *agentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			},
 			"interfaces": schema.SetAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
-				MarkdownDescription: "Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`.",
+				MarkdownDescription: "Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`. " +
+					"The chat channel resources (`hyperfluid_agent_matrix_channel`, `_slack_channel`, `_discord_channel`) list and drop " +
+					"their own interface: one they added is neither reported here nor removed by a change of this list.",
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(1),
 					setvalidator.ValueStringsAre(stringvalidator.OneOf("web", "mail", "slack", "discord")),
@@ -268,6 +272,14 @@ func (r *agentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						PlanModifiers: []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 					},
 				},
+			},
+
+			"allow_platform_tools": schema.BoolAttribute{
+				Optional: true, Computed: true,
+				MarkdownDescription: "Let the chat channels drive this agent although its tools include general `hfctl` (or every tool), " +
+					"that is the organization's service account, for everyone in the rooms it answers. Off by default; the web widget never allows it. " +
+					"Left out, it is not managed.",
+				PlanModifiers: []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 			},
 
 			"slug":           computedStr("Derived slug; capabilities name their agent by it in `subagent_of`."),
@@ -339,6 +351,15 @@ func (r *agentResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 	id := created.Id.String()
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	// The create request has no platform tools override: a new agent has no
+	// chat channel yet, so setting it right after is equivalent.
+	if !plan.AllowPlatformTools.IsNull() && !plan.AllowPlatformTools.IsUnknown() && plan.AllowPlatformTools.ValueBool() {
+		allow := true
+		if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, console.UpdateAiAgentRequest{AllowPlatformTools: &allow}); err != nil {
+			addGatedError(&resp.Diagnostics, "Failed to allow platform tools on the agent", featureAiAgents, err)
+			return
+		}
+	}
 	r.settle(ctx, id, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -348,6 +369,7 @@ func (r *agentResource) Create(ctx context.Context, req resource.CreateRequest, 
 		addGatedError(&resp.Diagnostics, "Failed to read agent after create", featureAiAgents, err)
 		return
 	}
+	state.Interfaces = ownedInterfaces(ctx, plan.Interfaces, state.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -366,6 +388,7 @@ func (r *agentResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		addGatedError(&resp.Diagnostics, "Failed to read agent", featureAiAgents, err)
 		return
 	}
+	state.Interfaces = ownedInterfaces(ctx, prior.Interfaces, state.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -382,6 +405,16 @@ func (r *agentResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 	id := state.ID.ValueString()
+	if body.Interfaces != nil {
+		// A PATCH of the interfaces drops the block of every chat channel it
+		// does not list: keep the ones the channel resources added.
+		current, err := r.p.API.GetAiAgent(ctx, r.p.OrgID, id)
+		if err != nil {
+			addGatedError(&resp.Diagnostics, "Failed to read agent before update", featureAiAgents, err)
+			return
+		}
+		body.Interfaces = withChannelInterfaces(*body.Interfaces, current.Interfaces)
+	}
 	if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, body); err != nil {
 		addGatedError(&resp.Diagnostics, "Failed to update agent", featureAiAgents, err)
 		return
@@ -395,6 +428,7 @@ func (r *agentResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		addGatedError(&resp.Diagnostics, "Failed to read agent after update", featureAiAgents, err)
 		return
 	}
+	newState.Interfaces = ownedInterfaces(ctx, plan.Interfaces, newState.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
 }
 
@@ -467,28 +501,29 @@ func (r *agentResource) readInto(ctx context.Context, id string) (agentModel, er
 		sa = types.StringValue(a.ServiceAccountId.String())
 	}
 	m := agentModel{
-		ID:               types.StringValue(id),
-		Env:              types.StringValue(a.HarborId.String()),
-		Name:             types.StringValue(a.Name),
-		Description:      optNonEmpty(a.Description),
-		SystemPrompt:     types.StringValue(a.SystemPrompt),
-		Mission:          optNonEmpty(a.Mission),
-		Context:          optNonEmpty(a.Context),
-		Speciality:       optNonEmpty(a.Speciality),
-		SubagentOf:       optNonEmpty(a.SubagentOf),
-		QuestionSet:      nullIfEmptyList(ctx, a.QuestionSet, &diags),
-		Tools:            tools,
-		Inference:        agentInferenceObject(ctx, a.Inference, &diags),
-		Budgets:          agentBudgetsObject(ctx, a.Budgets, &diags),
-		DataSources:      agentDataSourcesList(ctx, a.DataSources, &diags),
-		ServiceAccountID: sa,
-		DesiredState:     types.StringValue(string(a.DesiredState)),
-		Interfaces:       interfaces,
-		Mail:             agentMailObject(ctx, a.Mail, &diags),
-		Slug:             types.StringValue(a.Slug),
-		Phase:            types.StringValue(a.Status.Phase),
-		StatusMessage:    optString(a.Status.Message),
-		MailAddress:      types.StringNull(),
+		ID:                 types.StringValue(id),
+		Env:                types.StringValue(a.HarborId.String()),
+		Name:               types.StringValue(a.Name),
+		Description:        optNonEmpty(a.Description),
+		SystemPrompt:       types.StringValue(a.SystemPrompt),
+		Mission:            optNonEmpty(a.Mission),
+		Context:            optNonEmpty(a.Context),
+		Speciality:         optNonEmpty(a.Speciality),
+		SubagentOf:         optNonEmpty(a.SubagentOf),
+		QuestionSet:        nullIfEmptyList(ctx, a.QuestionSet, &diags),
+		Tools:              tools,
+		Inference:          agentInferenceObject(ctx, a.Inference, &diags),
+		Budgets:            agentBudgetsObject(ctx, a.Budgets, &diags),
+		DataSources:        agentDataSourcesList(ctx, a.DataSources, &diags),
+		ServiceAccountID:   sa,
+		DesiredState:       types.StringValue(string(a.DesiredState)),
+		Interfaces:         interfaces,
+		Mail:               agentMailObject(ctx, a.Mail, &diags),
+		AllowPlatformTools: types.BoolValue(a.AllowPlatformTools != nil && *a.AllowPlatformTools),
+		Slug:               types.StringValue(a.Slug),
+		Phase:              types.StringValue(a.Status.Phase),
+		StatusMessage:      optString(a.Status.Message),
+		MailAddress:        types.StringNull(),
 	}
 	if a.Status.Mail != nil {
 		m.MailAddress = optString(a.Status.Mail.Address)
@@ -556,7 +591,52 @@ func agentPatch(ctx context.Context, plan, state agentModel) (console.UpdateAiAg
 	if set(plan.Mail, state.Mail) {
 		body.Mail = agentMailRequest(ctx, plan.Mail, &diags)
 	}
+	if set(plan.AllowPlatformTools, state.AllowPlatformTools) {
+		body.AllowPlatformTools = boolPtr(plan.AllowPlatformTools)
+	}
 	return body, diags
+}
+
+// channelInterfaces are listed and dropped by the chat channel resources.
+var channelInterfaces = []string{"matrix", "slack", "discord"}
+
+// ownedInterfaces is the agent's interfaces as this resource manages them: a
+// chat channel interface the configuration (or prior state) does not hold was
+// added by a channel resource, and is left out so it plans no removal.
+func ownedInterfaces(ctx context.Context, owned, read types.Set, diags *diag.Diagnostics) types.Set {
+	if read.IsNull() || read.IsUnknown() {
+		return read
+	}
+	var mine []string
+	if !owned.IsNull() && !owned.IsUnknown() {
+		v, d := setToStringSlice(ctx, owned)
+		diags.Append(d...)
+		mine = v
+	}
+	values, d := setToStringSlice(ctx, read)
+	diags.Append(d...)
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		if slices.Contains(channelInterfaces, v) && !slices.Contains(mine, v) {
+			continue
+		}
+		out = append(out, v)
+	}
+	set, d := types.SetValueFrom(ctx, types.StringType, out)
+	diags.Append(d...)
+	return set
+}
+
+// withChannelInterfaces adds to a requested interface list the chat channel
+// interfaces the agent has now, so the PATCH keeps their channels.
+func withChannelInterfaces(requested, current []string) *[]string {
+	out := slices.Clone(requested)
+	for _, v := range current {
+		if slices.Contains(channelInterfaces, v) && !slices.Contains(out, v) {
+			out = append(out, v)
+		}
+	}
+	return &out
 }
 
 // ── request builders ───────────────────────────────────────────────────────

@@ -67,12 +67,13 @@ resource "hyperfluid_agent" "sql" {
 
 ### Optional
 
+- `allow_platform_tools` (Boolean) Let the chat channels drive this agent although its tools include general `hfctl` (or every tool), that is the organization's service account, for everyone in the rooms it answers. Off by default; the web widget never allows it. Left out, it is not managed.
 - `budgets` (Attributes) Spending limits per question; omitted, the runtime derives them from the model. (see [below for nested schema](#nestedatt--budgets))
 - `context` (String) Extra context appended to the system prompt.
 - `data_sources` (Attributes List) Data docks the agent may read. (see [below for nested schema](#nestedatt--data_sources))
 - `description` (String) Free-form description.
 - `desired_state` (String) `Running` (the default for a new agent) or `Stopped`.
-- `interfaces` (Set of String) Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`.
+- `interfaces` (Set of String) Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`. The chat channel resources (`hyperfluid_agent_matrix_channel`, `_slack_channel`, `_discord_channel`) list and drop their own interface: one they added is neither reported here nor removed by a change of this list.
 - `mail` (Attributes) Mailbox of the `mail` interface; removing it keeps the current one. (see [below for nested schema](#nestedatt--mail))
 - `mission` (String) A capability's own instructions, added to its system prompt.
 - `name` (String) Name, unique in the organization; a capability may omit it to be named after its agent. Changing this forces a new agent.

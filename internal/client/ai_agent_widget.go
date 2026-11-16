@@ -17,14 +17,16 @@ import (
 
 // ── Sapience AI agent: public web widget ──────────────────────────────────
 
-// RefusedError is a 400 from the console: the request was understood and
-// refused, and Message is the console's reason, in its own words. The widget
-// routes use it for every rule that is the customer's to fix (an ineligible
-// agent, a service account with write rights, a missing privacy URL, an origin
-// that is not an origin), so the caller can show the reason instead of a
-// status code and a JSON body.
+// RefusedError is a 400 or a 409 from the console: the request was understood
+// and refused, and Message is the console's reason, in its own words. The
+// widget and channel routes use it for every rule that is the customer's to fix
+// (an ineligible agent, a service account with write rights, a missing privacy
+// URL, a secret that is not plaintext, a re-login before the bot's first
+// device), so the caller can show the reason instead of a status code and a
+// JSON body.
 type RefusedError struct {
 	Op      string
+	Status  int
 	Message string
 }
 
@@ -32,10 +34,10 @@ func (e *RefusedError) Error() string {
 	return fmt.Sprintf("hyperfluid: %s refused: %s", e.Op, e.Message)
 }
 
-// refusedOr turns a 400 into a RefusedError and leaves every other status to
-// statusErr.
+// refusedOr turns a 400 or a 409 into a RefusedError and leaves every other
+// status to statusErr.
 func refusedOr(op string, status int, body []byte) error {
-	if status != http.StatusBadRequest {
+	if status != http.StatusBadRequest && status != http.StatusConflict {
 		return statusErr(op, status, body)
 	}
 	var parsed struct {
@@ -45,7 +47,7 @@ func refusedOr(op string, status int, body []byte) error {
 	if json.Unmarshal(body, &parsed) == nil && parsed.Message != "" {
 		msg = parsed.Message
 	}
-	return &RefusedError{Op: op, Message: msg}
+	return &RefusedError{Op: op, Status: status, Message: msg}
 }
 
 func agentIDs(orgID, agentID string) (openapi_types.UUID, openapi_types.UUID, error) {

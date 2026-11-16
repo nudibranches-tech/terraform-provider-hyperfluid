@@ -71,6 +71,12 @@ func newFakeAgent(t *testing.T) (*fakeAgent, *agentResource) {
 			fa.agent.DesiredState = *req.DesiredState
 			fa.phase = string(*req.DesiredState)
 		}
+		if req.Interfaces != nil {
+			fa.agent.Interfaces = *req.Interfaces
+		}
+		if req.AllowPlatformTools != nil {
+			fa.agent.AllowPlatformTools = req.AllowPlatformTools
+		}
 		return 200, fa.agent
 	})
 	f.on("DELETE", `/ai-agents/[^/]+`, func(string, []byte) (int, any) {
@@ -216,5 +222,66 @@ func TestAgentPermissionDeniedIsNotAFeatureError(t *testing.T) {
 		if e.Summary() != "Failed to create agent" {
 			t.Errorf("summary = %q", e.Summary())
 		}
+	}
+}
+
+// A chat channel resource lists its interface on the agent. The agent neither
+// reports it nor drops it: a PATCH of the interfaces carries it along, since
+// the console removes the channel of every interface the PATCH leaves out.
+func TestAgentKeepsChannelInterfaces(t *testing.T) {
+	f, r := newFakeAgent(t)
+	l := newLifecycle[agentModel](t, r)
+	plan := agentPlan(f.fakeAPI)
+	plan.Interfaces = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("web")})
+	created, d := l.create(plan)
+	mustSucceed(t, d)
+
+	f.agent.Interfaces = append(f.agent.Interfaces, "matrix") // hyperfluid_agent_matrix_channel
+	refreshed, _, d := l.read(created)
+	mustSucceed(t, d)
+	if !refreshed.Interfaces.Equal(plan.Interfaces) {
+		t.Errorf("interfaces = %s: the channel's interface would plan a removal", refreshed.Interfaces)
+	}
+
+	next := refreshed
+	next.Interfaces = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("web"), types.StringValue("mail")})
+	updated, d := l.update(next, refreshed)
+	mustSucceed(t, d)
+	sent, _ := f.calls("PATCH", `/ai-agents/[^/]+`)[0].body["interfaces"].([]any)
+	if len(sent) != 3 || sent[2] != "matrix" {
+		t.Errorf("PATCH interfaces = %v, want web, mail and the channel's matrix", sent)
+	}
+	if !updated.Interfaces.Equal(next.Interfaces) {
+		t.Errorf("updated interfaces = %s", updated.Interfaces)
+	}
+}
+
+// allow_platform_tools is set right after create (the create request has no
+// field for it), changed in place, and left alone when omitted.
+func TestAgentAllowPlatformTools(t *testing.T) {
+	f, r := newFakeAgent(t)
+	l := newLifecycle[agentModel](t, r)
+	plan := agentPlan(f.fakeAPI)
+	plan.AllowPlatformTools = types.BoolValue(true)
+	created, d := l.create(plan)
+	mustSucceed(t, d)
+	patches := f.calls("PATCH", `/ai-agents/[^/]+`)
+	if len(patches) != 1 || patches[0].body["allow_platform_tools"] != true || !created.AllowPlatformTools.ValueBool() {
+		t.Fatalf("patches = %v, state = %s", patches, created.AllowPlatformTools)
+	}
+
+	next := created
+	next.AllowPlatformTools = types.BoolValue(false)
+	updated, d := l.update(next, created)
+	mustSucceed(t, d)
+	if f.calls("PATCH", `/ai-agents/[^/]+`)[1].body["allow_platform_tools"] != false || updated.AllowPlatformTools.ValueBool() {
+		t.Errorf("updated = %s", updated.AllowPlatformTools)
+	}
+
+	f2, r2 := newFakeAgent(t)
+	got, d := newLifecycle[agentModel](t, r2).create(agentPlan(f2.fakeAPI))
+	mustSucceed(t, d)
+	if n := len(f2.calls("PATCH", `/ai-agents/[^/]+`)); n != 0 || got.AllowPlatformTools.ValueBool() {
+		t.Errorf("an agent without the attribute was patched %d time(s)", n)
 	}
 }

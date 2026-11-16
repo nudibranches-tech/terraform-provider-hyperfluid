@@ -250,7 +250,7 @@ func (m widgetKeepModifier) PlanModifyString(ctx context.Context, req planmodifi
 	var planTrigger, stateTrigger types.String
 	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("rotation_trigger"), &planTrigger)...)
 	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("rotation_trigger"), &stateTrigger)...)
-	if resp.Diagnostics.HasError() || widgetRotationRequested(planTrigger, stateTrigger) {
+	if resp.Diagnostics.HasError() || triggerRequested(planTrigger, stateTrigger) {
 		return
 	}
 	if m.followsLang {
@@ -264,9 +264,9 @@ func (m widgetKeepModifier) PlanModifyString(ctx context.Context, req planmodifi
 	resp.PlanValue = req.StateValue
 }
 
-// widgetRotationRequested: the trigger moved to a new value. Unknown counts,
+// triggerRequested: a rotation or re-login trigger moved to a new value. Unknown counts,
 // since it may turn out new; removing the trigger does not rotate.
-func widgetRotationRequested(plan, state types.String) bool {
+func triggerRequested(plan, state types.String) bool {
 	if plan.IsUnknown() {
 		return true
 	}
@@ -369,7 +369,7 @@ func (r *agentWidgetResource) Update(ctx context.Context, req resource.UpdateReq
 			return
 		}
 	}
-	if widgetRotationRequested(plan.RotationTrigger, prior.RotationTrigger) {
+	if triggerRequested(plan.RotationTrigger, prior.RotationTrigger) {
 		if w, err = r.p.API.RotateAiAgentWidget(ctx, r.p.OrgID, agentID); err != nil {
 			addWidgetError(&resp.Diagnostics, "Failed to rotate the agent widget", err)
 			return

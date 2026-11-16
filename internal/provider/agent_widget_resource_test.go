@@ -441,7 +441,7 @@ func TestWidgetRotationRequested(t *testing.T) {
 		{"unknown", types.StringUnknown(), s("a"), true},
 	}
 	for _, tc := range cases {
-		if got := widgetRotationRequested(tc.plan, tc.state); got != tc.want {
+		if got := triggerRequested(tc.plan, tc.state); got != tc.want {
 			t.Errorf("%s: got %v, want %v", tc.name, got, tc.want)
 		}
 	}
