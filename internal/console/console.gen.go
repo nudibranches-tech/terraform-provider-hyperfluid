@@ -775,8 +775,24 @@ func (e AuditLogEvent22Type) Valid() bool {
 	}
 }
 
+// Defines values for AuditLogEvent23Type.
+const (
+	AuditLogEvent23TypeAiAgentMatrixReloginRequested AuditLogEvent23Type = "ai_agent_matrix_relogin_requested"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent23Type enum.
+func (e AuditLogEvent23Type) Valid() bool {
+	switch e {
+	case AuditLogEvent23TypeAiAgentMatrixReloginRequested:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AuditLogEventType.
 const (
+	AuditLogEventTypeAiAgentMatrixReloginRequested  AuditLogEventType = "ai_agent_matrix_relogin_requested"
 	AuditLogEventTypeAuthzBreakGlassUsed            AuditLogEventType = "authz_break_glass_used"
 	AuditLogEventTypeAuthzOrganizationPolicyRevoked AuditLogEventType = "authz_organization_policy_revoked"
 	AuditLogEventTypeConsoleAuthzDecision           AuditLogEventType = "console_authz_decision"
@@ -805,6 +821,8 @@ const (
 // Valid indicates whether the value is a known member of the AuditLogEventType enum.
 func (e AuditLogEventType) Valid() bool {
 	switch e {
+	case AuditLogEventTypeAiAgentMatrixReloginRequested:
+		return true
 	case AuditLogEventTypeAuthzBreakGlassUsed:
 		return true
 	case AuditLogEventTypeAuthzOrganizationPolicyRevoked:
@@ -7378,6 +7396,13 @@ type AiAgentChannelStateDto struct {
 
 	// Phase A channel's phase, as its gateway reports it.
 	Phase *AiAgentChannelPhaseDto `json:"phase,omitempty"`
+
+	// Settled The state below answers the agent's current spec: the operator has
+	// reconciled it, and the channel gateway runs the configuration rendered for
+	// it (or the operator decided this channel's state itself, e.g. refused it).
+	// Until then `phase` may describe the configuration from before the last
+	// write. Wait for this, then read `phase`.
+	Settled bool `json:"settled"`
 }
 
 // AiAgentChannelsResponse Every chat channel of an agent, what every channel route returns.
@@ -7648,6 +7673,18 @@ type AiAgentMatrixChannelView struct {
 	// State One channel's state: `configured` is the block present AND its interface
 	// listed; the rest is `status.channels.<channel>` as the operator stored it.
 	State AiAgentChannelStateDto `json:"state"`
+}
+
+// AiAgentMatrixReloginRequestedLog Audit payload for a Matrix re-login request on an AI agent. The actor is the
+// enclosing request's `oauth_id`.
+type AiAgentMatrixReloginRequestedLog struct {
+	// Agent The agent's object name (`AiAgent` CR).
+	Agent     string             `json:"agent"`
+	AiAgentId openapi_types.UUID `json:"ai_agent_id"`
+
+	// SecretIds The secrets the gateway is given again: the bot's password and its
+	// recovery key.
+	SecretIds []openapi_types.UUID `json:"secret_ids"`
 }
 
 // AiAgentMemoryResponse Whether this agent has its conversation memory, as the POD reports it.
@@ -9409,6 +9446,20 @@ type AuditLogEvent22 struct {
 
 // AuditLogEvent22Type defines model for AuditLogEvent.22.Type.
 type AuditLogEvent22Type string
+
+// AuditLogEvent23 A user asked for an agent's Matrix bot to log in again (ADR-0058 §6): the
+// operator then mounts the bot's password and recovery key in its channel
+// gateway for a bounded time. Always recorded: it hands long-term credentials
+// to a workload again. Names the agent and the secrets, never a value.
+type AuditLogEvent23 struct {
+	// Data Audit payload for a Matrix re-login request on an AI agent. The actor is the
+	// enclosing request's `oauth_id`.
+	Data AiAgentMatrixReloginRequestedLog `json:"data"`
+	Type AuditLogEvent23Type              `json:"type"`
+}
+
+// AuditLogEvent23Type defines model for AuditLogEvent.23.Type.
+type AuditLogEvent23Type string
 
 // AuditLogEventType defines model for AuditLogEventType.
 type AuditLogEventType string
@@ -15182,8 +15233,9 @@ type EmailAuthPolicy string
 // synchronous wait from the console.
 type EnableSqlEngineRequest struct {
 	// BucketName Name of the HFBucket to create/reuse for the Iceberg warehouse
-	// (only used when `seed_demo_catalog = true`). Defaults to
-	// `"demo-iceberg"`.
+	// (only used when `seed_demo_catalog = true`). Defaults to the
+	// environment's own `"<environment slug>-demo-iceberg"`, under the
+	// organization prefix on an `s3` zone.
 	BucketName *string `json:"bucket_name,omitempty"`
 
 	// CatalogName Name of the Iceberg catalog to create (only used when
@@ -15951,8 +16003,8 @@ type GDriveSourceConfig struct {
 
 // GcStatusResponse GC schedule and last-run status for a harbor's registry.
 type GcStatusResponse struct {
-	// LastGcResult Result of the most-recent GC job: `"Running"`, `"Succeeded"`, or
-	// `"Failed"`. `null` until the first GC run is recorded.
+	// LastGcResult Result of the most-recent GC job: `"WaitingForBackup"`, `"Running"`,
+	// `"Succeeded"`, or `"Failed"`. `null` until the first GC run is recorded.
 	LastGcResult *string `json:"last_gc_result,omitempty"`
 
 	// LastGcTime RFC3339 timestamp of the most-recent GC job's completion (or creation
@@ -22012,11 +22064,14 @@ type QuotaCapacityDimension string
 
 // QuotaProfileResponse defines model for QuotaProfileResponse.
 type QuotaProfileResponse struct {
-	Description      *string            `json:"description,omitempty"`
-	Id               openapi_types.UUID `json:"id"`
-	MaxApiCallsDaily int64              `json:"max_api_calls_daily"`
-	MaxApiKeys       int32              `json:"max_api_keys"`
-	MaxDataDocks     int32              `json:"max_data_docks"`
+	Description *string            `json:"description,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+
+	// IsDefault The plan organizations created without one are placed on.
+	IsDefault        bool  `json:"is_default"`
+	MaxApiCallsDaily int64 `json:"max_api_calls_daily"`
+	MaxApiKeys       int32 `json:"max_api_keys"`
+	MaxDataDocks     int32 `json:"max_data_docks"`
 
 	// MaxGpus GPUs the org may hold at once, across every workload kind (#3708).
 	MaxGpus          int32 `json:"max_gpus"`
@@ -22040,6 +22095,7 @@ type QuotaProfileResponse struct {
 	MaxStorageGb            int32  `json:"max_storage_gb"`
 	MaxUsers                int32  `json:"max_users"`
 	MaxVcpu                 int32  `json:"max_vcpu"`
+	MaxVirtualMachines      int32  `json:"max_virtual_machines"`
 	Name                    string `json:"name"`
 	Slug                    string `json:"slug"`
 
@@ -29386,6 +29442,9 @@ type SetAiAgentMatrixChannelJSONRequestBody = AiAgentMatrixChannelConfig
 // SetAiAgentSlackChannelJSONRequestBody defines body for SetAiAgentSlackChannel for application/json ContentType.
 type SetAiAgentSlackChannelJSONRequestBody = AiAgentSlackChannelConfig
 
+// UpdateAiAgentWidgetJSONRequestBody defines body for UpdateAiAgentWidget for application/json ContentType.
+type UpdateAiAgentWidgetJSONRequestBody = AiAgentWidgetConfig
+
 // EnableAiAgentWidgetJSONRequestBody defines body for EnableAiAgentWidget for application/json ContentType.
 type EnableAiAgentWidgetJSONRequestBody = AiAgentWidgetConfig
 
@@ -30391,6 +30450,32 @@ func (t *AuditLogEvent) FromAuditLogEvent22(v AuditLogEvent22) error {
 
 // MergeAuditLogEvent22 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent22
 func (t *AuditLogEvent) MergeAuditLogEvent22(v AuditLogEvent22) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent23 returns the union data inside the AuditLogEvent as a AuditLogEvent23
+func (t AuditLogEvent) AsAuditLogEvent23() (AuditLogEvent23, error) {
+	var body AuditLogEvent23
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent23 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent23
+func (t *AuditLogEvent) FromAuditLogEvent23(v AuditLogEvent23) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent23 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent23
+func (t *AuditLogEvent) MergeAuditLogEvent23(v AuditLogEvent23) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -34132,6 +34217,11 @@ type ClientInterface interface {
 
 	// GetAiAgentWidget request
 	GetAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateAiAgentWidgetWithBody request with any body
+	UpdateAiAgentWidgetWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body UpdateAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// EnableAiAgentWidgetWithBody request with any body
 	EnableAiAgentWidgetWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -39979,6 +40069,30 @@ func (c *Client) GetAiAgentSession(ctx context.Context, organizationId openapi_t
 
 func (c *Client) GetAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAiAgentWidgetRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAiAgentWidgetWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAiAgentWidgetRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAiAgentWidget(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body UpdateAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAiAgentWidgetRequest(c.Server, organizationId, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -60158,6 +60272,60 @@ func NewGetAiAgentWidgetRequest(server string, organizationId openapi_types.UUID
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateAiAgentWidgetRequest calls the generic UpdateAiAgentWidget builder with application/json body
+func NewUpdateAiAgentWidgetRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body UpdateAiAgentWidgetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAiAgentWidgetRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewUpdateAiAgentWidgetRequestWithBody generates requests for UpdateAiAgentWidget with any type of body
+func NewUpdateAiAgentWidgetRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/widget", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -87255,6 +87423,11 @@ type ClientWithResponsesInterface interface {
 	// GetAiAgentWidgetWithResponse request
 	GetAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentWidgetHTTPResp, error)
 
+	// UpdateAiAgentWidgetWithBodyWithResponse request with any body
+	UpdateAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAiAgentWidgetHTTPResp, error)
+
+	UpdateAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body UpdateAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAiAgentWidgetHTTPResp, error)
+
 	// EnableAiAgentWidgetWithBodyWithResponse request with any body
 	EnableAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error)
 
@@ -92808,7 +92981,9 @@ type CreateIcebergDataContainerHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *DataContainerOverview
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
 	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
@@ -97506,6 +97681,40 @@ func (r GetAiAgentWidgetHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetAiAgentWidgetHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateAiAgentWidgetHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentWidgetResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAiAgentWidgetHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAiAgentWidgetHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateAiAgentWidgetHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -116295,6 +116504,23 @@ func (c *ClientWithResponses) GetAiAgentWidgetWithResponse(ctx context.Context, 
 	return ParseGetAiAgentWidgetHTTPResp(rsp)
 }
 
+// UpdateAiAgentWidgetWithBodyWithResponse request with arbitrary body returning *UpdateAiAgentWidgetHTTPResp
+func (c *ClientWithResponses) UpdateAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.UpdateAiAgentWidgetWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAiAgentWidgetHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAiAgentWidgetWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body UpdateAiAgentWidgetJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAiAgentWidgetHTTPResp, error) {
+	rsp, err := c.UpdateAiAgentWidget(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAiAgentWidgetHTTPResp(rsp)
+}
+
 // EnableAiAgentWidgetWithBodyWithResponse request with arbitrary body returning *EnableAiAgentWidgetHTTPResp
 func (c *ClientWithResponses) EnableAiAgentWidgetWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnableAiAgentWidgetHTTPResp, error) {
 	rsp, err := c.EnableAiAgentWidgetWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
@@ -126994,12 +127220,26 @@ func ParseCreateIcebergDataContainerHTTPResp(rsp *http.Response) (*CreateIceberg
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest ApiErrorBody
@@ -133243,6 +133483,60 @@ func ParseGetAiAgentWidgetHTTPResp(rsp *http.Response) (*GetAiAgentWidgetHTTPRes
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAiAgentWidgetHTTPResp parses an HTTP response from a UpdateAiAgentWidgetWithResponse call
+func ParseUpdateAiAgentWidgetHTTPResp(rsp *http.Response) (*UpdateAiAgentWidgetHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAiAgentWidgetHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentWidgetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 

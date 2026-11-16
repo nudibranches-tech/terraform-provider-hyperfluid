@@ -8088,6 +8088,26 @@
               }
             }
           },
+          "400": {
+            "description": "`s3_bucket` is not an existing bucket of the data dock's environment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data dock not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Invalid name: not a lowercase RFC 1123 name",
             "content": {
@@ -10156,7 +10176,7 @@
             }
           },
           "400": {
-            "description": "Invalid request: bad name format, missing bucket_name for Iceberg kind, no or ambiguous credential source, an unusable connection bundle, or a non-viewer managed PostgreSQL user",
+            "description": "Invalid request: bad name format, missing bucket_name for Iceberg kind or one that is not an existing bucket of the DataDock's environment, no or ambiguous credential source, an unusable connection bundle, or a non-viewer managed PostgreSQL user",
             "content": {
               "application/json": {
                 "schema": {
@@ -18029,6 +18049,94 @@
           },
           "404": {
             "description": "Agent not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "AI Agents"
+        ],
+        "operationId": "update_ai_agent_widget",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAgentWidgetConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The configuration of a widget that is on, replaced; the widget stays on (this route never turns one on)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAgentWidgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration (origins, privacy_url, colour, bounds)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found, or it has no widget",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The widget is off: enabling it is PUT, which this route never does",
             "content": {
               "application/json": {
                 "schema": {
@@ -55070,7 +55178,8 @@
         "type": "object",
         "description": "One channel's state: `configured` is the block present AND its interface\nlisted; the rest is `status.channels.<channel>` as the operator stored it.",
         "required": [
-          "configured"
+          "configured",
+          "settled"
         ],
         "properties": {
           "configured": {
@@ -55098,6 +55207,10 @@
           "phase": {
             "$ref": "#/components/schemas/AiAgentChannelPhaseDto",
             "nullable": true
+          },
+          "settled": {
+            "type": "boolean",
+            "description": "The state below answers the agent's current spec: the operator has\nreconciled it, and the channel gateway runs the configuration rendered for\nit (or the operator decided this channel's state itself, e.g. refused it).\nUntil then `phase` may describe the configuration from before the last\nwrite. Wait for this, then read `phase`."
           }
         }
       },
@@ -55512,6 +55625,33 @@
           },
           "state": {
             "$ref": "#/components/schemas/AiAgentChannelStateDto"
+          }
+        }
+      },
+      "AiAgentMatrixReloginRequestedLog": {
+        "type": "object",
+        "description": "Audit payload for a Matrix re-login request on an AI agent. The actor is the\nenclosing request's `oauth_id`.",
+        "required": [
+          "ai_agent_id",
+          "agent",
+          "secret_ids"
+        ],
+        "properties": {
+          "agent": {
+            "type": "string",
+            "description": "The agent's object name (`AiAgent` CR)."
+          },
+          "ai_agent_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "secret_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The secrets the gateway is given again: the bot's password and its\nrecovery key."
           }
         }
       },
@@ -58723,6 +58863,25 @@
                 ]
               }
             }
+          },
+          {
+            "type": "object",
+            "description": "A user asked for an agent's Matrix bot to log in again (ADR-0058 §6): the\noperator then mounts the bot's password and recovery key in its channel\ngateway for a bounded time. Always recorded: it hands long-term credentials\nto a workload again. Names the agent and the secrets, never a value.",
+            "required": [
+              "data",
+              "type"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/AiAgentMatrixReloginRequestedLog"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "ai_agent_matrix_relogin_requested"
+                ]
+              }
+            }
           }
         ]
       },
@@ -58751,7 +58910,8 @@
           "object_storage_owner_key_revealed",
           "object_storage_usage_collected",
           "object_storage_replicated",
-          "scm_credential_changed"
+          "scm_credential_changed",
+          "ai_agent_matrix_relogin_requested"
         ]
       },
       "AuditLogFreshness": {
@@ -68877,7 +69037,8 @@
         "properties": {
           "bucket_name": {
             "type": "string",
-            "description": "Name of the HFBucket to create/reuse for the Iceberg warehouse\n(only used when `seed_demo_catalog = true`). Defaults to\n`\"demo-iceberg\"`."
+            "description": "Name of the HFBucket to create/reuse for the Iceberg warehouse\n(only used when `seed_demo_catalog = true`). Defaults to the\nenvironment's own `\"<environment slug>-demo-iceberg\"`, under the\norganization prefix on an `s3` zone.",
+            "nullable": true
           },
           "catalog_name": {
             "type": "string",
@@ -70198,7 +70359,7 @@
         "properties": {
           "last_gc_result": {
             "type": "string",
-            "description": "Result of the most-recent GC job: `\"Running\"`, `\"Succeeded\"`, or\n`\"Failed\"`. `null` until the first GC run is recorded.",
+            "description": "Result of the most-recent GC job: `\"WaitingForBackup\"`, `\"Running\"`,\n`\"Succeeded\"`, or `\"Failed\"`. `null` until the first GC run is recorded.",
             "nullable": true
           },
           "last_gc_time": {
@@ -82071,6 +82232,7 @@
           "max_service_accounts",
           "max_kafka_services",
           "max_nextflow_environments",
+          "max_virtual_machines",
           "max_storage_gb",
           "max_vcpu",
           "max_ram_gb",
@@ -82079,7 +82241,8 @@
           "max_llm_tokens_monthly",
           "max_llm_rpm",
           "max_llm_tpm",
-          "max_api_calls_daily"
+          "max_api_calls_daily",
+          "is_default"
         ],
         "properties": {
           "description": {
@@ -82089,6 +82252,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "The plan organizations created without one are placed on."
           },
           "max_api_calls_daily": {
             "type": "integer",
@@ -82162,6 +82329,10 @@
             "format": "int32"
           },
           "max_vcpu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max_virtual_machines": {
             "type": "integer",
             "format": "int32"
           },
