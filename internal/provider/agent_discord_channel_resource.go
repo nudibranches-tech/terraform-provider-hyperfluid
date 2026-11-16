@@ -108,6 +108,7 @@ func (r *agentDiscordChannelResource) Create(ctx context.Context, req resource.C
 		addChannelError(&resp.Diagnostics, "Failed to set the Discord channel", err)
 		return
 	}
+	got = r.settle(ctx, plan.AgentID.ValueString(), got, func(v *console.AiAgentChannelsResponse) console.AiAgentChannelStateDto { return v.Discord.State }, &resp.Diagnostics)
 	if got.Discord.Config == nil {
 		resp.Diagnostics.AddError("Discord channel missing after set", "The console accepted the Discord channel but does not report it.")
 		return
@@ -158,6 +159,9 @@ func (r *agentDiscordChannelResource) Update(ctx context.Context, req resource.U
 	if err != nil {
 		addChannelError(&resp.Diagnostics, "Failed to set the Discord channel", err)
 		return
+	}
+	if !reflect.DeepEqual(body, before) {
+		got = r.settle(ctx, agentID, got, func(v *console.AiAgentChannelsResponse) console.AiAgentChannelStateDto { return v.Discord.State }, &resp.Diagnostics)
 	}
 	if got.Discord.Config == nil {
 		resp.Diagnostics.AddError("Discord channel missing", "The console does not report the Discord channel of this agent any more.")

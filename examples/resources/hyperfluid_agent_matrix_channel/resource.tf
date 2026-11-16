@@ -12,12 +12,12 @@ data "hyperfluid_secret" "bot_recovery_key" {
 resource "hyperfluid_agent_matrix_channel" "this" {
   agent_id = hyperfluid_agent.support.id
   preset   = "tchap"
-  user_id  = "@bot-support:example.org"
+  user_id  = "@bot-support:agent.example.tchap.gouv.fr"
 
   password_secret_id     = data.hyperfluid_secret.bot_password.id
   recovery_key_secret_id = data.hyperfluid_secret.bot_recovery_key.id
 
-  allowed_users   = ["@*:example.org"]
+  allowed_users   = ["@*:agent.example.tchap.gouv.fr"]
   direct_messages = true
 
   # Change to a new value when `relogin_required` is true.

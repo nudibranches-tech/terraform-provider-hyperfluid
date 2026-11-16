@@ -234,12 +234,12 @@ func (r *agentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			},
 			"interfaces": schema.SetAttribute{
 				ElementType: types.StringType, Optional: true, Computed: true,
-				MarkdownDescription: "Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`. " +
-					"The chat channel resources (`hyperfluid_agent_matrix_channel`, `_slack_channel`, `_discord_channel`) list and drop " +
-					"their own interface: one they added is neither reported here nor removed by a change of this list.",
+				MarkdownDescription: "Where the agent is reachable: `web` (when omitted) and `mail`. The chat channels are not " +
+					"listed here: they are managed by `hyperfluid_agent_matrix_channel`, `hyperfluid_agent_slack_channel` and " +
+					"`hyperfluid_agent_discord_channel`, and the platform ignores them in this list.",
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(1),
-					setvalidator.ValueStringsAre(stringvalidator.OneOf("web", "mail", "slack", "discord")),
+					setvalidator.ValueStringsAre(stringvalidator.OneOf("web", "mail")),
 				},
 				PlanModifiers: []planmodifier.Set{setplanmodifier.UseStateForUnknown()},
 			},
@@ -356,7 +356,7 @@ func (r *agentResource) Create(ctx context.Context, req resource.CreateRequest, 
 	if !plan.AllowPlatformTools.IsNull() && !plan.AllowPlatformTools.IsUnknown() && plan.AllowPlatformTools.ValueBool() {
 		allow := true
 		if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, console.UpdateAiAgentRequest{AllowPlatformTools: &allow}); err != nil {
-			addGatedError(&resp.Diagnostics, "Failed to allow platform tools on the agent", featureAiAgents, err)
+			addPlatformToolsError(&resp.Diagnostics, "Failed to allow platform tools on the agent", err)
 			return
 		}
 	}
@@ -369,7 +369,6 @@ func (r *agentResource) Create(ctx context.Context, req resource.CreateRequest, 
 		addGatedError(&resp.Diagnostics, "Failed to read agent after create", featureAiAgents, err)
 		return
 	}
-	state.Interfaces = ownedInterfaces(ctx, plan.Interfaces, state.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -388,7 +387,6 @@ func (r *agentResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		addGatedError(&resp.Diagnostics, "Failed to read agent", featureAiAgents, err)
 		return
 	}
-	state.Interfaces = ownedInterfaces(ctx, prior.Interfaces, state.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -405,18 +403,14 @@ func (r *agentResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 	id := state.ID.ValueString()
-	if body.Interfaces != nil {
-		// A PATCH of the interfaces drops the block of every chat channel it
-		// does not list: keep the ones the channel resources added.
-		current, err := r.p.API.GetAiAgent(ctx, r.p.OrgID, id)
-		if err != nil {
-			addGatedError(&resp.Diagnostics, "Failed to read agent before update", featureAiAgents, err)
+	if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, body); err != nil {
+		if body.AllowPlatformTools != nil {
+			addPlatformToolsError(&resp.Diagnostics, "Failed to update agent", err)
 			return
 		}
-		body.Interfaces = withChannelInterfaces(*body.Interfaces, current.Interfaces)
-	}
-	if _, err := r.p.API.UpdateAiAgent(ctx, r.p.OrgID, id, body); err != nil {
-		addGatedError(&resp.Diagnostics, "Failed to update agent", featureAiAgents, err)
+		if !addAgentWriteError(&resp.Diagnostics, err) {
+			addGatedError(&resp.Diagnostics, "Failed to update agent", featureAiAgents, err)
+		}
 		return
 	}
 	r.settle(ctx, id, &resp.Diagnostics)
@@ -428,7 +422,6 @@ func (r *agentResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		addGatedError(&resp.Diagnostics, "Failed to read agent after update", featureAiAgents, err)
 		return
 	}
-	newState.Interfaces = ownedInterfaces(ctx, plan.Interfaces, newState.Interfaces, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
 }
 
@@ -493,7 +486,7 @@ func (r *agentResource) readInto(ctx context.Context, id string) (agentModel, er
 	var diags diag.Diagnostics
 	tools, d := types.ListValueFrom(ctx, types.StringType, a.Tools)
 	diags.Append(d...)
-	interfaces, d := types.SetValueFrom(ctx, types.StringType, a.Interfaces)
+	interfaces, d := types.SetValueFrom(ctx, types.StringType, withoutChannelInterfaces(a.Interfaces))
 	diags.Append(d...)
 
 	sa := types.StringNull()
@@ -597,46 +590,40 @@ func agentPatch(ctx context.Context, plan, state agentModel) (console.UpdateAiAg
 	return body, diags
 }
 
-// channelInterfaces are listed and dropped by the chat channel resources.
+// channelInterfaces are the interfaces of the chat channels, which their own
+// resources manage: the platform ignores them in the agent's PATCH, and the
+// agent's `interfaces` does not report them.
 var channelInterfaces = []string{"matrix", "slack", "discord"}
 
-// ownedInterfaces is the agent's interfaces as this resource manages them: a
-// chat channel interface the configuration (or prior state) does not hold was
-// added by a channel resource, and is left out so it plans no removal.
-func ownedInterfaces(ctx context.Context, owned, read types.Set, diags *diag.Diagnostics) types.Set {
-	if read.IsNull() || read.IsUnknown() {
-		return read
-	}
-	var mine []string
-	if !owned.IsNull() && !owned.IsUnknown() {
-		v, d := setToStringSlice(ctx, owned)
-		diags.Append(d...)
-		mine = v
-	}
-	values, d := setToStringSlice(ctx, read)
-	diags.Append(d...)
+func withoutChannelInterfaces(values []string) []string {
 	out := make([]string, 0, len(values))
 	for _, v := range values {
-		if slices.Contains(channelInterfaces, v) && !slices.Contains(mine, v) {
-			continue
-		}
-		out = append(out, v)
-	}
-	set, d := types.SetValueFrom(ctx, types.StringType, out)
-	diags.Append(d...)
-	return set
-}
-
-// withChannelInterfaces adds to a requested interface list the chat channel
-// interfaces the agent has now, so the PATCH keeps their channels.
-func withChannelInterfaces(requested, current []string) *[]string {
-	out := slices.Clone(requested)
-	for _, v := range current {
-		if slices.Contains(channelInterfaces, v) && !slices.Contains(out, v) {
+		if !slices.Contains(channelInterfaces, v) {
 			out = append(out, v)
 		}
 	}
-	return &out
+	return out
+}
+
+// addPlatformToolsError reports a refused change of allow_platform_tools.
+// Turning it on needs a permission on service accounts, because it hands the
+// organization's service account to chat audiences; which one is the
+// platform's to say, so the diagnostic names the one the platform reports.
+func addPlatformToolsError(diags *diag.Diagnostics, summary string, err error) {
+	if errors.Is(err, client.ErrForbidden) {
+		var d diag.Diagnostics
+		if addAgentWriteError(&d, err) {
+			for _, e := range d.Errors() {
+				diags.AddAttributeError(path.Root("allow_platform_tools"), e.Summary(),
+					e.Detail()+" Turning `allow_platform_tools` on lets the chat channels drive general `hfctl` with the "+
+						"organization's service account, so the platform reserves it to those who may change service accounts.")
+			}
+			return
+		}
+	}
+	if !addAgentWriteError(diags, err) {
+		addGatedError(diags, summary, featureAiAgents, err)
+	}
 }
 
 // ── request builders ───────────────────────────────────────────────────────

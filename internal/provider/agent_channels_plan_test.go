@@ -40,10 +40,10 @@ provider "hyperfluid" {
 resource "hyperfluid_agent_matrix_channel" "staff" {
   agent_id               = %[4]q
   preset                 = "tchap"
-  user_id                = "@bot-support:example.org"
+  user_id                = "@bot-support:agent.example.tchap.gouv.fr"
   password_secret_id     = %[5]q
   recovery_key_secret_id = %[6]q
-  allowed_users          = ["@*:example.org"]
+  allowed_users          = ["@*:agent.example.tchap.gouv.fr"]
   direct_messages        = true
   relogin_trigger        = %[7]q
 }

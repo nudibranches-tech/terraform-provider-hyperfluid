@@ -41,6 +41,12 @@ type fakeChannels struct {
 	refuse     string
 	agentGone  bool
 	baseURL    string
+	// lag is how many reads after a write still describe the configuration from
+	// before it (settled false, phase Disabled), as an operator catching up.
+	lag      int
+	unsettle int
+	// forbidSecrets makes the console refuse to bind the referenced secrets.
+	forbidSecrets bool
 }
 
 func newFakeChannels(t *testing.T) (*fakeChannels, *providerData) {
@@ -78,6 +84,12 @@ func trimText(s *string) *string {
 	return &v
 }
 
+// secretAccessDenied is the console's answer to a channel that references a
+// secret the caller may not bind.
+var secretAccessDenied = map[string]string{
+	"message": "binding the secret in password_secret_id to this agent needs secret:access on it: the agent uses its value",
+}
+
 func (fc *fakeChannels) list(i string) {
 	if !slices.Contains(fc.interfaces, i) {
 		fc.interfaces = append(fc.interfaces, i)
@@ -107,12 +119,21 @@ func (fc *fakeChannels) routes(t *testing.T) {
 				if fc.refuse != "" {
 					return 400, map[string]string{"message": fc.refuse}
 				}
+				if fc.forbidSecrets && pattern != `/ai-agents/[^/]+/channel-limits` {
+					return 403, secretAccessDenied
+				}
 				store(raw)
+				fc.unsettle = fc.lag
 				return 0, nil
 			})("", raw)
 		})
 	}
-	fc.on("GET", `/ai-agents/[^/]+/channels`, answer(func() (int, any) { return 0, nil }))
+	fc.on("GET", `/ai-agents/[^/]+/channels`, answer(func() (int, any) {
+		if fc.unsettle > 0 {
+			fc.unsettle--
+		}
+		return 0, nil
+	}))
 	put(`/ai-agents/[^/]+/channels/matrix`, func(raw []byte) {
 		c := decodeInto[console.AiAgentMatrixChannelConfig](t, raw)
 		c.UserId, c.HomeserverUrl = trimText(c.UserId), trimText(c.HomeserverUrl)
@@ -150,6 +171,12 @@ func (fc *fakeChannels) routes(t *testing.T) {
 		if fc.device == "" {
 			return 409, map[string]string{"message": "The Matrix bot has not completed its first login yet"}
 		}
+		if fc.forbidSecrets {
+			return 403, secretAccessDenied
+		}
+		if fc.pending || !fc.required {
+			return 409, map[string]string{"message": "No re-login is required, or one is already pending"}
+		}
 		fc.relogins++
 		fc.pending, fc.required = true, false
 		return 0, nil
@@ -167,7 +194,10 @@ func (fc *fakeChannels) state(name string, configured bool) console.AiAgentChann
 		return console.AiAgentChannelStateDto{}
 	}
 	phase, last, msg, ident := fc.phase, fc.lastEvent, fc.message, "@bot:"+name
-	st := console.AiAgentChannelStateDto{Configured: true, Phase: &phase, LastEventAt: &last, Identity: &ident}
+	if fc.unsettle > 0 {
+		phase = console.AiAgentChannelPhaseDtoDisabled // the state from before the write
+	}
+	st := console.AiAgentChannelStateDto{Configured: true, Settled: fc.unsettle == 0, Phase: &phase, LastEventAt: &last, Identity: &ident}
 	if msg != "" {
 		st.Message = &msg
 	}
@@ -213,7 +243,7 @@ func unknownStatus() channelStatusModel {
 func matrixPlan(fc *fakeChannels) agentMatrixChannelModel {
 	return agentMatrixChannelModel{
 		ID: types.StringUnknown(), AgentID: types.StringValue(fc.agent.String()),
-		Preset: types.StringValue("tchap"), HomeserverURL: types.StringNull(), UserID: types.StringValue("@bot-support:example.org"),
+		Preset: types.StringValue("tchap"), HomeserverURL: types.StringNull(), UserID: types.StringValue("@bot-support:agent.example.tchap.gouv.fr"),
 		PasswordSecretID: types.StringValue(testPasswordSecret), RecoveryKeySecretID: types.StringValue(testRecoverySecret),
 		ExtraAuthHosts: types.SetNull(types.StringType), AllowedRooms: types.SetNull(types.StringType),
 		AllowedUsers: strSet("@*:example.org"), AutoJoin: types.StringNull(), DirectMessages: types.BoolValue(true),
@@ -299,44 +329,117 @@ func TestAgentMatrixChannelStatusRefresh(t *testing.T) {
 	}
 }
 
-// A new relogin_trigger asks for one login; before the bot's first device the
-// 409 is a clear error and the trigger is not recorded, so the next apply asks
-// again. The same value, or removing it, does not log in.
+// A new relogin_trigger asks for a login only when the platform takes one
+// (required, none pending); otherwise the value is recorded with a warning and
+// nothing is sent. A refusal is a clear error that leaves the old trigger, so
+// the next apply asks again, and keeps what the apply already changed.
 func TestAgentMatrixChannelRelogin(t *testing.T) {
 	fc, pd := newFakeChannels(t)
 	l := newLifecycle[agentMatrixChannelModel](t, wired[*agentMatrixChannelResource](NewAgentMatrixChannelResource(), pd))
 	created, d := l.create(matrixPlan(fc))
 	mustSucceed(t, d)
 
+	bump := func(prior agentMatrixChannelModel, trigger string) agentMatrixChannelModel {
+		next := prior
+		next.ReloginTrigger = types.StringValue(trigger)
+		return next
+	}
+
+	// Not required (the bot is logged in): nothing sent, trigger recorded.
+	notNeeded, d := l.update(bump(created, "2"), created)
+	mustSucceed(t, d)
+	if fc.relogins != 0 || len(fc.calls("POST", `/relogin`)) != 0 || notNeeded.ReloginTrigger.ValueString() != "2" {
+		t.Fatalf("relogins = %d, trigger = %s", fc.relogins, notNeeded.ReloginTrigger)
+	}
+	if len(d.Warnings()) == 0 || !strings.Contains(d.Warnings()[0].Summary(), "does not need a re-login") {
+		t.Errorf("warnings = %v", d.Warnings())
+	}
+
+	// Required: one login, and it is pending.
+	fc.device, fc.required = "DEVICEA", true
+	relogged, d := l.update(bump(notNeeded, "3"), notNeeded)
+	mustSucceed(t, d)
+	if fc.relogins != 1 || relogged.ReloginTrigger.ValueString() != "3" || !relogged.ReloginPending.ValueBool() {
+		t.Fatalf("relogins = %d, state = %+v", fc.relogins, relogged)
+	}
+
+	// Pending: nothing sent again.
+	pending, d := l.update(bump(relogged, "4"), relogged)
+	mustSucceed(t, d)
+	if fc.relogins != 1 || pending.ReloginTrigger.ValueString() != "4" || !strings.Contains(d.Warnings()[0].Summary(), "already pending") {
+		t.Errorf("relogins = %d, warnings = %v", fc.relogins, d.Warnings())
+	}
+
+	// Removing the trigger does not log in.
+	removed := pending
+	removed.ReloginTrigger = types.StringNull()
+	if _, d = l.update(removed, pending); d.HasError() || fc.relogins != 1 {
+		t.Errorf("removing the trigger logged in again (%d) or failed: %v", fc.relogins, d)
+	}
+
+	// Required, but the platform refuses (a channel without its device, say):
+	// the configuration change is kept, the trigger is not.
+	fc.pending, fc.required, fc.device = false, true, ""
+	refusedPlan := bump(pending, "5")
+	refusedPlan.AllowedUsers = strSet("@*:agent.example.tchap.gouv.fr", "@ops:agent.example.tchap.gouv.fr")
+	refused, d := l.update(refusedPlan, pending)
+	mustFail(t, d, "has not completed its first login")
+	if d.Errors()[0].Summary() != "The Matrix re-login was refused" || refused.ReloginTrigger.ValueString() != "4" ||
+		len(refused.AllowedUsers.Elements()) != 2 {
+		t.Errorf("summary = %q, state = %+v", d.Errors()[0].Summary(), refused)
+	}
+}
+
+// Binding a secret, or asking for a re-login with it, needs secret:access on
+// it; the 403 names that permission.
+func TestAgentChannelSecretAccess(t *testing.T) {
+	fc, pd := newFakeChannels(t)
+	l := newLifecycle[agentMatrixChannelModel](t, wired[*agentMatrixChannelResource](NewAgentMatrixChannelResource(), pd))
+	fc.forbidSecrets = true
+	_, d := l.create(matrixPlan(fc))
+	mustFail(t, d, "Missing permission `secret:access`")
+	if !strings.Contains(d.Errors()[0].Detail(), "password_secret_id") {
+		t.Errorf("detail = %s", d.Errors()[0].Detail())
+	}
+
+	fc.forbidSecrets = false
+	created, d := l.create(matrixPlan(fc))
+	mustSucceed(t, d)
+	fc.device, fc.required, fc.forbidSecrets = "DEVICEA", true, true
 	next := created
 	next.ReloginTrigger = types.StringValue("2")
-	next.AllowedUsers = strSet("@*:example.org", "@ops:example.org")
-	refused, d := l.update(next, created)
-	mustFail(t, d, "has not completed its first login")
-	if refused.ReloginTrigger.ValueString() != "1" {
-		t.Errorf("a refused re-login recorded the new trigger: %s", refused.ReloginTrigger)
-	}
-	if len(refused.AllowedUsers.Elements()) != 2 {
-		t.Errorf("the configuration applied before the refusal was not recorded: %s", refused.AllowedUsers)
-	}
-	if d.Errors()[0].Summary() != "The Matrix re-login was refused" {
-		t.Errorf("summary = %q", d.Errors()[0].Summary())
-	}
+	_, d = l.update(next, created)
+	mustFail(t, d, "Missing permission `secret:access`")
+}
 
-	fc.device, fc.required = "DEVICEA", true
-	relogged, d := l.update(next, refused)
+// After a write, the status recorded is the one that answers it: the apply
+// waits for settled instead of reading the state from before the write, and
+// goes on with a warning if the operator does not catch up in time.
+func TestAgentChannelWaitsForSettled(t *testing.T) {
+	fc, pd := newFakeChannels(t)
+	fc.lag = 3
+	l := newLifecycle[agentSlackChannelModel](t, wired[*agentSlackChannelResource](NewAgentSlackChannelResource(), pd))
+	got, d := l.create(slackPlan(fc))
 	mustSucceed(t, d)
-	if fc.relogins != 1 || relogged.ReloginTrigger.ValueString() != "2" || !relogged.ReloginPending.ValueBool() {
-		t.Errorf("relogins = %d, state = %+v", fc.relogins, relogged)
+	if got.Phase.ValueString() != "Connecting" {
+		t.Errorf("phase = %s: the state from before the write was recorded", got.Phase)
 	}
-	if n := len(fc.calls("PUT", `/channels/matrix`)); n != 2 {
-		t.Errorf("PUTs = %d: the second apply re-sent an unchanged configuration", n)
+	if n := len(fc.calls("GET", `/ai-agents/[^/]+/channels`)); n != 3 {
+		t.Errorf("GETs = %d, want a poll until settled", n)
 	}
 
-	removed := relogged
-	removed.ReloginTrigger = types.StringNull()
-	if _, d = l.update(removed, relogged); d.HasError() || fc.relogins != 1 {
-		t.Errorf("removing the trigger logged in again (%d) or failed: %v", fc.relogins, d)
+	fc2, pd2 := newFakeChannels(t)
+	fc2.lag = 1 << 20
+	r := wired[*agentDiscordChannelResource](NewAgentDiscordChannelResource(), pd2)
+	r.timeout = 20 * time.Millisecond
+	_, d = newLifecycle[agentDiscordChannelModel](t, r).create(agentDiscordChannelModel{
+		ID: types.StringUnknown(), AgentID: types.StringValue(fc2.agent.String()), BotTokenSecretID: types.StringValue(uuid.NewString()),
+		AllowedGuilds: strSet("123456789"), AllowedChannels: types.SetNull(types.StringType), AllowedUsers: types.SetNull(types.StringType),
+		DirectMessages: types.BoolNull(), channelStatusModel: unknownStatus(),
+	})
+	mustSucceed(t, d)
+	if len(d.Warnings()) == 0 || !strings.Contains(d.Warnings()[0].Summary(), "has not settled") {
+		t.Errorf("warnings = %v", d.Warnings())
 	}
 }
 
@@ -376,6 +479,16 @@ func TestAgentMatrixChannelValidateConfig(t *testing.T) {
 	generic.AllowExternalInference = types.BoolValue(true)
 	errs := strings.Join(validate(generic), " | ")
 	for _, want := range []string{"Missing homeserver_url", "No allowlist", "Tchap only", "Direct messages need allowed_users"} {
+		if !strings.Contains(errs, want) {
+			t.Errorf("missing %q in %s", want, errs)
+		}
+	}
+
+	tchap := matrixPlan(fc)
+	tchap.HomeserverURL = types.StringValue("https://matrix.example.org")
+	tchap.UserID = types.StringValue("@bot:example.org")
+	errs = strings.Join(validate(tchap), " | ")
+	for _, want := range []string{"homeserver_url with the tchap preset", "Not a Tchap account"} {
 		if !strings.Contains(errs, want) {
 			t.Errorf("missing %q in %s", want, errs)
 		}
@@ -536,10 +649,28 @@ func wired[T fwresource.Resource](r fwresource.Resource, pd *providerData) T {
 	if !ok {
 		panic("not a channel resource")
 	}
-	b.base().p = pd
+	b.base().p, b.base().interval = pd, time.Millisecond
 	out, ok := r.(T)
 	if !ok {
 		panic("unexpected resource type")
 	}
 	return out
+}
+
+// The Tchap server rule mirrors the platform's (is_tchap_server_name).
+func TestIsTchapUserID(t *testing.T) {
+	for mxid, want := range map[string]bool{
+		"@bot:agent.example.tchap.gouv.fr":      true,
+		"@bot:agent.example.tchap.gouv.fr:8448": true,
+		"@bot:Agent.Example.Tchap.Gouv.Fr":      true,
+		"@bot:tchap.gouv.fr":                    false,
+		"@bot:eviltchap.gouv.fr":                false,
+		"@bot:tchap.gouv.fr.attacker.example":   false,
+		"@bot:attacker.example":                 false,
+		"bot":                                   false,
+	} {
+		if got := isTchapUserID(mxid); got != want {
+			t.Errorf("isTchapUserID(%q) = %v, want %v", mxid, got, want)
+		}
+	}
 }

@@ -73,7 +73,7 @@ resource "hyperfluid_agent" "sql" {
 - `data_sources` (Attributes List) Data docks the agent may read. (see [below for nested schema](#nestedatt--data_sources))
 - `description` (String) Free-form description.
 - `desired_state` (String) `Running` (the default for a new agent) or `Stopped`.
-- `interfaces` (Set of String) Where the agent is reachable: `web` (when omitted), `mail`, `slack` or `discord`. The chat channel resources (`hyperfluid_agent_matrix_channel`, `_slack_channel`, `_discord_channel`) list and drop their own interface: one they added is neither reported here nor removed by a change of this list.
+- `interfaces` (Set of String) Where the agent is reachable: `web` (when omitted) and `mail`. The chat channels are not listed here: they are managed by `hyperfluid_agent_matrix_channel`, `hyperfluid_agent_slack_channel` and `hyperfluid_agent_discord_channel`, and the platform ignores them in this list.
 - `mail` (Attributes) Mailbox of the `mail` interface; removing it keeps the current one. (see [below for nested schema](#nestedatt--mail))
 - `mission` (String) A capability's own instructions, added to its system prompt.
 - `name` (String) Name, unique in the organization; a capability may omit it to be named after its agent. Changing this forces a new agent.

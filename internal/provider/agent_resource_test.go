@@ -4,11 +4,15 @@
 package provider
 
 import (
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -225,10 +229,11 @@ func TestAgentPermissionDeniedIsNotAFeatureError(t *testing.T) {
 	}
 }
 
-// A chat channel resource lists its interface on the agent. The agent neither
-// reports it nor drops it: a PATCH of the interfaces carries it along, since
-// the console removes the channel of every interface the PATCH leaves out.
-func TestAgentKeepsChannelInterfaces(t *testing.T) {
+// The chat channels' interfaces belong to their own resources: the agent's
+// `interfaces` does not report them (so a channel never plans a change on the
+// agent), and an update sends the configured list as it is, since the
+// platform ignores channel interfaces in the PATCH and keeps its own.
+func TestAgentInterfacesLeaveChannelsOut(t *testing.T) {
 	f, r := newFakeAgent(t)
 	l := newLifecycle[agentModel](t, r)
 	plan := agentPlan(f.fakeAPI)
@@ -236,23 +241,67 @@ func TestAgentKeepsChannelInterfaces(t *testing.T) {
 	created, d := l.create(plan)
 	mustSucceed(t, d)
 
-	f.agent.Interfaces = append(f.agent.Interfaces, "matrix") // hyperfluid_agent_matrix_channel
+	f.agent.Interfaces = append(f.agent.Interfaces, "matrix", "slack") // set by the channel resources
 	refreshed, _, d := l.read(created)
 	mustSucceed(t, d)
 	if !refreshed.Interfaces.Equal(plan.Interfaces) {
-		t.Errorf("interfaces = %s: the channel's interface would plan a removal", refreshed.Interfaces)
+		t.Errorf("interfaces = %s: the channels' interfaces are reported", refreshed.Interfaces)
 	}
 
 	next := refreshed
 	next.Interfaces = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("web"), types.StringValue("mail")})
-	updated, d := l.update(next, refreshed)
+	_, d = l.update(next, refreshed)
 	mustSucceed(t, d)
 	sent, _ := f.calls("PATCH", `/ai-agents/[^/]+`)[0].body["interfaces"].([]any)
-	if len(sent) != 3 || sent[2] != "matrix" {
-		t.Errorf("PATCH interfaces = %v, want web, mail and the channel's matrix", sent)
+	if len(sent) != 2 {
+		t.Errorf("PATCH interfaces = %v, want exactly the configured web and mail", sent)
 	}
-	if !updated.Interfaces.Equal(next.Interfaces) {
-		t.Errorf("updated interfaces = %s", updated.Interfaces)
+
+	// The schema no longer offers the channel values.
+	s := resourceSchema(t, NewAgentResource()).Schema
+	cfg := nullConfig(t, s, nil)
+	attrSchema, _ := s.AttributeAtPath(t.Context(), path.Root("interfaces"))
+	setAttr, ok := attrSchema.(schema.SetAttribute)
+	if !ok {
+		t.Fatal("interfaces is not a set attribute")
+	}
+	for _, v := range []string{"slack", "matrix"} {
+		resp := &validator.SetResponse{}
+		req := validator.SetRequest{
+			Path: path.Root("interfaces"), PathExpression: path.Root("interfaces").Expression(), Config: cfg,
+			ConfigValue: types.SetValueMust(types.StringType, []attr.Value{types.StringValue(v)}),
+		}
+		for _, val := range setAttr.Validators {
+			val.ValidateSet(t.Context(), req, resp)
+		}
+		if !resp.Diagnostics.HasError() {
+			t.Errorf("interfaces accepts %q", v)
+		}
+	}
+}
+
+// Turning allow_platform_tools on needs a permission on service accounts; the
+// diagnostic names the one the platform reports, whichever it is.
+func TestAgentAllowPlatformToolsPermission(t *testing.T) {
+	for _, permission := range []string{"service_account:update", "service_account:read"} {
+		t.Run(permission, func(t *testing.T) {
+			f, r := newFakeAgent(t)
+			l := newLifecycle[agentModel](t, r)
+			created, d := l.create(agentPlan(f.fakeAPI))
+			mustSucceed(t, d)
+			f.on("PATCH", `/ai-agents/[^/]+`, func(string, []byte) (int, any) {
+				return 403, map[string]string{"message": "Missing permission '" + permission + "'"}
+			})
+			// The first PATCH route still answers: route the refusal first.
+			f.routes = append(f.routes[len(f.routes)-1:], f.routes[:len(f.routes)-1]...)
+			next := created
+			next.AllowPlatformTools = types.BoolValue(true)
+			_, d = l.update(next, created)
+			mustFail(t, d, "Missing permission `"+permission+"`")
+			if !strings.Contains(d.Errors()[0].Detail(), "allow_platform_tools") {
+				t.Errorf("detail = %s", d.Errors()[0].Detail())
+			}
+		})
 	}
 }
 

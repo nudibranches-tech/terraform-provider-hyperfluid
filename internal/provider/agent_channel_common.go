@@ -48,9 +48,47 @@ type channelStatusModel struct {
 // agentChannelBase is the part of a channel resource that does not depend on
 // the channel's own configuration.
 type agentChannelBase struct {
-	p       *providerData
-	channel client.AgentChannel
-	display string // "Matrix", "Slack", "Discord"
+	p        *providerData
+	channel  client.AgentChannel
+	display  string // "Matrix", "Slack", "Discord"
+	interval time.Duration
+	timeout  time.Duration
+}
+
+// channelSettleTimeout bounds the wait for the operator to report a state that
+// answers the configuration just written.
+const channelSettleTimeout = 5 * time.Minute
+
+// settle waits for the channel's state to answer the configuration just
+// written (`settled`), so the phase recorded is not the one from before the
+// write. It never waits for a connection: that depends on the network on the
+// other side. When the operator has not caught up in time, the apply goes on
+// with a warning and the next refresh records the settled state.
+func (b *agentChannelBase) settle(ctx context.Context, agentID string, got *console.AiAgentChannelsResponse,
+	stateOf func(*console.AiAgentChannelsResponse) console.AiAgentChannelStateDto, diags *diag.Diagnostics,
+) *console.AiAgentChannelsResponse {
+	if stateOf(got).Settled {
+		return got
+	}
+	timeout := b.timeout
+	if timeout == 0 {
+		timeout = channelSettleTimeout
+	}
+	last := got
+	_, err := waitForReadyEvery(ctx, timeout, orDefaultInterval(b.interval), func() (*console.AiAgentChannelsResponse, bool, error) {
+		v, err := b.p.API.GetAiAgentChannels(ctx, b.p.OrgID, agentID)
+		if err != nil {
+			return nil, false, err
+		}
+		last = v
+		return v, stateOf(v).Settled, nil
+	})
+	if err != nil {
+		diags.AddWarning(fmt.Sprintf("The %s channel's state has not settled", b.display),
+			fmt.Sprintf("The operator had not reported a state for the configuration just written (%s). "+
+				"The status recorded may describe the previous configuration; the next refresh updates it.", err))
+	}
+	return last
 }
 
 func (b *agentChannelBase) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -176,6 +214,9 @@ func addChannelWarnings(diags *diag.Diagnostics, display string, st console.AiAg
 // addChannelError reports a failed channel call; a refusal is the platform's
 // verdict, shown in its own words.
 func addChannelError(diags *diag.Diagnostics, summary string, err error) {
+	if addAgentWriteError(diags, err) {
+		return
+	}
 	var refused *client.RefusedError
 	if errors.As(err, &refused) {
 		diags.AddError("The platform refused: "+strings.TrimPrefix(summary, "Failed to "),
@@ -185,6 +226,36 @@ func addChannelError(diags *diag.Diagnostics, summary string, err error) {
 		return
 	}
 	addGatedError(diags, summary, featureAiAgents, err)
+}
+
+// permissionPattern finds a permission key (`secret:access`) in a message.
+var permissionPattern = regexp.MustCompile("[a-z_]+:[a-z_]+")
+
+// addAgentWriteError reports the failures every agent write shares, and says
+// whether it did: a write the console gave up on because the agent kept
+// changing (after the client's retries), and a permission the caller lacks.
+// The permission is the one the platform names, never one assumed here: the
+// platform decides what each write needs and may change it.
+func addAgentWriteError(diags *diag.Diagnostics, err error) bool {
+	if client.IsConflict(err) {
+		diags.AddError("The agent kept changing during the write",
+			err.Error()+"\n\nSomeone else was writing the same agent at the same time; Terraform retried a few times. Apply again.")
+		return true
+	}
+	if !errors.Is(err, client.ErrForbidden) || strings.Contains(strings.ToLower(err.Error()), "does not have access to the") {
+		return false
+	}
+	msg := strings.TrimPrefix(err.Error(), client.ErrForbidden.Error()+": ")
+	permission := permissionPattern.FindString(msg[strings.Index(msg, ": ")+1:])
+	if permission == "" {
+		return false
+	}
+	detail := msg + "\n\nAsk an organization administrator to grant `" + permission + "` to the identity Terraform runs as"
+	if permission == "secret:access" {
+		detail += " on each secret this configuration references (an agent channel uses the secret's value, so binding it needs that right)"
+	}
+	diags.AddError("Missing permission `"+permission+"`", detail+".")
+	return true
 }
 
 // ── value mapping ──────────────────────────────────────────────────────────

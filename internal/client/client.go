@@ -43,12 +43,24 @@ func New(endpoint string, httpClient *http.Client) (*Client, error) {
 	base := strings.TrimRight(endpoint, "/")
 	api, err := console.NewClientWithResponses(
 		base,
-		console.WithHTTPClient(withErrorBodyShim(httpClient)),
+		console.WithHTTPClient(withConflictRetry(withErrorBodyShim(httpClient))),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("build console client: %w", err)
 	}
 	return &Client{api: api, baseURL: base}, nil
+}
+
+// withConflictRetry wraps the transport (outside the error-body shim, which
+// stays per attempt) with the bounded retry of a concurrent-write 409.
+func withConflictRetry(c *http.Client) *http.Client {
+	next := c.Transport
+	if next == nil {
+		next = http.DefaultTransport
+	}
+	out := *c
+	out.Transport = conflictRetry{next: next}
+	return &out
 }
 
 // BaseURL is the console URL the client sends its requests to, without a

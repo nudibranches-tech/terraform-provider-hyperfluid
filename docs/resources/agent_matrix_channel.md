@@ -27,12 +27,12 @@ data "hyperfluid_secret" "bot_recovery_key" {
 resource "hyperfluid_agent_matrix_channel" "this" {
   agent_id = hyperfluid_agent.support.id
   preset   = "tchap"
-  user_id  = "@bot-support:example.org"
+  user_id  = "@bot-support:agent.example.tchap.gouv.fr"
 
   password_secret_id     = data.hyperfluid_secret.bot_password.id
   recovery_key_secret_id = data.hyperfluid_secret.bot_recovery_key.id
 
-  allowed_users   = ["@*:example.org"]
+  allowed_users   = ["@*:agent.example.tchap.gouv.fr"]
   direct_messages = true
 
   # Change to a new value when `relogin_required` is true.
@@ -58,9 +58,9 @@ resource "hyperfluid_agent_matrix_channel" "this" {
 - `auto_join` (String) Which invitations the bot accepts: `allowlisted` (the platform's default), `invited` or `never`.
 - `direct_messages` (Boolean) Whether the bot answers direct messages from `allowed_users`.
 - `extra_auth_hosts` (Set of String) More hosts the login may need to reach, such as an authentication service on its own host.
-- `homeserver_url` (String) The homeserver's client API URL, `https://…`. Required with the `generic` preset.
-- `preset` (String) `tchap` or `generic` (left out). `tchap` fills the homeserver's authentication hosts, and refuses an agent whose model is not served in the cluster unless `allow_external_inference` is set.
-- `relogin_trigger` (String) Any value; changing it to a new value asks for one more login of the bot (the operator mounts the password and recovery key until the bot is back). Needed when `relogin_required` is true. Removing it, or setting it at creation, does not log in again. Terraform-only: the platform does not store it. Refused (409) before the bot's first device.
+- `homeserver_url` (String) The homeserver's client API URL, `https://…`. Required with the `generic` preset, refused with `tchap`.
+- `preset` (String) `tchap` or `generic` (left out). `tchap` derives the homeserver and its authentication hosts from `user_id`, which must then be on a server under `tchap.gouv.fr`; it refuses `homeserver_url`, and an agent whose model is not served in the cluster unless `allow_external_inference` is set.
+- `relogin_trigger` (String) Any value; changing it to a new value asks for one more login of the bot (the operator mounts the password and recovery key for 30 minutes, or until the bot is back). Only sent while `relogin_required` is true and no re-login is pending; otherwise the new value is recorded with a warning and nothing is sent. Removing it, or setting it at creation, does not log in again. Needs `secret:access` on both Matrix secrets. Terraform-only: the platform does not store it.
 - `unencrypted_rooms` (String) Whether the bot answers in unencrypted rooms: `never`, `allowlisted` (the platform's default) or `any`.
 
 ### Read-Only

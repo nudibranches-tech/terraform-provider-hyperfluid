@@ -100,6 +100,26 @@ func (c *Client) EnableAiAgentWidget(ctx context.Context, orgID, agentID string,
 	return resp.JSON200, nil
 }
 
+// UpdateAiAgentWidget replaces the configuration of a widget that is on and
+// never turns one on: a widget that is off answers 409 (a RefusedError).
+func (c *Client) UpdateAiAgentWidget(ctx context.Context, orgID, agentID string, body console.AiAgentWidgetConfig) (*console.AiAgentWidgetResponse, error) {
+	org, id, err := agentIDs(orgID, agentID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.UpdateAiAgentWidgetWithResponse(ctx, org, id, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := refusedOr("update agent widget", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: update agent widget: empty response")
+	}
+	return resp.JSON200, nil
+}
+
 // RotateAiAgentWidget gives the widget a new id; every copy of the old tag
 // gets 404 from then on.
 func (c *Client) RotateAiAgentWidget(ctx context.Context, orgID, agentID string) (*console.AiAgentWidgetResponse, error) {

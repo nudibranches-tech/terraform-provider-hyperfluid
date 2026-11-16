@@ -114,6 +114,7 @@ func (r *agentSlackChannelResource) Create(ctx context.Context, req resource.Cre
 		addChannelError(&resp.Diagnostics, "Failed to set the Slack channel", err)
 		return
 	}
+	got = r.settle(ctx, plan.AgentID.ValueString(), got, func(v *console.AiAgentChannelsResponse) console.AiAgentChannelStateDto { return v.Slack.State }, &resp.Diagnostics)
 	if got.Slack.Config == nil {
 		resp.Diagnostics.AddError("Slack channel missing after set", "The console accepted the Slack channel but does not report it.")
 		return
@@ -164,6 +165,9 @@ func (r *agentSlackChannelResource) Update(ctx context.Context, req resource.Upd
 	if err != nil {
 		addChannelError(&resp.Diagnostics, "Failed to set the Slack channel", err)
 		return
+	}
+	if !reflect.DeepEqual(body, before) {
+		got = r.settle(ctx, agentID, got, func(v *console.AiAgentChannelsResponse) console.AiAgentChannelStateDto { return v.Slack.State }, &resp.Diagnostics)
 	}
 	if got.Slack.Config == nil {
 		resp.Diagnostics.AddError("Slack channel missing", "The console does not report the Slack channel of this agent any more.")

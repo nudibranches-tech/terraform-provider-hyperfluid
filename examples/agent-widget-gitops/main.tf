@@ -93,12 +93,12 @@ data "hyperfluid_secret" "tchap_recovery_key" {
 resource "hyperfluid_agent_matrix_channel" "staff" {
   agent_id = hyperfluid_agent.catalogue.id
   preset   = "tchap"
-  user_id  = "@bot-catalogue:example.org"
+  user_id  = "@bot-catalogue:agent.example.tchap.gouv.fr"
 
   password_secret_id     = data.hyperfluid_secret.tchap_password.id
   recovery_key_secret_id = data.hyperfluid_secret.tchap_recovery_key.id
 
-  allowed_users   = ["@*:example.org"]
+  allowed_users   = ["@*:agent.example.tchap.gouv.fr"]
   direct_messages = true
 
   # Bump when `relogin_required` turns true (the bot's session ended).

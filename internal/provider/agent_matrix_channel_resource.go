@@ -65,12 +65,13 @@ func (r *agentMatrixChannelResource) Schema(_ context.Context, _ resource.Schema
 	attrs := agentIDAttributes("Matrix channel")
 	attrs["preset"] = schema.StringAttribute{
 		Optional: true,
-		MarkdownDescription: "`tchap` or `generic` (left out). `tchap` fills the homeserver's authentication hosts, and refuses an agent " +
-			"whose model is not served in the cluster unless `allow_external_inference` is set.",
+		MarkdownDescription: "`tchap` or `generic` (left out). `tchap` derives the homeserver and its authentication hosts from `user_id`, " +
+			"which must then be on a server under `tchap.gouv.fr`; it refuses `homeserver_url`, and an agent whose model is not served " +
+			"in the cluster unless `allow_external_inference` is set.",
 		Validators: []validator.String{stringvalidator.OneOf("tchap", "generic")},
 	}
 	attrs["homeserver_url"] = schema.StringAttribute{
-		Optional: true, MarkdownDescription: "The homeserver's client API URL, `https://…`. Required with the `generic` preset.",
+		Optional: true, MarkdownDescription: "The homeserver's client API URL, `https://…`. Required with the `generic` preset, refused with `tchap`.",
 		Validators: []validator.String{stringvalidator.RegexMatches(httpsURLPattern, "must be an https:// URL")},
 	}
 	attrs["user_id"] = schema.StringAttribute{
@@ -98,8 +99,9 @@ func (r *agentMatrixChannelResource) Schema(_ context.Context, _ resource.Schema
 	attrs["relogin_trigger"] = schema.StringAttribute{
 		Optional: true,
 		MarkdownDescription: "Any value; changing it to a new value asks for one more login of the bot (the operator mounts the password and recovery key " +
-			"until the bot is back). Needed when `relogin_required` is true. Removing it, or setting it at creation, does not log in again. " +
-			"Terraform-only: the platform does not store it. Refused (409) before the bot's first device.",
+			"for 30 minutes, or until the bot is back). Only sent while `relogin_required` is true and no re-login is pending; otherwise the " +
+			"new value is recorded with a warning and nothing is sent. Removing it, or setting it at creation, does not log in again. " +
+			"Needs `secret:access` on both Matrix secrets. Terraform-only: the platform does not store it.",
 		Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
 	}
 	channelStatusAttributes(attrs)
@@ -124,6 +126,16 @@ func (r *agentMatrixChannelResource) ValidateConfig(ctx context.Context, req res
 		return
 	}
 	tchap := cfg.Preset.ValueString() == "tchap"
+	if tchap {
+		if !cfg.HomeserverURL.IsNull() {
+			resp.Diagnostics.AddAttributeError(path.Root("homeserver_url"), "homeserver_url with the tchap preset",
+				"The `tchap` preset derives the homeserver from `user_id`; leave `homeserver_url` out.")
+		}
+		if !cfg.UserID.IsUnknown() && !cfg.UserID.IsNull() && !isTchapUserID(cfg.UserID.ValueString()) {
+			resp.Diagnostics.AddAttributeError(path.Root("user_id"), "Not a Tchap account",
+				"With the `tchap` preset, `user_id` must be on a server under `tchap.gouv.fr` (`@name:<server>.tchap.gouv.fr`).")
+		}
+	}
 	if !tchap {
 		if cfg.HomeserverURL.IsNull() {
 			resp.Diagnostics.AddAttributeError(path.Root("homeserver_url"), "Missing homeserver_url",
@@ -183,6 +195,10 @@ func (r *agentMatrixChannelResource) toState(ctx context.Context, prior agentMat
 	return out
 }
 
+func matrixState(v *console.AiAgentChannelsResponse) console.AiAgentChannelStateDto {
+	return v.Matrix.State
+}
+
 func addMatrixWarnings(diags *diag.Diagnostics, v console.AiAgentMatrixChannelView) {
 	addChannelWarnings(diags, "Matrix", v.State)
 	if v.ReloginRequired && !v.ReloginPending {
@@ -205,6 +221,7 @@ func (r *agentMatrixChannelResource) Create(ctx context.Context, req resource.Cr
 		addChannelError(&resp.Diagnostics, "Failed to set the Matrix channel", err)
 		return
 	}
+	got = r.settle(ctx, plan.AgentID.ValueString(), got, matrixState, &resp.Diagnostics)
 	if got.Matrix.Config == nil {
 		resp.Diagnostics.AddError("Matrix channel missing after set", "The console accepted the Matrix channel but does not report it.")
 		return
@@ -252,26 +269,47 @@ func (r *agentMatrixChannelResource) Update(ctx context.Context, req resource.Up
 			addChannelError(&resp.Diagnostics, "Failed to set the Matrix channel", err)
 			return
 		}
+		got = r.settle(ctx, agentID, got, matrixState, &resp.Diagnostics)
 	}
 	plan.ID = prior.ID
 	if triggerRequested(plan.ReloginTrigger, prior.ReloginTrigger) {
-		relogged, err := r.p.API.ReloginAiAgentMatrixChannel(ctx, r.p.OrgID, agentID)
-		if err != nil {
-			// The configuration may already be applied: record it, keep the old
-			// trigger so the next apply asks again, and say why it was refused.
-			plan.ReloginTrigger = prior.ReloginTrigger
-			r.saveAfterFailedRelogin(ctx, plan, got, agentID, resp)
-			var refused *client.RefusedError
-			if errors.As(err, &refused) {
-				resp.Diagnostics.AddAttributeError(path.Root("relogin_trigger"), "The Matrix re-login was refused",
-					refused.Message+"\n\nThe trigger was not recorded: the next apply asks again. A re-login is only possible "+
-						"once the bot has logged in for the first time (`device_id` is set).")
+		if got == nil {
+			if got, err = r.p.API.GetAiAgentChannels(ctx, r.p.OrgID, agentID); err != nil {
+				addChannelError(&resp.Diagnostics, "Failed to read the Matrix channel", err)
 				return
 			}
-			addChannelError(&resp.Diagnostics, "Failed to request a Matrix re-login", err)
-			return
 		}
-		got = relogged
+		// The platform takes a re-login only when the bot needs one and none is
+		// pending. Otherwise there is nothing to ask for: the trigger is recorded
+		// and the apply says why nothing was sent.
+		switch v := got.Matrix; {
+		case v.ReloginPending:
+			resp.Diagnostics.AddWarning("A Matrix re-login is already pending",
+				"No new re-login was requested: the bot has not reconnected since the last one. If it does not within 30 minutes, "+
+					"the request lapses and `relogin_required` turns true again; change `relogin_trigger` then.")
+		case !v.ReloginRequired:
+			resp.Diagnostics.AddWarning("The Matrix bot does not need a re-login",
+				"No re-login was requested: `relogin_required` is false (the bot is logged in, or still making its first login, "+
+					"which needs no request). The new `relogin_trigger` is recorded.")
+		default:
+			relogged, err := r.p.API.ReloginAiAgentMatrixChannel(ctx, r.p.OrgID, agentID)
+			if err != nil {
+				// The configuration may already be applied: record it, keep the old
+				// trigger so the next apply asks again, and say why it was refused.
+				plan.ReloginTrigger = prior.ReloginTrigger
+				r.saveAfterFailedRelogin(ctx, plan, got, agentID, resp)
+				var refused *client.RefusedError
+				if errors.As(err, &refused) && !client.IsConflict(err) {
+					resp.Diagnostics.AddAttributeError(path.Root("relogin_trigger"), "The Matrix re-login was refused",
+						refused.Message+"\n\nThe trigger was not recorded: the next apply asks again. A re-login is possible "+
+							"while `relogin_required` is true and none is pending.")
+					return
+				}
+				addChannelError(&resp.Diagnostics, "Failed to request a Matrix re-login", err)
+				return
+			}
+			got = relogged
+		}
 	}
 	if got == nil {
 		if got, err = r.p.API.GetAiAgentChannels(ctx, r.p.OrgID, agentID); err != nil {
@@ -311,4 +349,19 @@ func (r *agentMatrixChannelResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	r.remove(ctx, state.AgentID.ValueString(), &resp.Diagnostics)
+}
+
+// isTchapUserID mirrors the platform's rule: the MXID's server name, without a
+// port, is a host under tchap.gouv.fr (not tchap.gouv.fr itself).
+func isTchapUserID(mxid string) bool {
+	_, server, ok := strings.Cut(strings.TrimSpace(mxid), ":")
+	if !ok {
+		return false
+	}
+	if host, port, found := strings.Cut(server, ":"); found && port != "" && strings.Trim(port, "0123456789") == "" {
+		server = host
+	}
+	server = strings.ToLower(strings.TrimSuffix(server, "."))
+	rest, found := strings.CutSuffix(server, "tchap.gouv.fr")
+	return found && len(rest) > 1 && strings.HasSuffix(rest, ".")
 }
