@@ -49,6 +49,33 @@ func (e AgentRequestKind) Valid() bool {
 	}
 }
 
+// Defines values for AiAgentChannelPhaseDto.
+const (
+	AiAgentChannelPhaseDtoConnected  AiAgentChannelPhaseDto = "Connected"
+	AiAgentChannelPhaseDtoConnecting AiAgentChannelPhaseDto = "Connecting"
+	AiAgentChannelPhaseDtoDegraded   AiAgentChannelPhaseDto = "Degraded"
+	AiAgentChannelPhaseDtoDisabled   AiAgentChannelPhaseDto = "Disabled"
+	AiAgentChannelPhaseDtoNeedsLogin AiAgentChannelPhaseDto = "NeedsLogin"
+)
+
+// Valid indicates whether the value is a known member of the AiAgentChannelPhaseDto enum.
+func (e AiAgentChannelPhaseDto) Valid() bool {
+	switch e {
+	case AiAgentChannelPhaseDtoConnected:
+		return true
+	case AiAgentChannelPhaseDtoConnecting:
+		return true
+	case AiAgentChannelPhaseDtoDegraded:
+		return true
+	case AiAgentChannelPhaseDtoDisabled:
+		return true
+	case AiAgentChannelPhaseDtoNeedsLogin:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AiAgentDesiredStateDto.
 const (
 	AiAgentDesiredStateDtoRunning AiAgentDesiredStateDto = "Running"
@@ -2944,6 +2971,66 @@ const (
 func (e ManagedPostgresqlImportUpload1UploadType) Valid() bool {
 	switch e {
 	case ManagedPostgresqlImportUpload1UploadTypeMultipart:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixAutoJoinDto.
+const (
+	MatrixAutoJoinDtoAllowlisted MatrixAutoJoinDto = "allowlisted"
+	MatrixAutoJoinDtoInvited     MatrixAutoJoinDto = "invited"
+	MatrixAutoJoinDtoNever       MatrixAutoJoinDto = "never"
+)
+
+// Valid indicates whether the value is a known member of the MatrixAutoJoinDto enum.
+func (e MatrixAutoJoinDto) Valid() bool {
+	switch e {
+	case MatrixAutoJoinDtoAllowlisted:
+		return true
+	case MatrixAutoJoinDtoInvited:
+		return true
+	case MatrixAutoJoinDtoNever:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixPresetDto.
+const (
+	MatrixPresetDtoGeneric MatrixPresetDto = "generic"
+	MatrixPresetDtoTchap   MatrixPresetDto = "tchap"
+)
+
+// Valid indicates whether the value is a known member of the MatrixPresetDto enum.
+func (e MatrixPresetDto) Valid() bool {
+	switch e {
+	case MatrixPresetDtoGeneric:
+		return true
+	case MatrixPresetDtoTchap:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixUnencryptedRoomsDto.
+const (
+	MatrixUnencryptedRoomsDtoAllowlisted MatrixUnencryptedRoomsDto = "allowlisted"
+	MatrixUnencryptedRoomsDtoAny         MatrixUnencryptedRoomsDto = "any"
+	MatrixUnencryptedRoomsDtoNever       MatrixUnencryptedRoomsDto = "never"
+)
+
+// Valid indicates whether the value is a known member of the MatrixUnencryptedRoomsDto enum.
+func (e MatrixUnencryptedRoomsDto) Valid() bool {
+	switch e {
+	case MatrixUnencryptedRoomsDtoAllowlisted:
+		return true
+	case MatrixUnencryptedRoomsDtoAny:
+		return true
+	case MatrixUnencryptedRoomsDtoNever:
 		return true
 	default:
 		return false
@@ -7250,6 +7337,62 @@ type AiAgentCapabilityResponse struct {
 	Tools []string `json:"tools"`
 }
 
+// AiAgentChannelLimitsDto Limits the agent enforces on its channels (`widget`, `matrix`, `slack`,
+// `discord`). Each unset field is the runtime's default and is never stored.
+type AiAgentChannelLimitsDto struct {
+	// MaxConcurrent Channel questions answered at once. Default 4.
+	MaxConcurrent *int32 `json:"max_concurrent,omitempty"`
+
+	// MaxQuestionLength Longest channel question, in characters, at most 4000. Default 2000.
+	MaxQuestionLength *int32 `json:"max_question_length,omitempty"`
+
+	// PerSenderBurst Questions one sender may ask back to back. Default 6.
+	PerSenderBurst *int32 `json:"per_sender_burst,omitempty"`
+
+	// PerSenderRefillSeconds Seconds for one sender to earn one more question. Default 20.
+	PerSenderRefillSeconds *int32 `json:"per_sender_refill_seconds,omitempty"`
+
+	// QuestionsPerDay Questions answered per sliding 24 hours, per pool. Default 1000.
+	QuestionsPerDay *int32 `json:"questions_per_day,omitempty"`
+
+	// QuestionsPerHour Questions answered per sliding hour, per pool (the widget's, and the chat
+	// channels' together). Default 200.
+	QuestionsPerHour *int32 `json:"questions_per_hour,omitempty"`
+}
+
+// AiAgentChannelPhaseDto A channel's phase, as its gateway reports it.
+type AiAgentChannelPhaseDto string
+
+// AiAgentChannelStateDto One channel's state: `configured` is the block present AND its interface
+// listed; the rest is `status.channels.<channel>` as the operator stored it.
+type AiAgentChannelStateDto struct {
+	Configured bool `json:"configured"`
+
+	// DeviceId Matrix only: the device the bot lives on.
+	DeviceId *string `json:"device_id,omitempty"`
+
+	// Identity The bot's identity on the network (MXID, `<bot user>@<team>`…), once known.
+	Identity    *string    `json:"identity,omitempty"`
+	LastEventAt *time.Time `json:"last_event_at,omitempty"`
+	Message     *string    `json:"message,omitempty"`
+
+	// Phase A channel's phase, as its gateway reports it.
+	Phase *AiAgentChannelPhaseDto `json:"phase,omitempty"`
+}
+
+// AiAgentChannelsResponse Every chat channel of an agent, what every channel route returns.
+type AiAgentChannelsResponse struct {
+	// AllowPlatformTools The chat channels may drive general `hfctl` (set through `PATCH` on the agent).
+	AllowPlatformTools bool `json:"allow_platform_tools"`
+
+	// ChannelLimits Limits the agent enforces on its channels (`widget`, `matrix`, `slack`,
+	// `discord`). Each unset field is the runtime's default and is never stored.
+	ChannelLimits *AiAgentChannelLimitsDto  `json:"channel_limits,omitempty"`
+	Discord       AiAgentDiscordChannelView `json:"discord"`
+	Matrix        AiAgentMatrixChannelView  `json:"matrix"`
+	Slack         AiAgentSlackChannelView   `json:"slack"`
+}
+
 // AiAgentDataSourceDto A data dock the agent may read.
 type AiAgentDataSourceDto struct {
 	DataDockId openapi_types.UUID `json:"data_dock_id"`
@@ -7278,6 +7421,35 @@ type AiAgentDecisionsDto struct {
 // exactly like a container app: there is no autoscaler and no wake-on-request,
 // so a stopped agent answers nothing until someone starts it.
 type AiAgentDesiredStateDto string
+
+// AiAgentDiscordChannelConfig The Discord channel: an application bot token, no privileged intent.
+type AiAgentDiscordChannelConfig struct {
+	// AllowedChannels Channel ids the bot answers in; a thread counts when its parent is listed.
+	AllowedChannels *[]string `json:"allowed_channels,omitempty"`
+
+	// AllowedGuilds Guild (server) ids, digits. Required and non-empty: the bot leaves every
+	// other server.
+	AllowedGuilds *[]string `json:"allowed_guilds,omitempty"`
+
+	// AllowedUsers User ids the bot answers.
+	AllowedUsers *[]string `json:"allowed_users,omitempty"`
+
+	// BotTokenSecretId Id of a `plaintext` secret holding the bot token. Required.
+	BotTokenSecretId *openapi_types.UUID `json:"bot_token_secret_id,omitempty"`
+
+	// DirectMessages Answer direct messages; takes effect only with `allowed_users`. Absent: off.
+	DirectMessages *bool `json:"direct_messages,omitempty"`
+}
+
+// AiAgentDiscordChannelView defines model for AiAgentDiscordChannelView.
+type AiAgentDiscordChannelView struct {
+	// Config The Discord channel: an application bot token, no privileged intent.
+	Config *AiAgentDiscordChannelConfig `json:"config,omitempty"`
+
+	// State One channel's state: `configured` is the block present AND its interface
+	// listed; the rest is `status.channels.<channel>` as the operator stored it.
+	State AiAgentChannelStateDto `json:"state"`
+}
 
 // AiAgentInferenceDto Inference selection for an agent.
 type AiAgentInferenceDto struct {
@@ -7412,6 +7584,72 @@ type AiAgentMailStatusDto struct {
 // `MailAccount`'s status.
 type AiAgentMailboxPhaseDto string
 
+// AiAgentMatrixChannelConfig The Matrix / Tchap channel. The same document is sent to set the channel and
+// returned when it is read, so a client can round-trip it. An unset option is the
+// gateway's default and is never stored; an empty list does not restrict.
+type AiAgentMatrixChannelConfig struct {
+	// AllowExternalInference Lets a Tchap bot hand decrypted messages to a model outside the cluster.
+	AllowExternalInference *bool `json:"allow_external_inference,omitempty"`
+
+	// AllowedRooms Room ids (`!opaque:server.name`) the bot answers in.
+	AllowedRooms *[]string `json:"allowed_rooms,omitempty"`
+
+	// AllowedUsers MXID globs (`*`, `?`) of the people the bot answers.
+	AllowedUsers *[]string `json:"allowed_users,omitempty"`
+
+	// AutoJoin Which invitations the bot accepts.
+	AutoJoin *MatrixAutoJoinDto `json:"auto_join,omitempty"`
+
+	// DirectMessages Answer direct messages; needs a non-empty `allowed_users`. Absent: `true`
+	// with an `allowed_users`, else off.
+	DirectMessages *bool `json:"direct_messages,omitempty"`
+
+	// ExtraAuthHosts Extra MAS hosts, for the gateway's `.well-known` check.
+	ExtraAuthHosts *[]string `json:"extra_auth_hosts,omitempty"`
+
+	// HomeserverUrl Client-server API base URL, `https://`. Required with `generic`; with `tchap`
+	// it overrides `https://matrix.<server name>`.
+	HomeserverUrl *string `json:"homeserver_url,omitempty"`
+
+	// PasswordSecretId Id of a `plaintext` Passe Partout secret of this organization holding the
+	// bot's password. Required. Used only while the bot has no device.
+	PasswordSecretId *openapi_types.UUID `json:"password_secret_id,omitempty"`
+
+	// Preset `tchap` (hosts derived from the MXID; decrypted messages stay in the cluster
+	// unless `allow_external_inference`) or `generic` (any homeserver: `homeserver_url`
+	// and an allowlist are required).
+	Preset *MatrixPresetDto `json:"preset,omitempty"`
+
+	// RecoveryKeySecretId Id of a `plaintext` secret holding the recovery key Tchap web showed at
+	// account setup. Required. Used only while the bot has no device.
+	RecoveryKeySecretId *openapi_types.UUID `json:"recovery_key_secret_id,omitempty"`
+
+	// UnencryptedRooms Whether the bot answers in unencrypted rooms.
+	UnencryptedRooms *MatrixUnencryptedRoomsDto `json:"unencrypted_rooms,omitempty"`
+
+	// UserId The bot's MXID (`@localpart:server.name`). Required.
+	UserId *string `json:"user_id,omitempty"`
+}
+
+// AiAgentMatrixChannelView defines model for AiAgentMatrixChannelView.
+type AiAgentMatrixChannelView struct {
+	// Config The Matrix / Tchap channel. The same document is sent to set the channel and
+	// returned when it is read, so a client can round-trip it. An unset option is the
+	// gateway's default and is never stored; an empty list does not restrict.
+	Config *AiAgentMatrixChannelConfig `json:"config,omitempty"`
+
+	// ReloginPending A re-login was requested and the bot has not reconnected since.
+	ReloginPending bool `json:"relogin_pending"`
+
+	// ReloginRequired The bot's session ended after its first device and logging in again needs
+	// a request: `POST …/channels/matrix/relogin`.
+	ReloginRequired bool `json:"relogin_required"`
+
+	// State One channel's state: `configured` is the block present AND its interface
+	// listed; the rest is `status.channels.<channel>` as the operator stored it.
+	State AiAgentChannelStateDto `json:"state"`
+}
+
 // AiAgentMemoryResponse Whether this agent has its conversation memory, as the POD reports it.
 //
 // Deliberately not read from `AiAgent.status.sessions`, which the operator
@@ -7441,6 +7679,9 @@ type AiAgentMemoryResponse struct {
 
 // AiAgentResponse defines model for AiAgentResponse.
 type AiAgentResponse struct {
+	// AllowPlatformTools The chat channels may drive general `hfctl` (ADR-0058 §3).
+	AllowPlatformTools *bool `json:"allow_platform_tools,omitempty"`
+
 	// Budgets What the agent may spend answering one question. Both unset means the
 	// runtime derives them from the serving's advertised context window.
 	Budgets     AiAgentBudgetsDto      `json:"budgets"`
@@ -7536,6 +7777,53 @@ type AiAgentSessionTurnsResponse struct {
 // AiAgentSessionsResponse defines model for AiAgentSessionsResponse.
 type AiAgentSessionsResponse struct {
 	Sessions []AiAgentSessionSummary `json:"sessions"`
+}
+
+// AiAgentSlackChannelConfig The Slack channel: a per-agent Slack app in Socket Mode, created from
+// `GET …/channels/slack/manifest`.
+type AiAgentSlackChannelConfig struct {
+	// AllowedChannels Channel ids (`C…`, `G…`) the bot answers in.
+	AllowedChannels *[]string `json:"allowed_channels,omitempty"`
+
+	// AllowedUsers User ids (`U…`, `W…`) the bot answers.
+	AllowedUsers *[]string `json:"allowed_users,omitempty"`
+
+	// AppTokenSecretId Id of a `plaintext` secret holding the app-level token (`xapp-…`, scope
+	// `connections:write`). Required.
+	AppTokenSecretId *openapi_types.UUID `json:"app_token_secret_id,omitempty"`
+
+	// BotTokenSecretId Id of a `plaintext` secret holding the bot token (`xoxb-…`). Required.
+	BotTokenSecretId *openapi_types.UUID `json:"bot_token_secret_id,omitempty"`
+
+	// DirectMessages Answer direct messages; takes effect only with `allowed_users`. Absent: off.
+	DirectMessages *bool `json:"direct_messages,omitempty"`
+
+	// TeamId The workspace id (`T0123…`). Required: every other workspace is dropped.
+	TeamId *string `json:"team_id,omitempty"`
+}
+
+// AiAgentSlackChannelView defines model for AiAgentSlackChannelView.
+type AiAgentSlackChannelView struct {
+	// Config The Slack channel: a per-agent Slack app in Socket Mode, created from
+	// `GET …/channels/slack/manifest`.
+	Config *AiAgentSlackChannelConfig `json:"config,omitempty"`
+
+	// State One channel's state: `configured` is the block present AND its interface
+	// listed; the rest is `status.channels.<channel>` as the operator stored it.
+	State AiAgentChannelStateDto `json:"state"`
+}
+
+// AiAgentSlackManifestResponse What a Slack workspace needs to host this agent's app.
+type AiAgentSlackManifestResponse struct {
+	// AppTokenScope The scope of the app-level token to create by hand (a manifest cannot).
+	AppTokenScope string `json:"app_token_scope"`
+
+	// Manifest The app manifest, YAML, named after the agent: paste it in "Create New App →
+	// From a manifest".
+	Manifest string `json:"manifest"`
+
+	// Notes What the workspace admin should know before installing it.
+	Notes []string `json:"notes"`
 }
 
 // AiAgentStatusResponse defines model for AiAgentStatusResponse.
@@ -8082,6 +8370,11 @@ type AlertLevel string
 
 // AlertRuleBody Write payload; maps 1:1 to [`AlertRuleInput`].
 type AlertRuleBody struct {
+	// ChannelIds Notification channels of the organization this rule delivers to.
+	// Omitted: unchanged on update, none on create. `[]`: the rule follows
+	// its signal's routing again.
+	ChannelIds *[]openapi_types.UUID `json:"channel_ids,omitempty"`
+
 	// Comparator Which side of the threshold is the bad side.
 	Comparator    Comparator `json:"comparator"`
 	CriticalValue *float64   `json:"critical_value,omitempty"`
@@ -8118,6 +8411,10 @@ type AlertRuleBody struct {
 // AlertRuleDto A rule plus its live evaluation, so the UI never has to reconstruct
 // pending/firing from raw timestamps itself.
 type AlertRuleDto struct {
+	// ChannelIds Notification channels this rule delivers to. Empty: the rule follows
+	// its signal's routing (the bindings, else every enabled channel).
+	ChannelIds []openapi_types.UUID `json:"channel_ids"`
+
 	// Comparator Which side of the threshold is the bad side.
 	Comparator     Comparator         `json:"comparator"`
 	CreatedAt      time.Time          `json:"created_at"`
@@ -18552,6 +18849,17 @@ type MatchingTag struct {
 	Version string `json:"version"`
 }
 
+// MatrixAutoJoinDto Which invitations the bot accepts.
+type MatrixAutoJoinDto string
+
+// MatrixPresetDto `tchap` (hosts derived from the MXID; decrypted messages stay in the cluster
+// unless `allow_external_inference`) or `generic` (any homeserver: `homeserver_url`
+// and an allowlist are required).
+type MatrixPresetDto string
+
+// MatrixUnencryptedRoomsDto Whether the bot answers in unencrypted rooms.
+type MatrixUnencryptedRoomsDto string
+
 // MedallionTier Medallion architecture tiers for data lake house governance
 type MedallionTier string
 
@@ -23606,7 +23914,8 @@ type SetApiKeyRateLimitsRequest struct {
 
 // SetBindingsBody defines model for SetBindingsBody.
 type SetBindingsBody struct {
-	// ChannelIds Channels that receive this signal. Empty = every enabled channel.
+	// ChannelIds Channels that receive this signal. Empty = every enabled channel. An
+	// alert rule that names its own channels ignores these.
 	ChannelIds []openapi_types.UUID `json:"channel_ids"`
 }
 
@@ -25154,6 +25463,12 @@ type UpdateActionTypeRequest struct {
 // UpdateAiAgentRequest Partial update. Only present fields are applied. Empty strings clear
 // `description` / `context` / `inference.model`.
 type UpdateAiAgentRequest struct {
+	// AllowPlatformTools Let the chat channels (Matrix, Slack, Discord) drive this agent although its
+	// tools include general `hfctl` (or every tool), i.e. the organization's
+	// service account (ADR-0058 §3). `false` removes the override; a channel that
+	// needs it is then refused.
+	AllowPlatformTools *bool `json:"allow_platform_tools,omitempty"`
+
 	// Budgets What the agent may spend answering one question. Both unset means the
 	// runtime derives them from the serving's advertised context window.
 	Budgets     *AiAgentBudgetsDto      `json:"budgets,omitempty"`
@@ -29058,6 +29373,18 @@ type UpdateAiAgentJSONRequestBody = UpdateAiAgentRequest
 
 // AskAiAgentJSONRequestBody defines body for AskAiAgent for application/json ContentType.
 type AskAiAgentJSONRequestBody = AskAiAgentRequest
+
+// SetAiAgentChannelLimitsJSONRequestBody defines body for SetAiAgentChannelLimits for application/json ContentType.
+type SetAiAgentChannelLimitsJSONRequestBody = AiAgentChannelLimitsDto
+
+// SetAiAgentDiscordChannelJSONRequestBody defines body for SetAiAgentDiscordChannel for application/json ContentType.
+type SetAiAgentDiscordChannelJSONRequestBody = AiAgentDiscordChannelConfig
+
+// SetAiAgentMatrixChannelJSONRequestBody defines body for SetAiAgentMatrixChannel for application/json ContentType.
+type SetAiAgentMatrixChannelJSONRequestBody = AiAgentMatrixChannelConfig
+
+// SetAiAgentSlackChannelJSONRequestBody defines body for SetAiAgentSlackChannel for application/json ContentType.
+type SetAiAgentSlackChannelJSONRequestBody = AiAgentSlackChannelConfig
 
 // EnableAiAgentWidgetJSONRequestBody defines body for EnableAiAgentWidget for application/json ContentType.
 type EnableAiAgentWidgetJSONRequestBody = AiAgentWidgetConfig
@@ -33746,6 +34073,47 @@ type ClientInterface interface {
 	AskAiAgentWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	AskAiAgent(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body AskAiAgentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetAiAgentChannelLimits request
+	ResetAiAgentChannelLimits(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAiAgentChannelLimitsWithBody request with any body
+	SetAiAgentChannelLimitsWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAiAgentChannelLimits(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentChannelLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAiAgentChannels request
+	GetAiAgentChannels(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveAiAgentDiscordChannel request
+	RemoveAiAgentDiscordChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAiAgentDiscordChannelWithBody request with any body
+	SetAiAgentDiscordChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAiAgentDiscordChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentDiscordChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveAiAgentMatrixChannel request
+	RemoveAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAiAgentMatrixChannelWithBody request with any body
+	SetAiAgentMatrixChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentMatrixChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ReloginAiAgentMatrixChannel request
+	ReloginAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveAiAgentSlackChannel request
+	RemoveAiAgentSlackChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAiAgentSlackChannelWithBody request with any body
+	SetAiAgentSlackChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAiAgentSlackChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentSlackChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAiAgentSlackManifest request
+	GetAiAgentSlackManifest(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAiAgentMailStats request
 	GetAiAgentMailStats(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -39359,6 +39727,186 @@ func (c *Client) AskAiAgentWithBody(ctx context.Context, organizationId openapi_
 
 func (c *Client) AskAiAgent(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body AskAiAgentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAskAiAgentRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetAiAgentChannelLimits(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetAiAgentChannelLimitsRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentChannelLimitsWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentChannelLimitsRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentChannelLimits(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentChannelLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentChannelLimitsRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAiAgentChannels(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAiAgentChannelsRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveAiAgentDiscordChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveAiAgentDiscordChannelRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentDiscordChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentDiscordChannelRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentDiscordChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentDiscordChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentDiscordChannelRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveAiAgentMatrixChannelRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentMatrixChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentMatrixChannelRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentMatrixChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentMatrixChannelRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReloginAiAgentMatrixChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReloginAiAgentMatrixChannelRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveAiAgentSlackChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveAiAgentSlackChannelRequest(c.Server, organizationId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentSlackChannelWithBody(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentSlackChannelRequestWithBody(c.Server, organizationId, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAiAgentSlackChannel(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentSlackChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAiAgentSlackChannelRequest(c.Server, organizationId, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAiAgentSlackManifest(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAiAgentSlackManifestRequest(c.Server, organizationId, id)
 	if err != nil {
 		return nil, err
 	}
@@ -58847,6 +59395,509 @@ func NewAskAiAgentRequestWithBody(server string, organizationId openapi_types.UU
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewResetAiAgentChannelLimitsRequest generates requests for ResetAiAgentChannelLimits
+func NewResetAiAgentChannelLimitsRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channel-limits", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAiAgentChannelLimitsRequest calls the generic SetAiAgentChannelLimits builder with application/json body
+func NewSetAiAgentChannelLimitsRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentChannelLimitsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAiAgentChannelLimitsRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewSetAiAgentChannelLimitsRequestWithBody generates requests for SetAiAgentChannelLimits with any type of body
+func NewSetAiAgentChannelLimitsRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channel-limits", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAiAgentChannelsRequest generates requests for GetAiAgentChannels
+func NewGetAiAgentChannelsRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRemoveAiAgentDiscordChannelRequest generates requests for RemoveAiAgentDiscordChannel
+func NewRemoveAiAgentDiscordChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/discord", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAiAgentDiscordChannelRequest calls the generic SetAiAgentDiscordChannel builder with application/json body
+func NewSetAiAgentDiscordChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentDiscordChannelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAiAgentDiscordChannelRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewSetAiAgentDiscordChannelRequestWithBody generates requests for SetAiAgentDiscordChannel with any type of body
+func NewSetAiAgentDiscordChannelRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/discord", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveAiAgentMatrixChannelRequest generates requests for RemoveAiAgentMatrixChannel
+func NewRemoveAiAgentMatrixChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/matrix", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAiAgentMatrixChannelRequest calls the generic SetAiAgentMatrixChannel builder with application/json body
+func NewSetAiAgentMatrixChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentMatrixChannelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAiAgentMatrixChannelRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewSetAiAgentMatrixChannelRequestWithBody generates requests for SetAiAgentMatrixChannel with any type of body
+func NewSetAiAgentMatrixChannelRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/matrix", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewReloginAiAgentMatrixChannelRequest generates requests for ReloginAiAgentMatrixChannel
+func NewReloginAiAgentMatrixChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/matrix/relogin", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRemoveAiAgentSlackChannelRequest generates requests for RemoveAiAgentSlackChannel
+func NewRemoveAiAgentSlackChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/slack", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAiAgentSlackChannelRequest calls the generic SetAiAgentSlackChannel builder with application/json body
+func NewSetAiAgentSlackChannelRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentSlackChannelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAiAgentSlackChannelRequestWithBody(server, organizationId, id, "application/json", bodyReader)
+}
+
+// NewSetAiAgentSlackChannelRequestWithBody generates requests for SetAiAgentSlackChannel with any type of body
+func NewSetAiAgentSlackChannelRequestWithBody(server string, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/slack", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAiAgentSlackManifestRequest generates requests for GetAiAgentSlackManifest
+func NewGetAiAgentSlackManifestRequest(server string, organizationId openapi_types.UUID, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/ai-agents/%s/channels/slack/manifest", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -86145,6 +87196,47 @@ type ClientWithResponsesInterface interface {
 
 	AskAiAgentWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body AskAiAgentJSONRequestBody, reqEditors ...RequestEditorFn) (*AskAiAgentHTTPResp, error)
 
+	// ResetAiAgentChannelLimitsWithResponse request
+	ResetAiAgentChannelLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ResetAiAgentChannelLimitsHTTPResp, error)
+
+	// SetAiAgentChannelLimitsWithBodyWithResponse request with any body
+	SetAiAgentChannelLimitsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentChannelLimitsHTTPResp, error)
+
+	SetAiAgentChannelLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentChannelLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentChannelLimitsHTTPResp, error)
+
+	// GetAiAgentChannelsWithResponse request
+	GetAiAgentChannelsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentChannelsHTTPResp, error)
+
+	// RemoveAiAgentDiscordChannelWithResponse request
+	RemoveAiAgentDiscordChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentDiscordChannelHTTPResp, error)
+
+	// SetAiAgentDiscordChannelWithBodyWithResponse request with any body
+	SetAiAgentDiscordChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentDiscordChannelHTTPResp, error)
+
+	SetAiAgentDiscordChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentDiscordChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentDiscordChannelHTTPResp, error)
+
+	// RemoveAiAgentMatrixChannelWithResponse request
+	RemoveAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentMatrixChannelHTTPResp, error)
+
+	// SetAiAgentMatrixChannelWithBodyWithResponse request with any body
+	SetAiAgentMatrixChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentMatrixChannelHTTPResp, error)
+
+	SetAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentMatrixChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentMatrixChannelHTTPResp, error)
+
+	// ReloginAiAgentMatrixChannelWithResponse request
+	ReloginAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ReloginAiAgentMatrixChannelHTTPResp, error)
+
+	// RemoveAiAgentSlackChannelWithResponse request
+	RemoveAiAgentSlackChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentSlackChannelHTTPResp, error)
+
+	// SetAiAgentSlackChannelWithBodyWithResponse request with any body
+	SetAiAgentSlackChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentSlackChannelHTTPResp, error)
+
+	SetAiAgentSlackChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentSlackChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentSlackChannelHTTPResp, error)
+
+	// GetAiAgentSlackManifestWithResponse request
+	GetAiAgentSlackManifestWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentSlackManifestHTTPResp, error)
+
 	// GetAiAgentMailStatsWithResponse request
 	GetAiAgentMailStatsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentMailStatsHTTPResp, error)
 
@@ -95860,6 +96952,363 @@ func (r AskAiAgentHTTPResp) ContentType() string {
 	return ""
 }
 
+type ResetAiAgentChannelLimitsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetAiAgentChannelLimitsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetAiAgentChannelLimitsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ResetAiAgentChannelLimitsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetAiAgentChannelLimitsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAiAgentChannelLimitsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAiAgentChannelLimitsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetAiAgentChannelLimitsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAiAgentChannelsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAiAgentChannelsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAiAgentChannelsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAiAgentChannelsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveAiAgentDiscordChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveAiAgentDiscordChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveAiAgentDiscordChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveAiAgentDiscordChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetAiAgentDiscordChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAiAgentDiscordChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAiAgentDiscordChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetAiAgentDiscordChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveAiAgentMatrixChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveAiAgentMatrixChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveAiAgentMatrixChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveAiAgentMatrixChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetAiAgentMatrixChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAiAgentMatrixChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAiAgentMatrixChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetAiAgentMatrixChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ReloginAiAgentMatrixChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ReloginAiAgentMatrixChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ReloginAiAgentMatrixChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ReloginAiAgentMatrixChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RemoveAiAgentSlackChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveAiAgentSlackChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveAiAgentSlackChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RemoveAiAgentSlackChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetAiAgentSlackChannelHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentChannelsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAiAgentSlackChannelHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAiAgentSlackChannelHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetAiAgentSlackChannelHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAiAgentSlackManifestHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AiAgentSlackManifestResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAiAgentSlackManifestHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAiAgentSlackManifestHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAiAgentSlackManifestHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetAiAgentMailStatsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -96773,6 +98222,7 @@ type DeleteNotificationChannelHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -114660,6 +116110,137 @@ func (c *ClientWithResponses) AskAiAgentWithResponse(ctx context.Context, organi
 	return ParseAskAiAgentHTTPResp(rsp)
 }
 
+// ResetAiAgentChannelLimitsWithResponse request returning *ResetAiAgentChannelLimitsHTTPResp
+func (c *ClientWithResponses) ResetAiAgentChannelLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ResetAiAgentChannelLimitsHTTPResp, error) {
+	rsp, err := c.ResetAiAgentChannelLimits(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetAiAgentChannelLimitsHTTPResp(rsp)
+}
+
+// SetAiAgentChannelLimitsWithBodyWithResponse request with arbitrary body returning *SetAiAgentChannelLimitsHTTPResp
+func (c *ClientWithResponses) SetAiAgentChannelLimitsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentChannelLimitsHTTPResp, error) {
+	rsp, err := c.SetAiAgentChannelLimitsWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentChannelLimitsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetAiAgentChannelLimitsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentChannelLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentChannelLimitsHTTPResp, error) {
+	rsp, err := c.SetAiAgentChannelLimits(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentChannelLimitsHTTPResp(rsp)
+}
+
+// GetAiAgentChannelsWithResponse request returning *GetAiAgentChannelsHTTPResp
+func (c *ClientWithResponses) GetAiAgentChannelsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentChannelsHTTPResp, error) {
+	rsp, err := c.GetAiAgentChannels(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAiAgentChannelsHTTPResp(rsp)
+}
+
+// RemoveAiAgentDiscordChannelWithResponse request returning *RemoveAiAgentDiscordChannelHTTPResp
+func (c *ClientWithResponses) RemoveAiAgentDiscordChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentDiscordChannelHTTPResp, error) {
+	rsp, err := c.RemoveAiAgentDiscordChannel(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveAiAgentDiscordChannelHTTPResp(rsp)
+}
+
+// SetAiAgentDiscordChannelWithBodyWithResponse request with arbitrary body returning *SetAiAgentDiscordChannelHTTPResp
+func (c *ClientWithResponses) SetAiAgentDiscordChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentDiscordChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentDiscordChannelWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentDiscordChannelHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetAiAgentDiscordChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentDiscordChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentDiscordChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentDiscordChannel(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentDiscordChannelHTTPResp(rsp)
+}
+
+// RemoveAiAgentMatrixChannelWithResponse request returning *RemoveAiAgentMatrixChannelHTTPResp
+func (c *ClientWithResponses) RemoveAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentMatrixChannelHTTPResp, error) {
+	rsp, err := c.RemoveAiAgentMatrixChannel(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveAiAgentMatrixChannelHTTPResp(rsp)
+}
+
+// SetAiAgentMatrixChannelWithBodyWithResponse request with arbitrary body returning *SetAiAgentMatrixChannelHTTPResp
+func (c *ClientWithResponses) SetAiAgentMatrixChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentMatrixChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentMatrixChannelWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentMatrixChannelHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentMatrixChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentMatrixChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentMatrixChannel(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentMatrixChannelHTTPResp(rsp)
+}
+
+// ReloginAiAgentMatrixChannelWithResponse request returning *ReloginAiAgentMatrixChannelHTTPResp
+func (c *ClientWithResponses) ReloginAiAgentMatrixChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ReloginAiAgentMatrixChannelHTTPResp, error) {
+	rsp, err := c.ReloginAiAgentMatrixChannel(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReloginAiAgentMatrixChannelHTTPResp(rsp)
+}
+
+// RemoveAiAgentSlackChannelWithResponse request returning *RemoveAiAgentSlackChannelHTTPResp
+func (c *ClientWithResponses) RemoveAiAgentSlackChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RemoveAiAgentSlackChannelHTTPResp, error) {
+	rsp, err := c.RemoveAiAgentSlackChannel(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveAiAgentSlackChannelHTTPResp(rsp)
+}
+
+// SetAiAgentSlackChannelWithBodyWithResponse request with arbitrary body returning *SetAiAgentSlackChannelHTTPResp
+func (c *ClientWithResponses) SetAiAgentSlackChannelWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAiAgentSlackChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentSlackChannelWithBody(ctx, organizationId, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentSlackChannelHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetAiAgentSlackChannelWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, body SetAiAgentSlackChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAiAgentSlackChannelHTTPResp, error) {
+	rsp, err := c.SetAiAgentSlackChannel(ctx, organizationId, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAiAgentSlackChannelHTTPResp(rsp)
+}
+
+// GetAiAgentSlackManifestWithResponse request returning *GetAiAgentSlackManifestHTTPResp
+func (c *ClientWithResponses) GetAiAgentSlackManifestWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentSlackManifestHTTPResp, error) {
+	rsp, err := c.GetAiAgentSlackManifest(ctx, organizationId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAiAgentSlackManifestHTTPResp(rsp)
+}
+
 // GetAiAgentMailStatsWithResponse request returning *GetAiAgentMailStatsHTTPResp
 func (c *ClientWithResponses) GetAiAgentMailStatsWithResponse(ctx context.Context, organizationId openapi_types.UUID, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAiAgentMailStatsHTTPResp, error) {
 	rsp, err := c.GetAiAgentMailStats(ctx, organizationId, id, reqEditors...)
@@ -130876,6 +132457,481 @@ func ParseAskAiAgentHTTPResp(rsp *http.Response) (*AskAiAgentHTTPResp, error) {
 	return response, nil
 }
 
+// ParseResetAiAgentChannelLimitsHTTPResp parses an HTTP response from a ResetAiAgentChannelLimitsWithResponse call
+func ParseResetAiAgentChannelLimitsHTTPResp(rsp *http.Response) (*ResetAiAgentChannelLimitsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetAiAgentChannelLimitsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetAiAgentChannelLimitsHTTPResp parses an HTTP response from a SetAiAgentChannelLimitsWithResponse call
+func ParseSetAiAgentChannelLimitsHTTPResp(rsp *http.Response) (*SetAiAgentChannelLimitsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAiAgentChannelLimitsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAiAgentChannelsHTTPResp parses an HTTP response from a GetAiAgentChannelsWithResponse call
+func ParseGetAiAgentChannelsHTTPResp(rsp *http.Response) (*GetAiAgentChannelsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAiAgentChannelsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveAiAgentDiscordChannelHTTPResp parses an HTTP response from a RemoveAiAgentDiscordChannelWithResponse call
+func ParseRemoveAiAgentDiscordChannelHTTPResp(rsp *http.Response) (*RemoveAiAgentDiscordChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveAiAgentDiscordChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetAiAgentDiscordChannelHTTPResp parses an HTTP response from a SetAiAgentDiscordChannelWithResponse call
+func ParseSetAiAgentDiscordChannelHTTPResp(rsp *http.Response) (*SetAiAgentDiscordChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAiAgentDiscordChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveAiAgentMatrixChannelHTTPResp parses an HTTP response from a RemoveAiAgentMatrixChannelWithResponse call
+func ParseRemoveAiAgentMatrixChannelHTTPResp(rsp *http.Response) (*RemoveAiAgentMatrixChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveAiAgentMatrixChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetAiAgentMatrixChannelHTTPResp parses an HTTP response from a SetAiAgentMatrixChannelWithResponse call
+func ParseSetAiAgentMatrixChannelHTTPResp(rsp *http.Response) (*SetAiAgentMatrixChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAiAgentMatrixChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseReloginAiAgentMatrixChannelHTTPResp parses an HTTP response from a ReloginAiAgentMatrixChannelWithResponse call
+func ParseReloginAiAgentMatrixChannelHTTPResp(rsp *http.Response) (*ReloginAiAgentMatrixChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ReloginAiAgentMatrixChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveAiAgentSlackChannelHTTPResp parses an HTTP response from a RemoveAiAgentSlackChannelWithResponse call
+func ParseRemoveAiAgentSlackChannelHTTPResp(rsp *http.Response) (*RemoveAiAgentSlackChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveAiAgentSlackChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetAiAgentSlackChannelHTTPResp parses an HTTP response from a SetAiAgentSlackChannelWithResponse call
+func ParseSetAiAgentSlackChannelHTTPResp(rsp *http.Response) (*SetAiAgentSlackChannelHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAiAgentSlackChannelHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentChannelsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAiAgentSlackManifestHTTPResp parses an HTTP response from a GetAiAgentSlackManifestWithResponse call
+func ParseGetAiAgentSlackManifestHTTPResp(rsp *http.Response) (*GetAiAgentSlackManifestHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAiAgentSlackManifestHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AiAgentSlackManifestResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetAiAgentMailStatsHTTPResp parses an HTTP response from a GetAiAgentMailStatsWithResponse call
 func ParseGetAiAgentMailStatsHTTPResp(rsp *http.Response) (*GetAiAgentMailStatsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -132107,6 +134163,13 @@ func ParseDeleteNotificationChannelHTTPResp(rsp *http.Response) (*DeleteNotifica
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
