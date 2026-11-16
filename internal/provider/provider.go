@@ -164,6 +164,7 @@ func (p *HyperfluidProvider) Resources(_ context.Context) []func() resource.Reso
 		NewNextflowResource,
 		NewComputeDockResource,
 		NewAgentResource,
+		NewAgentWidgetResource,
 		NewVirtualMachineResource,
 		NewVirtualMachineUserResource,
 		// app_instance deferred (Marketplace).
