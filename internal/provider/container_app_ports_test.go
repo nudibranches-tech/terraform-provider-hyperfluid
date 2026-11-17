@@ -80,8 +80,8 @@ func TestContainerAppCreateWithNoPortSendsEmptyList(t *testing.T) {
 	}
 }
 
-// Leaving `ports` out sends neither field, so the console keeps resolving the
-// legacy default, and the folded-in port it reports lands in state.
+// Leaving `ports` out sends neither field, so the console creates an app that
+// listens on no port, and state records `ports = []` with a null `port`.
 func TestContainerAppCreateWithoutPortsSendsNone(t *testing.T) {
 	h := newHarness(t)
 	plan := literalApp(h.f)
@@ -94,8 +94,8 @@ func TestContainerAppCreateWithoutPortsSendsNone(t *testing.T) {
 	if _, ok := body["ports"]; ok {
 		t.Errorf("create body carries ports %v although the config leaves them out", body["ports"])
 	}
-	if len(got.Ports.Elements()) != 1 || got.Port.ValueInt64() != 8080 {
-		t.Errorf("ports/port after create = %s/%s, want the legacy 8080", got.Ports, got.Port)
+	if len(got.Ports.Elements()) != 0 || !got.Port.IsNull() {
+		t.Errorf("ports/port after create = %s/%s, want no port", got.Ports, got.Port)
 	}
 }
 

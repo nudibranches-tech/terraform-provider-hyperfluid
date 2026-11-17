@@ -151,8 +151,7 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 			reply(403, map[string]string{"message": commandOverrideRefusal})
 			return
 		}
-		f.legacyPort = req.Port
-		f.applyPorts(req.Ports, true)
+		f.applyPorts(req.Ports, req.Port, true)
 		f.applyWorkload(req.Env, req.SecretRefs, req.ImagePullSecrets, req.Command, req.Args, req.InitContainers)
 		f.spec.ResourceMode = console.ResourceModeAdvisory
 		f.applyScaling(req.FileMounts, req.CustomDomains, req.CustomResources, req.ResourceMode, req.Autoscaling, nil, req.Metrics, nil)
@@ -219,10 +218,7 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		if req.Replicas != nil {
 			f.spec.Replicas = *req.Replicas
 		}
-		if req.Port != nil {
-			f.legacyPort = req.Port
-		}
-		f.applyPorts(req.Ports, false)
+		f.applyPorts(req.Ports, req.Port, false)
 		if req.ImageSource != nil {
 			f.attach(req.ImageSource)
 		}
@@ -339,12 +335,24 @@ func (f *fakeConsole) applyWorkload(
 }
 
 // applyPorts follows the console: a `ports` array, empty included, replaces
-// the list; absent, a PATCH keeps it and a create leaves the field off. The
-// spec is then read back as the GET reports it, with the legacy single port
-// folded in while `ports` is absent.
-func (f *fakeConsole) applyPorts(ports *[]console.ContainerAppPortInput, create bool) {
-	if ports != nil || create {
+// the list. Without one, the deprecated `port` becomes the single `http` entry
+// of an app that has no list yet (and is ignored once it has one), and a create
+// with neither declares no port. The spec is then read back as the GET reports
+// it, with the legacy single port folded in only for an app predating `ports`.
+func (f *fakeConsole) applyPorts(ports *[]console.ContainerAppPortInput, port *int32, create bool) {
+	switch {
+	case ports != nil:
 		f.declaredPorts = ports
+	case port != nil && (create || f.declaredPorts == nil):
+		f.declaredPorts = &[]console.ContainerAppPortInput{{
+			Name: "http", ContainerPort: *port, Protocol: ptr(console.PortProtocolTCP),
+			AppProtocol: ptr(console.AppProtocolHttp), Primary: ptr(true),
+		}}
+	case create:
+		f.declaredPorts = &[]console.ContainerAppPortInput{}
+	}
+	if f.declaredPorts != nil {
+		f.legacyPort = nil
 	}
 	f.spec.Ports = []console.ContainerAppPortResponse{}
 	f.spec.Port = nil

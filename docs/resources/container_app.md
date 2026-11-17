@@ -103,9 +103,10 @@ resource "hyperfluid_container_app" "api" {
   # args    = ["serve", "--port", "8080"]
 }
 
-# A queue worker listens on nothing: `ports = []` gives it no Service, no URL
-# and no health probe. It cannot be exposed or be a link's target, but it can
-# reach other services as the consumer of a `hyperfluid_service_link`.
+# An app with `ports = []` listens on no port: no other application or internet
+# visitor can reach it, and it gets no health probe. It cannot be exposed or be a
+# link's target, but it can reach other services as the consumer of a
+# `hyperfluid_service_link`.
 resource "hyperfluid_container_app" "orders_worker" {
   env              = data.hyperfluid_environment.default.id
   slug             = "orders-worker"
@@ -250,7 +251,7 @@ output "orders_image" {
 - `metrics` (Attributes) Where the app serves Prometheus metrics for the platform to scrape. (see [below for nested schema](#nestedatt--metrics))
 - `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead. Changing this forces a new app.
 - `port` (Number) **Deprecated — use `ports`.** Single container port; conflicts with `ports` and is ignored once the app has them. Reads as the primary port, null for an app with `ports = []`.
-- `ports` (Attributes List) Ports the container listens on, at most 16. Only the `primary` port gets a public route. `[]` declares an app that listens on no port, such as a queue worker: it gets no Service, no URL and no default health probe, and cannot be the target of a `hyperfluid_service_link`. Left out, a new app listens on the deprecated `port`, else 8080, and an existing app keeps its ports. (see [below for nested schema](#nestedatt--ports))
+- `ports` (Attributes List) Ports the container listens on, at most 16. Only the `primary` port gets a public route. `[]` declares an app that listens on no port: no other application or internet visitor can reach it, it gets no default health probe, and it cannot be the target of a `hyperfluid_service_link`. Left out, a new app listens on the deprecated `port` if set, else on no port, and an existing app keeps its ports. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Number of replicas, at most 5. Conflicts with `autoscaling`.
 - `resource_mode` (String) Whether the console shows CPU rightsizing advice: `advisory` (default) shows it, `manual` and `managed` hide it.
 - `resource_tier` (String) Size of each replica: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`. Conflicts with `custom_resources`.

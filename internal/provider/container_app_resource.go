@@ -299,9 +299,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"ports": schema.ListNestedAttribute{
 				Optional: true, Computed: true,
 				MarkdownDescription: "Ports the container listens on, at most 16. Only the `primary` port gets a public route. " +
-					"`[]` declares an app that listens on no port, such as a queue worker: it gets no Service, no URL and no " +
-					"default health probe, and cannot be the target of a `hyperfluid_service_link`. Left out, a new app " +
-					"listens on the deprecated `port`, else 8080, and an existing app keeps its ports.",
+					"`[]` declares an app that listens on no port: no other application or internet visitor can reach it, it " +
+					"gets no default health probe, and it cannot be the target of a `hyperfluid_service_link`. Left out, a new " +
+					"app listens on the deprecated `port` if set, else on no port, and an existing app keeps its ports.",
 				Validators: []validator.List{
 					listvalidator.ConflictsWith(path.MatchRoot("port")),
 					listvalidator.SizeAtMost(maxPortEntries),
