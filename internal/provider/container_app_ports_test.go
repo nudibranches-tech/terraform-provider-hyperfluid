@@ -25,10 +25,10 @@ func noPorts() types.List {
 	return types.ListValueMust(containerAppPortType(), []attr.Value{})
 }
 
-func httpPort(name string, n int64) types.List {
+func httpPort(n int64) types.List {
 	return types.ListValueMust(containerAppPortType(), []attr.Value{
 		types.ObjectValueMust(attrTypes(containerAppPortType()), map[string]attr.Value{
-			"name": types.StringValue(name), "port": types.Int64Value(n),
+			"name": types.StringValue("http"), "port": types.Int64Value(n),
 			"protocol": types.StringValue("HTTP"), "primary": types.BoolValue(true),
 		}),
 	})
@@ -132,7 +132,7 @@ func TestContainerAppUpdateWithoutPortsKeepsThem(t *testing.T) {
 	h := newHarness(t)
 	plan := literalApp(h.f)
 	plan.Slug = types.StringValue("orders-api")
-	plan.Ports = httpPort("http", 8080)
+	plan.Ports = httpPort(8080)
 
 	created, d := h.create(plan)
 	noErrors(t, d)
@@ -176,7 +176,7 @@ func TestPrimaryPortFollowsPorts(t *testing.T) {
 	h := newHarness(t)
 	prior := literalApp(h.f)
 	prior.ID = types.StringValue(h.f.appID.String())
-	prior.Ports = httpPort("http", 8080)
+	prior.Ports = httpPort(8080)
 	prior.Port = types.Int64Value(8080)
 
 	for name, tc := range map[string]struct {
@@ -184,9 +184,9 @@ func TestPrimaryPortFollowsPorts(t *testing.T) {
 		want   types.Int64
 	}{
 		"ports left out":  {config: types.ListNull(containerAppPortType()), want: types.Int64Value(8080)},
-		"ports unchanged": {config: httpPort("http", 8080), want: types.Int64Value(8080)},
+		"ports unchanged": {config: httpPort(8080), want: types.Int64Value(8080)},
 		"ports emptied":   {config: noPorts(), want: types.Int64Unknown()},
-		"port moved":      {config: httpPort("http", 9090), want: types.Int64Unknown()},
+		"port moved":      {config: httpPort(9090), want: types.Int64Unknown()},
 	} {
 		t.Run(name, func(t *testing.T) {
 			cfg, planned := prior, prior

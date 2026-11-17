@@ -431,12 +431,11 @@ func (r *serviceLinkResource) checkPortsDeclared(ctx context.Context, env string
 // platform accepts the link but can never open it, so the apply would only time
 // out. A failed lookup is left for the platform to report.
 func (r *serviceLinkResource) checkListensOnAPort(ctx context.Context, env string, target console.ServiceRef) error {
-	declared, err := r.p.API.ContainerAppDeclaredPorts(ctx, r.p.OrgID, env, target.Name)
-	if err != nil || len(declared) > 0 {
-		return nil
+	if declared, err := r.p.API.ContainerAppDeclaredPorts(ctx, r.p.OrgID, env, target.Name); err == nil && len(declared) == 0 {
+		return fmt.Errorf("container app %q listens on no port (ports = []), so there is nothing for a link to open. "+
+			"An app with no port can still reach other services as a link's consumer", target.Name)
 	}
-	return fmt.Errorf("container app %q listens on no port (ports = []), so there is nothing for a link to open. "+
-		"An app with no port can still reach other services as a link's consumer", target.Name)
+	return nil
 }
 
 // firstUndeclaredPort returns the first requested pair absent from declared, or
