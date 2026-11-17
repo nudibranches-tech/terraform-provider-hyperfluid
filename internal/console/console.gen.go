@@ -11919,12 +11919,15 @@ type CreateContainerAppCrdRequestBody struct {
 	// immutable after creation in v1 — volume expansion is not yet supported.
 	Persistence *[]PersistenceInput `json:"persistence,omitempty"`
 
-	// Port **Deprecated — use `ports`.** Written to the CR only when supplied, so
-	// a request that omits it leaves the field off the spec entirely.
+	// Port **Deprecated — use `ports`.** With `ports` omitted, it becomes the
+	// app's single `http` port; it is never written to the CR itself.
 	Port *int32 `json:"port,omitempty"`
 
-	// Ports Ports the container listens on. When present this replaces `port`; an
-	// empty array creates an app that listens on no port (a queue worker).
+	// Ports Ports the container listens on. When present this replaces `port`.
+	// Omitted along with `port`, or empty, the app listens on no port, which
+	// no other application or internet visitor can reach; an empty array is
+	// refused beside `port`, and either is refused with a health check that
+	// has no port to probe.
 	// Only the primary port gets a public route; the others are reachable
 	// in-cluster through the app's Service.
 	Ports    *[]ContainerAppPortInput `json:"ports,omitempty"`
@@ -20725,13 +20728,15 @@ type PatchContainerAppCrdRequestBody struct {
 	// or removing entries is allowed (subject to the orphan behavior above).
 	Persistence *[]PersistenceInput `json:"persistence,omitempty"`
 
-	// Port **Deprecated — use `ports`.** Ignored by the operator once the spec
-	// carries `ports`.
+	// Port **Deprecated — use `ports`.** On an app without `ports` it becomes the
+	// app's single `http` port; once the app has `ports` it is ignored. It is
+	// never written to the CR itself.
 	Port *int32 `json:"port,omitempty"`
 
 	// Ports Ports the container listens on. PATCH semantics: `null` (omit) leaves
-	// existing entries alone; an array replaces the full list, an empty one
-	// leaving the app listening on no port (a queue worker).
+	// existing entries alone; an array replaces the full list and drops the
+	// deprecated `port`, an empty one leaving the app listening on no port,
+	// which no other application or internet visitor can reach.
 	Ports    *[]ContainerAppPortInput `json:"ports,omitempty"`
 	Replicas *int32                   `json:"replicas,omitempty"`
 

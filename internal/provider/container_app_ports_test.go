@@ -9,9 +9,11 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -261,9 +263,9 @@ func TestContainerAppNoPortValidation(t *testing.T) {
 	}
 }
 
-// A health check path on an app with no port is never probed unless it names
-// a port of its own, which is worth a warning, not a refusal.
-func TestContainerAppNoPortHealthCheckWarns(t *testing.T) {
+// A health check path on an app with no port has nothing to probe unless it
+// names a port of its own: the console refuses it, so the plan does too.
+func TestContainerAppNoPortHealthCheckIsRefused(t *testing.T) {
 	h := newHarness(t)
 	cfg := literalApp(h.f)
 	cfg.Ports = noPorts()
@@ -271,8 +273,8 @@ func TestContainerAppNoPortHealthCheckWarns(t *testing.T) {
 
 	resp := &fwresource.ValidateConfigResponse{}
 	h.r.ValidateConfig(t.Context(), fwresource.ValidateConfigRequest{Config: h.config(cfg)}, resp)
-	if resp.Diagnostics.HasError() || resp.Diagnostics.WarningsCount() != 1 {
-		t.Fatalf("want one warning, got %v", resp.Diagnostics)
+	if resp.Diagnostics.ErrorsCount() != 1 {
+		t.Fatalf("want one error, got %v", resp.Diagnostics)
 	}
 
 	cfg.HealthCheckPort = types.Int64Value(8081)
@@ -280,6 +282,32 @@ func TestContainerAppNoPortHealthCheckWarns(t *testing.T) {
 	h.r.ValidateConfig(t.Context(), fwresource.ValidateConfigRequest{Config: h.config(cfg)}, resp)
 	if len(resp.Diagnostics) != 0 {
 		t.Errorf("a health check with its own port still warns: %v", resp.Diagnostics)
+	}
+}
+
+// A new app declared with neither `ports` nor `port` listens on no port, so
+// its plan refuses a health check without a port; an existing app keeps its
+// ports, and is left alone.
+func TestNewAppWithoutPortsRefusesAHealthCheckWithoutPort(t *testing.T) {
+	h := newHarness(t)
+	cfg := literalApp(h.f)
+	cfg.HealthCheckPath = types.StringValue("/healthz")
+
+	modify := func(state tfsdk.State) diag.Diagnostics {
+		resp := &fwresource.ModifyPlanResponse{Plan: h.plan(cfg)}
+		h.r.ModifyPlan(t.Context(), fwresource.ModifyPlanRequest{Config: h.config(cfg), Plan: h.plan(cfg), State: state}, resp)
+		return resp.Diagnostics
+	}
+	if d := modify(h.empty()); d.ErrorsCount() != 1 {
+		t.Fatalf("new app without ports: want one error, got %v", d)
+	}
+	existing := tfsdk.State(h.plan(cfg))
+	if d := modify(existing); d.HasError() {
+		t.Errorf("existing app: want no error, got %v", d)
+	}
+	cfg.Port = types.Int64Value(8080)
+	if d := modify(h.empty()); d.HasError() {
+		t.Errorf("new app with the deprecated port: want no error, got %v", d)
 	}
 }
 

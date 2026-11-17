@@ -241,7 +241,7 @@ output "orders_image" {
 - `env_vars` (Attributes List) Environment variables of the main container, each set from exactly one of `value` and `secret`. A value may reference an earlier plain variable as `$(NAME)`, but not a secret-backed one: those are set after every plain variable. (see [below for nested schema](#nestedatt--env_vars))
 - `expose_to_internet` (Boolean) Whether the app gets public routes (its platform host and custom domains), served by its primary `HTTP` port. Defaults to false: reachable in-cluster only. An app with `ports = []` cannot be exposed.
 - `file_mounts` (Attributes List) Files mounted into the container. Inline content is limited to 8 KiB per file and 32 KiB in all, and is stored in plain text in state. (see [below for nested schema](#nestedatt--file_mounts))
-- `health_check_path` (String) HTTP path probed for health, on `health_check_port` or else the primary port. An app with `ports = []` has no primary port, so without `health_check_port` it is not probed.
+- `health_check_path` (String) HTTP path probed for health, on `health_check_port` or else the primary port. An app that listens on no port (`ports = []`, or a new app with neither `ports` nor `port`) has no primary port, so it needs `health_check_port`.
 - `health_check_port` (Number) Port probed for health. Requires `health_check_path`.
 - `image_pull_secrets` (List of String) Names of organization-wide secrets holding registry credentials for pulling the app's images.
 - `image_repository` (String) Image repository. Required unless `image_source` is set.
