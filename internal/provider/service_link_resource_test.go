@@ -5,8 +5,10 @@ package provider
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -245,5 +247,36 @@ func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
 				t.Errorf("link kind %q is not a value the API accepts", kind)
 			}
 		}
+	}
+}
+
+// A link to an app declared with `ports = []` is refused before it is created:
+// the platform would accept it and never open it.
+func TestServiceLinkToAnAppWithNoPort(t *testing.T) {
+	f, pd := newFakeAPI(t)
+	appID := uuid.New()
+	ports := []console.ContainerAppPortResponse{}
+	f.on("GET", `/harbors/[^/]+/container-apps`, func(string, []byte) (int, any) {
+		return 200, []console.ContainerAppResponse{{Id: appID, Slug: "worker", Name: "worker"}}
+	})
+	f.on("GET", `/container-apps/[^/]+/crd`, func(string, []byte) (int, any) {
+		return 200, console.ContainerAppCrdSpecResponse{Ports: ports}
+	})
+	r := &serviceLinkResource{p: pd}
+	target := console.ServiceRef{Kind: console.ServiceLinkKindContainerApp, Name: "worker"}
+
+	err := r.checkListensOnAPort(t.Context(), f.env.String(), target)
+	if err == nil || !strings.Contains(err.Error(), "listens on no port") {
+		t.Errorf("link to an app with no port: err = %v", err)
+	}
+
+	ports = []console.ContainerAppPortResponse{{ContainerPort: 8080, Protocol: console.PortProtocolTCP, Primary: true}}
+	if err := r.checkListensOnAPort(t.Context(), f.env.String(), target); err != nil {
+		t.Errorf("link to an app with a port refused: %v", err)
+	}
+
+	missing := console.ServiceRef{Kind: console.ServiceLinkKindContainerApp, Name: "not-yet"}
+	if err := r.checkListensOnAPort(t.Context(), f.env.String(), missing); err != nil {
+		t.Errorf("an app the lookup cannot find is left to the platform, got %v", err)
 	}
 }

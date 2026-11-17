@@ -78,8 +78,8 @@ output "app_env" {
 - `memory_request` (String) Memory request of each replica.
 - `metrics` (Attributes) Where the app serves Prometheus metrics, or null. (see [below for nested schema](#nestedatt--metrics))
 - `phase` (String) Current lifecycle phase.
-- `port` (Number) **Deprecated — use `ports`.** The primary port of the app.
-- `ports` (Attributes List) Every port the app publishes. (see [below for nested schema](#nestedatt--ports))
+- `port` (Number) **Deprecated — use `ports`.** The primary port of the app, null when it listens on no port.
+- `ports` (Attributes List) Every port the app publishes; empty for an app that listens on no port, such as a queue worker. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Desired replica count.
 - `resolved_image` (String) The image a Git source resolved and runs, as `repository:tag@digest`.
 - `resolved_ref` (String) The branch followed, or the tag a Git source's `tag_pattern` selected.

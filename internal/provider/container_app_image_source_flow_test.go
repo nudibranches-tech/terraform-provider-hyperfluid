@@ -30,12 +30,14 @@ import (
 // it sends.
 type fakeConsole struct {
 	t      *testing.T
+	url    string
 	org    uuid.UUID
 	harbor uuid.UUID
 	appID  uuid.UUID
 
 	mu       sync.Mutex
 	exists   bool
+	deleted  bool
 	meta     console.ContainerAppResponse // display name, slug, description and tags
 	noBody   bool                         // answer a create without the app's id, like an older console
 	spec     console.ContainerAppCrdSpecResponse
@@ -45,6 +47,9 @@ type fakeConsole struct {
 
 	noCommandOverride bool  // the organization lacks the command override feature
 	autoscaledTo      int32 // replicas an autoscaler runs; 0 = what the spec asks
+
+	declaredPorts *[]console.ContainerAppPortInput // the spec's `ports`; nil = absent
+	legacyPort    *int32                           // the spec's deprecated `port`
 }
 
 type fakeRequest struct {
@@ -58,6 +63,7 @@ func newFakeConsole(t *testing.T) (*fakeConsole, *providerData) {
 	f.meta = console.ContainerAppResponse{Name: "orders-api", Slug: "orders-api", Tags: []string{}}
 	srv := httptest.NewServer(http.HandlerFunc(f.serve))
 	t.Cleanup(srv.Close)
+	f.url = srv.URL
 	api, err := client.New(srv.URL, srv.Client())
 	if err != nil {
 		t.Fatalf("client: %v", err)
@@ -109,6 +115,11 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 
 	p := r.URL.Path
 	switch {
+	case r.Method == http.MethodDelete && strings.HasSuffix(p, "/crd"):
+		f.deleted = true
+		reply(204, nil)
+	case r.Method == http.MethodGet && f.deleted:
+		reply(404, map[string]string{"message": "container app not found"})
 	case r.Method == http.MethodPost && strings.HasSuffix(p, "/container-apps/crd"):
 		var req console.CreateContainerAppCrdRequestBody
 		if err := json.Unmarshal(body, &req); err != nil {
@@ -140,6 +151,8 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 			reply(403, map[string]string{"message": commandOverrideRefusal})
 			return
 		}
+		f.legacyPort = req.Port
+		f.applyPorts(req.Ports, true)
 		f.applyWorkload(req.Env, req.SecretRefs, req.ImagePullSecrets, req.Command, req.Args, req.InitContainers)
 		f.spec.ResourceMode = console.ResourceModeAdvisory
 		f.applyScaling(req.FileMounts, req.CustomDomains, req.CustomResources, req.ResourceMode, req.Autoscaling, nil, req.Metrics, nil)
@@ -206,6 +219,10 @@ func (f *fakeConsole) serve(w http.ResponseWriter, r *http.Request) {
 		if req.Replicas != nil {
 			f.spec.Replicas = *req.Replicas
 		}
+		if req.Port != nil {
+			f.legacyPort = req.Port
+		}
+		f.applyPorts(req.Ports, false)
 		if req.ImageSource != nil {
 			f.attach(req.ImageSource)
 		}
@@ -318,6 +335,49 @@ func (f *fakeConsole) applyWorkload(
 			})
 		}
 		f.spec.InitContainers = &out
+	}
+}
+
+// applyPorts follows the console: a `ports` array, empty included, replaces
+// the list; absent, a PATCH keeps it and a create leaves the field off. The
+// spec is then read back as the GET reports it, with the legacy single port
+// folded in while `ports` is absent.
+func (f *fakeConsole) applyPorts(ports *[]console.ContainerAppPortInput, create bool) {
+	if ports != nil || create {
+		f.declaredPorts = ports
+	}
+	f.spec.Ports = []console.ContainerAppPortResponse{}
+	f.spec.Port = nil
+	if f.declaredPorts == nil {
+		legacy := int32(8080)
+		if f.legacyPort != nil {
+			legacy = *f.legacyPort
+		}
+		f.spec.Ports = append(f.spec.Ports, console.ContainerAppPortResponse{
+			ContainerPort: legacy, Protocol: console.PortProtocolTCP, AppProtocol: ptr(console.AppProtocolHttp), Primary: true,
+		})
+		f.spec.Port = &legacy
+		return
+	}
+	for _, p := range *f.declaredPorts {
+		out := console.ContainerAppPortResponse{
+			Name: ptr(p.Name), ContainerPort: p.ContainerPort, Protocol: console.PortProtocolTCP,
+			AppProtocol: p.AppProtocol, Primary: p.Primary != nil && *p.Primary,
+		}
+		if p.Protocol != nil {
+			out.Protocol = *p.Protocol
+		}
+		if len(*f.declaredPorts) == 1 && p.AppProtocol != nil && p.Primary == nil {
+			out.Primary = true
+		}
+		f.spec.Ports = append(f.spec.Ports, out)
+		if out.Primary {
+			f.spec.Port = &out.ContainerPort
+		}
+	}
+	// The console keeps reporting a stale legacy port next to an empty list.
+	if len(*f.declaredPorts) == 0 {
+		f.spec.Port = f.legacyPort
 	}
 }
 
