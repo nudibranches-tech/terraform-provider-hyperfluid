@@ -180,7 +180,8 @@ func (r *serviceLinkResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"target_ports": schema.SetNestedAttribute{
 				Optional: true,
 				MarkdownDescription: "Ports of a `ContainerApp` target to open; omitted, the platform opens the " +
-					"target's primary port. Changing this forces a new link.",
+					"target's primary port. An app with `ports = []` listens on nothing and cannot be a target, " +
+					"though it can be a `consumer`. Changing this forces a new link.",
 				PlanModifiers: []planmodifier.Set{setplanmodifier.RequiresReplace()},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -279,6 +280,11 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 	if len(ports) > 0 {
 		if err := r.checkPortsDeclared(ctx, env, target, ports); err != nil {
 			resp.Diagnostics.AddAttributeError(path.Root("target_ports"), "Target port not published by the app", err.Error())
+			return
+		}
+	} else if target.Kind == console.ServiceLinkKindContainerApp {
+		if err := r.checkListensOnAPort(ctx, env, target); err != nil {
+			resp.Diagnostics.AddAttributeError(path.Root("target"), "Target app listens on no port", err.Error())
 			return
 		}
 	}
@@ -417,6 +423,17 @@ func (r *serviceLinkResource) checkPortsDeclared(ctx context.Context, env string
 	if want := firstUndeclaredPort(requested, declared); want != nil {
 		return fmt.Errorf("container app %q does not publish %s/%d — it publishes %s",
 			target.Name, want.Protocol, want.Port, formatPorts(declared))
+	}
+	return nil
+}
+
+// checkListensOnAPort refuses a target app declared with `ports = []`: the
+// platform accepts the link but can never open it, so the apply would only time
+// out. A failed lookup is left for the platform to report.
+func (r *serviceLinkResource) checkListensOnAPort(ctx context.Context, env string, target console.ServiceRef) error {
+	if declared, err := r.p.API.ContainerAppDeclaredPorts(ctx, r.p.OrgID, env, target.Name); err == nil && len(declared) == 0 {
+		return fmt.Errorf("container app %q listens on no port (ports = []), so there is nothing for a link to open. "+
+			"An app with no port can still reach other services as a link's consumer", target.Name)
 	}
 	return nil
 }

@@ -134,7 +134,7 @@ output "open_ports" {
 
 ### Optional
 
-- `target_ports` (Attributes Set) Ports of a `ContainerApp` target to open; omitted, the platform opens the target's primary port. Changing this forces a new link. (see [below for nested schema](#nestedatt--target_ports))
+- `target_ports` (Attributes Set) Ports of a `ContainerApp` target to open; omitted, the platform opens the target's primary port. An app with `ports = []` listens on nothing and cannot be a target, though it can be a `consumer`. Changing this forces a new link. (see [below for nested schema](#nestedatt--target_ports))
 
 ### Read-Only
 

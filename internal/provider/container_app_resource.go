@@ -250,8 +250,8 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"port": schema.Int64Attribute{
 				Optional: true, Computed: true,
 				MarkdownDescription: "**Deprecated — use `ports`.** Single container port; conflicts with `ports` and is " +
-					"ignored once the app has them.",
-				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+					"ignored once the app has them. Reads as the primary port, null for an app with `ports = []`.",
+				PlanModifiers: []planmodifier.Int64{primaryPortFollowsPorts{}},
 			},
 			"replicas": schema.Int64Attribute{
 				Optional: true, Computed: true,
@@ -265,8 +265,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"expose_to_internet": schema.BoolAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Whether the app gets public routes (its platform host and custom domains). Defaults to false: reachable in-cluster only.",
-				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Whether the app gets public routes (its platform host and custom domains), served by its primary " +
+					"`HTTP` port. Defaults to false: reachable in-cluster only. An app with `ports = []` cannot be exposed.",
+				Default: booldefault.StaticBool(false),
 			},
 			"resource_tier": schema.StringAttribute{
 				Optional:            true,
@@ -276,8 +277,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 				},
 			},
 			"health_check_path": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "HTTP path probed for health.",
+				Optional: true,
+				MarkdownDescription: "HTTP path probed for health, on `health_check_port` or else the primary port. An app with " +
+					"`ports = []` has no primary port, so without `health_check_port` it is not probed.",
 			},
 			"health_check_port": schema.Int64Attribute{
 				Optional:            true,
@@ -296,7 +298,10 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			"available_replicas": schema.Int64Attribute{Computed: true, MarkdownDescription: "Replicas currently available."},
 			"ports": schema.ListNestedAttribute{
 				Optional: true, Computed: true,
-				MarkdownDescription: "Ports the container listens on, at most 16. Only the `primary` port gets a public route.",
+				MarkdownDescription: "Ports the container listens on, at most 16. Only the `primary` port gets a public route. " +
+					"`[]` declares an app that listens on no port: no other application or internet visitor can reach it, it " +
+					"gets no default health probe, and it cannot be the target of a `hyperfluid_service_link`. Left out, a new " +
+					"app listens on the deprecated `port` if set, else on no port, and an existing app keeps its ports.",
 				Validators: []validator.List{
 					listvalidator.ConflictsWith(path.MatchRoot("port")),
 					listvalidator.SizeAtMost(maxPortEntries),
@@ -463,9 +468,20 @@ func (r *containerAppResource) ValidateConfig(ctx context.Context, req resource.
 			"An app declaring several ports must mark exactly one HTTP port primary, so the platform knows which one its routes and health probe target.")
 	}
 	if cfg.ExposeToInternet.ValueBool() && httpPorts == 0 {
-		resp.Diagnostics.AddAttributeError(path.Root("expose_to_internet"), "Nothing to expose",
-			"The app publishes no HTTP port, so there is nothing the platform ingress can route to and the app would stay unreachable. "+
-				"Give a port protocol HTTP, or leave expose_to_internet off — raw TCP and UDP ports are reachable in-cluster through the app's Service.")
+		detail := "The app publishes no HTTP port, so there is nothing the platform ingress can route to and the app would stay unreachable. " +
+			"Give a port protocol HTTP, or leave expose_to_internet off — raw TCP and UDP ports are reachable in-cluster through the app's Service."
+		if len(ports) == 0 {
+			detail = "ports = [] declares an app that listens on no port, so there is nothing the platform ingress can route to. " +
+				"Declare an HTTP port, or leave expose_to_internet off."
+		}
+		resp.Diagnostics.AddAttributeError(path.Root("expose_to_internet"), "Nothing to expose", detail)
+	}
+	// The platform probes the primary port by default and silently renders no
+	// probe when there is none.
+	if len(ports) == 0 && !cfg.HealthCheckPath.IsNull() && cfg.HealthCheckPort.IsNull() {
+		resp.Diagnostics.AddAttributeWarning(path.Root("health_check_path"), "Health check not probed",
+			"ports = [] leaves the app with no primary port to probe, so health_check_path has no effect. "+
+				"Set health_check_port to the port the health endpoint listens on, or remove health_check_path.")
 	}
 }
 
@@ -546,7 +562,7 @@ func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	// `ports` replaces `port`, so only one of the two is ever sent.
 	if ports != nil {
-		body.Ports = &ports
+		body.Ports = ports
 		body.Port = nil
 	}
 	if tags != nil {
@@ -616,8 +632,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 
 	// The config, not the plan: `ports` is Optional+Computed, so the plan carries
 	// the prior value when the config omits it, and PATCH distinguishes the two —
-	// an omitted `ports` leaves the existing entries alone, an empty one clears
-	// them, a non-empty one replaces the list.
+	// an omitted `ports` leaves the existing entries alone, any list replaces them.
 	ports, d := portInputs(ctx, cfg.Ports)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
@@ -663,7 +678,7 @@ func (r *containerAppResource) Update(ctx context.Context, req resource.UpdateRe
 		body.ResourceTier = &tier
 	}
 	if ports != nil {
-		body.Ports = &ports
+		body.Ports = ports
 		body.Port = nil
 	}
 	// An omitted path leaves the health check alone, so removing one is explicit.
@@ -916,8 +931,10 @@ func containerAppPorts(ctx context.Context, ports []console.ContainerAppPortResp
 }
 
 // portInputs converts a configured `ports` into the API input. Returns nil when
-// the config leaves it out, which the caller sends as an absent field.
-func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPortInput, diag.Diagnostics) {
+// the config leaves it out, which the caller sends as an absent field, and a
+// pointer to an empty slice for `ports = []`, which is sent as `[]`: the API
+// reads that as an app listening on no port.
+func portInputs(ctx context.Context, list types.List) (*[]console.ContainerAppPortInput, diag.Diagnostics) {
 	if list.IsNull() || list.IsUnknown() {
 		return nil, nil
 	}
@@ -932,7 +949,12 @@ func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPor
 			Name:          m.Name.ValueString(),
 			ContainerPort: int32(m.Port.ValueInt64()),
 		}
-		if wire, ok := wireProtocols[m.Protocol.ValueString()]; ok {
+		protocol := m.Protocol.ValueString()
+		// Read from the config, which does not carry the schema's default.
+		if m.Protocol.IsNull() {
+			protocol = "HTTP"
+		}
+		if wire, ok := wireProtocols[protocol]; ok {
 			in.Protocol = &wire.protocol
 			in.AppProtocol = wire.appProtocol
 		}
@@ -941,13 +963,18 @@ func portInputs(ctx context.Context, list types.List) ([]console.ContainerAppPor
 		}
 		out = append(out, in)
 	}
-	return out, d
+	return &out, d
 }
 
 // primaryPort reads the single port this schema exposes. The API's `port` is
 // deprecated in favour of `ports`, and is null for an app whose ports were set
 // through the newer field, so fall back to the entry flagged primary.
 func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
+	// The API folds a legacy single port into `ports`, so an empty list is an app
+	// listening on no port, whatever stale legacy `port` its spec still carries.
+	if len(spec.Ports) == 0 {
+		return types.Int64Null()
+	}
 	if spec.Port != nil {
 		return types.Int64Value(int64(*spec.Port))
 	}
@@ -957,6 +984,36 @@ func primaryPort(spec *console.ContainerAppCrdSpecResponse) types.Int64 {
 		}
 	}
 	return types.Int64Null()
+}
+
+// primaryPortFollowsPorts plans the computed `port` from state only while
+// `ports` stays as it is: a new list can move or drop the primary port, which
+// state would then contradict after apply.
+type primaryPortFollowsPorts struct{}
+
+func (primaryPortFollowsPorts) Description(context.Context) string {
+	return "Keeps the prior value unless the configured ports change."
+}
+
+func (m primaryPortFollowsPorts) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (primaryPortFollowsPorts) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
+	if !req.PlanValue.IsUnknown() || req.StateValue.IsUnknown() || req.State.Raw.IsNull() || req.Plan.Raw.IsNull() {
+		return
+	}
+	var cfgPorts, planPorts, statePorts types.List
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("ports"), &cfgPorts)...)
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("ports"), &planPorts)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("ports"), &statePorts)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// An omitted `ports` is never sent, so the app keeps its primary port.
+	if cfgPorts.IsNull() || planPorts.Equal(statePorts) {
+		resp.PlanValue = req.StateValue
+	}
 }
 
 // importedApp is the prior model of an app read with nothing to carry over, as

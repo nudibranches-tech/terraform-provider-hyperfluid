@@ -82,6 +82,24 @@ resource "hyperfluid_container_app" "api" {
   # args    = ["serve", "--port", "8080"]
 }
 
+# An app with `ports = []` listens on no port: no other application or internet
+# visitor can reach it, and it gets no health probe. It cannot be exposed or be a
+# link's target, but it can reach other services as the consumer of a
+# `hyperfluid_service_link`.
+resource "hyperfluid_container_app" "orders_worker" {
+  env              = data.hyperfluid_environment.default.id
+  slug             = "orders-worker"
+  image_repository = "ghcr.io/acme/orders-worker"
+  image_tag        = "2.3.0"
+  ports            = []
+  replicas         = 2
+  resource_tier    = "small"
+
+  env_vars = [
+    { name = "CELERY_BROKER_URL", value = "redis://orders-cache:6379/0" },
+  ]
+}
+
 # Sizing, scaling, files, domains and metrics. Like the lists above, `file_mounts`,
 # `custom_domains`, `autoscaling` and `metrics` are managed once applied and left
 # to the app while they never were.

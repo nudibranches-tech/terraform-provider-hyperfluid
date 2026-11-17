@@ -103,6 +103,24 @@ resource "hyperfluid_container_app" "api" {
   # args    = ["serve", "--port", "8080"]
 }
 
+# An app with `ports = []` listens on no port: no other application or internet
+# visitor can reach it, and it gets no health probe. It cannot be exposed or be a
+# link's target, but it can reach other services as the consumer of a
+# `hyperfluid_service_link`.
+resource "hyperfluid_container_app" "orders_worker" {
+  env              = data.hyperfluid_environment.default.id
+  slug             = "orders-worker"
+  image_repository = "ghcr.io/acme/orders-worker"
+  image_tag        = "2.3.0"
+  ports            = []
+  replicas         = 2
+  resource_tier    = "small"
+
+  env_vars = [
+    { name = "CELERY_BROKER_URL", value = "redis://orders-cache:6379/0" },
+  ]
+}
+
 # Sizing, scaling, files, domains and metrics. Like the lists above, `file_mounts`,
 # `custom_domains`, `autoscaling` and `metrics` are managed once applied and left
 # to the app while they never were.
@@ -221,9 +239,9 @@ output "orders_image" {
 - `display_name` (String) Name shown in the console, at most 255 characters. Defaults to the slug.
 - `enabled` (Boolean) Whether the app is running. Defaults to true.
 - `env_vars` (Attributes List) Environment variables of the main container, each set from exactly one of `value` and `secret`. A value may reference an earlier plain variable as `$(NAME)`, but not a secret-backed one: those are set after every plain variable. (see [below for nested schema](#nestedatt--env_vars))
-- `expose_to_internet` (Boolean) Whether the app gets public routes (its platform host and custom domains). Defaults to false: reachable in-cluster only.
+- `expose_to_internet` (Boolean) Whether the app gets public routes (its platform host and custom domains), served by its primary `HTTP` port. Defaults to false: reachable in-cluster only. An app with `ports = []` cannot be exposed.
 - `file_mounts` (Attributes List) Files mounted into the container. Inline content is limited to 8 KiB per file and 32 KiB in all, and is stored in plain text in state. (see [below for nested schema](#nestedatt--file_mounts))
-- `health_check_path` (String) HTTP path probed for health.
+- `health_check_path` (String) HTTP path probed for health, on `health_check_port` or else the primary port. An app with `ports = []` has no primary port, so without `health_check_port` it is not probed.
 - `health_check_port` (Number) Port probed for health. Requires `health_check_path`.
 - `image_pull_secrets` (List of String) Names of organization-wide secrets holding registry credentials for pulling the app's images.
 - `image_repository` (String) Image repository. Required unless `image_source` is set.
@@ -232,8 +250,8 @@ output "orders_image" {
 - `init_containers` (Attributes List) Containers run in order before the app starts, at most 4. Setting this replaces any init containers an app template added. (see [below for nested schema](#nestedatt--init_containers))
 - `metrics` (Attributes) Where the app serves Prometheus metrics for the platform to scrape. (see [below for nested schema](#nestedatt--metrics))
 - `name` (String, Deprecated) The app's slug, under its former name. Use `slug` instead. Changing this forces a new app.
-- `port` (Number) **Deprecated — use `ports`.** Single container port; conflicts with `ports` and is ignored once the app has them.
-- `ports` (Attributes List) Ports the container listens on, at most 16. Only the `primary` port gets a public route. (see [below for nested schema](#nestedatt--ports))
+- `port` (Number) **Deprecated — use `ports`.** Single container port; conflicts with `ports` and is ignored once the app has them. Reads as the primary port, null for an app with `ports = []`.
+- `ports` (Attributes List) Ports the container listens on, at most 16. Only the `primary` port gets a public route. `[]` declares an app that listens on no port: no other application or internet visitor can reach it, it gets no default health probe, and it cannot be the target of a `hyperfluid_service_link`. Left out, a new app listens on the deprecated `port` if set, else on no port, and an existing app keeps its ports. (see [below for nested schema](#nestedatt--ports))
 - `replicas` (Number) Number of replicas, at most 5. Conflicts with `autoscaling`.
 - `resource_mode` (String) Whether the console shows CPU rightsizing advice: `advisory` (default) shows it, `manual` and `managed` hide it.
 - `resource_tier` (String) Size of each replica: `nano`, `micro`, `small`, `medium`, `large` or `xlarge`. Conflicts with `custom_resources`.

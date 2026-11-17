@@ -4,6 +4,14 @@ FEATURES:
 
 * **New Resource:** `hyperfluid_agent_widget` — the public web widget of an agent: one `<script>` tag that puts it in a chat bubble on any site, for anonymous visitors. Creating it enables the widget, updating it sends the whole configuration again (an argument removed from the configuration is cleared), and destroying it disables it; the agent is untouched. Arguments: `allowed_origins` or an explicit `allow_any_origin`, the required https `privacy_url`, `title`, `greeting`, `colour`, `suggestions`, `lang`, `session_retention_hours` and `max_question_length`. `embed_snippet` is the tag to paste, built from the provider's `endpoint`, with the computed `widget_id`, `phase`, `script_floating_path`, `script_pinned_path`, `script_integrity` (for a tag with Subresource Integrity), `effective_max_question_length`, `warnings` and `ineligible_reason`. Rotation is opt-in: a new `rotation_trigger` value gives the widget a new id, which changes `embed_snippet`; disabling and enabling again keeps the id. The pinned script path changes on every console upgrade and is refreshed without planning a change. The platform's refusals (a capability, a tool list empty or holding general `hfctl`, a service account with write rights, a missing privacy URL) are reported in its own words, and its warnings are shown on apply. A widget disabled outside Terraform leaves the state, and the next apply enables it again. Imported by agent id. Needs the `sapience_agent_enabled` feature.
 
+* resource/hyperfluid_container_app: `ports = []` declares an app that listens on no port: no other application or internet visitor can reach it, it gets no default health probe, and `port` reads as null. Left out, a new app listens on the deprecated `port` if set, else on no port (it used to get 8080), and an existing app keeps its ports. Exposing an app with no port is refused at plan time, and a `health_check_path` without `health_check_port` on one is reported as never probed.
+* resource/hyperfluid_service_link: a `ContainerApp` target that listens on no port is refused before the link is created, instead of the apply waiting on a link the platform can never open. Such an app can still be a link's `consumer`.
+
+BUG FIXES:
+
+* resource/hyperfluid_container_app: a change to `ports` that moves or removes the primary port no longer fails the apply with "Provider produced inconsistent result": the computed `port` is planned from state only while `ports` is unchanged.
+* resource/hyperfluid_container_app: a port whose `protocol` is left to its `HTTP` default is created as an `HTTP` port. It was sent with no protocol, which the platform stores as raw `TCP`, so the apply failed with "Provider produced inconsistent result" and the port got no public route.
+
 ## 0.12.0 (November 12, 2026)
 
 BREAKING CHANGES:

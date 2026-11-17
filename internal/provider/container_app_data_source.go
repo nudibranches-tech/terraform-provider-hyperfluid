@@ -64,7 +64,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"id":                 cs("App id."),
 			"image_repository":   cs("Container image repository."),
 			"image_tag":          cs("Container image tag."),
-			"port":               ci("**Deprecated — use `ports`.** The primary port of the app."),
+			"port":               ci("**Deprecated — use `ports`.** The primary port of the app, null when it listens on no port."),
 			"replicas":           ci("Desired replica count."),
 			"enabled":            schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the app is running."},
 			"expose_to_internet": schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether internet-facing routes are created for the app."},
@@ -110,7 +110,7 @@ func (d *containerAppDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"sync_error":     cs("Why the last check failed, or null."),
 			"ports": schema.ListNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "Every port the app publishes.",
+				MarkdownDescription: "Every port the app publishes; empty for an app that listens on no port, such as a queue worker.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name":     cs("Port name, or null for an app still on the single-`port` form."),
