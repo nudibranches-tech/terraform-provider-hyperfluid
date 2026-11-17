@@ -63497,7 +63497,7 @@
           "port": {
             "type": "integer",
             "format": "int32",
-            "description": "**Deprecated — use `ports`.** Written to the CR only when supplied, so\na request that omits it leaves the field off the spec entirely.",
+            "description": "**Deprecated — use `ports`.** With `ports` omitted, it becomes the\napp's single `http` port; it is never written to the CR itself.",
             "minimum": 0,
             "nullable": true
           },
@@ -63506,7 +63506,7 @@
             "items": {
               "$ref": "#/components/schemas/ContainerAppPortInput"
             },
-            "description": "Ports the container listens on. When present this replaces `port`; an\nempty array creates an app that listens on no port (a queue worker).\nOnly the primary port gets a public route; the others are reachable\nin-cluster through the app's Service.",
+            "description": "Ports the container listens on. When present this replaces `port`.\nOmitted along with `port`, or empty, the app listens on no port, which\nno other application or internet visitor can reach; an empty array is\nrefused beside `port`, and either is refused with a health check that\nhas no port to probe.\nOnly the primary port gets a public route; the others are reachable\nin-cluster through the app's Service.",
             "nullable": true
           },
           "replicas": {
@@ -79696,7 +79696,7 @@
           "port": {
             "type": "integer",
             "format": "int32",
-            "description": "**Deprecated — use `ports`.** Ignored by the operator once the spec\ncarries `ports`.",
+            "description": "**Deprecated — use `ports`.** On an app without `ports` it becomes the\napp's single `http` port; once the app has `ports` it is ignored. It is\nnever written to the CR itself.",
             "minimum": 0,
             "nullable": true
           },
@@ -79705,7 +79705,7 @@
             "items": {
               "$ref": "#/components/schemas/ContainerAppPortInput"
             },
-            "description": "Ports the container listens on. PATCH semantics: `null` (omit) leaves\nexisting entries alone; an array replaces the full list, an empty one\nleaving the app listening on no port (a queue worker).",
+            "description": "Ports the container listens on. PATCH semantics: `null` (omit) leaves\nexisting entries alone; an array replaces the full list and drops the\ndeprecated `port`, an empty one leaving the app listening on no port,\nwhich no other application or internet visitor can reach.",
             "nullable": true
           },
           "replicas": {

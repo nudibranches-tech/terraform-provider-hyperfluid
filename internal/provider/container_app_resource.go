@@ -41,6 +41,7 @@ import (
 var (
 	_ resource.Resource                     = &containerAppResource{}
 	_ resource.ResourceWithValidateConfig   = &containerAppResource{}
+	_ resource.ResourceWithModifyPlan       = &containerAppResource{}
 	_ resource.ResourceWithConfigValidators = &containerAppResource{}
 	_ resource.ResourceWithConfigure        = &containerAppResource{}
 	_ resource.ResourceWithImportState      = &containerAppResource{}
@@ -278,8 +279,9 @@ func (r *containerAppResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"health_check_path": schema.StringAttribute{
 				Optional: true,
-				MarkdownDescription: "HTTP path probed for health, on `health_check_port` or else the primary port. An app with " +
-					"`ports = []` has no primary port, so without `health_check_port` it is not probed.",
+				MarkdownDescription: "HTTP path probed for health, on `health_check_port` or else the primary port. An app " +
+					"that listens on no port (`ports = []`, or a new app with neither `ports` nor `port`) has no primary " +
+					"port, so it needs `health_check_port`.",
 			},
 			"health_check_port": schema.Int64Attribute{
 				Optional:            true,
@@ -476,13 +478,35 @@ func (r *containerAppResource) ValidateConfig(ctx context.Context, req resource.
 		}
 		resp.Diagnostics.AddAttributeError(path.Root("expose_to_internet"), "Nothing to expose", detail)
 	}
-	// The platform probes the primary port by default and silently renders no
-	// probe when there is none.
-	if len(ports) == 0 && !cfg.HealthCheckPath.IsNull() && cfg.HealthCheckPort.IsNull() {
-		resp.Diagnostics.AddAttributeWarning(path.Root("health_check_path"), "Health check not probed",
-			"ports = [] leaves the app with no primary port to probe, so health_check_path has no effect. "+
-				"Set health_check_port to the port the health endpoint listens on, or remove health_check_path.")
+	if len(ports) == 0 {
+		refuseHealthCheckWithoutPort(cfg, "ports = []", &resp.Diagnostics)
 	}
+}
+
+// ModifyPlan refuses on a new app what the platform refuses on create: declared
+// with neither `ports` nor `port`, it listens on no port.
+func (r *containerAppResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if !req.State.Raw.IsNull() || req.Plan.Raw.IsNull() {
+		return
+	}
+	var cfg containerAppModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() || !cfg.Ports.IsNull() || !cfg.Port.IsNull() {
+		return
+	}
+	refuseHealthCheckWithoutPort(cfg, "a new app with neither ports nor port", &resp.Diagnostics)
+}
+
+// refuseHealthCheckWithoutPort reports a health check on an app that listens on
+// no port: the platform probes the primary port by default, there is none, and
+// the console refuses the request.
+func refuseHealthCheckWithoutPort(cfg containerAppModel, why string, diags *diag.Diagnostics) {
+	if cfg.HealthCheckPath.IsNull() || cfg.HealthCheckPath.IsUnknown() || !cfg.HealthCheckPort.IsNull() {
+		return
+	}
+	diags.AddAttributeError(path.Root("health_check_path"), "Nothing to health-check",
+		why+" listens on no port, so the platform has no port to probe. "+
+			"Set health_check_port to the port the health endpoint listens on, or remove health_check_path.")
 }
 
 func (r *containerAppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
