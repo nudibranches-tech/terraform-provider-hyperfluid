@@ -4,7 +4,9 @@
 package client
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -111,6 +113,127 @@ func (c *Client) DeleteAlertChannel(ctx context.Context, orgID, id string) error
 		return nil
 	}
 	return statusErr("delete alert channel", resp.StatusCode(), resp.Body)
+}
+
+// ── Matrix bots ───────────────────────────────────────────────────────────
+
+func (c *Client) ListAlertMatrixBots(ctx context.Context, orgID string) ([]console.MatrixBotDto, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.ListAlertMatrixBotsWithResponse(ctx, org)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("list alert matrix bots", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, nil
+	}
+	return *resp.JSON200, nil
+}
+
+// GetAlertMatrixBot returns the bot with that id, or ErrNotFound.
+func (c *Client) GetAlertMatrixBot(ctx context.Context, orgID, id string) (*console.MatrixBotDto, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	bid, err := parseUUID("id", id)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.GetAlertMatrixBotWithResponse(ctx, org, bid)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("get alert matrix bot", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: get alert matrix bot: empty response")
+	}
+	return resp.JSON200, nil
+}
+
+// FindAlertMatrixBotByName returns the bot with that name, or ErrNotFound.
+func (c *Client) FindAlertMatrixBotByName(ctx context.Context, orgID, name string) (*console.MatrixBotDto, error) {
+	bots, err := c.ListAlertMatrixBots(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	return findByName(bots, name, func(b *console.MatrixBotDto) string { return b.Name })
+}
+
+func (c *Client) CreateAlertMatrixBot(ctx context.Context, orgID string, body console.MatrixBotBody) (*console.MatrixBotDto, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.CreateAlertMatrixBotWithResponse(ctx, org, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("create alert matrix bot", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: create alert matrix bot: empty response")
+	}
+	return resp.JSON200, nil
+}
+
+// UpdateAlertMatrixBot replaces the bot.
+func (c *Client) UpdateAlertMatrixBot(ctx context.Context, orgID, id string, body console.MatrixBotBody) (*console.MatrixBotDto, error) {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return nil, err
+	}
+	bid, err := parseUUID("id", id)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.api.UpdateAlertMatrixBotWithResponse(ctx, org, bid, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := statusErr("update alert matrix bot", resp.StatusCode(), resp.Body); err != nil {
+		return nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("hyperfluid: update alert matrix bot: empty response")
+	}
+	return resp.JSON200, nil
+}
+
+// ErrMatrixBotInUse is returned when a Matrix bot cannot be deleted because a
+// channel still names it (409).
+var ErrMatrixBotInUse = errors.New("hyperfluid: the Matrix bot is still named by an alert channel")
+
+// DeleteAlertMatrixBot removes the bot. The API answers 409 while a channel
+// still names it, which comes back as ErrMatrixBotInUse.
+func (c *Client) DeleteAlertMatrixBot(ctx context.Context, orgID, id string) error {
+	org, err := parseUUID("organization_id", orgID)
+	if err != nil {
+		return err
+	}
+	bid, err := parseUUID("id", id)
+	if err != nil {
+		return err
+	}
+	resp, err := c.api.DeleteAlertMatrixBotWithResponse(ctx, org, bid)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
+	}
+	if resp.StatusCode() == http.StatusConflict {
+		return fmt.Errorf("%w: %s", ErrMatrixBotInUse, bytes.TrimSpace(resp.Body))
+	}
+	return statusErr("delete alert matrix bot", resp.StatusCode(), resp.Body)
 }
 
 // ── Alert rules ───────────────────────────────────────────────────────────

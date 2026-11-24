@@ -388,6 +388,27 @@ func (e AtlasVisibility) Valid() bool {
 	}
 }
 
+// Defines values for AttemptStatus.
+const (
+	AttemptStatusBlocked   AttemptStatus = "blocked"
+	AttemptStatusCandidate AttemptStatus = "candidate"
+	AttemptStatusCovered   AttemptStatus = "covered"
+)
+
+// Valid indicates whether the value is a known member of the AttemptStatus enum.
+func (e AttemptStatus) Valid() bool {
+	switch e {
+	case AttemptStatusBlocked:
+		return true
+	case AttemptStatusCandidate:
+		return true
+	case AttemptStatusCovered:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AuditActorKind.
 const (
 	AuditActorKindPlatform       AuditActorKind = "platform"
@@ -537,13 +558,13 @@ func (e AuditLogEvent6Type) Valid() bool {
 
 // Defines values for AuditLogEvent7Type.
 const (
-	AuditLogEvent7TypeAuthzOrganizationPolicyRevoked AuditLogEvent7Type = "authz_organization_policy_revoked"
+	AuditLogEvent7TypeS3GatewayDelegated AuditLogEvent7Type = "s3_gateway_delegated"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent7Type enum.
 func (e AuditLogEvent7Type) Valid() bool {
 	switch e {
-	case AuditLogEvent7TypeAuthzOrganizationPolicyRevoked:
+	case AuditLogEvent7TypeS3GatewayDelegated:
 		return true
 	default:
 		return false
@@ -552,13 +573,13 @@ func (e AuditLogEvent7Type) Valid() bool {
 
 // Defines values for AuditLogEvent8Type.
 const (
-	AuditLogEvent8TypeAuthzBreakGlassUsed AuditLogEvent8Type = "authz_break_glass_used"
+	AuditLogEvent8TypeAuthzOrganizationPolicyRevoked AuditLogEvent8Type = "authz_organization_policy_revoked"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent8Type enum.
 func (e AuditLogEvent8Type) Valid() bool {
 	switch e {
-	case AuditLogEvent8TypeAuthzBreakGlassUsed:
+	case AuditLogEvent8TypeAuthzOrganizationPolicyRevoked:
 		return true
 	default:
 		return false
@@ -567,13 +588,13 @@ func (e AuditLogEvent8Type) Valid() bool {
 
 // Defines values for AuditLogEvent9Type.
 const (
-	AuditLogEvent9TypePlatformAdminAction AuditLogEvent9Type = "platform_admin_action"
+	AuditLogEvent9TypeAuthzBreakGlassUsed AuditLogEvent9Type = "authz_break_glass_used"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent9Type enum.
 func (e AuditLogEvent9Type) Valid() bool {
 	switch e {
-	case AuditLogEvent9TypePlatformAdminAction:
+	case AuditLogEvent9TypeAuthzBreakGlassUsed:
 		return true
 	default:
 		return false
@@ -582,13 +603,13 @@ func (e AuditLogEvent9Type) Valid() bool {
 
 // Defines values for AuditLogEvent10Type.
 const (
-	AuditLogEvent10TypeRuntimeSecurityAlert AuditLogEvent10Type = "runtime_security_alert"
+	AuditLogEvent10TypePlatformAdminAction AuditLogEvent10Type = "platform_admin_action"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent10Type enum.
 func (e AuditLogEvent10Type) Valid() bool {
 	switch e {
-	case AuditLogEvent10TypeRuntimeSecurityAlert:
+	case AuditLogEvent10TypePlatformAdminAction:
 		return true
 	default:
 		return false
@@ -597,13 +618,13 @@ func (e AuditLogEvent10Type) Valid() bool {
 
 // Defines values for AuditLogEvent11Type.
 const (
-	AuditLogEvent11TypeTrinoQueryCompleted AuditLogEvent11Type = "trino_query_completed"
+	AuditLogEvent11TypeRuntimeSecurityAlert AuditLogEvent11Type = "runtime_security_alert"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent11Type enum.
 func (e AuditLogEvent11Type) Valid() bool {
 	switch e {
-	case AuditLogEvent11TypeTrinoQueryCompleted:
+	case AuditLogEvent11TypeRuntimeSecurityAlert:
 		return true
 	default:
 		return false
@@ -612,13 +633,13 @@ func (e AuditLogEvent11Type) Valid() bool {
 
 // Defines values for AuditLogEvent12Type.
 const (
-	AuditLogEvent12TypeWorkstationAgentRequest AuditLogEvent12Type = "workstation_agent_request"
+	AuditLogEvent12TypeTrinoQueryCompleted AuditLogEvent12Type = "trino_query_completed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent12Type enum.
 func (e AuditLogEvent12Type) Valid() bool {
 	switch e {
-	case AuditLogEvent12TypeWorkstationAgentRequest:
+	case AuditLogEvent12TypeTrinoQueryCompleted:
 		return true
 	default:
 		return false
@@ -627,13 +648,13 @@ func (e AuditLogEvent12Type) Valid() bool {
 
 // Defines values for AuditLogEvent13Type.
 const (
-	AuditLogEvent13TypeWorkstationTerminalCommand AuditLogEvent13Type = "workstation_terminal_command"
+	AuditLogEvent13TypeWorkstationAgentRequest AuditLogEvent13Type = "workstation_agent_request"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent13Type enum.
 func (e AuditLogEvent13Type) Valid() bool {
 	switch e {
-	case AuditLogEvent13TypeWorkstationTerminalCommand:
+	case AuditLogEvent13TypeWorkstationAgentRequest:
 		return true
 	default:
 		return false
@@ -642,13 +663,13 @@ func (e AuditLogEvent13Type) Valid() bool {
 
 // Defines values for AuditLogEvent14Type.
 const (
-	AuditLogEvent14TypeWorkstationPreviewSession AuditLogEvent14Type = "workstation_preview_session"
+	AuditLogEvent14TypeWorkstationTerminalCommand AuditLogEvent14Type = "workstation_terminal_command"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent14Type enum.
 func (e AuditLogEvent14Type) Valid() bool {
 	switch e {
-	case AuditLogEvent14TypeWorkstationPreviewSession:
+	case AuditLogEvent14TypeWorkstationTerminalCommand:
 		return true
 	default:
 		return false
@@ -657,13 +678,13 @@ func (e AuditLogEvent14Type) Valid() bool {
 
 // Defines values for AuditLogEvent15Type.
 const (
-	AuditLogEvent15TypeWorkstationFileAccess AuditLogEvent15Type = "workstation_file_access"
+	AuditLogEvent15TypeWorkstationPreviewSession AuditLogEvent15Type = "workstation_preview_session"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent15Type enum.
 func (e AuditLogEvent15Type) Valid() bool {
 	switch e {
-	case AuditLogEvent15TypeWorkstationFileAccess:
+	case AuditLogEvent15TypeWorkstationPreviewSession:
 		return true
 	default:
 		return false
@@ -672,13 +693,13 @@ func (e AuditLogEvent15Type) Valid() bool {
 
 // Defines values for AuditLogEvent16Type.
 const (
-	AuditLogEvent16TypeManagedPostgresqlImportCreated AuditLogEvent16Type = "managed_postgresql_import_created"
+	AuditLogEvent16TypeWorkstationFileAccess AuditLogEvent16Type = "workstation_file_access"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent16Type enum.
 func (e AuditLogEvent16Type) Valid() bool {
 	switch e {
-	case AuditLogEvent16TypeManagedPostgresqlImportCreated:
+	case AuditLogEvent16TypeWorkstationFileAccess:
 		return true
 	default:
 		return false
@@ -687,13 +708,13 @@ func (e AuditLogEvent16Type) Valid() bool {
 
 // Defines values for AuditLogEvent17Type.
 const (
-	AuditLogEvent17TypeVirtualMachineConsoleSession AuditLogEvent17Type = "virtual_machine_console_session"
+	AuditLogEvent17TypeManagedPostgresqlImportCreated AuditLogEvent17Type = "managed_postgresql_import_created"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent17Type enum.
 func (e AuditLogEvent17Type) Valid() bool {
 	switch e {
-	case AuditLogEvent17TypeVirtualMachineConsoleSession:
+	case AuditLogEvent17TypeManagedPostgresqlImportCreated:
 		return true
 	default:
 		return false
@@ -702,13 +723,13 @@ func (e AuditLogEvent17Type) Valid() bool {
 
 // Defines values for AuditLogEvent18Type.
 const (
-	AuditLogEvent18TypeContainerAppImageSynced AuditLogEvent18Type = "container_app_image_synced"
+	AuditLogEvent18TypeVirtualMachineConsoleSession AuditLogEvent18Type = "virtual_machine_console_session"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent18Type enum.
 func (e AuditLogEvent18Type) Valid() bool {
 	switch e {
-	case AuditLogEvent18TypeContainerAppImageSynced:
+	case AuditLogEvent18TypeVirtualMachineConsoleSession:
 		return true
 	default:
 		return false
@@ -717,13 +738,13 @@ func (e AuditLogEvent18Type) Valid() bool {
 
 // Defines values for AuditLogEvent19Type.
 const (
-	AuditLogEvent19TypeObjectStorageOwnerKeyRevealed AuditLogEvent19Type = "object_storage_owner_key_revealed"
+	AuditLogEvent19TypeContainerAppImageSynced AuditLogEvent19Type = "container_app_image_synced"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent19Type enum.
 func (e AuditLogEvent19Type) Valid() bool {
 	switch e {
-	case AuditLogEvent19TypeObjectStorageOwnerKeyRevealed:
+	case AuditLogEvent19TypeContainerAppImageSynced:
 		return true
 	default:
 		return false
@@ -732,13 +753,13 @@ func (e AuditLogEvent19Type) Valid() bool {
 
 // Defines values for AuditLogEvent20Type.
 const (
-	AuditLogEvent20TypeObjectStorageUsageCollected AuditLogEvent20Type = "object_storage_usage_collected"
+	AuditLogEvent20TypeObjectStorageOwnerKeyRevealed AuditLogEvent20Type = "object_storage_owner_key_revealed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent20Type enum.
 func (e AuditLogEvent20Type) Valid() bool {
 	switch e {
-	case AuditLogEvent20TypeObjectStorageUsageCollected:
+	case AuditLogEvent20TypeObjectStorageOwnerKeyRevealed:
 		return true
 	default:
 		return false
@@ -747,13 +768,13 @@ func (e AuditLogEvent20Type) Valid() bool {
 
 // Defines values for AuditLogEvent21Type.
 const (
-	AuditLogEvent21TypeObjectStorageReplicated AuditLogEvent21Type = "object_storage_replicated"
+	AuditLogEvent21TypeObjectStorageUsageCollected AuditLogEvent21Type = "object_storage_usage_collected"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent21Type enum.
 func (e AuditLogEvent21Type) Valid() bool {
 	switch e {
-	case AuditLogEvent21TypeObjectStorageReplicated:
+	case AuditLogEvent21TypeObjectStorageUsageCollected:
 		return true
 	default:
 		return false
@@ -762,13 +783,13 @@ func (e AuditLogEvent21Type) Valid() bool {
 
 // Defines values for AuditLogEvent22Type.
 const (
-	AuditLogEvent22TypeScmCredentialChanged AuditLogEvent22Type = "scm_credential_changed"
+	AuditLogEvent22TypeObjectStorageReplicated AuditLogEvent22Type = "object_storage_replicated"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent22Type enum.
 func (e AuditLogEvent22Type) Valid() bool {
 	switch e {
-	case AuditLogEvent22TypeScmCredentialChanged:
+	case AuditLogEvent22TypeObjectStorageReplicated:
 		return true
 	default:
 		return false
@@ -777,13 +798,343 @@ func (e AuditLogEvent22Type) Valid() bool {
 
 // Defines values for AuditLogEvent23Type.
 const (
-	AuditLogEvent23TypeAiAgentMatrixReloginRequested AuditLogEvent23Type = "ai_agent_matrix_relogin_requested"
+	AuditLogEvent23TypeScmCredentialChanged AuditLogEvent23Type = "scm_credential_changed"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEvent23Type enum.
 func (e AuditLogEvent23Type) Valid() bool {
 	switch e {
-	case AuditLogEvent23TypeAiAgentMatrixReloginRequested:
+	case AuditLogEvent23TypeScmCredentialChanged:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent24Type.
+const (
+	AuditLogEvent24TypeAiAgentMatrixReloginRequested AuditLogEvent24Type = "ai_agent_matrix_relogin_requested"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent24Type enum.
+func (e AuditLogEvent24Type) Valid() bool {
+	switch e {
+	case AuditLogEvent24TypeAiAgentMatrixReloginRequested:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent25Type.
+const (
+	AuditLogEvent25TypeMatrixBotReloginRequested AuditLogEvent25Type = "matrix_bot_relogin_requested"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent25Type enum.
+func (e AuditLogEvent25Type) Valid() bool {
+	switch e {
+	case AuditLogEvent25TypeMatrixBotReloginRequested:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent26Type.
+const (
+	AuditLogEvent26TypeVolumeBackupWorkspaceAccessed AuditLogEvent26Type = "volume_backup_workspace_accessed"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent26Type enum.
+func (e AuditLogEvent26Type) Valid() bool {
+	switch e {
+	case AuditLogEvent26TypeVolumeBackupWorkspaceAccessed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent27Type.
+const (
+	AuditLogEvent27TypeVolumeBackupAction AuditLogEvent27Type = "volume_backup_action"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent27Type enum.
+func (e AuditLogEvent27Type) Valid() bool {
+	switch e {
+	case AuditLogEvent27TypeVolumeBackupAction:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent28Type.
+const (
+	AuditLogEvent28TypeServiceLinkCreated AuditLogEvent28Type = "service_link_created"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent28Type enum.
+func (e AuditLogEvent28Type) Valid() bool {
+	switch e {
+	case AuditLogEvent28TypeServiceLinkCreated:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent29Type.
+const (
+	AuditLogEvent29TypeServiceLinkDeleted AuditLogEvent29Type = "service_link_deleted"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent29Type enum.
+func (e AuditLogEvent29Type) Valid() bool {
+	switch e {
+	case AuditLogEvent29TypeServiceLinkDeleted:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent30Type.
+const (
+	AuditLogEvent30TypeNetworkEdgeCut AuditLogEvent30Type = "network_edge_cut"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent30Type enum.
+func (e AuditLogEvent30Type) Valid() bool {
+	switch e {
+	case AuditLogEvent30TypeNetworkEdgeCut:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent31Type.
+const (
+	AuditLogEvent31TypeNetworkEdgeRestored AuditLogEvent31Type = "network_edge_restored"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent31Type enum.
+func (e AuditLogEvent31Type) Valid() bool {
+	switch e {
+	case AuditLogEvent31TypeNetworkEdgeRestored:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent32Type.
+const (
+	AuditLogEvent32TypeVolumeLifecycle AuditLogEvent32Type = "volume_lifecycle"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent32Type enum.
+func (e AuditLogEvent32Type) Valid() bool {
+	switch e {
+	case AuditLogEvent32TypeVolumeLifecycle:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent33Type.
+const (
+	AuditLogEvent33TypePortForward AuditLogEvent33Type = "port_forward"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent33Type enum.
+func (e AuditLogEvent33Type) Valid() bool {
+	switch e {
+	case AuditLogEvent33TypePortForward:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent34Type.
+const (
+	AuditLogEvent34TypeServiceAccountCredentialsIssued AuditLogEvent34Type = "service_account_credentials_issued"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent34Type enum.
+func (e AuditLogEvent34Type) Valid() bool {
+	switch e {
+	case AuditLogEvent34TypeServiceAccountCredentialsIssued:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent35Type.
+const (
+	AuditLogEvent35TypeRedTeamRepositoryRegistered AuditLogEvent35Type = "red_team_repository_registered"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent35Type enum.
+func (e AuditLogEvent35Type) Valid() bool {
+	switch e {
+	case AuditLogEvent35TypeRedTeamRepositoryRegistered:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent36Type.
+const (
+	AuditLogEvent36TypeRedTeamRunRequested AuditLogEvent36Type = "red_team_run_requested"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent36Type enum.
+func (e AuditLogEvent36Type) Valid() bool {
+	switch e {
+	case AuditLogEvent36TypeRedTeamRunRequested:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent37Type.
+const (
+	AuditLogEvent37TypeRedTeamRunCancelled AuditLogEvent37Type = "red_team_run_cancelled"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent37Type enum.
+func (e AuditLogEvent37Type) Valid() bool {
+	switch e {
+	case AuditLogEvent37TypeRedTeamRunCancelled:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent38Type.
+const (
+	AuditLogEvent38TypeRedTeamFindingTriaged AuditLogEvent38Type = "red_team_finding_triaged"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent38Type enum.
+func (e AuditLogEvent38Type) Valid() bool {
+	switch e {
+	case AuditLogEvent38TypeRedTeamFindingTriaged:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent39Type.
+const (
+	AuditLogEvent39TypeRedTeamFindingsExported AuditLogEvent39Type = "red_team_findings_exported"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent39Type enum.
+func (e AuditLogEvent39Type) Valid() bool {
+	switch e {
+	case AuditLogEvent39TypeRedTeamFindingsExported:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent40Type.
+const (
+	AuditLogEvent40TypeRedTeamFindingHandedOff AuditLogEvent40Type = "red_team_finding_handed_off"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent40Type enum.
+func (e AuditLogEvent40Type) Valid() bool {
+	switch e {
+	case AuditLogEvent40TypeRedTeamFindingHandedOff:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent41Type.
+const (
+	AuditLogEvent41TypeRedTeamSettingsChanged AuditLogEvent41Type = "red_team_settings_changed"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent41Type enum.
+func (e AuditLogEvent41Type) Valid() bool {
+	switch e {
+	case AuditLogEvent41TypeRedTeamSettingsChanged:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent42Type.
+const (
+	AuditLogEvent42TypeRedTeamScheduleDisabled AuditLogEvent42Type = "red_team_schedule_disabled"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent42Type enum.
+func (e AuditLogEvent42Type) Valid() bool {
+	switch e {
+	case AuditLogEvent42TypeRedTeamScheduleDisabled:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent43Type.
+const (
+	AuditLogEvent43TypeBucketCreated AuditLogEvent43Type = "bucket_created"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent43Type enum.
+func (e AuditLogEvent43Type) Valid() bool {
+	switch e {
+	case AuditLogEvent43TypeBucketCreated:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent44Type.
+const (
+	AuditLogEvent44TypeBucketObjectLockUpdated AuditLogEvent44Type = "bucket_object_lock_updated"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent44Type enum.
+func (e AuditLogEvent44Type) Valid() bool {
+	switch e {
+	case AuditLogEvent44TypeBucketObjectLockUpdated:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AuditLogEvent45Type.
+const (
+	AuditLogEvent45TypeBucketLifecycleUpdated AuditLogEvent45Type = "bucket_lifecycle_updated"
+)
+
+// Valid indicates whether the value is a known member of the AuditLogEvent45Type enum.
+func (e AuditLogEvent45Type) Valid() bool {
+	switch e {
+	case AuditLogEvent45TypeBucketLifecycleUpdated:
 		return true
 	default:
 		return false
@@ -792,30 +1143,52 @@ func (e AuditLogEvent23Type) Valid() bool {
 
 // Defines values for AuditLogEventType.
 const (
-	AuditLogEventTypeAiAgentMatrixReloginRequested  AuditLogEventType = "ai_agent_matrix_relogin_requested"
-	AuditLogEventTypeAuthzBreakGlassUsed            AuditLogEventType = "authz_break_glass_used"
-	AuditLogEventTypeAuthzOrganizationPolicyRevoked AuditLogEventType = "authz_organization_policy_revoked"
-	AuditLogEventTypeConsoleAuthzDecision           AuditLogEventType = "console_authz_decision"
-	AuditLogEventTypeContainerAppImageSynced        AuditLogEventType = "container_app_image_synced"
-	AuditLogEventTypeDataDockOpaEvaluation          AuditLogEventType = "data_dock_opa_evaluation"
-	AuditLogEventTypeManagedPostgresqlImportCreated AuditLogEventType = "managed_postgresql_import_created"
-	AuditLogEventTypeObjectStorageOwnerKeyRevealed  AuditLogEventType = "object_storage_owner_key_revealed"
-	AuditLogEventTypeObjectStorageReplicated        AuditLogEventType = "object_storage_replicated"
-	AuditLogEventTypeObjectStorageUsageCollected    AuditLogEventType = "object_storage_usage_collected"
-	AuditLogEventTypePlatformAdminAction            AuditLogEventType = "platform_admin_action"
-	AuditLogEventTypeRuntimeSecurityAlert           AuditLogEventType = "runtime_security_alert"
-	AuditLogEventTypeS3GatewayAccessSummary         AuditLogEventType = "s3_gateway_access_summary"
-	AuditLogEventTypeS3GatewayDecision              AuditLogEventType = "s3_gateway_decision"
-	AuditLogEventTypeS3GatewayGateDenied            AuditLogEventType = "s3_gateway_gate_denied"
-	AuditLogEventTypeS3GatewaySessionIssued         AuditLogEventType = "s3_gateway_session_issued"
-	AuditLogEventTypeScmCredentialChanged           AuditLogEventType = "scm_credential_changed"
-	AuditLogEventTypeSecurityDecision               AuditLogEventType = "security_decision"
-	AuditLogEventTypeTrinoQueryCompleted            AuditLogEventType = "trino_query_completed"
-	AuditLogEventTypeVirtualMachineConsoleSession   AuditLogEventType = "virtual_machine_console_session"
-	AuditLogEventTypeWorkstationAgentRequest        AuditLogEventType = "workstation_agent_request"
-	AuditLogEventTypeWorkstationFileAccess          AuditLogEventType = "workstation_file_access"
-	AuditLogEventTypeWorkstationPreviewSession      AuditLogEventType = "workstation_preview_session"
-	AuditLogEventTypeWorkstationTerminalCommand     AuditLogEventType = "workstation_terminal_command"
+	AuditLogEventTypeAiAgentMatrixReloginRequested   AuditLogEventType = "ai_agent_matrix_relogin_requested"
+	AuditLogEventTypeAuthzBreakGlassUsed             AuditLogEventType = "authz_break_glass_used"
+	AuditLogEventTypeAuthzOrganizationPolicyRevoked  AuditLogEventType = "authz_organization_policy_revoked"
+	AuditLogEventTypeBucketCreated                   AuditLogEventType = "bucket_created"
+	AuditLogEventTypeBucketLifecycleUpdated          AuditLogEventType = "bucket_lifecycle_updated"
+	AuditLogEventTypeBucketObjectLockUpdated         AuditLogEventType = "bucket_object_lock_updated"
+	AuditLogEventTypeConsoleAuthzDecision            AuditLogEventType = "console_authz_decision"
+	AuditLogEventTypeContainerAppImageSynced         AuditLogEventType = "container_app_image_synced"
+	AuditLogEventTypeDataDockOpaEvaluation           AuditLogEventType = "data_dock_opa_evaluation"
+	AuditLogEventTypeManagedPostgresqlImportCreated  AuditLogEventType = "managed_postgresql_import_created"
+	AuditLogEventTypeMatrixBotReloginRequested       AuditLogEventType = "matrix_bot_relogin_requested"
+	AuditLogEventTypeNetworkEdgeCut                  AuditLogEventType = "network_edge_cut"
+	AuditLogEventTypeNetworkEdgeRestored             AuditLogEventType = "network_edge_restored"
+	AuditLogEventTypeObjectStorageOwnerKeyRevealed   AuditLogEventType = "object_storage_owner_key_revealed"
+	AuditLogEventTypeObjectStorageReplicated         AuditLogEventType = "object_storage_replicated"
+	AuditLogEventTypeObjectStorageUsageCollected     AuditLogEventType = "object_storage_usage_collected"
+	AuditLogEventTypePlatformAdminAction             AuditLogEventType = "platform_admin_action"
+	AuditLogEventTypePortForward                     AuditLogEventType = "port_forward"
+	AuditLogEventTypeRedTeamFindingHandedOff         AuditLogEventType = "red_team_finding_handed_off"
+	AuditLogEventTypeRedTeamFindingTriaged           AuditLogEventType = "red_team_finding_triaged"
+	AuditLogEventTypeRedTeamFindingsExported         AuditLogEventType = "red_team_findings_exported"
+	AuditLogEventTypeRedTeamRepositoryRegistered     AuditLogEventType = "red_team_repository_registered"
+	AuditLogEventTypeRedTeamRunCancelled             AuditLogEventType = "red_team_run_cancelled"
+	AuditLogEventTypeRedTeamRunRequested             AuditLogEventType = "red_team_run_requested"
+	AuditLogEventTypeRedTeamScheduleDisabled         AuditLogEventType = "red_team_schedule_disabled"
+	AuditLogEventTypeRedTeamSettingsChanged          AuditLogEventType = "red_team_settings_changed"
+	AuditLogEventTypeRuntimeSecurityAlert            AuditLogEventType = "runtime_security_alert"
+	AuditLogEventTypeS3GatewayAccessSummary          AuditLogEventType = "s3_gateway_access_summary"
+	AuditLogEventTypeS3GatewayDecision               AuditLogEventType = "s3_gateway_decision"
+	AuditLogEventTypeS3GatewayDelegated              AuditLogEventType = "s3_gateway_delegated"
+	AuditLogEventTypeS3GatewayGateDenied             AuditLogEventType = "s3_gateway_gate_denied"
+	AuditLogEventTypeS3GatewaySessionIssued          AuditLogEventType = "s3_gateway_session_issued"
+	AuditLogEventTypeScmCredentialChanged            AuditLogEventType = "scm_credential_changed"
+	AuditLogEventTypeSecurityDecision                AuditLogEventType = "security_decision"
+	AuditLogEventTypeServiceAccountCredentialsIssued AuditLogEventType = "service_account_credentials_issued"
+	AuditLogEventTypeServiceLinkCreated              AuditLogEventType = "service_link_created"
+	AuditLogEventTypeServiceLinkDeleted              AuditLogEventType = "service_link_deleted"
+	AuditLogEventTypeTrinoQueryCompleted             AuditLogEventType = "trino_query_completed"
+	AuditLogEventTypeVirtualMachineConsoleSession    AuditLogEventType = "virtual_machine_console_session"
+	AuditLogEventTypeVolumeBackupAction              AuditLogEventType = "volume_backup_action"
+	AuditLogEventTypeVolumeBackupWorkspaceAccessed   AuditLogEventType = "volume_backup_workspace_accessed"
+	AuditLogEventTypeVolumeLifecycle                 AuditLogEventType = "volume_lifecycle"
+	AuditLogEventTypeWorkstationAgentRequest         AuditLogEventType = "workstation_agent_request"
+	AuditLogEventTypeWorkstationFileAccess           AuditLogEventType = "workstation_file_access"
+	AuditLogEventTypeWorkstationPreviewSession       AuditLogEventType = "workstation_preview_session"
+	AuditLogEventTypeWorkstationTerminalCommand      AuditLogEventType = "workstation_terminal_command"
 )
 
 // Valid indicates whether the value is a known member of the AuditLogEventType enum.
@@ -827,6 +1200,12 @@ func (e AuditLogEventType) Valid() bool {
 		return true
 	case AuditLogEventTypeAuthzOrganizationPolicyRevoked:
 		return true
+	case AuditLogEventTypeBucketCreated:
+		return true
+	case AuditLogEventTypeBucketLifecycleUpdated:
+		return true
+	case AuditLogEventTypeBucketObjectLockUpdated:
+		return true
 	case AuditLogEventTypeConsoleAuthzDecision:
 		return true
 	case AuditLogEventTypeContainerAppImageSynced:
@@ -834,6 +1213,12 @@ func (e AuditLogEventType) Valid() bool {
 	case AuditLogEventTypeDataDockOpaEvaluation:
 		return true
 	case AuditLogEventTypeManagedPostgresqlImportCreated:
+		return true
+	case AuditLogEventTypeMatrixBotReloginRequested:
+		return true
+	case AuditLogEventTypeNetworkEdgeCut:
+		return true
+	case AuditLogEventTypeNetworkEdgeRestored:
 		return true
 	case AuditLogEventTypeObjectStorageOwnerKeyRevealed:
 		return true
@@ -843,11 +1228,31 @@ func (e AuditLogEventType) Valid() bool {
 		return true
 	case AuditLogEventTypePlatformAdminAction:
 		return true
+	case AuditLogEventTypePortForward:
+		return true
+	case AuditLogEventTypeRedTeamFindingHandedOff:
+		return true
+	case AuditLogEventTypeRedTeamFindingTriaged:
+		return true
+	case AuditLogEventTypeRedTeamFindingsExported:
+		return true
+	case AuditLogEventTypeRedTeamRepositoryRegistered:
+		return true
+	case AuditLogEventTypeRedTeamRunCancelled:
+		return true
+	case AuditLogEventTypeRedTeamRunRequested:
+		return true
+	case AuditLogEventTypeRedTeamScheduleDisabled:
+		return true
+	case AuditLogEventTypeRedTeamSettingsChanged:
+		return true
 	case AuditLogEventTypeRuntimeSecurityAlert:
 		return true
 	case AuditLogEventTypeS3GatewayAccessSummary:
 		return true
 	case AuditLogEventTypeS3GatewayDecision:
+		return true
+	case AuditLogEventTypeS3GatewayDelegated:
 		return true
 	case AuditLogEventTypeS3GatewayGateDenied:
 		return true
@@ -857,9 +1262,21 @@ func (e AuditLogEventType) Valid() bool {
 		return true
 	case AuditLogEventTypeSecurityDecision:
 		return true
+	case AuditLogEventTypeServiceAccountCredentialsIssued:
+		return true
+	case AuditLogEventTypeServiceLinkCreated:
+		return true
+	case AuditLogEventTypeServiceLinkDeleted:
+		return true
 	case AuditLogEventTypeTrinoQueryCompleted:
 		return true
 	case AuditLogEventTypeVirtualMachineConsoleSession:
+		return true
+	case AuditLogEventTypeVolumeBackupAction:
+		return true
+	case AuditLogEventTypeVolumeBackupWorkspaceAccessed:
+		return true
+	case AuditLogEventTypeVolumeLifecycle:
 		return true
 	case AuditLogEventTypeWorkstationAgentRequest:
 		return true
@@ -1072,6 +1489,120 @@ func (e BucketField) Valid() bool {
 	}
 }
 
+// Defines values for BucketObjectLockStatus.
+const (
+	BucketObjectLockStatusEnabled    BucketObjectLockStatus = "enabled"
+	BucketObjectLockStatusNotEnabled BucketObjectLockStatus = "not_enabled"
+	BucketObjectLockStatusUnknown    BucketObjectLockStatus = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the BucketObjectLockStatus enum.
+func (e BucketObjectLockStatus) Valid() bool {
+	switch e {
+	case BucketObjectLockStatusEnabled:
+		return true
+	case BucketObjectLockStatusNotEnabled:
+		return true
+	case BucketObjectLockStatusUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BucketOptionUnavailable.
+const (
+	BucketOptionUnavailableAuditDisabled       BucketOptionUnavailable = "audit_disabled"
+	BucketOptionUnavailableBackendUnsupported  BucketOptionUnavailable = "backend_unsupported"
+	BucketOptionUnavailableCapabilitiesUnknown BucketOptionUnavailable = "capabilities_unknown"
+	BucketOptionUnavailableGatewayRelease      BucketOptionUnavailable = "gateway_release"
+	BucketOptionUnavailableNotProvenOnDriver   BucketOptionUnavailable = "not_proven_on_driver"
+	BucketOptionUnavailableRequiresVersioning  BucketOptionUnavailable = "requires_versioning"
+)
+
+// Valid indicates whether the value is a known member of the BucketOptionUnavailable enum.
+func (e BucketOptionUnavailable) Valid() bool {
+	switch e {
+	case BucketOptionUnavailableAuditDisabled:
+		return true
+	case BucketOptionUnavailableBackendUnsupported:
+		return true
+	case BucketOptionUnavailableCapabilitiesUnknown:
+		return true
+	case BucketOptionUnavailableGatewayRelease:
+		return true
+	case BucketOptionUnavailableNotProvenOnDriver:
+		return true
+	case BucketOptionUnavailableRequiresVersioning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BucketVersioningRequestStatus.
+const (
+	BucketVersioningRequestStatusEnabled   BucketVersioningRequestStatus = "enabled"
+	BucketVersioningRequestStatusSuspended BucketVersioningRequestStatus = "suspended"
+	BucketVersioningRequestStatusUnset     BucketVersioningRequestStatus = "unset"
+)
+
+// Valid indicates whether the value is a known member of the BucketVersioningRequestStatus enum.
+func (e BucketVersioningRequestStatus) Valid() bool {
+	switch e {
+	case BucketVersioningRequestStatusEnabled:
+		return true
+	case BucketVersioningRequestStatusSuspended:
+		return true
+	case BucketVersioningRequestStatusUnset:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BucketVersioningSetting.
+const (
+	BucketVersioningSettingEnabled   BucketVersioningSetting = "enabled"
+	BucketVersioningSettingSuspended BucketVersioningSetting = "suspended"
+)
+
+// Valid indicates whether the value is a known member of the BucketVersioningSetting enum.
+func (e BucketVersioningSetting) Valid() bool {
+	switch e {
+	case BucketVersioningSettingEnabled:
+		return true
+	case BucketVersioningSettingSuspended:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BucketVersioningStatus.
+const (
+	BucketVersioningStatusEnabled     BucketVersioningStatus = "enabled"
+	BucketVersioningStatusSuspended   BucketVersioningStatus = "suspended"
+	BucketVersioningStatusUnknown     BucketVersioningStatus = "unknown"
+	BucketVersioningStatusUnversioned BucketVersioningStatus = "unversioned"
+)
+
+// Valid indicates whether the value is a known member of the BucketVersioningStatus enum.
+func (e BucketVersioningStatus) Valid() bool {
+	switch e {
+	case BucketVersioningStatusEnabled:
+		return true
+	case BucketVersioningStatusSuspended:
+		return true
+	case BucketVersioningStatusUnknown:
+		return true
+	case BucketVersioningStatusUnversioned:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for BudgetAuthor.
 const (
 	BudgetAuthorOrganization BudgetAuthor = "organization"
@@ -1133,7 +1664,9 @@ func (e CatalogueMode) Valid() bool {
 const (
 	ChannelKindDiscordWebhook ChannelKind = "discord_webhook"
 	ChannelKindEmail          ChannelKind = "email"
+	ChannelKindMatrix         ChannelKind = "matrix"
 	ChannelKindSlackWebhook   ChannelKind = "slack_webhook"
+	ChannelKindTeamsWebhook   ChannelKind = "teams_webhook"
 )
 
 // Valid indicates whether the value is a known member of the ChannelKind enum.
@@ -1143,7 +1676,11 @@ func (e ChannelKind) Valid() bool {
 		return true
 	case ChannelKindEmail:
 		return true
+	case ChannelKindMatrix:
+		return true
 	case ChannelKindSlackWebhook:
+		return true
+	case ChannelKindTeamsWebhook:
 		return true
 	default:
 		return false
@@ -1183,6 +1720,51 @@ func (e ChartType) Valid() bool {
 	case ChartTypeTable:
 		return true
 	case ChartTypeText:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CheckMethod.
+const (
+	CheckMethodLocal  CheckMethod = "local"
+	CheckMethodSource CheckMethod = "source"
+)
+
+// Valid indicates whether the value is a known member of the CheckMethod enum.
+func (e CheckMethod) Valid() bool {
+	switch e {
+	case CheckMethodLocal:
+		return true
+	case CheckMethodSource:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CollectorState.
+const (
+	CollectorStateDisabled    CollectorState = "disabled"
+	CollectorStateHealthy     CollectorState = "healthy"
+	CollectorStatePending     CollectorState = "pending"
+	CollectorStateStale       CollectorState = "stale"
+	CollectorStateUnavailable CollectorState = "unavailable"
+)
+
+// Valid indicates whether the value is a known member of the CollectorState enum.
+func (e CollectorState) Valid() bool {
+	switch e {
+	case CollectorStateDisabled:
+		return true
+	case CollectorStateHealthy:
+		return true
+	case CollectorStatePending:
+		return true
+	case CollectorStateStale:
+		return true
+	case CollectorStateUnavailable:
 		return true
 	default:
 		return false
@@ -1252,6 +1834,87 @@ func (e Condition1Kind) Valid() bool {
 	}
 }
 
+// Defines values for ConditionKind.
+const (
+	ConditionKindAuthenticationLevel     ConditionKind = "authentication_level"
+	ConditionKindAuthorizationRole       ConditionKind = "authorization_role"
+	ConditionKindDataState               ConditionKind = "data_state"
+	ConditionKindEnvironmentalDependency ConditionKind = "environmental_dependency"
+	ConditionKindNetworkRouting          ConditionKind = "network_routing"
+	ConditionKindSystemConfiguration     ConditionKind = "system_configuration"
+	ConditionKindThirdPartyDependency    ConditionKind = "third_party_dependency"
+	ConditionKindTimingDependency        ConditionKind = "timing_dependency"
+	ConditionKindUserInteraction         ConditionKind = "user_interaction"
+)
+
+// Valid indicates whether the value is a known member of the ConditionKind enum.
+func (e ConditionKind) Valid() bool {
+	switch e {
+	case ConditionKindAuthenticationLevel:
+		return true
+	case ConditionKindAuthorizationRole:
+		return true
+	case ConditionKindDataState:
+		return true
+	case ConditionKindEnvironmentalDependency:
+		return true
+	case ConditionKindNetworkRouting:
+		return true
+	case ConditionKindSystemConfiguration:
+		return true
+	case ConditionKindThirdPartyDependency:
+		return true
+	case ConditionKindTimingDependency:
+		return true
+	case ConditionKindUserInteraction:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Confidence.
+const (
+	ConfidenceHigh   Confidence = "high"
+	ConfidenceLow    Confidence = "low"
+	ConfidenceMedium Confidence = "medium"
+)
+
+// Valid indicates whether the value is a known member of the Confidence enum.
+func (e Confidence) Valid() bool {
+	switch e {
+	case ConfidenceHigh:
+		return true
+	case ConfidenceLow:
+		return true
+	case ConfidenceMedium:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ConfigAppliedState.
+const (
+	ConfigAppliedStateApplied ConfigAppliedState = "applied"
+	ConfigAppliedStatePending ConfigAppliedState = "pending"
+	ConfigAppliedStateRefused ConfigAppliedState = "refused"
+)
+
+// Valid indicates whether the value is a known member of the ConfigAppliedState enum.
+func (e ConfigAppliedState) Valid() bool {
+	switch e {
+	case ConfigAppliedStateApplied:
+		return true
+	case ConfigAppliedStatePending:
+		return true
+	case ConfigAppliedStateRefused:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Configuration.
 const (
 	ConfigurationHighAvailability Configuration = "high-availability"
@@ -1291,6 +1954,7 @@ const (
 	ConsoleConfigFeatureFlagOntologyEnabled          ConsoleConfigFeatureFlag = "ontology_enabled"
 	ConsoleConfigFeatureFlagPipelinesEnabled         ConsoleConfigFeatureFlag = "pipelines_enabled"
 	ConsoleConfigFeatureFlagRabbitmqEnabled          ConsoleConfigFeatureFlag = "rabbitmq_enabled"
+	ConsoleConfigFeatureFlagRedTeamEnabled           ConsoleConfigFeatureFlag = "red_team_enabled"
 	ConsoleConfigFeatureFlagRegistryEnabled          ConsoleConfigFeatureFlag = "registry_enabled"
 	ConsoleConfigFeatureFlagSapienceAgentEnabled     ConsoleConfigFeatureFlag = "sapience_agent_enabled"
 	ConsoleConfigFeatureFlagSapienceResourcesEnabled ConsoleConfigFeatureFlag = "sapience_resources_enabled"
@@ -1343,6 +2007,8 @@ func (e ConsoleConfigFeatureFlag) Valid() bool {
 	case ConsoleConfigFeatureFlagPipelinesEnabled:
 		return true
 	case ConsoleConfigFeatureFlagRabbitmqEnabled:
+		return true
+	case ConsoleConfigFeatureFlagRedTeamEnabled:
 		return true
 	case ConsoleConfigFeatureFlagRegistryEnabled:
 		return true
@@ -1441,6 +2107,42 @@ const (
 func (e CopyS3SourceConfig1Type) Valid() bool {
 	switch e {
 	case CopyS3SourceConfig1TypeHarborBucket:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CoverageStatus.
+const (
+	CoverageStatusBlocked       CoverageStatus = "blocked"
+	CoverageStatusCandidate     CoverageStatus = "candidate"
+	CoverageStatusCovered       CoverageStatus = "covered"
+	CoverageStatusDeferred      CoverageStatus = "deferred"
+	CoverageStatusInProgress    CoverageStatus = "in_progress"
+	CoverageStatusNotApplicable CoverageStatus = "not_applicable"
+	CoverageStatusOutOfScope    CoverageStatus = "out_of_scope"
+	CoverageStatusPlanned       CoverageStatus = "planned"
+)
+
+// Valid indicates whether the value is a known member of the CoverageStatus enum.
+func (e CoverageStatus) Valid() bool {
+	switch e {
+	case CoverageStatusBlocked:
+		return true
+	case CoverageStatusCandidate:
+		return true
+	case CoverageStatusCovered:
+		return true
+	case CoverageStatusDeferred:
+		return true
+	case CoverageStatusInProgress:
+		return true
+	case CoverageStatusNotApplicable:
+		return true
+	case CoverageStatusOutOfScope:
+		return true
+	case CoverageStatusPlanned:
 		return true
 	default:
 		return false
@@ -1720,6 +2422,24 @@ func (e CustomDomainTlsModeInput) Valid() bool {
 	case CustomDomainTlsModeInputAcme:
 		return true
 	case CustomDomainTlsModeInputSecret:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CutOwner.
+const (
+	CutOwnerOrganization CutOwner = "organization"
+	CutOwnerPlatform     CutOwner = "platform"
+)
+
+// Valid indicates whether the value is a known member of the CutOwner enum.
+func (e CutOwner) Valid() bool {
+	switch e {
+	case CutOwnerOrganization:
+		return true
+	case CutOwnerPlatform:
 		return true
 	default:
 		return false
@@ -2032,6 +2752,60 @@ func (e DecisionSurface) Valid() bool {
 	}
 }
 
+// Defines values for DeclaredKind.
+const (
+	DeclaredKindInternetEgress DeclaredKind = "internet_egress"
+	DeclaredKindPublicEndpoint DeclaredKind = "public_endpoint"
+	DeclaredKindServiceLink    DeclaredKind = "service_link"
+)
+
+// Valid indicates whether the value is a known member of the DeclaredKind enum.
+func (e DeclaredKind) Valid() bool {
+	switch e {
+	case DeclaredKindInternetEgress:
+		return true
+	case DeclaredKindPublicEndpoint:
+		return true
+	case DeclaredKindServiceLink:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DocumentKind.
+const (
+	DocumentKindArchitecture      DocumentKind = "architecture"
+	DocumentKindCoverageLedgerRaw DocumentKind = "coverage_ledger_raw"
+	DocumentKindFindingsDetail    DocumentKind = "findings_detail"
+	DocumentKindFindingsRaw       DocumentKind = "findings_raw"
+	DocumentKindNeedsValidation   DocumentKind = "needs_validation"
+	DocumentKindReport            DocumentKind = "report"
+	DocumentKindRunMetadataRaw    DocumentKind = "run_metadata_raw"
+)
+
+// Valid indicates whether the value is a known member of the DocumentKind enum.
+func (e DocumentKind) Valid() bool {
+	switch e {
+	case DocumentKindArchitecture:
+		return true
+	case DocumentKindCoverageLedgerRaw:
+		return true
+	case DocumentKindFindingsDetail:
+		return true
+	case DocumentKindFindingsRaw:
+		return true
+	case DocumentKindNeedsValidation:
+		return true
+	case DocumentKindReport:
+		return true
+	case DocumentKindRunMetadataRaw:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DomainVerificationStateDto.
 const (
 	DomainVerificationStateDtoPending  DomainVerificationStateDto = "pending"
@@ -2122,6 +2896,27 @@ func (e EmailAuthPolicy) Valid() bool {
 	case EmailAuthPolicyRejectOnAnyAuthFail:
 		return true
 	case EmailAuthPolicyRejectOnDmarcFail:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for EncryptionAtRest.
+const (
+	EncryptionAtRestNotAddedByPlatform EncryptionAtRest = "not_added_by_platform"
+	EncryptionAtRestPlatformSseS3      EncryptionAtRest = "platform_sse_s3"
+	EncryptionAtRestProviderManaged    EncryptionAtRest = "provider_managed"
+)
+
+// Valid indicates whether the value is a known member of the EncryptionAtRest enum.
+func (e EncryptionAtRest) Valid() bool {
+	switch e {
+	case EncryptionAtRestNotAddedByPlatform:
+		return true
+	case EncryptionAtRestPlatformSseS3:
+		return true
+	case EncryptionAtRestProviderManaged:
 		return true
 	default:
 		return false
@@ -2566,6 +3361,57 @@ func (e HfDataType) Valid() bool {
 	}
 }
 
+// Defines values for HfVolumeAttachmentState.
+const (
+	HfVolumeAttachmentStateClaimed   HfVolumeAttachmentState = "Claimed"
+	HfVolumeAttachmentStateReleasing HfVolumeAttachmentState = "Releasing"
+)
+
+// Valid indicates whether the value is a known member of the HfVolumeAttachmentState enum.
+func (e HfVolumeAttachmentState) Valid() bool {
+	switch e {
+	case HfVolumeAttachmentStateClaimed:
+		return true
+	case HfVolumeAttachmentStateReleasing:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HfVolumePhase.
+const (
+	HfVolumePhaseAttached     HfVolumePhase = "Attached"
+	HfVolumePhaseAvailable    HfVolumePhase = "Available"
+	HfVolumePhaseDeleting     HfVolumePhase = "Deleting"
+	HfVolumePhaseFailed       HfVolumePhase = "Failed"
+	HfVolumePhaseLost         HfVolumePhase = "Lost"
+	HfVolumePhasePending      HfVolumePhase = "Pending"
+	HfVolumePhaseProvisioning HfVolumePhase = "Provisioning"
+)
+
+// Valid indicates whether the value is a known member of the HfVolumePhase enum.
+func (e HfVolumePhase) Valid() bool {
+	switch e {
+	case HfVolumePhaseAttached:
+		return true
+	case HfVolumePhaseAvailable:
+		return true
+	case HfVolumePhaseDeleting:
+		return true
+	case HfVolumePhaseFailed:
+		return true
+	case HfVolumePhaseLost:
+		return true
+	case HfVolumePhasePending:
+		return true
+	case HfVolumePhaseProvisioning:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for IdentityProviderKind.
 const (
 	IdentityProviderKindGithub IdentityProviderKind = "github"
@@ -2854,6 +3700,24 @@ func (e LabelType1Type) Valid() bool {
 	}
 }
 
+// Defines values for LifecycleRuleStatusInput.
+const (
+	LifecycleRuleStatusInputDisabled LifecycleRuleStatusInput = "disabled"
+	LifecycleRuleStatusInputEnabled  LifecycleRuleStatusInput = "enabled"
+)
+
+// Valid indicates whether the value is a known member of the LifecycleRuleStatusInput enum.
+func (e LifecycleRuleStatusInput) Valid() bool {
+	switch e {
+	case LifecycleRuleStatusInputDisabled:
+		return true
+	case LifecycleRuleStatusInputEnabled:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for LogLevel.
 const (
 	LogLevelDebug LogLevel = "debug"
@@ -2890,6 +3754,27 @@ func (e LogStream) Valid() bool {
 	case LogStreamStderr:
 		return true
 	case LogStreamStdout:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for LogsInclude.
+const (
+	LogsIncludeAll     LogsInclude = "all"
+	LogsIncludeEntries LogsInclude = "entries"
+	LogsIncludeFacets  LogsInclude = "facets"
+)
+
+// Valid indicates whether the value is a known member of the LogsInclude enum.
+func (e LogsInclude) Valid() bool {
+	switch e {
+	case LogsIncludeAll:
+		return true
+	case LogsIncludeEntries:
+		return true
+	case LogsIncludeFacets:
 		return true
 	default:
 		return false
@@ -3010,6 +3895,84 @@ func (e MatrixAutoJoinDto) Valid() bool {
 	case MatrixAutoJoinDtoInvited:
 		return true
 	case MatrixAutoJoinDtoNever:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixBotPhase.
+const (
+	MatrixBotPhaseConnected  MatrixBotPhase = "connected"
+	MatrixBotPhaseConnecting MatrixBotPhase = "connecting"
+	MatrixBotPhaseDegraded   MatrixBotPhase = "degraded"
+	MatrixBotPhaseDisabled   MatrixBotPhase = "disabled"
+	MatrixBotPhaseNeedsLogin MatrixBotPhase = "needs_login"
+	MatrixBotPhasePending    MatrixBotPhase = "pending"
+	MatrixBotPhaseUnknown    MatrixBotPhase = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the MatrixBotPhase enum.
+func (e MatrixBotPhase) Valid() bool {
+	switch e {
+	case MatrixBotPhaseConnected:
+		return true
+	case MatrixBotPhaseConnecting:
+		return true
+	case MatrixBotPhaseDegraded:
+		return true
+	case MatrixBotPhaseDisabled:
+		return true
+	case MatrixBotPhaseNeedsLogin:
+		return true
+	case MatrixBotPhasePending:
+		return true
+	case MatrixBotPhaseUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixBotPreset.
+const (
+	MatrixBotPresetGeneric MatrixBotPreset = "generic"
+	MatrixBotPresetTchap   MatrixBotPreset = "tchap"
+)
+
+// Valid indicates whether the value is a known member of the MatrixBotPreset enum.
+func (e MatrixBotPreset) Valid() bool {
+	switch e {
+	case MatrixBotPresetGeneric:
+		return true
+	case MatrixBotPresetTchap:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MatrixBotRoomState.
+const (
+	MatrixBotRoomStateCannotPost MatrixBotRoomState = "cannot_post"
+	MatrixBotRoomStateInvited    MatrixBotRoomState = "invited"
+	MatrixBotRoomStateJoined     MatrixBotRoomState = "joined"
+	MatrixBotRoomStateMissing    MatrixBotRoomState = "missing"
+	MatrixBotRoomStateUnknown    MatrixBotRoomState = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the MatrixBotRoomState enum.
+func (e MatrixBotRoomState) Valid() bool {
+	switch e {
+	case MatrixBotRoomStateCannotPost:
+		return true
+	case MatrixBotRoomStateInvited:
+		return true
+	case MatrixBotRoomStateJoined:
+		return true
+	case MatrixBotRoomStateMissing:
+		return true
+	case MatrixBotRoomStateUnknown:
 		return true
 	default:
 		return false
@@ -3346,6 +4309,27 @@ func (e NetworkCondition) Valid() bool {
 	}
 }
 
+// Defines values for NetworkDirection.
+const (
+	NetworkDirectionEgress   NetworkDirection = "egress"
+	NetworkDirectionIngress  NetworkDirection = "ingress"
+	NetworkDirectionInternal NetworkDirection = "internal"
+)
+
+// Valid indicates whether the value is a known member of the NetworkDirection enum.
+func (e NetworkDirection) Valid() bool {
+	switch e {
+	case NetworkDirectionEgress:
+		return true
+	case NetworkDirectionIngress:
+		return true
+	case NetworkDirectionInternal:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for NetworkIsolationView.
 const (
 	NetworkIsolationViewLenient NetworkIsolationView = "lenient"
@@ -3358,6 +4342,78 @@ func (e NetworkIsolationView) Valid() bool {
 	case NetworkIsolationViewLenient:
 		return true
 	case NetworkIsolationViewStrict:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for NetworkNodeKind.
+const (
+	NetworkNodeKindExternal   NetworkNodeKind = "external"
+	NetworkNodeKindGateway    NetworkNodeKind = "gateway"
+	NetworkNodeKindPlatform   NetworkNodeKind = "platform"
+	NetworkNodeKindResource   NetworkNodeKind = "resource"
+	NetworkNodeKindRestricted NetworkNodeKind = "restricted"
+)
+
+// Valid indicates whether the value is a known member of the NetworkNodeKind enum.
+func (e NetworkNodeKind) Valid() bool {
+	switch e {
+	case NetworkNodeKindExternal:
+		return true
+	case NetworkNodeKindGateway:
+		return true
+	case NetworkNodeKindPlatform:
+		return true
+	case NetworkNodeKindResource:
+		return true
+	case NetworkNodeKindRestricted:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for NetworkProtocol.
+const (
+	NetworkProtocolICMP  NetworkProtocol = "ICMP"
+	NetworkProtocolOTHER NetworkProtocol = "OTHER"
+	NetworkProtocolSCTP  NetworkProtocol = "SCTP"
+	NetworkProtocolTCP   NetworkProtocol = "TCP"
+	NetworkProtocolUDP   NetworkProtocol = "UDP"
+)
+
+// Valid indicates whether the value is a known member of the NetworkProtocol enum.
+func (e NetworkProtocol) Valid() bool {
+	switch e {
+	case NetworkProtocolICMP:
+		return true
+	case NetworkProtocolOTHER:
+		return true
+	case NetworkProtocolSCTP:
+		return true
+	case NetworkProtocolTCP:
+		return true
+	case NetworkProtocolUDP:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for NetworkVerdict.
+const (
+	NetworkVerdictDropped   NetworkVerdict = "dropped"
+	NetworkVerdictForwarded NetworkVerdict = "forwarded"
+)
+
+// Valid indicates whether the value is a known member of the NetworkVerdict enum.
+func (e NetworkVerdict) Valid() bool {
+	switch e {
+	case NetworkVerdictDropped:
+		return true
+	case NetworkVerdictForwarded:
 		return true
 	default:
 		return false
@@ -3439,6 +4495,24 @@ func (e NodeTier) Valid() bool {
 	}
 }
 
+// Defines values for ObjectLockModeInput.
+const (
+	ObjectLockModeInputCompliance ObjectLockModeInput = "compliance"
+	ObjectLockModeInputGovernance ObjectLockModeInput = "governance"
+)
+
+// Valid indicates whether the value is a known member of the ObjectLockModeInput enum.
+func (e ObjectLockModeInput) Valid() bool {
+	switch e {
+	case ObjectLockModeInputCompliance:
+		return true
+	case ObjectLockModeInputGovernance:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OcrProviderConfig0Type.
 const (
 	OcrProviderConfig0TypeMistral OcrProviderConfig0Type = "mistral"
@@ -3490,6 +4564,7 @@ const (
 	OrgFeatureOntologyEnabled          OrgFeature = "ontology_enabled"
 	OrgFeaturePipelinesEnabled         OrgFeature = "pipelines_enabled"
 	OrgFeatureRabbitmqEnabled          OrgFeature = "rabbitmq_enabled"
+	OrgFeatureRedTeamEnabled           OrgFeature = "red_team_enabled"
 	OrgFeatureRegistryEnabled          OrgFeature = "registry_enabled"
 	OrgFeatureSapienceAgentEnabled     OrgFeature = "sapience_agent_enabled"
 	OrgFeatureSapienceResourcesEnabled OrgFeature = "sapience_resources_enabled"
@@ -3541,6 +4616,8 @@ func (e OrgFeature) Valid() bool {
 		return true
 	case OrgFeatureRabbitmqEnabled:
 		return true
+	case OrgFeatureRedTeamEnabled:
+		return true
 	case OrgFeatureRegistryEnabled:
 		return true
 	case OrgFeatureSapienceAgentEnabled:
@@ -3574,6 +4651,33 @@ func (e PanelKind) Valid() bool {
 	case PanelKindStat:
 		return true
 	case PanelKindTimeseries:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PartStatus.
+const (
+	PartStatusBusy    PartStatus = "busy"
+	PartStatusFailed  PartStatus = "failed"
+	PartStatusOk      PartStatus = "ok"
+	PartStatusSkipped PartStatus = "skipped"
+	PartStatusTimeout PartStatus = "timeout"
+)
+
+// Valid indicates whether the value is a known member of the PartStatus enum.
+func (e PartStatus) Valid() bool {
+	switch e {
+	case PartStatusBusy:
+		return true
+	case PartStatusFailed:
+		return true
+	case PartStatusOk:
+		return true
+	case PartStatusSkipped:
+		return true
+	case PartStatusTimeout:
 		return true
 	default:
 		return false
@@ -3639,11 +4743,16 @@ const (
 	PermissionKeyBucketCreate                    PermissionKey = "bucket:create"
 	PermissionKeyBucketCredentialsRead           PermissionKey = "bucket:credentials_read"
 	PermissionKeyBucketDelete                    PermissionKey = "bucket:delete"
+	PermissionKeyBucketDeleteObjectVersions      PermissionKey = "bucket:delete_object_versions"
 	PermissionKeyBucketDeleteObjects             PermissionKey = "bucket:delete_objects"
 	PermissionKeyBucketListObjects               PermissionKey = "bucket:list_objects"
+	PermissionKeyBucketObjectLockUpdate          PermissionKey = "bucket:object_lock_update"
+	PermissionKeyBucketProtectionUpdate          PermissionKey = "bucket:protection_update"
 	PermissionKeyBucketRead                      PermissionKey = "bucket:read"
 	PermissionKeyBucketReadObjects               PermissionKey = "bucket:read_objects"
 	PermissionKeyBucketUpdate                    PermissionKey = "bucket:update"
+	PermissionKeyBucketWriteObjectLegalHold      PermissionKey = "bucket:write_object_legal_hold"
+	PermissionKeyBucketWriteObjectRetention      PermissionKey = "bucket:write_object_retention"
 	PermissionKeyBucketWriteObjectTags           PermissionKey = "bucket:write_object_tags"
 	PermissionKeyBucketWriteObjects              PermissionKey = "bucket:write_objects"
 	PermissionKeyComputeDockCreate               PermissionKey = "compute_dock:create"
@@ -3749,6 +4858,11 @@ const (
 	PermissionKeyQueryExecute                    PermissionKey = "query:execute"
 	PermissionKeyQueryRead                       PermissionKey = "query:read"
 	PermissionKeyQueryUpdate                     PermissionKey = "query:update"
+	PermissionKeyRedTeamFindingsRead             PermissionKey = "red_team:findings_read"
+	PermissionKeyRedTeamManage                   PermissionKey = "red_team:manage"
+	PermissionKeyRedTeamRead                     PermissionKey = "red_team:read"
+	PermissionKeyRedTeamRun                      PermissionKey = "red_team:run"
+	PermissionKeyRedTeamTriage                   PermissionKey = "red_team:triage"
 	PermissionKeyRegistryAdmin                   PermissionKey = "registry:admin"
 	PermissionKeyRegistryDelete                  PermissionKey = "registry:delete"
 	PermissionKeyRegistryManage                  PermissionKey = "registry:manage"
@@ -3797,12 +4911,22 @@ const (
 	PermissionKeyVirtualMachineConsole           PermissionKey = "virtual_machine:console"
 	PermissionKeyVirtualMachineCreate            PermissionKey = "virtual_machine:create"
 	PermissionKeyVirtualMachineDelete            PermissionKey = "virtual_machine:delete"
+	PermissionKeyVirtualMachinePortForward       PermissionKey = "virtual_machine:port_forward"
 	PermissionKeyVirtualMachineRead              PermissionKey = "virtual_machine:read"
 	PermissionKeyVirtualMachineUpdate            PermissionKey = "virtual_machine:update"
 	PermissionKeyVirtualMachineUserCreate        PermissionKey = "virtual_machine_user:create"
 	PermissionKeyVirtualMachineUserDelete        PermissionKey = "virtual_machine_user:delete"
 	PermissionKeyVirtualMachineUserRead          PermissionKey = "virtual_machine_user:read"
 	PermissionKeyVirtualMachineUserUpdate        PermissionKey = "virtual_machine_user:update"
+	PermissionKeyVolumeAttach                    PermissionKey = "volume:attach"
+	PermissionKeyVolumeBackupCreate              PermissionKey = "volume_backup:create"
+	PermissionKeyVolumeBackupManageWorkspaces    PermissionKey = "volume_backup:manage_workspaces"
+	PermissionKeyVolumeBackupRead                PermissionKey = "volume_backup:read"
+	PermissionKeyVolumeBackupRestore             PermissionKey = "volume_backup:restore"
+	PermissionKeyVolumeCreate                    PermissionKey = "volume:create"
+	PermissionKeyVolumeDelete                    PermissionKey = "volume:delete"
+	PermissionKeyVolumeRead                      PermissionKey = "volume:read"
+	PermissionKeyVolumeUpdate                    PermissionKey = "volume:update"
 	PermissionKeyWorkloadSecurityRead            PermissionKey = "workload_security:read"
 	PermissionKeyWorkloadSecurityScan            PermissionKey = "workload_security:scan"
 	PermissionKeyWorkstationTemplateCreate       PermissionKey = "workstation_template:create"
@@ -3885,15 +5009,25 @@ func (e PermissionKey) Valid() bool {
 		return true
 	case PermissionKeyBucketDelete:
 		return true
+	case PermissionKeyBucketDeleteObjectVersions:
+		return true
 	case PermissionKeyBucketDeleteObjects:
 		return true
 	case PermissionKeyBucketListObjects:
+		return true
+	case PermissionKeyBucketObjectLockUpdate:
+		return true
+	case PermissionKeyBucketProtectionUpdate:
 		return true
 	case PermissionKeyBucketRead:
 		return true
 	case PermissionKeyBucketReadObjects:
 		return true
 	case PermissionKeyBucketUpdate:
+		return true
+	case PermissionKeyBucketWriteObjectLegalHold:
+		return true
+	case PermissionKeyBucketWriteObjectRetention:
 		return true
 	case PermissionKeyBucketWriteObjectTags:
 		return true
@@ -4105,6 +5239,16 @@ func (e PermissionKey) Valid() bool {
 		return true
 	case PermissionKeyQueryUpdate:
 		return true
+	case PermissionKeyRedTeamFindingsRead:
+		return true
+	case PermissionKeyRedTeamManage:
+		return true
+	case PermissionKeyRedTeamRead:
+		return true
+	case PermissionKeyRedTeamRun:
+		return true
+	case PermissionKeyRedTeamTriage:
+		return true
 	case PermissionKeyRegistryAdmin:
 		return true
 	case PermissionKeyRegistryDelete:
@@ -4201,6 +5345,8 @@ func (e PermissionKey) Valid() bool {
 		return true
 	case PermissionKeyVirtualMachineDelete:
 		return true
+	case PermissionKeyVirtualMachinePortForward:
+		return true
 	case PermissionKeyVirtualMachineRead:
 		return true
 	case PermissionKeyVirtualMachineUpdate:
@@ -4212,6 +5358,24 @@ func (e PermissionKey) Valid() bool {
 	case PermissionKeyVirtualMachineUserRead:
 		return true
 	case PermissionKeyVirtualMachineUserUpdate:
+		return true
+	case PermissionKeyVolumeAttach:
+		return true
+	case PermissionKeyVolumeBackupCreate:
+		return true
+	case PermissionKeyVolumeBackupManageWorkspaces:
+		return true
+	case PermissionKeyVolumeBackupRead:
+		return true
+	case PermissionKeyVolumeBackupRestore:
+		return true
+	case PermissionKeyVolumeCreate:
+		return true
+	case PermissionKeyVolumeDelete:
+		return true
+	case PermissionKeyVolumeRead:
+		return true
+	case PermissionKeyVolumeUpdate:
 		return true
 	case PermissionKeyWorkloadSecurityRead:
 		return true
@@ -4492,6 +5656,93 @@ func (e PolicyPreset) Valid() bool {
 	}
 }
 
+// Defines values for PortForwardEndReason.
+const (
+	PortForwardEndReasonAccessRevoked PortForwardEndReason = "access_revoked"
+	PortForwardEndReasonClient        PortForwardEndReason = "client"
+	PortForwardEndReasonDialFailed    PortForwardEndReason = "dial_failed"
+	PortForwardEndReasonError         PortForwardEndReason = "error"
+	PortForwardEndReasonIdle          PortForwardEndReason = "idle"
+	PortForwardEndReasonLost          PortForwardEndReason = "lost"
+	PortForwardEndReasonMaxDuration   PortForwardEndReason = "max_duration"
+	PortForwardEndReasonQuarantined   PortForwardEndReason = "quarantined"
+	PortForwardEndReasonShutdown      PortForwardEndReason = "shutdown"
+	PortForwardEndReasonTargetGone    PortForwardEndReason = "target_gone"
+	PortForwardEndReasonTokenExpired  PortForwardEndReason = "token_expired"
+	PortForwardEndReasonUpstream      PortForwardEndReason = "upstream"
+)
+
+// Valid indicates whether the value is a known member of the PortForwardEndReason enum.
+func (e PortForwardEndReason) Valid() bool {
+	switch e {
+	case PortForwardEndReasonAccessRevoked:
+		return true
+	case PortForwardEndReasonClient:
+		return true
+	case PortForwardEndReasonDialFailed:
+		return true
+	case PortForwardEndReasonError:
+		return true
+	case PortForwardEndReasonIdle:
+		return true
+	case PortForwardEndReasonLost:
+		return true
+	case PortForwardEndReasonMaxDuration:
+		return true
+	case PortForwardEndReasonQuarantined:
+		return true
+	case PortForwardEndReasonShutdown:
+		return true
+	case PortForwardEndReasonTargetGone:
+		return true
+	case PortForwardEndReasonTokenExpired:
+		return true
+	case PortForwardEndReasonUpstream:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortForwardPhase.
+const (
+	PortForwardPhaseActive PortForwardPhase = "active"
+	PortForwardPhaseClosed PortForwardPhase = "closed"
+	PortForwardPhaseOpened PortForwardPhase = "opened"
+)
+
+// Valid indicates whether the value is a known member of the PortForwardPhase enum.
+func (e PortForwardPhase) Valid() bool {
+	switch e {
+	case PortForwardPhaseActive:
+		return true
+	case PortForwardPhaseClosed:
+		return true
+	case PortForwardPhaseOpened:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortForwardPrincipalKind.
+const (
+	PortForwardPrincipalKindServiceAccount PortForwardPrincipalKind = "service_account"
+	PortForwardPrincipalKindUser           PortForwardPrincipalKind = "user"
+)
+
+// Valid indicates whether the value is a known member of the PortForwardPrincipalKind enum.
+func (e PortForwardPrincipalKind) Valid() bool {
+	switch e {
+	case PortForwardPrincipalKindServiceAccount:
+		return true
+	case PortForwardPrincipalKindUser:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PortProtocol.
 const (
 	PortProtocolSCTP PortProtocol = "SCTP"
@@ -4582,6 +5833,51 @@ func (e PreviewPosture) Valid() bool {
 	case PreviewPostureBlock:
 		return true
 	case PreviewPostureRecord:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PriorStatus.
+const (
+	PriorStatusNew                         PriorStatus = "new"
+	PriorStatusNone                        PriorStatus = "none"
+	PriorStatusPriorBlocked                PriorStatus = "prior_blocked"
+	PriorStatusPriorConfirmedChangedSource PriorStatus = "prior_confirmed_changed_source"
+	PriorStatusPriorConfirmedSameSource    PriorStatus = "prior_confirmed_same_source"
+	PriorStatusPriorCoveredChangedSource   PriorStatus = "prior_covered_changed_source"
+	PriorStatusPriorCoveredSameSource      PriorStatus = "prior_covered_same_source"
+	PriorStatusPriorDeferred               PriorStatus = "prior_deferred"
+	PriorStatusPriorNeedsValidation        PriorStatus = "prior_needs_validation"
+	PriorStatusPriorOutOfScope             PriorStatus = "prior_out_of_scope"
+	PriorStatusPriorRejectedClaimChanged   PriorStatus = "prior_rejected_claim_changed"
+)
+
+// Valid indicates whether the value is a known member of the PriorStatus enum.
+func (e PriorStatus) Valid() bool {
+	switch e {
+	case PriorStatusNew:
+		return true
+	case PriorStatusNone:
+		return true
+	case PriorStatusPriorBlocked:
+		return true
+	case PriorStatusPriorConfirmedChangedSource:
+		return true
+	case PriorStatusPriorConfirmedSameSource:
+		return true
+	case PriorStatusPriorCoveredChangedSource:
+		return true
+	case PriorStatusPriorCoveredSameSource:
+		return true
+	case PriorStatusPriorDeferred:
+		return true
+	case PriorStatusPriorNeedsValidation:
+		return true
+	case PriorStatusPriorOutOfScope:
+		return true
+	case PriorStatusPriorRejectedClaimChanged:
 		return true
 	default:
 		return false
@@ -4714,6 +6010,456 @@ func (e RabbitMqPlugin) Valid() bool {
 	case RabbitMqPluginShovel:
 		return true
 	case RabbitMqPluginStream:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamConsoleFailure.
+const (
+	RedTeamConsoleFailureCrCreateFailed RedTeamConsoleFailure = "cr_create_failed"
+	RedTeamConsoleFailureRunLost        RedTeamConsoleFailure = "run_lost"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamConsoleFailure enum.
+func (e RedTeamConsoleFailure) Valid() bool {
+	switch e {
+	case RedTeamConsoleFailureCrCreateFailed:
+		return true
+	case RedTeamConsoleFailureRunLost:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamFinding0Verdict.
+const (
+	RedTeamFinding0VerdictConfirmed RedTeamFinding0Verdict = "confirmed"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamFinding0Verdict enum.
+func (e RedTeamFinding0Verdict) Valid() bool {
+	switch e {
+	case RedTeamFinding0VerdictConfirmed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamFinding1Verdict.
+const (
+	RedTeamFinding1VerdictNeedsValidation RedTeamFinding1Verdict = "needs_validation"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamFinding1Verdict enum.
+func (e RedTeamFinding1Verdict) Valid() bool {
+	switch e {
+	case RedTeamFinding1VerdictNeedsValidation:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamFinding2Verdict.
+const (
+	RedTeamFinding2VerdictRejected RedTeamFinding2Verdict = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamFinding2Verdict enum.
+func (e RedTeamFinding2Verdict) Valid() bool {
+	switch e {
+	case RedTeamFinding2VerdictRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamIncompleteReason.
+const (
+	RedTeamIncompleteReasonAgentDeadline                   RedTeamIncompleteReason = "agent_deadline"
+	RedTeamIncompleteReasonBudgetExhausted                 RedTeamIncompleteReason = "budget_exhausted"
+	RedTeamIncompleteReasonEngineExited                    RedTeamIncompleteReason = "engine_exited"
+	RedTeamIncompleteReasonOther                           RedTeamIncompleteReason = "other"
+	RedTeamIncompleteReasonParentEndedWithoutTerminalState RedTeamIncompleteReason = "parent_ended_without_terminal_state"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamIncompleteReason enum.
+func (e RedTeamIncompleteReason) Valid() bool {
+	switch e {
+	case RedTeamIncompleteReasonAgentDeadline:
+		return true
+	case RedTeamIncompleteReasonBudgetExhausted:
+		return true
+	case RedTeamIncompleteReasonEngineExited:
+		return true
+	case RedTeamIncompleteReasonOther:
+		return true
+	case RedTeamIncompleteReasonParentEndedWithoutTerminalState:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamLineage.
+const (
+	RedTeamLineageAdHoc   RedTeamLineage = "ad_hoc"
+	RedTeamLineageTracked RedTeamLineage = "tracked"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamLineage enum.
+func (e RedTeamLineage) Valid() bool {
+	switch e {
+	case RedTeamLineageAdHoc:
+		return true
+	case RedTeamLineageTracked:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamPrincipalKind.
+const (
+	RedTeamPrincipalKindServiceAccount RedTeamPrincipalKind = "service_account"
+	RedTeamPrincipalKindUser           RedTeamPrincipalKind = "user"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamPrincipalKind enum.
+func (e RedTeamPrincipalKind) Valid() bool {
+	switch e {
+	case RedTeamPrincipalKindServiceAccount:
+		return true
+	case RedTeamPrincipalKindUser:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamPriorContext.
+const (
+	RedTeamPriorContextFull    RedTeamPriorContext = "full"
+	RedTeamPriorContextNone    RedTeamPriorContext = "none"
+	RedTeamPriorContextPartial RedTeamPriorContext = "partial"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamPriorContext enum.
+func (e RedTeamPriorContext) Valid() bool {
+	switch e {
+	case RedTeamPriorContextFull:
+		return true
+	case RedTeamPriorContextNone:
+		return true
+	case RedTeamPriorContextPartial:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamProfile.
+const (
+	RedTeamProfileDeep     RedTeamProfile = "deep"
+	RedTeamProfileQuick    RedTeamProfile = "quick"
+	RedTeamProfileStandard RedTeamProfile = "standard"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamProfile enum.
+func (e RedTeamProfile) Valid() bool {
+	switch e {
+	case RedTeamProfileDeep:
+		return true
+	case RedTeamProfileQuick:
+		return true
+	case RedTeamProfileStandard:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamRunFailureReason.
+const (
+	RedTeamRunFailureReasonBudgetExceeded          RedTeamRunFailureReason = "budget_exceeded"
+	RedTeamRunFailureReasonBundleMissing           RedTeamRunFailureReason = "bundle_missing"
+	RedTeamRunFailureReasonBundleRejected          RedTeamRunFailureReason = "bundle_rejected"
+	RedTeamRunFailureReasonBundleTooLarge          RedTeamRunFailureReason = "bundle_too_large"
+	RedTeamRunFailureReasonCloneFailed             RedTeamRunFailureReason = "clone_failed"
+	RedTeamRunFailureReasonCredentialRefused       RedTeamRunFailureReason = "credential_refused"
+	RedTeamRunFailureReasonDeadlineExceeded        RedTeamRunFailureReason = "deadline_exceeded"
+	RedTeamRunFailureReasonInvalidRef              RedTeamRunFailureReason = "invalid_ref"
+	RedTeamRunFailureReasonKeyMintFailed           RedTeamRunFailureReason = "key_mint_failed"
+	RedTeamRunFailureReasonModelRefused            RedTeamRunFailureReason = "model_refused"
+	RedTeamRunFailureReasonModelUnresolved         RedTeamRunFailureReason = "model_unresolved"
+	RedTeamRunFailureReasonPodFailed               RedTeamRunFailureReason = "pod_failed"
+	RedTeamRunFailureReasonPolicyApplyFailed       RedTeamRunFailureReason = "policy_apply_failed"
+	RedTeamRunFailureReasonPriorContextUndelivered RedTeamRunFailureReason = "prior_context_undelivered"
+	RedTeamRunFailureReasonRepositoryRefused       RedTeamRunFailureReason = "repository_refused"
+	RedTeamRunFailureReasonRepositoryTooLarge      RedTeamRunFailureReason = "repository_too_large"
+	RedTeamRunFailureReasonRunnerMissing           RedTeamRunFailureReason = "runner_missing"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamRunFailureReason enum.
+func (e RedTeamRunFailureReason) Valid() bool {
+	switch e {
+	case RedTeamRunFailureReasonBudgetExceeded:
+		return true
+	case RedTeamRunFailureReasonBundleMissing:
+		return true
+	case RedTeamRunFailureReasonBundleRejected:
+		return true
+	case RedTeamRunFailureReasonBundleTooLarge:
+		return true
+	case RedTeamRunFailureReasonCloneFailed:
+		return true
+	case RedTeamRunFailureReasonCredentialRefused:
+		return true
+	case RedTeamRunFailureReasonDeadlineExceeded:
+		return true
+	case RedTeamRunFailureReasonInvalidRef:
+		return true
+	case RedTeamRunFailureReasonKeyMintFailed:
+		return true
+	case RedTeamRunFailureReasonModelRefused:
+		return true
+	case RedTeamRunFailureReasonModelUnresolved:
+		return true
+	case RedTeamRunFailureReasonPodFailed:
+		return true
+	case RedTeamRunFailureReasonPolicyApplyFailed:
+		return true
+	case RedTeamRunFailureReasonPriorContextUndelivered:
+		return true
+	case RedTeamRunFailureReasonRepositoryRefused:
+		return true
+	case RedTeamRunFailureReasonRepositoryTooLarge:
+		return true
+	case RedTeamRunFailureReasonRunnerMissing:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamRunState.
+const (
+	RedTeamRunStateCancelled  RedTeamRunState = "cancelled"
+	RedTeamRunStateCancelling RedTeamRunState = "cancelling"
+	RedTeamRunStateComplete   RedTeamRunState = "complete"
+	RedTeamRunStateFailed     RedTeamRunState = "failed"
+	RedTeamRunStateIncomplete RedTeamRunState = "incomplete"
+	RedTeamRunStatePending    RedTeamRunState = "pending"
+	RedTeamRunStateRunning    RedTeamRunState = "running"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamRunState enum.
+func (e RedTeamRunState) Valid() bool {
+	switch e {
+	case RedTeamRunStateCancelled:
+		return true
+	case RedTeamRunStateCancelling:
+		return true
+	case RedTeamRunStateComplete:
+		return true
+	case RedTeamRunStateFailed:
+		return true
+	case RedTeamRunStateIncomplete:
+		return true
+	case RedTeamRunStatePending:
+		return true
+	case RedTeamRunStateRunning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamRunTrigger.
+const (
+	RedTeamRunTriggerApi      RedTeamRunTrigger = "api"
+	RedTeamRunTriggerManual   RedTeamRunTrigger = "manual"
+	RedTeamRunTriggerRetest   RedTeamRunTrigger = "retest"
+	RedTeamRunTriggerSchedule RedTeamRunTrigger = "schedule"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamRunTrigger enum.
+func (e RedTeamRunTrigger) Valid() bool {
+	switch e {
+	case RedTeamRunTriggerApi:
+		return true
+	case RedTeamRunTriggerManual:
+		return true
+	case RedTeamRunTriggerRetest:
+		return true
+	case RedTeamRunTriggerSchedule:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamScheduleRefusal.
+const (
+	RedTeamScheduleRefusalConcurrencyLimit    RedTeamScheduleRefusal = "concurrency_limit"
+	RedTeamScheduleRefusalFeatureDisabled     RedTeamScheduleRefusal = "feature_disabled"
+	RedTeamScheduleRefusalInternalError       RedTeamScheduleRefusal = "internal_error"
+	RedTeamScheduleRefusalInvalidRequest      RedTeamScheduleRefusal = "invalid_request"
+	RedTeamScheduleRefusalOwnerLostPermission RedTeamScheduleRefusal = "owner_lost_permission"
+	RedTeamScheduleRefusalQuotaExceeded       RedTeamScheduleRefusal = "quota_exceeded"
+	RedTeamScheduleRefusalRepositoryMissing   RedTeamScheduleRefusal = "repository_missing"
+	RedTeamScheduleRefusalRuleRefused         RedTeamScheduleRefusal = "rule_refused"
+	RedTeamScheduleRefusalRunInFlight         RedTeamScheduleRefusal = "run_in_flight"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamScheduleRefusal enum.
+func (e RedTeamScheduleRefusal) Valid() bool {
+	switch e {
+	case RedTeamScheduleRefusalConcurrencyLimit:
+		return true
+	case RedTeamScheduleRefusalFeatureDisabled:
+		return true
+	case RedTeamScheduleRefusalInternalError:
+		return true
+	case RedTeamScheduleRefusalInvalidRequest:
+		return true
+	case RedTeamScheduleRefusalOwnerLostPermission:
+		return true
+	case RedTeamScheduleRefusalQuotaExceeded:
+		return true
+	case RedTeamScheduleRefusalRepositoryMissing:
+		return true
+	case RedTeamScheduleRefusalRuleRefused:
+		return true
+	case RedTeamScheduleRefusalRunInFlight:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamScmProvider.
+const (
+	RedTeamScmProviderForgejo RedTeamScmProvider = "forgejo"
+	RedTeamScmProviderGithub  RedTeamScmProvider = "github"
+	RedTeamScmProviderGitlab  RedTeamScmProvider = "gitlab"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamScmProvider enum.
+func (e RedTeamScmProvider) Valid() bool {
+	switch e {
+	case RedTeamScmProviderForgejo:
+		return true
+	case RedTeamScmProviderGithub:
+		return true
+	case RedTeamScmProviderGitlab:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamSeverity.
+const (
+	RedTeamSeverityCritical      RedTeamSeverity = "critical"
+	RedTeamSeverityHigh          RedTeamSeverity = "high"
+	RedTeamSeverityInformational RedTeamSeverity = "informational"
+	RedTeamSeverityLow           RedTeamSeverity = "low"
+	RedTeamSeverityMedium        RedTeamSeverity = "medium"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamSeverity enum.
+func (e RedTeamSeverity) Valid() bool {
+	switch e {
+	case RedTeamSeverityCritical:
+		return true
+	case RedTeamSeverityHigh:
+		return true
+	case RedTeamSeverityInformational:
+		return true
+	case RedTeamSeverityLow:
+		return true
+	case RedTeamSeverityMedium:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamTriageActorKind.
+const (
+	RedTeamTriageActorKindRun            RedTeamTriageActorKind = "run"
+	RedTeamTriageActorKindServiceAccount RedTeamTriageActorKind = "service_account"
+	RedTeamTriageActorKindSystem         RedTeamTriageActorKind = "system"
+	RedTeamTriageActorKindUser           RedTeamTriageActorKind = "user"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamTriageActorKind enum.
+func (e RedTeamTriageActorKind) Valid() bool {
+	switch e {
+	case RedTeamTriageActorKindRun:
+		return true
+	case RedTeamTriageActorKindServiceAccount:
+		return true
+	case RedTeamTriageActorKindSystem:
+		return true
+	case RedTeamTriageActorKindUser:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamTriageEventKind.
+const (
+	RedTeamTriageEventKindExpiry          RedTeamTriageEventKind = "expiry"
+	RedTeamTriageEventKindOwnerValidation RedTeamTriageEventKind = "owner_validation"
+	RedTeamTriageEventKindReopen          RedTeamTriageEventKind = "reopen"
+	RedTeamTriageEventKindTriage          RedTeamTriageEventKind = "triage"
+	RedTeamTriageEventKindVerdictChange   RedTeamTriageEventKind = "verdict_change"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamTriageEventKind enum.
+func (e RedTeamTriageEventKind) Valid() bool {
+	switch e {
+	case RedTeamTriageEventKindExpiry:
+		return true
+	case RedTeamTriageEventKindOwnerValidation:
+		return true
+	case RedTeamTriageEventKindReopen:
+		return true
+	case RedTeamTriageEventKindTriage:
+		return true
+	case RedTeamTriageEventKindVerdictChange:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RedTeamTriageState.
+const (
+	RedTeamTriageStateAcceptedRisk  RedTeamTriageState = "accepted_risk"
+	RedTeamTriageStateFalsePositive RedTeamTriageState = "false_positive"
+	RedTeamTriageStateFixed         RedTeamTriageState = "fixed"
+	RedTeamTriageStateOpen          RedTeamTriageState = "open"
+)
+
+// Valid indicates whether the value is a known member of the RedTeamTriageState enum.
+func (e RedTeamTriageState) Valid() bool {
+	switch e {
+	case RedTeamTriageStateAcceptedRisk:
+		return true
+	case RedTeamTriageStateFalsePositive:
+		return true
+	case RedTeamTriageStateFixed:
+		return true
+	case RedTeamTriageStateOpen:
 		return true
 	default:
 		return false
@@ -5092,6 +6838,204 @@ func (e RiskClass) Valid() bool {
 	case RiskClassPrivilegeEscalation:
 		return true
 	case RiskClassRce:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuleId.
+const (
+	RuleIdArtifactReused           RuleId = "artifact_reused"
+	RuleIdAttemptStatus            RuleId = "attempt_status"
+	RuleIdAttemptWaveOrder         RuleId = "attempt_wave_order"
+	RuleIdBelowMinimum             RuleId = "below_minimum"
+	RuleIdBundleFileMissing        RuleId = "bundle_file_missing"
+	RuleIdBundleVersionUnsupported RuleId = "bundle_version_unsupported"
+	RuleIdCanonicalRefsFields      RuleId = "canonical_refs_fields"
+	RuleIdCheckArtifact            RuleId = "check_artifact"
+	RuleIdCheckMethod              RuleId = "check_method"
+	RuleIdCheckPathNotInUnit       RuleId = "check_path_not_in_unit"
+	RuleIdCoverageIdMismatch       RuleId = "coverage_id_mismatch"
+	RuleIdCoverageIdsUnsorted      RuleId = "coverage_ids_unsorted"
+	RuleIdDocumentTooLarge         RuleId = "document_too_large"
+	RuleIdDuplicateCoverageId      RuleId = "duplicate_coverage_id"
+	RuleIdDuplicateEntry           RuleId = "duplicate_entry"
+	RuleIdDuplicateFingerprint     RuleId = "duplicate_fingerprint"
+	RuleIdDuplicateItem            RuleId = "duplicate_item"
+	RuleIdExcludedBlockSelected    RuleId = "excluded_block_selected"
+	RuleIdExecutionPolicy          RuleId = "execution_policy"
+	RuleIdFingerprintsUnsorted     RuleId = "fingerprints_unsorted"
+	RuleIdIncompleteReasonInvalid  RuleId = "incomplete_reason_invalid"
+	RuleIdInvalidAgentId           RuleId = "invalid_agent_id"
+	RuleIdInvalidCanonicalRef      RuleId = "invalid_canonical_ref"
+	RuleIdInvalidCommit            RuleId = "invalid_commit"
+	RuleIdInvalidEnum              RuleId = "invalid_enum"
+	RuleIdInvalidFingerprint       RuleId = "invalid_fingerprint"
+	RuleIdInvalidText              RuleId = "invalid_text"
+	RuleIdInvalidToken             RuleId = "invalid_token"
+	RuleIdLedgerFingerprintUnknown RuleId = "ledger_fingerprint_unknown"
+	RuleIdLifecycleMismatch        RuleId = "lifecycle_mismatch"
+	RuleIdLocalCheckNotSource      RuleId = "local_check_not_source"
+	RuleIdMissingField             RuleId = "missing_field"
+	RuleIdNestingTooDeep           RuleId = "nesting_too_deep"
+	RuleIdNoVisibleContent         RuleId = "no_visible_content"
+	RuleIdNotJson                  RuleId = "not_json"
+	RuleIdNulCharacter             RuleId = "nul_character"
+	RuleIdOwnerNotFresh            RuleId = "owner_not_fresh"
+	RuleIdPathWithoutCheck         RuleId = "path_without_check"
+	RuleIdPriorOwnerEvidence       RuleId = "prior_owner_evidence"
+	RuleIdProfileMismatch          RuleId = "profile_mismatch"
+	RuleIdRunIdMismatch            RuleId = "run_id_mismatch"
+	RuleIdRunStatusInvalid         RuleId = "run_status_invalid"
+	RuleIdScopeMismatch            RuleId = "scope_mismatch"
+	RuleIdSecretInIdentifier       RuleId = "secret_in_identifier"
+	RuleIdSemanticTupleReused      RuleId = "semantic_tuple_reused"
+	RuleIdSeverityExceedsImpact    RuleId = "severity_exceeds_impact"
+	RuleIdSourceCommitMismatch     RuleId = "source_commit_mismatch"
+	RuleIdSourceDirty              RuleId = "source_dirty"
+	RuleIdStatusRequiresEmpty      RuleId = "status_requires_empty"
+	RuleIdStatusRequiresEntries    RuleId = "status_requires_entries"
+	RuleIdStringTooLong            RuleId = "string_too_long"
+	RuleIdTitleTooLong             RuleId = "title_too_long"
+	RuleIdTooFewItems              RuleId = "too_few_items"
+	RuleIdTooManyItems             RuleId = "too_many_items"
+	RuleIdTooShort                 RuleId = "too_short"
+	RuleIdTraceOrder               RuleId = "trace_order"
+	RuleIdTypeMismatch             RuleId = "type_mismatch"
+	RuleIdUnitMustBeUnassigned     RuleId = "unit_must_be_unassigned"
+	RuleIdUnitRequiresOwner        RuleId = "unit_requires_owner"
+	RuleIdUnknownField             RuleId = "unknown_field"
+	RuleIdUnsafePath               RuleId = "unsafe_path"
+	RuleIdValidationPlanEmpty      RuleId = "validation_plan_empty"
+)
+
+// Valid indicates whether the value is a known member of the RuleId enum.
+func (e RuleId) Valid() bool {
+	switch e {
+	case RuleIdArtifactReused:
+		return true
+	case RuleIdAttemptStatus:
+		return true
+	case RuleIdAttemptWaveOrder:
+		return true
+	case RuleIdBelowMinimum:
+		return true
+	case RuleIdBundleFileMissing:
+		return true
+	case RuleIdBundleVersionUnsupported:
+		return true
+	case RuleIdCanonicalRefsFields:
+		return true
+	case RuleIdCheckArtifact:
+		return true
+	case RuleIdCheckMethod:
+		return true
+	case RuleIdCheckPathNotInUnit:
+		return true
+	case RuleIdCoverageIdMismatch:
+		return true
+	case RuleIdCoverageIdsUnsorted:
+		return true
+	case RuleIdDocumentTooLarge:
+		return true
+	case RuleIdDuplicateCoverageId:
+		return true
+	case RuleIdDuplicateEntry:
+		return true
+	case RuleIdDuplicateFingerprint:
+		return true
+	case RuleIdDuplicateItem:
+		return true
+	case RuleIdExcludedBlockSelected:
+		return true
+	case RuleIdExecutionPolicy:
+		return true
+	case RuleIdFingerprintsUnsorted:
+		return true
+	case RuleIdIncompleteReasonInvalid:
+		return true
+	case RuleIdInvalidAgentId:
+		return true
+	case RuleIdInvalidCanonicalRef:
+		return true
+	case RuleIdInvalidCommit:
+		return true
+	case RuleIdInvalidEnum:
+		return true
+	case RuleIdInvalidFingerprint:
+		return true
+	case RuleIdInvalidText:
+		return true
+	case RuleIdInvalidToken:
+		return true
+	case RuleIdLedgerFingerprintUnknown:
+		return true
+	case RuleIdLifecycleMismatch:
+		return true
+	case RuleIdLocalCheckNotSource:
+		return true
+	case RuleIdMissingField:
+		return true
+	case RuleIdNestingTooDeep:
+		return true
+	case RuleIdNoVisibleContent:
+		return true
+	case RuleIdNotJson:
+		return true
+	case RuleIdNulCharacter:
+		return true
+	case RuleIdOwnerNotFresh:
+		return true
+	case RuleIdPathWithoutCheck:
+		return true
+	case RuleIdPriorOwnerEvidence:
+		return true
+	case RuleIdProfileMismatch:
+		return true
+	case RuleIdRunIdMismatch:
+		return true
+	case RuleIdRunStatusInvalid:
+		return true
+	case RuleIdScopeMismatch:
+		return true
+	case RuleIdSecretInIdentifier:
+		return true
+	case RuleIdSemanticTupleReused:
+		return true
+	case RuleIdSeverityExceedsImpact:
+		return true
+	case RuleIdSourceCommitMismatch:
+		return true
+	case RuleIdSourceDirty:
+		return true
+	case RuleIdStatusRequiresEmpty:
+		return true
+	case RuleIdStatusRequiresEntries:
+		return true
+	case RuleIdStringTooLong:
+		return true
+	case RuleIdTitleTooLong:
+		return true
+	case RuleIdTooFewItems:
+		return true
+	case RuleIdTooManyItems:
+		return true
+	case RuleIdTooShort:
+		return true
+	case RuleIdTraceOrder:
+		return true
+	case RuleIdTypeMismatch:
+		return true
+	case RuleIdUnitMustBeUnassigned:
+		return true
+	case RuleIdUnitRequiresOwner:
+		return true
+	case RuleIdUnknownField:
+		return true
+	case RuleIdUnsafePath:
+		return true
+	case RuleIdValidationPlanEmpty:
 		return true
 	default:
 		return false
@@ -5817,9 +7761,22 @@ func (e SecurityDecision) Valid() bool {
 
 // Defines values for SecurityPolicy.
 const (
-	SecurityPolicyContainerAppsCommandOverride SecurityPolicy = "container_apps_command_override"
-	SecurityPolicyContainerAppsGitAutoSync     SecurityPolicy = "container_apps_git_auto_sync"
-	SecurityPolicyInvitationLinks              SecurityPolicy = "invitation_links"
+	SecurityPolicyContainerAppsCommandOverride       SecurityPolicy = "container_apps_command_override"
+	SecurityPolicyContainerAppsGitAutoSync           SecurityPolicy = "container_apps_git_auto_sync"
+	SecurityPolicyDatabasesInternetExposure          SecurityPolicy = "databases_internet_exposure"
+	SecurityPolicyDevWorkstationsServiceLinkConsumer SecurityPolicy = "dev_workstations_service_link_consumer"
+	SecurityPolicyInvitationLinks                    SecurityPolicy = "invitation_links"
+	SecurityPolicyPortForward                        SecurityPolicy = "port_forward"
+	SecurityPolicyRedTeamAllowedModels               SecurityPolicy = "red_team_allowed_models"
+	SecurityPolicyRedTeamBranchRuns                  SecurityPolicy = "red_team_branch_runs"
+	SecurityPolicyRedTeamFindingsExport              SecurityPolicy = "red_team_findings_export"
+	SecurityPolicyRedTeamFixHandoff                  SecurityPolicy = "red_team_fix_handoff"
+	SecurityPolicyRedTeamMaxProfile                  SecurityPolicy = "red_team_max_profile"
+	SecurityPolicyRedTeamPublicRepositories          SecurityPolicy = "red_team_public_repositories"
+	SecurityPolicyRedTeamScheduledRuns               SecurityPolicy = "red_team_scheduled_runs"
+	SecurityPolicyRedTeamServiceAccountRuns          SecurityPolicy = "red_team_service_account_runs"
+	SecurityPolicyVirtualMachinesPortForward         SecurityPolicy = "virtual_machines_port_forward"
+	SecurityPolicyVolumeBackupsRequired              SecurityPolicy = "volume_backups_required"
 )
 
 // Valid indicates whether the value is a known member of the SecurityPolicy enum.
@@ -5829,7 +7786,33 @@ func (e SecurityPolicy) Valid() bool {
 		return true
 	case SecurityPolicyContainerAppsGitAutoSync:
 		return true
+	case SecurityPolicyDatabasesInternetExposure:
+		return true
+	case SecurityPolicyDevWorkstationsServiceLinkConsumer:
+		return true
 	case SecurityPolicyInvitationLinks:
+		return true
+	case SecurityPolicyPortForward:
+		return true
+	case SecurityPolicyRedTeamAllowedModels:
+		return true
+	case SecurityPolicyRedTeamBranchRuns:
+		return true
+	case SecurityPolicyRedTeamFindingsExport:
+		return true
+	case SecurityPolicyRedTeamFixHandoff:
+		return true
+	case SecurityPolicyRedTeamMaxProfile:
+		return true
+	case SecurityPolicyRedTeamPublicRepositories:
+		return true
+	case SecurityPolicyRedTeamScheduledRuns:
+		return true
+	case SecurityPolicyRedTeamServiceAccountRuns:
+		return true
+	case SecurityPolicyVirtualMachinesPortForward:
+		return true
+	case SecurityPolicyVolumeBackupsRequired:
 		return true
 	default:
 		return false
@@ -5929,36 +7912,168 @@ func (e SensitivityLevel) Valid() bool {
 	}
 }
 
-// Defines values for ServiceLinkKind.
+// Defines values for ServiceAccountCredentialsAction.
 const (
-	ServiceLinkKindAirflow           ServiceLinkKind = "Airflow"
-	ServiceLinkKindContainerApp      ServiceLinkKind = "ContainerApp"
-	ServiceLinkKindHfKeyValueCache   ServiceLinkKind = "HfKeyValueCache"
-	ServiceLinkKindHfRabbitMq        ServiceLinkKind = "HfRabbitMq"
-	ServiceLinkKindKafka             ServiceLinkKind = "Kafka"
-	ServiceLinkKindManagedPostgreSQL ServiceLinkKind = "ManagedPostgreSQL"
-	ServiceLinkKindPipeline          ServiceLinkKind = "Pipeline"
-	ServiceLinkKindTrino             ServiceLinkKind = "Trino"
+	ServiceAccountCredentialsActionDownload ServiceAccountCredentialsAction = "download"
+	ServiceAccountCredentialsActionRotate   ServiceAccountCredentialsAction = "rotate"
 )
 
-// Valid indicates whether the value is a known member of the ServiceLinkKind enum.
-func (e ServiceLinkKind) Valid() bool {
+// Valid indicates whether the value is a known member of the ServiceAccountCredentialsAction enum.
+func (e ServiceAccountCredentialsAction) Valid() bool {
 	switch e {
-	case ServiceLinkKindAirflow:
+	case ServiceAccountCredentialsActionDownload:
 		return true
-	case ServiceLinkKindContainerApp:
+	case ServiceAccountCredentialsActionRotate:
 		return true
-	case ServiceLinkKindHfKeyValueCache:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind0.
+const (
+	ServiceLinkKind0Airflow ServiceLinkKind0 = "Airflow"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind0 enum.
+func (e ServiceLinkKind0) Valid() bool {
+	switch e {
+	case ServiceLinkKind0Airflow:
 		return true
-	case ServiceLinkKindHfRabbitMq:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind1.
+const (
+	ServiceLinkKind1ContainerApp ServiceLinkKind1 = "ContainerApp"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind1 enum.
+func (e ServiceLinkKind1) Valid() bool {
+	switch e {
+	case ServiceLinkKind1ContainerApp:
 		return true
-	case ServiceLinkKindKafka:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind2.
+const (
+	ServiceLinkKind2HfKeyValueCache ServiceLinkKind2 = "HfKeyValueCache"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind2 enum.
+func (e ServiceLinkKind2) Valid() bool {
+	switch e {
+	case ServiceLinkKind2HfKeyValueCache:
 		return true
-	case ServiceLinkKindManagedPostgreSQL:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind3.
+const (
+	ServiceLinkKind3HfRabbitMq ServiceLinkKind3 = "HfRabbitMq"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind3 enum.
+func (e ServiceLinkKind3) Valid() bool {
+	switch e {
+	case ServiceLinkKind3HfRabbitMq:
 		return true
-	case ServiceLinkKindPipeline:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind4.
+const (
+	ServiceLinkKind4ManagedPostgreSQL ServiceLinkKind4 = "ManagedPostgreSQL"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind4 enum.
+func (e ServiceLinkKind4) Valid() bool {
+	switch e {
+	case ServiceLinkKind4ManagedPostgreSQL:
 		return true
-	case ServiceLinkKindTrino:
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind5.
+const (
+	ServiceLinkKind5Trino ServiceLinkKind5 = "Trino"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind5 enum.
+func (e ServiceLinkKind5) Valid() bool {
+	switch e {
+	case ServiceLinkKind5Trino:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind6.
+const (
+	ServiceLinkKind6Kafka ServiceLinkKind6 = "Kafka"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind6 enum.
+func (e ServiceLinkKind6) Valid() bool {
+	switch e {
+	case ServiceLinkKind6Kafka:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind7.
+const (
+	ServiceLinkKind7Pipeline ServiceLinkKind7 = "Pipeline"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind7 enum.
+func (e ServiceLinkKind7) Valid() bool {
+	switch e {
+	case ServiceLinkKind7Pipeline:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind8.
+const (
+	ServiceLinkKind8HfVirtualMachine ServiceLinkKind8 = "HfVirtualMachine"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind8 enum.
+func (e ServiceLinkKind8) Valid() bool {
+	switch e {
+	case ServiceLinkKind8HfVirtualMachine:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ServiceLinkKind9.
+const (
+	ServiceLinkKind9DevWorkstation ServiceLinkKind9 = "DevWorkstation"
+)
+
+// Valid indicates whether the value is a known member of the ServiceLinkKind9 enum.
+func (e ServiceLinkKind9) Valid() bool {
+	switch e {
+	case ServiceLinkKind9DevWorkstation:
 		return true
 	default:
 		return false
@@ -6490,6 +8605,27 @@ func (e TopDimension) Valid() bool {
 	}
 }
 
+// Defines values for TraceKind.
+const (
+	TraceKindEntrypoint  TraceKind = "entrypoint"
+	TraceKindPropagation TraceKind = "propagation"
+	TraceKindSink        TraceKind = "sink"
+)
+
+// Valid indicates whether the value is a known member of the TraceKind enum.
+func (e TraceKind) Valid() bool {
+	switch e {
+	case TraceKindEntrypoint:
+		return true
+	case TraceKindPropagation:
+		return true
+	case TraceKindSink:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Unit.
 const (
 	UnitBytes             Unit = "bytes"
@@ -6616,6 +8752,27 @@ func (e ValueFormat) Valid() bool {
 	}
 }
 
+// Defines values for Verdict.
+const (
+	VerdictConfirmed       Verdict = "confirmed"
+	VerdictNeedsValidation Verdict = "needs_validation"
+	VerdictRejected        Verdict = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the Verdict enum.
+func (e Verdict) Valid() bool {
+	switch e {
+	case VerdictConfirmed:
+		return true
+	case VerdictNeedsValidation:
+		return true
+	case VerdictRejected:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for VerdictEvidence0Rule.
 const (
 	VerdictEvidence0RuleLoopingAgent VerdictEvidence0Rule = "looping_agent"
@@ -6664,6 +8821,90 @@ func (e VerdictRule) Valid() bool {
 	}
 }
 
+// Defines values for VirtualMachineDiskState.
+const (
+	VirtualMachineDiskStateAttached       VirtualMachineDiskState = "Attached"
+	VirtualMachineDiskStateAttaching      VirtualMachineDiskState = "Attaching"
+	VirtualMachineDiskStateDetaching      VirtualMachineDiskState = "Detaching"
+	VirtualMachineDiskStateFailed         VirtualMachineDiskState = "Failed"
+	VirtualMachineDiskStatePendingRestart VirtualMachineDiskState = "PendingRestart"
+	VirtualMachineDiskStatePendingStart   VirtualMachineDiskState = "PendingStart"
+	VirtualMachineDiskStateRefused        VirtualMachineDiskState = "Refused"
+	VirtualMachineDiskStateWaiting        VirtualMachineDiskState = "Waiting"
+)
+
+// Valid indicates whether the value is a known member of the VirtualMachineDiskState enum.
+func (e VirtualMachineDiskState) Valid() bool {
+	switch e {
+	case VirtualMachineDiskStateAttached:
+		return true
+	case VirtualMachineDiskStateAttaching:
+		return true
+	case VirtualMachineDiskStateDetaching:
+		return true
+	case VirtualMachineDiskStateFailed:
+		return true
+	case VirtualMachineDiskStatePendingRestart:
+		return true
+	case VirtualMachineDiskStatePendingStart:
+		return true
+	case VirtualMachineDiskStateRefused:
+		return true
+	case VirtualMachineDiskStateWaiting:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VirtualMachinePortProtocol.
+const (
+	VirtualMachinePortProtocolTCP VirtualMachinePortProtocol = "TCP"
+	VirtualMachinePortProtocolUDP VirtualMachinePortProtocol = "UDP"
+)
+
+// Valid indicates whether the value is a known member of the VirtualMachinePortProtocol enum.
+func (e VirtualMachinePortProtocol) Valid() bool {
+	switch e {
+	case VirtualMachinePortProtocolTCP:
+		return true
+	case VirtualMachinePortProtocolUDP:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VirtualMachineServiceState.
+const (
+	VirtualMachineServiceStateApplyFailed  VirtualMachineServiceState = "ApplyFailed"
+	VirtualMachineServiceStateInvalidName  VirtualMachineServiceState = "InvalidName"
+	VirtualMachineServiceStateNameConflict VirtualMachineServiceState = "NameConflict"
+	VirtualMachineServiceStateNotRequired  VirtualMachineServiceState = "NotRequired"
+	VirtualMachineServiceStatePending      VirtualMachineServiceState = "Pending"
+	VirtualMachineServiceStateReady        VirtualMachineServiceState = "Ready"
+)
+
+// Valid indicates whether the value is a known member of the VirtualMachineServiceState enum.
+func (e VirtualMachineServiceState) Valid() bool {
+	switch e {
+	case VirtualMachineServiceStateApplyFailed:
+		return true
+	case VirtualMachineServiceStateInvalidName:
+		return true
+	case VirtualMachineServiceStateNameConflict:
+		return true
+	case VirtualMachineServiceStateNotRequired:
+		return true
+	case VirtualMachineServiceStatePending:
+		return true
+	case VirtualMachineServiceStateReady:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for VmImageKind.
 const (
 	VmImageKindDisk      VmImageKind = "disk"
@@ -6706,6 +8947,144 @@ func (e VolumeAccessMode) Valid() bool {
 	}
 }
 
+// Defines values for VolumeBackupCoverageState.
+const (
+	VolumeBackupCoverageStateCovered   VolumeBackupCoverageState = "Covered"
+	VolumeBackupCoverageStateUncovered VolumeBackupCoverageState = "Uncovered"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupCoverageState enum.
+func (e VolumeBackupCoverageState) Valid() bool {
+	switch e {
+	case VolumeBackupCoverageStateCovered:
+		return true
+	case VolumeBackupCoverageStateUncovered:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeBackupLocationKind.
+const (
+	VolumeBackupLocationKindExternal  VolumeBackupLocationKind = "External"
+	VolumeBackupLocationKindInCluster VolumeBackupLocationKind = "InCluster"
+	VolumeBackupLocationKindTarget    VolumeBackupLocationKind = "Target"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupLocationKind enum.
+func (e VolumeBackupLocationKind) Valid() bool {
+	switch e {
+	case VolumeBackupLocationKindExternal:
+		return true
+	case VolumeBackupLocationKindInCluster:
+		return true
+	case VolumeBackupLocationKindTarget:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeBackupPointOrigin.
+const (
+	VolumeBackupPointOriginFinal      VolumeBackupPointOrigin = "Final"
+	VolumeBackupPointOriginManual     VolumeBackupPointOrigin = "Manual"
+	VolumeBackupPointOriginPreRestore VolumeBackupPointOrigin = "PreRestore"
+	VolumeBackupPointOriginScheduled  VolumeBackupPointOrigin = "Scheduled"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupPointOrigin enum.
+func (e VolumeBackupPointOrigin) Valid() bool {
+	switch e {
+	case VolumeBackupPointOriginFinal:
+		return true
+	case VolumeBackupPointOriginManual:
+		return true
+	case VolumeBackupPointOriginPreRestore:
+		return true
+	case VolumeBackupPointOriginScheduled:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeBackupPointPhase.
+const (
+	VolumeBackupPointPhaseCompleted    VolumeBackupPointPhase = "Completed"
+	VolumeBackupPointPhaseExpired      VolumeBackupPointPhase = "Expired"
+	VolumeBackupPointPhaseFailed       VolumeBackupPointPhase = "Failed"
+	VolumeBackupPointPhasePending      VolumeBackupPointPhase = "Pending"
+	VolumeBackupPointPhaseSnapshotting VolumeBackupPointPhase = "Snapshotting"
+	VolumeBackupPointPhaseUploading    VolumeBackupPointPhase = "Uploading"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupPointPhase enum.
+func (e VolumeBackupPointPhase) Valid() bool {
+	switch e {
+	case VolumeBackupPointPhaseCompleted:
+		return true
+	case VolumeBackupPointPhaseExpired:
+		return true
+	case VolumeBackupPointPhaseFailed:
+		return true
+	case VolumeBackupPointPhasePending:
+		return true
+	case VolumeBackupPointPhaseSnapshotting:
+		return true
+	case VolumeBackupPointPhaseUploading:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeBackupSourceKind.
+const (
+	VolumeBackupSourceKindContainerApp   VolumeBackupSourceKind = "ContainerApp"
+	VolumeBackupSourceKindDevWorkstation VolumeBackupSourceKind = "DevWorkstation"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupSourceKind enum.
+func (e VolumeBackupSourceKind) Valid() bool {
+	switch e {
+	case VolumeBackupSourceKindContainerApp:
+		return true
+	case VolumeBackupSourceKindDevWorkstation:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeBackupUncoveredReason.
+const (
+	VolumeBackupUncoveredReasonBackupTargetUnavailable VolumeBackupUncoveredReason = "BackupTargetUnavailable"
+	VolumeBackupUncoveredReasonBlockVolume             VolumeBackupUncoveredReason = "BlockVolume"
+	VolumeBackupUncoveredReasonDatabaseVolume          VolumeBackupUncoveredReason = "DatabaseVolume"
+	VolumeBackupUncoveredReasonNotEnabled              VolumeBackupUncoveredReason = "NotEnabled"
+	VolumeBackupUncoveredReasonPausedByPlatform        VolumeBackupUncoveredReason = "PausedByPlatform"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupUncoveredReason enum.
+func (e VolumeBackupUncoveredReason) Valid() bool {
+	switch e {
+	case VolumeBackupUncoveredReasonBackupTargetUnavailable:
+		return true
+	case VolumeBackupUncoveredReasonBlockVolume:
+		return true
+	case VolumeBackupUncoveredReasonDatabaseVolume:
+		return true
+	case VolumeBackupUncoveredReasonNotEnabled:
+		return true
+	case VolumeBackupUncoveredReasonPausedByPlatform:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for VolumeDefaultLevel.
 const (
 	VolumeDefaultLevelHarbor       VolumeDefaultLevel = "Harbor"
@@ -6721,6 +9100,33 @@ func (e VolumeDefaultLevel) Valid() bool {
 	case VolumeDefaultLevelOrganization:
 		return true
 	case VolumeDefaultLevelPlatform:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeLifecycleAction.
+const (
+	VolumeLifecycleActionAttached VolumeLifecycleAction = "attached"
+	VolumeLifecycleActionCreated  VolumeLifecycleAction = "created"
+	VolumeLifecycleActionDeleted  VolumeLifecycleAction = "deleted"
+	VolumeLifecycleActionDetached VolumeLifecycleAction = "detached"
+	VolumeLifecycleActionResized  VolumeLifecycleAction = "resized"
+)
+
+// Valid indicates whether the value is a known member of the VolumeLifecycleAction enum.
+func (e VolumeLifecycleAction) Valid() bool {
+	switch e {
+	case VolumeLifecycleActionAttached:
+		return true
+	case VolumeLifecycleActionCreated:
+		return true
+	case VolumeLifecycleActionDeleted:
+		return true
+	case VolumeLifecycleActionDetached:
+		return true
+	case VolumeLifecycleActionResized:
 		return true
 	default:
 		return false
@@ -6747,17 +9153,18 @@ func (e VolumeMode) Valid() bool {
 
 // Defines values for VolumeProduct.
 const (
-	VolumeProductCiRunner           VolumeProduct = "CiRunner"
-	VolumeProductComputeDockHome    VolumeProduct = "ComputeDockHome"
-	VolumeProductContainerApp       VolumeProduct = "ContainerApp"
-	VolumeProductContainerAppShared VolumeProduct = "ContainerAppShared"
-	VolumeProductDevWorkstation     VolumeProduct = "DevWorkstation"
-	VolumeProductDevWorkstationOci  VolumeProduct = "DevWorkstationOci"
-	VolumeProductKafka              VolumeProduct = "Kafka"
-	VolumeProductManagedPostgreSQL  VolumeProduct = "ManagedPostgreSQL"
-	VolumeProductNextflowWork       VolumeProduct = "NextflowWork"
-	VolumeProductTrino              VolumeProduct = "Trino"
-	VolumeProductVirtualMachine     VolumeProduct = "VirtualMachine"
+	VolumeProductCiRunner             VolumeProduct = "CiRunner"
+	VolumeProductComputeDockHome      VolumeProduct = "ComputeDockHome"
+	VolumeProductContainerApp         VolumeProduct = "ContainerApp"
+	VolumeProductContainerAppShared   VolumeProduct = "ContainerAppShared"
+	VolumeProductDevWorkstation       VolumeProduct = "DevWorkstation"
+	VolumeProductDevWorkstationOci    VolumeProduct = "DevWorkstationOci"
+	VolumeProductKafka                VolumeProduct = "Kafka"
+	VolumeProductManagedPostgreSQL    VolumeProduct = "ManagedPostgreSQL"
+	VolumeProductNextflowWork         VolumeProduct = "NextflowWork"
+	VolumeProductTrino                VolumeProduct = "Trino"
+	VolumeProductVirtualMachine       VolumeProduct = "VirtualMachine"
+	VolumeProductVirtualMachineVolume VolumeProduct = "VirtualMachineVolume"
 )
 
 // Valid indicates whether the value is a known member of the VolumeProduct enum.
@@ -6784,6 +9191,62 @@ func (e VolumeProduct) Valid() bool {
 	case VolumeProductTrino:
 		return true
 	case VolumeProductVirtualMachine:
+		return true
+	case VolumeProductVirtualMachineVolume:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeRestoreMode.
+const (
+	VolumeRestoreModeInPlace  VolumeRestoreMode = "InPlace"
+	VolumeRestoreModeNewClaim VolumeRestoreMode = "NewClaim"
+)
+
+// Valid indicates whether the value is a known member of the VolumeRestoreMode enum.
+func (e VolumeRestoreMode) Valid() bool {
+	switch e {
+	case VolumeRestoreModeInPlace:
+		return true
+	case VolumeRestoreModeNewClaim:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VolumeRestorePhase.
+const (
+	VolumeRestorePhaseBinding      VolumeRestorePhase = "Binding"
+	VolumeRestorePhaseCompleted    VolumeRestorePhase = "Completed"
+	VolumeRestorePhaseDatabase     VolumeRestorePhase = "Database"
+	VolumeRestorePhaseFailed       VolumeRestorePhase = "Failed"
+	VolumeRestorePhasePending      VolumeRestorePhase = "Pending"
+	VolumeRestorePhaseRestoring    VolumeRestorePhase = "Restoring"
+	VolumeRestorePhaseSafetyBackup VolumeRestorePhase = "SafetyBackup"
+	VolumeRestorePhaseVerifying    VolumeRestorePhase = "Verifying"
+)
+
+// Valid indicates whether the value is a known member of the VolumeRestorePhase enum.
+func (e VolumeRestorePhase) Valid() bool {
+	switch e {
+	case VolumeRestorePhaseBinding:
+		return true
+	case VolumeRestorePhaseCompleted:
+		return true
+	case VolumeRestorePhaseDatabase:
+		return true
+	case VolumeRestorePhaseFailed:
+		return true
+	case VolumeRestorePhasePending:
+		return true
+	case VolumeRestorePhaseRestoring:
+		return true
+	case VolumeRestorePhaseSafetyBackup:
+		return true
+	case VolumeRestorePhaseVerifying:
 		return true
 	default:
 		return false
@@ -6980,6 +9443,11 @@ func (e WorkstationTemplateScopeDto) Valid() bool {
 	default:
 		return false
 	}
+}
+
+// AbortIncompleteMultipartUploadInput "Clean up unfinished uploads".
+type AbortIncompleteMultipartUploadInput struct {
+	DaysAfterInitiation *int32 `json:"days_after_initiation,omitempty"`
 }
 
 // AbortManagedPostgresqlImportUploadRequestBody defines model for AbortManagedPostgresqlImportUploadRequestBody.
@@ -8965,6 +11433,20 @@ type AtlasWorkspace struct {
 	Entries    []AtlasEntry       `json:"entries"`
 }
 
+// AttachVirtualMachineDiskRequestBody defines model for AttachVirtualMachineDiskRequestBody.
+type AttachVirtualMachineDiskRequestBody struct {
+	// Serial What the guest finds the disk by, `/dev/disk/by-id/virtio-<serial>`:
+	// 1 to 20 characters of letters, digits, `_`, `.`, `+` and `-`, unique on
+	// the virtual machine. It belongs to the attachment, not to the volume.
+	Serial string `json:"serial"`
+
+	// VolumeName Name of a volume of the virtual machine's environment.
+	VolumeName string `json:"volume_name"`
+}
+
+// AttemptStatus defines model for AttemptStatus.
+type AttemptStatus string
+
 // AuditActor The person behind a decision, when its `oauth_id` resolved to a console user.
 type AuditActor struct {
 	Email     string             `json:"email"`
@@ -9170,35 +11652,49 @@ type AuditLogEvent6 struct {
 // AuditLogEvent6Type defines model for AuditLogEvent.6.Type.
 type AuditLogEvent6Type string
 
-// AuditLogEvent7 A guardrail (`organization_policy`) was removed by cascade-GC when its
-// resource subtree was deleted. Audited because dropping a deny-unless
-// guardrail *widens* access.
+// AuditLogEvent7 A bucket operation the S3 gateway delegated to the platform's control backend.
 type AuditLogEvent7 struct {
-	// Data Audit payload for a guardrail removed by cascade-GC on resource delete.
-	// One entry is written per removed guardrail.
-	Data AuthzOrganizationPolicyRevokedLog `json:"data"`
-	Type AuditLogEvent7Type                `json:"type"`
+	// Data A request the S3 gateway delegated to the platform's control backend (bucket creation and
+	// configuration) instead of evaluating policy and proxying it. The platform's control backend, not
+	// the gateway's policy, decides it, so there is no policy input; this records what was asked and what the control backend
+	// answered. `decision_id` is the gateway's request id, the `x-s0-request-id` the control
+	// backend logs.
+	Data S3GatewayDelegatedLog `json:"data"`
+	Type AuditLogEvent7Type    `json:"type"`
 }
 
 // AuditLogEvent7Type defines model for AuditLogEvent.7.Type.
 type AuditLogEvent7Type string
 
-// AuditLogEvent8 A request was allowed via the platform break-glass bypass. Audited
-// unconditionally: this is the one path that overrides deny and guardrails.
+// AuditLogEvent8 A guardrail (`organization_policy`) was removed by cascade-GC when its
+// resource subtree was deleted. Audited because dropping a deny-unless
+// guardrail *widens* access.
 type AuditLogEvent8 struct {
-	// Data Audit payload for a break-glass bypass. One entry per authorized request that
-	// resolved via the platform recovery subject.
-	Data AuthzBreakGlassUsedLog `json:"data"`
-	Type AuditLogEvent8Type     `json:"type"`
+	// Data Audit payload for a guardrail removed by cascade-GC on resource delete.
+	// One entry is written per removed guardrail.
+	Data AuthzOrganizationPolicyRevokedLog `json:"data"`
+	Type AuditLogEvent8Type                `json:"type"`
 }
 
 // AuditLogEvent8Type defines model for AuditLogEvent.8.Type.
 type AuditLogEvent8Type string
 
-// AuditLogEvent9 A platform administrator changed org-level commercial state from the
+// AuditLogEvent9 A request was allowed via the platform break-glass bypass. Audited
+// unconditionally: this is the one path that overrides deny and guardrails.
+type AuditLogEvent9 struct {
+	// Data Audit payload for a break-glass bypass. One entry per authorized request that
+	// resolved via the platform recovery subject.
+	Data AuthzBreakGlassUsedLog `json:"data"`
+	Type AuditLogEvent9Type     `json:"type"`
+}
+
+// AuditLogEvent9Type defines model for AuditLogEvent.9.Type.
+type AuditLogEvent9Type string
+
+// AuditLogEvent10 A platform administrator changed org-level commercial state from the
 // cockpit (plan, quota overrides, feature toggles). The actor is the
 // VALIDATED platform-realm JWT subject, recorded at the mutation site.
-type AuditLogEvent9 struct {
+type AuditLogEvent10 struct {
 	// Data Audit payload for a cockpit mutation. `actor` is the platform admin's
 	// email (fallback: Keycloak sub); `action` is a stable machine key
 	// (`quota_profile_assigned`, `custom_limits_updated`, `feature_override_set`,
@@ -9206,51 +11702,51 @@ type AuditLogEvent9 struct {
 	// as string key/values (new plan slug, the limits written, the flag…) —
 	// stringly-typed so the event enum keeps its `Eq` derive.
 	Data PlatformAdminActionLog `json:"data"`
-	Type AuditLogEvent9Type     `json:"type"`
+	Type AuditLogEvent10Type    `json:"type"`
 }
 
-// AuditLogEvent9Type defines model for AuditLogEvent.9.Type.
-type AuditLogEvent9Type string
+// AuditLogEvent10Type defines model for AuditLogEvent.10.Type.
+type AuditLogEvent10Type string
 
-// AuditLogEvent10 A runtime-security detection fired on a node. Emitted by Falco and
+// AuditLogEvent11 A runtime-security detection fired on a node. Emitted by Falco and
 // ingested through the internal runtime-security router.
 //
 // Attribution is best-effort: the enclosing request's `organization_id`
 // is `None` for platform namespaces and for anything the namespace-label
 // resolver could not place. Those are surfaced as "unattributed", never
 // silently dropped — see `runtime_security::attribution`.
-type AuditLogEvent10 struct {
+type AuditLogEvent11 struct {
 	// Data One Falco detection, after redaction, dedup and attribution — the shape
 	// actually persisted. Fields Falco's `output_fields` may omit (rule
 	// dependent — see falcosidekick's own docs) are `Option`; forcing them
 	// non-optional would make ingestion brittle to Falco's own rule authoring.
 	Data RuntimeSecurityAlertLog `json:"data"`
-	Type AuditLogEvent10Type     `json:"type"`
-}
-
-// AuditLogEvent10Type defines model for AuditLogEvent.10.Type.
-type AuditLogEvent10Type string
-
-// AuditLogEvent11 A Trino query completed — the SQL + outcome trace root beyond OPA
-// (ADR-0040 roadmap item 4), from the coordinator's built-in HTTP event
-// listener.
-type AuditLogEvent11 struct {
-	// Data A query-completion event, distilled from Trino's `QueryCompletedEvent`.
-	Data TrinoQueryCompletedLog `json:"data"`
-	Type AuditLogEvent11Type    `json:"type"`
+	Type AuditLogEvent11Type     `json:"type"`
 }
 
 // AuditLogEvent11Type defines model for AuditLogEvent.11.Type.
 type AuditLogEvent11Type string
 
-// AuditLogEvent12 A request a user made of the agent inside a dev workstation, recorded
+// AuditLogEvent12 A Trino query completed — the SQL + outcome trace root beyond OPA
+// (ADR-0040 roadmap item 4), from the coordinator's built-in HTTP event
+// listener.
+type AuditLogEvent12 struct {
+	// Data A query-completion event, distilled from Trino's `QueryCompletedEvent`.
+	Data TrinoQueryCompletedLog `json:"data"`
+	Type AuditLogEvent12Type    `json:"type"`
+}
+
+// AuditLogEvent12Type defines model for AuditLogEvent.12.Type.
+type AuditLogEvent12Type string
+
+// AuditLogEvent13 A request a user made of the agent inside a dev workstation, recorded
 // because the organization is in workstation audit mode.
 //
 // Content, not a decision. Not part of the tenant audit trail: it is
 // served only by the workstation transcript endpoint, behind
 // `Permission::DevWorkstationAuditRead`, and is filtered out of
 // `GET /api/v1/audit-logs` the way platform-admin actions are.
-type AuditLogEvent12 struct {
+type AuditLogEvent13 struct {
 	// Data Audit payload for a request made of the agent inside a dev workstation.
 	//
 	// The prompt is stored verbatim. Unlike terminal input there is no echo to
@@ -9258,15 +11754,15 @@ type AuditLogEvent12 struct {
 	// into a chat box and sent to a third-party model, so recording it discloses
 	// nothing to the organization that the model provider was not already given.
 	Data WorkstationAgentRequestLog `json:"data"`
-	Type AuditLogEvent12Type        `json:"type"`
+	Type AuditLogEvent13Type        `json:"type"`
 }
 
-// AuditLogEvent12Type defines model for AuditLogEvent.12.Type.
-type AuditLogEvent12Type string
+// AuditLogEvent13Type defines model for AuditLogEvent.13.Type.
+type AuditLogEvent13Type string
 
-// AuditLogEvent13 A command line submitted in a dev workstation terminal. Same audience
+// AuditLogEvent14 A command line submitted in a dev workstation terminal. Same audience
 // and same exclusion as [`Self::WorkstationAgentRequest`].
-type AuditLogEvent13 struct {
+type AuditLogEvent14 struct {
 	// Data Audit payload for one command line submitted in a workstation terminal.
 	//
 	// METADATA ONLY, and that is a deliberate contract rather than a limitation
@@ -9280,17 +11776,17 @@ type AuditLogEvent13 struct {
 	// what volume. What they do not get: what was run. Do not describe this event
 	// as a command history.
 	Data WorkstationTerminalCommandLog `json:"data"`
-	Type AuditLogEvent13Type           `json:"type"`
+	Type AuditLogEvent14Type           `json:"type"`
 }
 
-// AuditLogEvent13Type defines model for AuditLogEvent.13.Type.
-type AuditLogEvent13Type string
+// AuditLogEvent14Type defines model for AuditLogEvent.14.Type.
+type AuditLogEvent14Type string
 
-// AuditLogEvent14 A preview session was opened into a workstation while the organization
+// AuditLogEvent15 A preview session was opened into a workstation while the organization
 // was in audit mode with `PreviewPosture::Record`. Records that an
 // unrecorded interactive channel was available, and for how long, which
 // is the fact a reviewer needs even without its contents.
-type AuditLogEvent14 struct {
+type AuditLogEvent15 struct {
 	// Data Audit payload for a preview session opened while the organization is in
 	// audit mode with `PreviewPosture::Record`.
 	//
@@ -9299,18 +11795,18 @@ type AuditLogEvent14 struct {
 	// What is recordable, and what a reviewer needs, is that the channel was
 	// opened at all.
 	Data WorkstationPreviewSessionLog `json:"data"`
-	Type AuditLogEvent14Type          `json:"type"`
+	Type AuditLogEvent15Type          `json:"type"`
 }
 
-// AuditLogEvent14Type defines model for AuditLogEvent.14.Type.
-type AuditLogEvent14Type string
+// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
+type AuditLogEvent15Type string
 
-// AuditLogEvent15 An IDE file operation on a dev workstation (read, write, upload,
+// AuditLogEvent16 An IDE file operation on a dev workstation (read, write, upload,
 // download, move, delete, search), recorded as metadata only because the
 // organization is in workstation audit mode (ADR-0058 D0.4, D10.6). Same
 // audience and same exclusion as [`Self::WorkstationAgentRequest`]: owner
 // transcript only, never a tenant `audit_log:read` listing.
-type AuditLogEvent15 struct {
+type AuditLogEvent16 struct {
 	// Data Audit payload for one IDE file operation on a dev workstation, recorded
 	// while the organization is in audit mode (ADR-0058 U-1).
 	//
@@ -9320,33 +11816,33 @@ type AuditLogEvent15 struct {
 	// sha256 of its query, which lets a reviewer match two searches without
 	// reading either.
 	Data WorkstationFileAccessLog `json:"data"`
-	Type AuditLogEvent15Type      `json:"type"`
+	Type AuditLogEvent16Type      `json:"type"`
 }
 
-// AuditLogEvent15Type defines model for AuditLogEvent.15.Type.
-type AuditLogEvent15Type string
+// AuditLogEvent16Type defines model for AuditLogEvent.16.Type.
+type AuditLogEvent16Type string
 
-// AuditLogEvent16 A principal started loading a staged dump into a managed PostgreSQL
+// AuditLogEvent17 A principal started loading a staged dump into a managed PostgreSQL
 // instance. Recorded because the import replays arbitrary SQL as the
 // chosen database role, which is a write no other trail attributes to a
 // person.
-type AuditLogEvent16 struct {
+type AuditLogEvent17 struct {
 	// Data Audit payload for an import started into a managed PostgreSQL instance.
 	// The actor is the enclosing request's `oauth_id`.
 	//
 	// Identifies what was loaded and as whom; never the object's contents or a
 	// presigned URL.
 	Data ManagedPostgresqlImportCreatedLog `json:"data"`
-	Type AuditLogEvent16Type               `json:"type"`
+	Type AuditLogEvent17Type               `json:"type"`
 }
 
-// AuditLogEvent16Type defines model for AuditLogEvent.16.Type.
-type AuditLogEvent16Type string
+// AuditLogEvent17Type defines model for AuditLogEvent.17.Type.
+type AuditLogEvent17Type string
 
-// AuditLogEvent17 A browser console session (VNC or serial) on a virtual machine was
+// AuditLogEvent18 A browser console session (VNC or serial) on a virtual machine was
 // opened or closed. Recorded at both ends so a session's duration and the
 // reason it ended are on the ledger.
-type AuditLogEvent17 struct {
+type AuditLogEvent18 struct {
 	// Data Audit payload for a browser console session on a virtual machine. The
 	// actor is the enclosing request's `oauth_id`.
 	//
@@ -9354,34 +11850,33 @@ type AuditLogEvent17 struct {
 	// records who attached to which VM and for how long; the bytes relayed are
 	// never captured.
 	Data VirtualMachineConsoleSessionLog `json:"data"`
-	Type AuditLogEvent17Type             `json:"type"`
-}
-
-// AuditLogEvent17Type defines model for AuditLogEvent.17.Type.
-type AuditLogEvent17Type string
-
-// AuditLogEvent18 A ContainerApp's Git source resolved a new image and rolled it out
-// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
-// every such change is attributed to the commit and its author.
-type AuditLogEvent18 struct {
-	// Data Audit payload for an image a Git source rolled out. Written by the console
-	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
-	// the person behind it is the commit author, as the provider reports it.
-	Data ContainerAppImageSyncedLog `json:"data"`
-	Type AuditLogEvent18Type        `json:"type"`
+	Type AuditLogEvent18Type             `json:"type"`
 }
 
 // AuditLogEvent18Type defines model for AuditLogEvent.18.Type.
 type AuditLogEvent18Type string
 
-// AuditLogEvent19 A console-mediated read returned the raw value of a Ceph RGW
+// AuditLogEvent19 A ContainerApp's Git source resolved a new image and rolled it out
+// (ADR-0052 §7): pushing to the tracked branch or tag is deploy access, so
+// every such change is attributed to the commit and its author.
+type AuditLogEvent19 struct {
+	// Data Audit payload for an image a Git source rolled out. Written by the console
+	// when it resolves the change, so the actor is the platform (`oauth_id` nil);
+	// the person behind it is the commit author, as the provider reports it.
+	Data ContainerAppImageSyncedLog `json:"data"`
+	Type AuditLogEvent19Type        `json:"type"`
+}
+
+// AuditLogEvent19Type defines model for AuditLogEvent.19.Type.
+type AuditLogEvent19Type string
+
+// AuditLogEvent20 A console-mediated read returned the raw value of a Ceph RGW
 // tenant-owner key (a Secret-Manager entry named under
-// `services/ceph/<binding>/owner/` or tagged `ceph-harbor-owner-user`, by
-// `harbor_binding_reconciler.rs`'s `publish_owner_credentials_to_console`).
+// `services/ceph/<binding>/owner/` or tagged `ceph-harbor-owner-user`).
 // The only observability left once that credential leaves Secret Manager —
 // see `handlers::secrets::read_secret_value`. Recorded through the acked
 // emitter: a reveal that cannot be recorded is refused.
-type AuditLogEvent19 struct {
+type AuditLogEvent20 struct {
 	// Data Audit payload for a console-mediated reveal of a Ceph RGW tenant-owner
 	// key. The actor is the enclosing request's `oauth_id`: the caller for an
 	// externally-authenticated read, or a fixed system actor for the internal
@@ -9391,50 +11886,50 @@ type AuditLogEvent19 struct {
 	// only what identifies which entry was revealed and, when resolvable, which
 	// harbor it belongs to.
 	Data ObjectStorageOwnerKeyRevealedLog `json:"data"`
-	Type AuditLogEvent19Type              `json:"type"`
-}
-
-// AuditLogEvent19Type defines model for AuditLogEvent.19.Type.
-type AuditLogEvent19Type string
-
-// AuditLogEvent20 The platform's usage sweep read the organization's buckets on one
-// backend (ADR-0048 D5: the collector's principal is named, and it is
-// audited like every other job that reads object data). One event per
-// sweep per (organization, backend), reported by the operator through
-// the internal API.
-type AuditLogEvent20 struct {
-	// Data Audit payload for one usage sweep over one organization's buckets on one
-	// backend. It names who read (the collector's principal), where (the
-	// backend and its driver), how much (buckets read, and those whose read
-	// failed) and when; never a bucket's content, key or credential.
-	Data ObjectStorageUsageCollectedLog `json:"data"`
-	Type AuditLogEvent20Type            `json:"type"`
+	Type AuditLogEvent20Type              `json:"type"`
 }
 
 // AuditLogEvent20Type defines model for AuditLogEvent.20.Type.
 type AuditLogEvent20Type string
 
-// AuditLogEvent21 The Replication Manager read one bucket and copied it to the platform
-// backup target (ADR-0047 D6). Its identity reads every tenant's data, so
-// each run is recorded per bucket, reported by the operator once the run
-// ends; s0 records the reads themselves.
+// AuditLogEvent21 The platform's usage sweep read the organization's buckets on one
+// backend (ADR-0048 D5: the collector's principal is named, and it is
+// audited like every other job that reads object data). One event per
+// sweep per (organization, backend), reported by the operator through
+// the internal API.
 type AuditLogEvent21 struct {
-	// Data Audit payload for one bucket of one replication run: who read (the
-	// Replication Manager's principal), which bucket, what reached the backup
-	// target and when; never an object key, its content or a credential.
-	Data ObjectStorageReplicatedLog `json:"data"`
-	Type AuditLogEvent21Type        `json:"type"`
+	// Data Audit payload for one usage sweep over one organization's buckets on one
+	// backend. It names who read (the collector's principal), where (the
+	// backend and its driver), how much (buckets read, and those whose read
+	// failed) and when; never a bucket's content, key or credential.
+	Data ObjectStorageUsageCollectedLog `json:"data"`
+	Type AuditLogEvent21Type            `json:"type"`
 }
 
 // AuditLogEvent21Type defines model for AuditLogEvent.21.Type.
 type AuditLogEvent21Type string
 
-// AuditLogEvent22 The git credential of a dev workstation was rotated, re-picked,
+// AuditLogEvent22 The Replication Manager read one bucket and copied it to the platform
+// backup target (ADR-0047 D6). Its identity reads every tenant's data, so
+// each run is recorded per bucket, reported by the operator once the run
+// ends; s0 records the reads themselves.
+type AuditLogEvent22 struct {
+	// Data Audit payload for one bucket of one replication run: who read (the
+	// Replication Manager's principal), which bucket, what reached the backup
+	// target and when; never an object key, its content or a credential.
+	Data ObjectStorageReplicatedLog `json:"data"`
+	Type AuditLogEvent22Type        `json:"type"`
+}
+
+// AuditLogEvent22Type defines model for AuditLogEvent.22.Type.
+type AuditLogEvent22Type string
+
+// AuditLogEvent23 The git credential of a dev workstation was rotated, re-picked,
 // refreshed or re-minted (ADR-0058 D10.10). Always recorded, workstation
 // audit mode or not: a credential change is a tenant-level security
 // event, unlike the workstation transcript events. Names secrets and
 // logins, never a token.
-type AuditLogEvent22 struct {
+type AuditLogEvent23 struct {
 	// Data Audit payload for a change to a dev workstation's git credential. The actor
 	// is the enclosing request's `oauth_id`.
 	//
@@ -9442,27 +11937,297 @@ type AuditLogEvent22 struct {
 	// secrets involved and, when known, the forge logins, which are what a
 	// reviewer needs to see that a credential moved to another identity.
 	Data ScmCredentialChangedLog `json:"data"`
-	Type AuditLogEvent22Type     `json:"type"`
+	Type AuditLogEvent23Type     `json:"type"`
 }
 
-// AuditLogEvent22Type defines model for AuditLogEvent.22.Type.
-type AuditLogEvent22Type string
+// AuditLogEvent23Type defines model for AuditLogEvent.23.Type.
+type AuditLogEvent23Type string
 
-// AuditLogEvent23 A user asked for an agent's Matrix bot to log in again (ADR-0058 §6): the
+// AuditLogEvent24 A user asked for an agent's Matrix bot to log in again (ADR-0058 §6): the
 // operator then mounts the bot's password and recovery key in its channel
 // gateway for a bounded time. Written after every accepted request, best-effort
 // like the audit rows that follow a write already made (a failed write is
 // logged, the request is not undone). Names the agent and the secrets, never a
 // value.
-type AuditLogEvent23 struct {
+type AuditLogEvent24 struct {
 	// Data Audit payload for a Matrix re-login request on an AI agent. The actor is the
 	// enclosing request's `oauth_id`.
 	Data AiAgentMatrixReloginRequestedLog `json:"data"`
-	Type AuditLogEvent23Type              `json:"type"`
+	Type AuditLogEvent24Type              `json:"type"`
 }
 
-// AuditLogEvent23Type defines model for AuditLogEvent.23.Type.
-type AuditLogEvent23Type string
+// AuditLogEvent24Type defines model for AuditLogEvent.24.Type.
+type AuditLogEvent24Type string
+
+// AuditLogEvent25 A user asked for an alert Matrix bot to log in again (ADR-0069 §7): the
+// operator then mounts the bot's password and recovery key in its notifier
+// for a bounded time. Best-effort after the write, like the agent's. Names
+// the bot and the secrets, never a value.
+type AuditLogEvent25 struct {
+	// Data Audit payload for a Matrix re-login request on an organization's alert bot
+	// (ADR-0069). The actor is the enclosing request's `oauth_id`.
+	Data MatrixBotReloginRequestedLog `json:"data"`
+	Type AuditLogEvent25Type          `json:"type"`
+}
+
+// AuditLogEvent25Type defines model for AuditLogEvent.25.Type.
+type AuditLogEvent25Type string
+
+// AuditLogEvent26 A principal reached the restore points of another user's workstation through
+// `volume_backup:manage_workspaces` (ADR-0063 D11). Recorded on every such use.
+type AuditLogEvent26 struct {
+	// Data Audit payload for a use of `volume_backup:manage_workspaces`. The actor is the enclosing
+	// request's `oauth_id`; the owners are the workstation owners whose points were reached.
+	Data VolumeBackupWorkspaceAccessedLog `json:"data"`
+	Type AuditLogEvent26Type              `json:"type"`
+}
+
+// AuditLogEvent26Type defines model for AuditLogEvent.26.Type.
+type AuditLogEvent26Type string
+
+// AuditLogEvent27 A principal released a restore's hold on a volume ("start with an empty volume") or
+// deleted an app or workstation without its final restore point (ADR-0063 D9, D11).
+type AuditLogEvent27 struct {
+	// Data Audit payload for a volume backup action that gives up data: a restore's hold released, or an
+	// app or workstation deleted without its final point. The actor is the enclosing request's
+	// `oauth_id`.
+	Data VolumeBackupActionLog `json:"data"`
+	Type AuditLogEvent27Type   `json:"type"`
+}
+
+// AuditLogEvent27Type defines model for AuditLogEvent.27.Type.
+type AuditLogEvent27Type string
+
+// AuditLogEvent28 A principal opened a path between two services of an environment by
+// creating a ServiceLink through the console (ADR-0061 D-Z). The decision
+// log alone cannot tell a create from a delete, nor who the grant named.
+type AuditLogEvent28 struct {
+	// Data Audit payload for a service link created or deleted through the console.
+	// The actor is the enclosing request's `oauth_id`; `actor_kind` says whether
+	// that is a `user` or a `service_account`.
+	Data ServiceLinkAuditLog `json:"data"`
+	Type AuditLogEvent28Type `json:"type"`
+}
+
+// AuditLogEvent28Type defines model for AuditLogEvent.28.Type.
+type AuditLogEvent28Type string
+
+// AuditLogEvent29 A principal closed such a path.
+type AuditLogEvent29 struct {
+	// Data Audit payload for a service link created or deleted through the console.
+	// The actor is the enclosing request's `oauth_id`; `actor_kind` says whether
+	// that is a `user` or a `service_account`.
+	Data ServiceLinkAuditLog `json:"data"`
+	Type AuditLogEvent29Type `json:"type"`
+}
+
+// AuditLogEvent29Type defines model for AuditLogEvent.29.Type.
+type AuditLogEvent29Type string
+
+// AuditLogEvent30 A principal cut an edge of the network map (#5723): the declaration that
+// allowed the path now revokes it.
+type AuditLogEvent30 struct {
+	// Data Audit payload for an edge of the network map that was cut or restored
+	// (#5723), by an organization member from the console or a platform
+	// administrator from the cockpit.
+	Data NetworkEdgeAuditLog `json:"data"`
+	Type AuditLogEvent30Type `json:"type"`
+}
+
+// AuditLogEvent30Type defines model for AuditLogEvent.30.Type.
+type AuditLogEvent30Type string
+
+// AuditLogEvent31 A principal restored a cut edge of the network map.
+type AuditLogEvent31 struct {
+	// Data Audit payload for an edge of the network map that was cut or restored
+	// (#5723), by an organization member from the console or a platform
+	// administrator from the cockpit.
+	Data NetworkEdgeAuditLog `json:"data"`
+	Type AuditLogEvent31Type `json:"type"`
+}
+
+// AuditLogEvent31Type defines model for AuditLogEvent.31.Type.
+type AuditLogEvent31Type string
+
+// AuditLogEvent32 A tenant volume was created, resized, attached to or detached from a
+// virtual machine, or deleted (ADR-0060 D-K). The decision log records
+// who called which route; this records what happened to the data.
+type AuditLogEvent32 struct {
+	// Data Audit payload for a volume lifecycle change made through the console. The
+	// virtual machine fields are set for `attached` and `detached` only, the
+	// sizes for `created` (`size_gib`) and `resized` (both).
+	Data VolumeLifecycleLog  `json:"data"`
+	Type AuditLogEvent32Type `json:"type"`
+}
+
+// AuditLogEvent32Type defines model for AuditLogEvent.32.Type.
+type AuditLogEvent32Type string
+
+// AuditLogEvent33 A port-forward session (ADR-0062) was opened, is still open (a periodic
+// `active` row with the bytes so far), or closed. Generic across the kinds
+// a tunnel can reach (`target_kind`); the console writes every row from
+// its session table, and a session whose relay vanished is closed `lost`.
+type AuditLogEvent33 struct {
+	// Data Audit payload for one row of a port-forward session (ADR-0062). The actor
+	// is the enclosing request's `oauth_id` (the caller's Keycloak subject).
+	//
+	// The bytes relayed are never captured, only counted. `invocation_id` and
+	// `user_agent` come from the client and are untrusted: grouping and display
+	// only.
+	Data PortForwardLog      `json:"data"`
+	Type AuditLogEvent33Type `json:"type"`
+}
+
+// AuditLogEvent33Type defines model for AuditLogEvent.33.Type.
+type AuditLogEvent33Type string
+
+// AuditLogEvent34 A service account's credentials left the console: downloaded, or a new
+// secret was requested (ADR-0062 S1b). Joins a tunnel opened as that
+// account to the principals who took its secret.
+type AuditLogEvent34 struct {
+	// Data Audit payload for a service account's credentials taken or renewed. The
+	// enclosing request's `oauth_id` is the caller's Keycloak subject.
+	//
+	// Never carries the secret: only who took which account's.
+	Data ServiceAccountCredentialsIssuedLog `json:"data"`
+	Type AuditLogEvent34Type                `json:"type"`
+}
+
+// AuditLogEvent34Type defines model for AuditLogEvent.34.Type.
+type AuditLogEvent34Type string
+
+// AuditLogEvent35 A repository was registered for Red Team audits (ADR-0066), with the
+// registrant's attestation that the organization may audit it. Ids and
+// the tracked ref only.
+type AuditLogEvent35 struct {
+	// Data Audit payload for a Red Team repository registration (ADR-0066). The actor
+	// is the enclosing request's `oauth_id`; ids and the tracked ref only.
+	Data RedTeamRepositoryRegisteredLog `json:"data"`
+	Type AuditLogEvent35Type            `json:"type"`
+}
+
+// AuditLogEvent35Type defines model for AuditLogEvent.35.Type.
+type AuditLogEvent35Type string
+
+// AuditLogEvent36 A Red Team run was requested. Names its lineage and the organization
+// SCM secret the run will use, so every use of the organization's
+// credential names who asked.
+type AuditLogEvent36 struct {
+	// Data Audit payload for a requested Red Team run. Never a finding, a URL or a
+	// ref: the run row holds those.
+	Data RedTeamRunRequestedLog `json:"data"`
+	Type AuditLogEvent36Type    `json:"type"`
+}
+
+// AuditLogEvent36Type defines model for AuditLogEvent.36.Type.
+type AuditLogEvent36Type string
+
+// AuditLogEvent37 A Red Team run was cancelled by a member.
+type AuditLogEvent37 struct {
+	// Data Audit payload for a cancelled Red Team run.
+	Data RedTeamRunCancelledLog `json:"data"`
+	Type AuditLogEvent37Type    `json:"type"`
+}
+
+// AuditLogEvent37Type defines model for AuditLogEvent.37.Type.
+type AuditLogEvent37Type string
+
+// AuditLogEvent38 A member changed a Red Team finding's triage state, or recorded their
+// validation of a `needs_validation` lead. Ids and states only: the
+// reason stays in the module's triage trail.
+type AuditLogEvent38 struct {
+	// Data Audit payload for a member's triage of a Red Team finding (ADR-0066 S6).
+	// Ids, states and the acceptance date only: never the finding's text, and
+	// never the member's reason (the module's triage trail holds it).
+	Data RedTeamFindingTriagedLog `json:"data"`
+	Type AuditLogEvent38Type      `json:"type"`
+}
+
+// AuditLogEvent38Type defines model for AuditLogEvent.38.Type.
+type AuditLogEvent38Type string
+
+// AuditLogEvent39 A Red Team run's findings were exported (SARIF or JSON). Ids, the
+// format and a count: never a finding.
+type AuditLogEvent39 struct {
+	// Data Audit payload for an export of a Red Team run's findings. The actor is
+	// the enclosing request's `oauth_id`.
+	Data RedTeamFindingsExportedLog `json:"data"`
+	Type AuditLogEvent39Type        `json:"type"`
+}
+
+// AuditLogEvent39Type defines model for AuditLogEvent.39.Type.
+type AuditLogEvent39Type string
+
+// AuditLogEvent40 defines model for .
+type AuditLogEvent40 struct {
+	// Data Audit payload for a Red Team finding handed to a coding agent in the
+	// caller's workstation (ADR-0066 S10). Ids only: never the finding's text,
+	// never the prompt. The actor is the enclosing request's `oauth_id`.
+	Data RedTeamFindingHandedOffLog `json:"data"`
+	Type AuditLogEvent40Type        `json:"type"`
+}
+
+// AuditLogEvent40Type defines model for AuditLogEvent.40.Type.
+type AuditLogEvent40Type string
+
+// AuditLogEvent41 defines model for .
+type AuditLogEvent41 struct {
+	// Data Audit payload for a change of an environment's Red Team settings.
+	Data RedTeamSettingsChangedLog `json:"data"`
+	Type AuditLogEvent41Type       `json:"type"`
+}
+
+// AuditLogEvent41Type defines model for AuditLogEvent.41.Type.
+type AuditLogEvent41Type string
+
+// AuditLogEvent42 A Red Team schedule was disabled because its owner no longer holds
+// `red_team:manage` on its environment (ADR-0066 D8, LIF-7).
+type AuditLogEvent42 struct {
+	// Data Audit payload for a Red Team schedule the console disabled. The actor is
+	// the schedule's owner, the principal who lost the permission.
+	Data RedTeamScheduleDisabledLog `json:"data"`
+	Type AuditLogEvent42Type        `json:"type"`
+}
+
+// AuditLogEvent42Type defines model for AuditLogEvent.42.Type.
+type AuditLogEvent42Type string
+
+// AuditLogEvent43 A bucket was created through the console's REST door or s0's
+// delegated `CreateBucket`, with the options it was created with
+// (versioning, tag keys, lifecycle rule ids, Object Lock). Written once
+// the creation succeeded; never for one rolled back.
+type AuditLogEvent43 struct {
+	// Data Audit payload of a bucket creation: who created it, where, and with what.
+	// Tag keys are recorded, never their values.
+	Data BucketCreatedLog    `json:"data"`
+	Type AuditLogEvent43Type `json:"type"`
+}
+
+// AuditLogEvent43Type defines model for AuditLogEvent.43.Type.
+type AuditLogEvent43Type string
+
+// AuditLogEvent44 A locked bucket's default retention was set, changed or cleared,
+// through the console or s0's delegated `PutObjectLockConfiguration`.
+type AuditLogEvent44 struct {
+	// Data Audit payload of a default retention change on a locked bucket.
+	Data BucketObjectLockUpdatedLog `json:"data"`
+	Type AuditLogEvent44Type        `json:"type"`
+}
+
+// AuditLogEvent44Type defines model for AuditLogEvent.44.Type.
+type AuditLogEvent44Type string
+
+// AuditLogEvent45 A bucket's lifecycle rules were replaced or removed, through the
+// console or s0's delegated lifecycle operations: rules can delete data,
+// so every change is on the record.
+type AuditLogEvent45 struct {
+	// Data Audit payload of a lifecycle change: the rules before and after.
+	Data BucketLifecycleUpdatedLog `json:"data"`
+	Type AuditLogEvent45Type       `json:"type"`
+}
+
+// AuditLogEvent45Type defines model for AuditLogEvent.45.Type.
+type AuditLogEvent45Type string
 
 // AuditLogEventType defines model for AuditLogEventType.
 type AuditLogEventType string
@@ -9830,6 +12595,14 @@ type BackupTargetSourceRequest1 struct {
 // BackupTargetSourceRequest1Mode defines model for BackupTargetSourceRequest.1.Mode.
 type BackupTargetSourceRequest1Mode string
 
+// BackupTargetVolumePointsResponse defines model for BackupTargetVolumePointsResponse.
+type BackupTargetVolumePointsResponse struct {
+	// RestorablePoints Completed volume restore points kept on this target, of every app and workstation of the
+	// environment. Deleting the target makes them unrestorable from Hyperfluid; they stay in the
+	// bucket.
+	RestorablePoints int32 `json:"restorable_points"`
+}
+
 // BifrostEventDto defines model for BifrostEventDto.
 type BifrostEventDto struct {
 	BytesScanned     *int64              `json:"bytes_scanned,omitempty"`
@@ -10013,6 +12786,34 @@ type BucketArchiveOperation struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+// BucketCreatedLog Audit payload of a bucket creation: who created it, where, and with what.
+// Tag keys are recorded, never their values.
+type BucketCreatedLog struct {
+	// Actor `user:<user id>` or `sa:<client id>`.
+	Actor            string    `json:"actor"`
+	Bucket           string    `json:"bucket"`
+	Harbor           string    `json:"harbor"`
+	LifecycleRuleIds *[]string `json:"lifecycle_rule_ids,omitempty"`
+	ObjectLock       bool      `json:"object_lock"`
+
+	// ObjectLockMode `GOVERNANCE` or `COMPLIANCE`, when a default retention was set.
+	ObjectLockMode           *string `json:"object_lock_mode,omitempty"`
+	ObjectLockRetentionDays  *int32  `json:"object_lock_retention_days,omitempty"`
+	ObjectLockRetentionYears *int32  `json:"object_lock_retention_years,omitempty"`
+
+	// Origin `console` (REST) or `s3` (s0's delegated `CreateBucket`).
+	Origin  string `json:"origin"`
+	QuotaGb *int32 `json:"quota_gb,omitempty"`
+
+	// ResourceId What every grant on the bucket names: `<environment slug>/<object
+	// name>`; named `resource_id` so the audit-log API's filter reaches it.
+	ResourceId        string    `json:"resource_id"`
+	Sensitivity       *string   `json:"sensitivity,omitempty"`
+	TagKeys           *[]string `json:"tag_keys,omitempty"`
+	VersioningEnabled bool      `json:"versioning_enabled"`
+	ZoneId            string    `json:"zone_id"`
+}
+
 // BucketCredentials defines model for BucketCredentials.
 type BucketCredentials struct {
 	AccessKey string `json:"access_key"`
@@ -10022,6 +12823,54 @@ type BucketCredentials struct {
 
 // BucketField Which fact about a bucket an environment variable receives.
 type BucketField string
+
+// BucketLifecycleResponse A bucket's lifecycle rules, the platform's own abort rule hidden.
+type BucketLifecycleResponse struct {
+	// Available Whether the rules can be changed on this bucket.
+	Available bool `json:"available"`
+
+	// Pending The backend does not hold `rules` yet: they are being applied, or
+	// the storage refused them.
+	Pending bool `json:"pending"`
+
+	// PlatformAbortIncompleteMultipartDays Hyperfluid aborts unfinished uploads after this many days on every
+	// bucket; a user rule cannot ask for longer.
+	PlatformAbortIncompleteMultipartDays int32 `json:"platform_abort_incomplete_multipart_days"`
+
+	// Rules The rules asked for, when Hyperfluid manages the bucket's lifecycle:
+	// held by the backend, still being applied, or refused (`pending` says
+	// whether the backend holds them; the bucket's `config_applied` tells a
+	// refusal). On a bucket whose rules were set outside Hyperfluid, the
+	// rules the backend holds.
+	Rules []LifecycleRuleInput `json:"rules"`
+
+	// TransitionClasses The storage classes a transition may name on the bucket's zone.
+	// Empty: the zone offers no transition.
+	TransitionClasses []string `json:"transition_classes"`
+
+	// TransitionMinimumObjectSize The minimum object size a transition applies to, fixed by the
+	// platform.
+	TransitionMinimumObjectSize string `json:"transition_minimum_object_size"`
+
+	// UnavailableReason Why an option cannot be set on a bucket of a zone: one enum for every
+	// option, shared by the zone listing, the create refusals and the bucket
+	// doors (the versioning door's answer included).
+	UnavailableReason *BucketOptionUnavailable `json:"unavailable_reason,omitempty"`
+}
+
+// BucketLifecycleUpdatedLog Audit payload of a lifecycle change: the rules before and after.
+type BucketLifecycleUpdatedLog struct {
+	// Actor `user:<user id>` or `sa:<client id>`.
+	Actor   string                `json:"actor"`
+	Current *[]LifecycleRuleAudit `json:"current,omitempty"`
+
+	// Origin `console` (REST) or `s3` (delegated).
+	Origin   string                `json:"origin"`
+	Previous *[]LifecycleRuleAudit `json:"previous,omitempty"`
+
+	// ResourceId `<environment slug>/<object name>`.
+	ResourceId string `json:"resource_id"`
+}
 
 // BucketObject defines model for BucketObject.
 type BucketObject struct {
@@ -10042,6 +12891,93 @@ type BucketObjectListing struct {
 	Prefix            string         `json:"prefix"`
 }
 
+// BucketObjectLockResponse defines model for BucketObjectLockResponse.
+type BucketObjectLockResponse struct {
+	// Available Whether the default retention can be changed now.
+	Available bool `json:"available"`
+
+	// DefaultRetention A bucket's default retention: a mode and exactly one of `days` (1 to
+	// 3650) or `years` (1 to 10).
+	DefaultRetention *DefaultRetentionInput `json:"default_retention,omitempty"`
+
+	// Managed Whether Hyperfluid manages this bucket's lock (it was created locked
+	// through Hyperfluid); a lock set outside Hyperfluid is shown, not
+	// changed.
+	Managed bool `json:"managed"`
+
+	// Pending The retention asked for differs from what the backend holds yet.
+	Pending bool `json:"pending"`
+
+	// Status Whether the bucket is under Object Lock.
+	Status BucketObjectLockStatus `json:"status"`
+
+	// UnavailableReason Why an option cannot be set on a bucket of a zone: one enum for every
+	// option, shared by the zone listing, the create refusals and the bucket
+	// doors (the versioning door's answer included).
+	UnavailableReason *BucketOptionUnavailable `json:"unavailable_reason,omitempty"`
+}
+
+// BucketObjectLockStatus Whether the bucket is under Object Lock.
+type BucketObjectLockStatus string
+
+// BucketObjectLockUpdatedLog Audit payload of a default retention change on a locked bucket.
+type BucketObjectLockUpdatedLog struct {
+	// Actor `user:<user id>` or `sa:<client id>`.
+	Actor string `json:"actor"`
+
+	// Current A default retention as the audit records it: `GOVERNANCE` or
+	// `COMPLIANCE`, and its period.
+	Current *RetentionAudit `json:"current,omitempty"`
+
+	// Origin `console` (REST) or `s3` (delegated).
+	Origin string `json:"origin"`
+
+	// Previous A default retention as the audit records it: `GOVERNANCE` or
+	// `COMPLIANCE`, and its period.
+	Previous *RetentionAudit `json:"previous,omitempty"`
+
+	// ResourceId `<environment slug>/<object name>`.
+	ResourceId string `json:"resource_id"`
+}
+
+// BucketObjectVersion One version of an object, or the delete marker a delete left in its place.
+type BucketObjectVersion struct {
+	Etag           *string `json:"etag,omitempty"`
+	IsDeleteMarker bool    `json:"is_delete_marker"`
+
+	// IsLatest Whether this is what a plain read of the key answers. A latest delete
+	// marker means the key reads as deleted.
+	IsLatest     bool   `json:"is_latest"`
+	Key          string `json:"key"`
+	LastModified string `json:"last_modified"`
+
+	// Size Absent on a delete marker.
+	Size *int64 `json:"size,omitempty"`
+
+	// VersionId `null` names the version written before versioning was enabled.
+	VersionId string `json:"version_id"`
+}
+
+// BucketObjectVersionListing defines model for BucketObjectVersionListing.
+type BucketObjectVersionListing struct {
+	// CommonPrefixes Folder-like prefixes returned when listing with `delimiter=/`.
+	CommonPrefixes []string `json:"common_prefixes"`
+	IsTruncated    bool     `json:"is_truncated"`
+
+	// NextKeyMarker Pass both markers back to read the next page.
+	NextKeyMarker       *string `json:"next_key_marker,omitempty"`
+	NextVersionIdMarker *string `json:"next_version_id_marker,omitempty"`
+	Prefix              string  `json:"prefix"`
+
+	// Versions By key, newest first within a key.
+	Versions []BucketObjectVersion `json:"versions"`
+}
+
+// BucketOptionUnavailable Why an option cannot be set on a bucket of a zone: one enum for every
+// option, shared by the zone listing, the create refusals and the bucket
+// doors (the versioning door's answer included).
+type BucketOptionUnavailable string
+
 // BucketRefSpecResponse An env var whose value is one fact about an `HFBucket` of the harbor,
 // resolved by the operator (`valueFrom.bucket`). Listed apart from
 // `secret_refs` so the UI never renders it as a secret-manager entry with an
@@ -10055,8 +12991,74 @@ type BucketRefSpecResponse struct {
 	Field BucketField `json:"field"`
 }
 
+// BucketTagInput One bucket tag.
+type BucketTagInput struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// BucketTagsView A bucket's tags. `wanted` is never substituted for `applied`: a tag the
+// spec asks for and the backend does not hold yet is shown as such.
+type BucketTagsView struct {
+	// Applied The tags the backend holds, as the operator last read them back, the
+	// platform's ownership tag left out. Absent: not read back yet, or the
+	// backend cannot say.
+	Applied *[]BucketTagInput `json:"applied,omitempty"`
+
+	// Managed Whether Hyperfluid manages the bucket's tags (the spec holds them).
+	Managed bool `json:"managed"`
+
+	// Wanted The tags the bucket's spec asks for. Absent: Hyperfluid does not
+	// manage the bucket's tags (any it holds were set outside Hyperfluid).
+	Wanted *[]BucketTagInput `json:"wanted,omitempty"`
+}
+
+// BucketVersioningRequestStatus What a versioning write asks for. `unset` is the escape door of a
+// versioning the backend never held (a create-time setting the zone
+// refused): it removes the setting, and is refused once the backend holds
+// versioning or the bucket is under Object Lock.
+type BucketVersioningRequestStatus string
+
+// BucketVersioningResponse defines model for BucketVersioningResponse.
+type BucketVersioningResponse struct {
+	// Available Whether versioning can be changed on this bucket.
+	Available bool `json:"available"`
+
+	// NoncurrentBytes Bytes held by versions that are no longer the current one, as of the
+	// last usage sweep. Absent while no recent reading exists.
+	NoncurrentBytes *int64 `json:"noncurrent_bytes,omitempty"`
+
+	// Pending What a bucket's versioning may be set to. It cannot go back to
+	// `unversioned`: an S3 bucket's versioning is suspended, never removed.
+	Pending *BucketVersioningSetting `json:"pending,omitempty"`
+
+	// Status What the backend holds for the bucket.
+	Status BucketVersioningStatus `json:"status"`
+
+	// UnavailableReason Why an option cannot be set on a bucket of a zone: one enum for every
+	// option, shared by the zone listing, the create refusals and the bucket
+	// doors (the versioning door's answer included).
+	UnavailableReason *BucketOptionUnavailable `json:"unavailable_reason,omitempty"`
+}
+
+// BucketVersioningSetting What a bucket's versioning may be set to. It cannot go back to
+// `unversioned`: an S3 bucket's versioning is suspended, never removed.
+type BucketVersioningSetting string
+
+// BucketVersioningStatus What the backend holds for the bucket.
+type BucketVersioningStatus string
+
 // BudgetAuthor Who set a ceiling, and therefore who may change it.
 type BudgetAuthor string
+
+// CanonicalRefs defines model for CanonicalRefs.
+type CanonicalRefs struct {
+	AttackClass string  `json:"attack_class"`
+	Boundary    string  `json:"boundary"`
+	Lifecycle   *string `json:"lifecycle,omitempty"`
+	Subsystem   string  `json:"subsystem"`
+	Surface     string  `json:"surface"`
+}
 
 // CapacityUsageItemResponse defines model for CapacityUsageItemResponse.
 type CapacityUsageItemResponse struct {
@@ -10255,12 +13257,16 @@ type ChangelogEntryResponse struct {
 type ChannelBody struct {
 	Enabled *bool `json:"enabled,omitempty"`
 
-	// Kind Delivery kinds, all three delivered end to end. The two webhook kinds share
-	// one transport (an HTTPS POST to a capability URL) and differ only in payload
-	// shape, so they differ here only by the host their URL must be on.
-	Kind       ChannelKind `json:"kind"`
-	Name       string      `json:"name"`
-	Recipients *[]string   `json:"recipients,omitempty"`
+	// Kind Delivery kinds, all delivered end to end. The webhook kinds share one
+	// transport (an HTTPS POST to a capability URL) and differ only in payload
+	// shape, so they differ here only by the hosts their URL must be on.
+	Kind ChannelKind `json:"kind"`
+
+	// Matrix The bot and room a Matrix channel write names. `room` is a room id (`!…`) or an alias
+	// (`#…`): an alias is resolved through the bot, and only the id is stored.
+	Matrix     *MatrixChannelBody `json:"matrix,omitempty"`
+	Name       string             `json:"name"`
+	Recipients *[]string          `json:"recipients,omitempty"`
 
 	// Url Webhook kinds only, rejected for email. Required on create; on update,
 	// omitting it keeps the stored URL — reads never return it in full, so a
@@ -10268,9 +13274,9 @@ type ChannelBody struct {
 	Url *string `json:"url,omitempty"`
 }
 
-// ChannelKind Delivery kinds, all three delivered end to end. The two webhook kinds share
-// one transport (an HTTPS POST to a capability URL) and differ only in payload
-// shape, so they differ here only by the host their URL must be on.
+// ChannelKind Delivery kinds, all delivered end to end. The webhook kinds share one
+// transport (an HTTPS POST to a capability URL) and differ only in payload
+// shape, so they differ here only by the hosts their URL must be on.
 type ChannelKind string
 
 // ChartEncodings Maps result-set columns to visual channels. Which fields matter depends on
@@ -10327,6 +13333,9 @@ type CheckImageSourceResponse struct {
 	// written on the ContainerApp.
 	RequestedAt string `json:"requested_at"`
 }
+
+// CheckMethod defines model for CheckMethod.
+type CheckMethod string
 
 // CheckNameAvailabilityResponseData defines model for CheckNameAvailabilityResponseData.
 type CheckNameAvailabilityResponseData struct {
@@ -10420,6 +13429,35 @@ type CloneIcebergTableRequestBody struct {
 	SourceTableName  string `json:"source_table_name"`
 	TargetSchemaName string `json:"target_schema_name"`
 	TargetTableName  string `json:"target_table_name"`
+}
+
+// CodeChange defines model for CodeChange.
+type CodeChange struct {
+	FileName  string `json:"file_name"`
+	FixedCode string `json:"fixed_code"`
+}
+
+// CollectorState Whether the map can be trusted to be complete.
+type CollectorState string
+
+// CollectorStatus defines model for CollectorStatus.
+type CollectorStatus struct {
+	LastSuccessAt *time.Time `json:"last_success_at,omitempty"`
+
+	// LostEvents Events the relay reported lost in the last pass: the counts are a floor.
+	LostEvents int64 `json:"lost_events"`
+
+	// RefusedEdges Edges the last pass could not keep because it reached its bound.
+	RefusedEdges int64 `json:"refused_edges"`
+
+	// State Whether the map can be trusted to be complete.
+	State CollectorState `json:"state"`
+
+	// UncoveredSecs Seconds at the start of the last pass's window that a node's Hubble
+	// ring buffer had already overwritten: traffic of those seconds on that
+	// node is missing. Any of these three above 0 means the map may be
+	// incomplete.
+	UncoveredSecs int64 `json:"uncovered_secs"`
 }
 
 // CommitRequest defines model for CommitRequest.
@@ -10575,6 +13613,9 @@ type Condition1 struct {
 // Condition1Kind defines model for Condition.1.Kind.
 type Condition1Kind string
 
+// ConditionKind defines model for ConditionKind.
+type ConditionKind string
+
 // ConditionView Generic Kubernetes-style condition surfaced to the console UI.
 //
 // Mirrors the shape used on `OrgStorageStatus.conditions` and
@@ -10590,6 +13631,33 @@ type ConditionView struct {
 	// Status "True" | "False" | "Unknown".
 	Status string `json:"status"`
 	Type   string `json:"type"`
+}
+
+// Confidence defines model for Confidence.
+type Confidence string
+
+// ConfidenceAssessment defines model for ConfidenceAssessment.
+type ConfidenceAssessment struct {
+	Reason string     `json:"reason"`
+	Score  Confidence `json:"score"`
+}
+
+// ConfigAppliedState Where a bucket's settings stand on its backend.
+type ConfigAppliedState string
+
+// ConfigAppliedView defines model for ConfigAppliedView.
+type ConfigAppliedView struct {
+	// Message The operator's message, in its own words.
+	Message *string `json:"message,omitempty"`
+
+	// Reason The operator's reason code (`CapabilityMissing`, `VersioningNotOpen`,
+	// `InvalidConfig`, `UnknownStorageClass`, `ObjectLockNotOpen`,
+	// `ObjectLockNotEnabledAtCreation`, `<Kind>NotApplied`, `QuotaNotApplied`,
+	// `BackendNotReady`...). Absent when nothing names one.
+	Reason *string `json:"reason,omitempty"`
+
+	// State Where a bucket's settings stand on its backend.
+	State ConfigAppliedState `json:"state"`
 }
 
 // Configuration defines model for Configuration.
@@ -10838,6 +13906,14 @@ type ContainerAppCrdSpecResponse struct {
 	// Computed on the server, so clients never need their own copy of this
 	// check.
 	TagIsFloating bool `json:"tag_is_floating"`
+
+	// VolumeBackupEnabled Whether the app's volumes are backed up (ADR-0063 D2): its `volumeBackup` choice, or
+	// always for the source-control forge.
+	VolumeBackupEnabled *bool `json:"volume_backup_enabled,omitempty"`
+
+	// VolumeBackupTarget The backup target (its name) the app's volume points go to, `null` for the platform's
+	// placement. Never set for the source-control forge.
+	VolumeBackupTarget *string `json:"volume_backup_target,omitempty"`
 }
 
 // ContainerAppImageSyncedLog Audit payload for an image a Git source rolled out. Written by the console
@@ -11057,6 +14133,9 @@ type ContainerAppUsageDto struct {
 
 // ContainerAppVolumeUsageDto One persistent volume of a container app with its current fill.
 type ContainerAppVolumeUsageDto struct {
+	// Backup Backup state of one volume.
+	Backup *VolumeBackupCoverageResponse `json:"backup,omitempty"`
+
 	// CapacityBytes The filesystem's capacity in bytes — a little under `size`, the
 	// filesystem keeps its own overhead. `null` without a recent sample.
 	CapacityBytes *int64 `json:"capacity_bytes,omitempty"`
@@ -11367,6 +14446,51 @@ type CountRefRequest struct {
 // CountSecretsResponse defines model for CountSecretsResponse.
 type CountSecretsResponse struct {
 	Count int64 `json:"count"`
+}
+
+// CoverageAttempt defines model for CoverageAttempt.
+type CoverageAttempt struct {
+	AgentId            string        `json:"agent_id"`
+	LocalChecks        []LocalCheck  `json:"local_checks"`
+	ReassignmentReason string        `json:"reassignment_reason"`
+	ResultFingerprints []string      `json:"result_fingerprints"`
+	ReviewedPaths      []string      `json:"reviewed_paths"`
+	Status             AttemptStatus `json:"status"`
+	Unresolved         []string      `json:"unresolved"`
+	Wave               int32         `json:"wave"`
+}
+
+// CoverageStatus defines model for CoverageStatus.
+type CoverageStatus string
+
+// CoverageUnit defines model for CoverageUnit.
+type CoverageUnit struct {
+	// AgentId Required, `null` when unassigned.
+	AgentId        *string           `json:"agent_id,omitempty"`
+	AttackClass    string            `json:"attack_class"`
+	Attempts       []CoverageAttempt `json:"attempts"`
+	Boundary       string            `json:"boundary"`
+	CanonicalRefs  CanonicalRefs     `json:"canonical_refs"`
+	CoverageId     string            `json:"coverage_id"`
+	ExcludedBlocks []ExcludedBlock   `json:"excluded_blocks"`
+
+	// Hardening The parent's bookkeeping of hunter hardening notes (`HUNTING.md`).
+	Hardening   *[]string    `json:"hardening,omitempty"`
+	Lifecycle   *string      `json:"lifecycle,omitempty"`
+	LocalChecks []LocalCheck `json:"local_checks"`
+
+	// OrdinaryAttackClassBlock Required, `null` when no ordinary block applies.
+	OrdinaryAttackClassBlock *string        `json:"ordinary_attack_class_block,omitempty"`
+	PriorStatus              PriorStatus    `json:"prior_status"`
+	ResultFingerprints       []string       `json:"result_fingerprints"`
+	ReviewedPaths            []string       `json:"reviewed_paths"`
+	SelectedCompanionBlocks  []string       `json:"selected_companion_blocks"`
+	StartingPaths            []string       `json:"starting_paths"`
+	Status                   CoverageStatus `json:"status"`
+	Subsystem                string         `json:"subsystem"`
+	Surface                  string         `json:"surface"`
+	Unresolved               []string       `json:"unresolved"`
+	Wave                     int32          `json:"wave"`
 }
 
 // CrdOwner Who "owns" a CRD from the console's point of view — derived purely
@@ -11988,6 +15112,11 @@ type CreateContainerAppCrdRequestBody struct {
 
 	// Tags Tags shown on the app: at most 20, none blank, each at most 64 characters.
 	Tags *[]string `json:"tags,omitempty"`
+
+	// VolumeBackup Whether the volumes of an app or a workstation are backed up. At creation, omitting it
+	// creates the resource without backups (with them while the `volume_backups_required` rule is
+	// on); on an edit, omitting it leaves the choice unchanged.
+	VolumeBackup *VolumeBackupInput `json:"volume_backup,omitempty"`
 }
 
 // CreateContextEnricherPipelineRequest Context Enricher pipeline request: enrich Iceberg table with L0/L1 abstracts via LLM.
@@ -12127,6 +15256,11 @@ type CreateDataDockCatalogRequest struct {
 	// `TrinoCatalog` CR. Must be a K8s RFC1123 DNS label: lowercase
 	// alphanumeric + hyphens, no leading/trailing hyphens, ≤ 63 characters.
 	Name string `json:"name"`
+
+	// ScaffoldMedallionSchemas Create the `bronze`, `silver` and `gold` medallion schemas once the
+	// catalog is Ready (`false` when absent). Iceberg only: `true` for any
+	// other kind is a 400.
+	ScaffoldMedallionSchemas *bool `json:"scaffold_medallion_schemas,omitempty"`
 }
 
 // CreateDataDockCatalogResponse Response for `POST /api/v1/data-docks/{data_dock_id}/catalogs`.
@@ -12238,6 +15372,13 @@ type CreateDevWorkstationRequest struct {
 	RepoRef      *string `json:"repo_ref,omitempty"`
 	RepoUrl      string  `json:"repo_url"`
 
+	// RestoreWorkspaceFrom A restore point (`GET /volume-backups`) of a workspace to start the new workstation's
+	// `/workspace` volume from (ADR-0063 D9). The restore is started before the workstation
+	// and holds the volume until it is done. The caller must own the point, or hold
+	// `volume_backup:manage_workspaces` (audited), and hold `volume_backup:restore`. `409`
+	// when the point is not complete.
+	RestoreWorkspaceFrom *string `json:"restore_workspace_from,omitempty"`
+
 	// ScmSecretId Id of a Passe Partout secret of type `scm_credential` holding the git token.
 	// Required for `github` and `gitlab`, where it also carries the instance URL
 	// that identifies a self-managed GitLab; omit for an in-cluster `forgejo`
@@ -12270,6 +15411,11 @@ type CreateDevWorkstationRequest struct {
 	// step checks that the template's version matches this value. When absent,
 	// the current version is used and recorded.
 	TemplateVersion *string `json:"template_version,omitempty"`
+
+	// VolumeBackup Whether the volumes of an app or a workstation are backed up. At creation, omitting it
+	// creates the resource without backups (with them while the `volume_backups_required` rule is
+	// on); on an edit, omitting it leaves the choice unchanged.
+	VolumeBackup *VolumeBackupInput `json:"volume_backup,omitempty"`
 }
 
 // CreateDomainVerificationRequestBody defines model for CreateDomainVerificationRequestBody.
@@ -12545,9 +15691,18 @@ type CreateGroupRequestBody struct {
 
 // CreateHFBucketRequest defines model for CreateHFBucketRequest.
 type CreateHFBucketRequest struct {
+	// Lifecycle Lifecycle rules. Omitted or empty writes nothing. Needs
+	// `bucket:update`, plus `bucket:protection_update` for a rule that
+	// deletes previous versions or expires anything on a locked bucket.
+	Lifecycle *[]LifecycleRuleInput `json:"lifecycle,omitempty"`
+
 	// Name On an `s3`-driver zone this is the suffix only: the console prepends
 	// the organization's prefix (ADR-0048 D6) before anything is created.
 	Name string `json:"name"`
+
+	// ObjectLock Object Lock at creation. Present: the bucket is created locked, forever,
+	// with versioning enabled.
+	ObjectLock *ObjectLockInput `json:"object_lock,omitempty"`
 
 	// QuotaGb Per-bucket quota in GB, at least 1. Omit it to take the organization's
 	// default per-bucket quota on the zone. A quota above the ceiling of the
@@ -12559,6 +15714,14 @@ type CreateHFBucketRequest struct {
 	// the zone's resolved backend perimeter is `Outside` the customer's
 	// certified perimeter. `None` means "unset / low default".
 	Sensitivity *string `json:"sensitivity,omitempty"`
+
+	// Tags Bucket tags. Omitted or empty writes nothing. Needs `bucket:update`.
+	Tags *[]BucketTagInput `json:"tags,omitempty"`
+
+	// Versioning `true` turns object versioning on from the first write; omitted or
+	// `false` writes nothing. Needs `bucket:protection_update` on the
+	// bucket. Versioning cannot be removed later, only suspended.
+	Versioning *bool `json:"versioning,omitempty"`
 
 	// ZoneId Storage zone the bucket lands in; omit for the primary. A non-default
 	// value must be a zone the org has enabled.
@@ -13456,6 +16619,29 @@ type CreatePropertyDefinitionRequest struct {
 	SourceColumn *string `json:"source_column,omitempty"`
 }
 
+// CreateRedTeamScheduleRequest `POST …/schedules`. The caller becomes the schedule's owner: its runs are
+// attributed to them, and it stops when they lose `red_team:manage`.
+type CreateRedTeamScheduleRequest struct {
+	// Budget Agent invocations per run. Absent: the profile's default, resolved
+	// when each run is reconciled.
+	Budget *int32 `json:"budget,omitempty"`
+
+	// Cron Five fields (minute hour day-of-month month day-of-week, Sunday 0) or
+	// `@hourly`, `@daily`, `@weekly`, `@monthly`; at most once an hour. UTC.
+	Cron string `json:"cron"`
+
+	// Model The model each run requests, one the `red_team_allowed_models` rule
+	// lists (checked now and at every fire). Absent: the platform default,
+	// resolved when each run is reconciled.
+	Model *string `json:"model,omitempty"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile      RedTeamProfile     `json:"profile"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	ScopePaths   *[]string          `json:"scope_paths,omitempty"`
+}
+
 // CreateRefRequest defines model for CreateRefRequest.
 type CreateRefRequest struct {
 	Key              string             `json:"key"`
@@ -13470,6 +16656,30 @@ type CreateRegistryProjectRequestBody struct {
 
 	// Name The `<project>` path segment in `<harbor>/<project>/<image>`.
 	Name string `json:"name"`
+}
+
+// CreateRegistryProxyRequestBody defines model for CreateRegistryProxyRequestBody.
+type CreateRegistryProxyRequestBody struct {
+	// CredentialsSecret Name of a secret of the organization's secret manager holding the
+	// upstream credentials: a `json` secret `{"username": …, "password": …}`.
+	// The caller must be allowed to read it, and the upstream must be
+	// `https://`. Absent: anonymous pulls.
+	CredentialsSecret *string `json:"credentials_secret,omitempty"`
+
+	// Mirror The pre-sync of pinned images.
+	Mirror *MirrorBody `json:"mirror,omitempty"`
+
+	// Name Slug of the upstream within this registry (`dockerhub`, `ghcr`): the
+	// proxy is served under `…/proxy-<name>/`. Lowercase DNS label, at most 32
+	// characters, immutable.
+	Name            string  `json:"name"`
+	OutboundNoProxy *string `json:"outbound_no_proxy,omitempty"`
+
+	// OutboundProxyUrl The site's outbound HTTP proxy, `http(s)://host:port`, no credentials.
+	OutboundProxyUrl *string `json:"outbound_proxy_url,omitempty"`
+
+	// RemoteUrl `https://` URL of the upstream registry API (`https://registry-1.docker.io`).
+	RemoteUrl string `json:"remote_url"`
 }
 
 // CreateRoleRequestBody defines model for CreateRoleRequestBody.
@@ -13591,6 +16801,12 @@ type CreateServiceLinkRequestBody struct {
 	// Target One endpoint of a link: a service of a known kind, referenced by name within
 	// the harbor namespace the link lives in (both endpoints live there).
 	Target ServiceRef `json:"target"`
+
+	// TargetPortNames The ports of a virtual machine target this link opens, by the names the
+	// VM declares them under. A virtual machine target needs this or a
+	// non-empty `target_ports`: a link opens the explicit list it was created
+	// with, never every declared port and never one declared later.
+	TargetPortNames *[]string `json:"target_port_names,omitempty"`
 
 	// TargetPorts Specific target ports to open. Empty ⇒ the operator resolves the default
 	// (a ContainerApp's primary port, or a fixed-port kind's known port).
@@ -13827,8 +17043,21 @@ type CreateVirtualMachineCrdRequestBody struct {
 	// Memory Guest memory, e.g. "4Gi".
 	Memory string `json:"memory"`
 
-	// Name VM name, used as the CRD metadata.name. Must be a valid DNS label.
+	// Name VM name, used as the CRD metadata.name and, with a `vm-` prefix, as the
+	// name of its in-environment Service. Must be a DNS label of at most 60
+	// characters.
 	Name string `json:"name"`
+
+	// NetworkPorts The ports the guest serves. Only declared ports are reachable from the
+	// rest of the environment, and the VM gets a stable address
+	// (`vm-<name>`). Absent or empty declares none: the VM is closed to its
+	// environment until ports are declared.
+	NetworkPorts *[]VirtualMachinePortDto `json:"network_ports,omitempty"`
+
+	// PortForward Turn port forwarding on for this VM (ADR-0062). Absent writes nothing
+	// into the spec, which reads as off. `true` is refused with 403
+	// `PORT_FORWARD_DISABLED` while the platform keeps port forwarding off.
+	PortForward *bool `json:"port_forward,omitempty"`
 
 	// Running Whether the VM should be running after creation.
 	Running *bool `json:"running,omitempty"`
@@ -13855,6 +17084,57 @@ type CreateVirtualMachineUserCrdRequestBody struct {
 
 	// Username Guest OS account name. Lowercase letters, digits, hyphens, underscores.
 	Username string `json:"username"`
+}
+
+// CreateVolumeBackupRequest `POST /volume-backups`.
+type CreateVolumeBackupRequest struct {
+	// ClaimName The volume to back up now.
+	ClaimName string `json:"claim_name"`
+}
+
+// CreateVolumeCrdRequestBody defines model for CreateVolumeCrdRequestBody.
+type CreateVolumeCrdRequestBody struct {
+	// Description Optional description, at most 500 characters.
+	Description *string `json:"description,omitempty"`
+
+	// Name Volume name, the `HfVolume`'s `metadata.name`: a lowercase DNS-1123
+	// label of 1 to 57 characters, so that `hfvol-<name>` still fits a
+	// Kubernetes name. Unique in the environment.
+	Name string `json:"name"`
+
+	// SizeGib Size in GiB, 1 to 65536. A volume can only grow afterwards.
+	SizeGib int32 `json:"size_gib"`
+
+	// VolumeBackend The volume backend to place the volume on. Absent lets the platform
+	// choose (the environment, organization or platform default).
+	VolumeBackend *string `json:"volume_backend,omitempty"`
+}
+
+// CreateVolumeRestoreRequest `POST /volume-restores`.
+type CreateVolumeRestoreRequest struct {
+	// AlignDatabase The platform forge only, `InPlace`: its database comes back to the point's time with the
+	// volume. The forge is stopped by the restore and started again after it.
+	AlignDatabase *bool `json:"align_database,omitempty"`
+
+	// BackupName The restore point to bring back.
+	BackupName string `json:"backup_name"`
+
+	// ConsumerKind What a volume belongs to.
+	ConsumerKind VolumeBackupSourceKind `json:"consumer_kind"`
+
+	// ConsumerName The app or workstation. `InPlace`: the app the point was taken from.
+	ConsumerName string `json:"consumer_name"`
+
+	// Mode How the volume comes back.
+	Mode VolumeRestoreMode `json:"mode"`
+
+	// SafetyBackup `InPlace` only: `false` skips the point taken before the volume is replaced. Omitted,
+	// it is taken.
+	SafetyBackup *bool `json:"safety_backup,omitempty"`
+
+	// VolumeName An app's `NewClaim`: the name of the new persistence entry, whose volume is
+	// `<app>-<volume_name>`. Ignored otherwise.
+	VolumeName *string `json:"volume_name,omitempty"`
 }
 
 // CreateWorkstationTemplateRequest Request body for creating a workstation template.
@@ -14132,6 +17412,9 @@ type CustomResourceInput struct {
 	// the same rule every tier follows.
 	MemoryMib int64 `json:"memory_mib"`
 }
+
+// CutOwner Who cut the path, and so who may restore it.
+type CutOwner string
 
 // CveAction What a matching rule does, from the mildest to the most disruptive.
 type CveAction string
@@ -14691,6 +17974,17 @@ type DecisionServingConfig struct {
 // DecisionSurface A decision API a serving exposes (`docs/architecture/decision-models.md` §3).
 type DecisionSurface string
 
+// DeclaredBy The declared object that allows an edge: what removing makes it stop.
+type DeclaredBy struct {
+	Kind DeclaredKind `json:"kind"`
+
+	// Name The service link's name, or the exposed resource's name.
+	Name string `json:"name"`
+
+	// ResourceKind For a public endpoint, the resource that exposes it.
+	ResourceKind *string `json:"resource_kind,omitempty"`
+}
+
 // DeclaredExtension What the tenant declared for one extension.
 type DeclaredExtension struct {
 	// Ensure Whether a managed extension should exist in the database.
@@ -14699,6 +17993,9 @@ type DeclaredExtension struct {
 	// Version Pinned version; absent when the tenant takes the image's.
 	Version *string `json:"version,omitempty"`
 }
+
+// DeclaredKind defines model for DeclaredKind.
+type DeclaredKind string
 
 // DeclaredLink A ServiceLink edge, as surfaced on a workload's declared network view.
 type DeclaredLink struct {
@@ -14737,6 +18034,16 @@ type DedupingStrategy struct {
 // DedupingStrategy0 defines model for .
 type DedupingStrategy0 struct {
 	Suffix Sha256HashDedupingStrategy `json:"Suffix"`
+}
+
+// DefaultRetentionInput A bucket's default retention: a mode and exactly one of `days` (1 to
+// 3650) or `years` (1 to 10).
+type DefaultRetentionInput struct {
+	Days *int32 `json:"days,omitempty"`
+
+	// Mode The two retention modes.
+	Mode  ObjectLockModeInput `json:"mode"`
+	Years *int32              `json:"years,omitempty"`
 }
 
 // DeleteDirectoryResponse defines model for DeleteDirectoryResponse.
@@ -14965,6 +18272,14 @@ type DevWorkstationResponse struct {
 	// SCM credential. The credential value is never exposed.
 	ScmSecretId *openapi_types.UUID          `json:"scm_secret_id,omitempty"`
 	Status      DevWorkstationStatusResponse `json:"status"`
+
+	// VolumeBackupEnabled Whether the workspace is backed up (ADR-0063 D2), from the live CR. Populated on the
+	// detail GET and the PATCH only; `null` in list responses.
+	VolumeBackupEnabled *bool `json:"volume_backup_enabled,omitempty"`
+
+	// VolumeBackupTarget The backup target (its name) the workspace points go to, `null` for the platform's
+	// placement. Populated like `volume_backup_enabled`.
+	VolumeBackupTarget *string `json:"volume_backup_target,omitempty"`
 }
 
 // DevWorkstationSetupReportResponse defines model for DevWorkstationSetupReportResponse.
@@ -15019,6 +18334,9 @@ type DiscardRequest struct {
 	// Path Repo-relative path to revert (`git checkout -- <path>`).
 	Path string `json:"path"`
 }
+
+// DocumentKind `red_team_run_documents.kind`.
+type DocumentKind string
 
 // DomainVerificationResponse defines model for DomainVerificationResponse.
 type DomainVerificationResponse struct {
@@ -15138,6 +18456,36 @@ type EarlierRecoveryWindow struct {
 	End       time.Time `json:"end"`
 	ExpiresAt time.Time `json:"expires_at"`
 	Start     time.Time `json:"start"`
+}
+
+// EdgeActionBody Why the edge is cut or restored. Required: every change is accountable.
+type EdgeActionBody struct {
+	Reason string `json:"reason"`
+}
+
+// EdgeActionResponse defines model for EdgeActionResponse.
+type EdgeActionResponse struct {
+	// Cut A cut declaration (#5723): the object the cut was written to, who owns the
+	// cut, and why. The cut is what the operator reconciles into a closed path.
+	Cut    *EdgeCut           `json:"cut,omitempty"`
+	EdgeId openapi_types.UUID `json:"edge_id"`
+}
+
+// EdgeCut A cut declaration (#5723): the object the cut was written to, who owns the
+// cut, and why. The cut is what the operator reconciles into a closed path.
+type EdgeCut struct {
+	CutAt time.Time `json:"cut_at"`
+
+	// CutBy Who cut it, for a cut the organization owns. A platform cut does not
+	// name the administrator to the organization.
+	CutBy *string `json:"cut_by,omitempty"`
+
+	// Declaration The declared object that allows an edge: what removing makes it stop.
+	Declaration DeclaredBy `json:"declaration"`
+
+	// Owner Who cut the path, and so who may restore it.
+	Owner  CutOwner `json:"owner"`
+	Reason string   `json:"reason"`
 }
 
 // Effect Whether a grant confers or withdraws access. Deny is evaluated with strict
@@ -15307,6 +18655,10 @@ type EnableSqlEngineResponse struct {
 	DemoBucketConflict *string `json:"demo_bucket_conflict,omitempty"`
 }
 
+// EncryptionAtRest What Hyperfluid does about encryption at rest on a zone's new buckets. It
+// says what the platform adds, never what the disks do.
+type EncryptionAtRest string
+
 // EnforcementStatus defines model for EnforcementStatus.
 type EnforcementStatus string
 
@@ -15333,6 +18685,8 @@ type EnvironmentMapNode struct {
 	Exposed bool `json:"exposed"`
 
 	// Id The resource's console id, so the UI can deep-link to its detail page.
+	// `null` for a workstation the caller does not own: its name is public to
+	// the environment (the link's own name carries it), the page is not.
 	Id *openapi_types.UUID `json:"id,omitempty"`
 
 	// Kind The kind of a service participating in a link. Constrained to the kinds the
@@ -15354,6 +18708,19 @@ type EnvironmentMapNode struct {
 type EnvironmentMapResponse struct {
 	Links    []ServiceLinkResponse `json:"links"`
 	Services []EnvironmentMapNode  `json:"services"`
+}
+
+// EvidenceItem defines model for EvidenceItem.
+type EvidenceItem struct {
+	Description string `json:"description"`
+	File        string `json:"file"`
+	Line        int64  `json:"line"`
+}
+
+// ExcludedBlock defines model for ExcludedBlock.
+type ExcludedBlock struct {
+	Block  string `json:"block"`
+	Reason string `json:"reason"`
 }
 
 // ExecuteActionRequest Body for `POST /ontology/action-types/{id}/execute` — the caller-supplied
@@ -15382,6 +18749,14 @@ type ExecuteRequest struct {
 	// `GET /api/v1/harbors/{harbor_id}/tiny-query/limits` returns; omitted,
 	// the server default applies.
 	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
+}
+
+// Execution defines model for Execution.
+type Execution struct {
+	AttackerPerspective string   `json:"attacker_perspective"`
+	Instructions        []string `json:"instructions"`
+	ObservedResult      string   `json:"observed_result"`
+	Payloads            []string `json:"payloads"`
 }
 
 // ExposedTableRef A `(schema, table)` pair in a catalog's exposure allowlist.
@@ -15855,6 +19230,22 @@ type FlowDirection string
 // FlowVerdict defines model for FlowVerdict.
 type FlowVerdict string
 
+// ForgeAlignmentResponse `GET /volume-backup-alignment`: which of the forge's points its database can come back to.
+type ForgeAlignmentResponse struct {
+	// Covered The completed points of the forge's volume whose time the archive reaches.
+	Covered      []string `json:"covered"`
+	DatabaseName string   `json:"database_name"`
+
+	// Proposed The newest of them.
+	Proposed *string `json:"proposed,omitempty"`
+
+	// WindowEnd The latest: now while archiving is healthy, else the last base backup.
+	WindowEnd *time.Time `json:"window_end,omitempty"`
+
+	// WindowStart The earliest instant the database's archive replays to; `null` when it holds nothing.
+	WindowStart *time.Time `json:"window_start,omitempty"`
+}
+
 // ForgejoRepoEntry A repository in the org's in-cluster Forgejo.
 type ForgejoRepoEntry struct {
 	// CloneUrl In-cluster git clone URL. Feed this directly to the workstation's
@@ -16107,6 +19498,17 @@ type GetConsoleConfigResponse struct {
 	// `window.location.host` there.
 	PreviewHostSuffix *string `json:"preview_host_suffix,omitempty"`
 	SapienceApiUrl    string  `json:"sapience_api_url"`
+
+	// TunnelBaseUrl Public base URL of the port-forward relay (ADR-0062), e.g.
+	// `"https://console.example.com"`: `hfctl port-forward` opens
+	// `<tunnel_base_url>/tunnel/v1/...` on it, as `wss://`. Absent when port
+	// forwarding is unavailable (the body is then unchanged); a client
+	// that finds none uses the console origin.
+	TunnelBaseUrl *string `json:"tunnel_base_url,omitempty"`
+
+	// VolumeBackupsEnabled The volume backup engine runs (ADR-0063): the console shows the environment's Backups
+	// page. Absent means `false`.
+	VolumeBackupsEnabled *bool `json:"volume_backups_enabled,omitempty"`
 
 	// VolumeStorageCatalogue Whether the catalogue drives placement (ADR-0056 D8). One switch, from the
 	// Helm value `volumeStorage.catalogue`, read by the operator, the console
@@ -16699,13 +20101,20 @@ type GroupMember struct {
 
 // HFBucketDetail defines model for HFBucketDetail.
 type HFBucketDetail struct {
+	// BackupLockMetadataNotPreserved The bucket is under Object Lock and the platform backs up its backend
+	// (`Managed` coverage), but that copy keeps neither the retention, the
+	// legal holds nor the previous versions: a restore would not be locked
+	// as the bucket is. False for a bucket the platform does not back up.
+	BackupLockMetadataNotPreserved *bool `json:"backup_lock_metadata_not_preserved,omitempty"`
+
 	// BucketName Tenant-prefixed bucket name materialized by the operator on RGW
 	// (i.e. `.status.bucket_name`). Equals `name` for non-prefixed
 	// deployments; surfaced separately so the UI can show what the
 	// underlying object store actually sees. `None` while the operator
 	// has not yet stamped the status field.
-	BucketName *string `json:"bucket_name,omitempty"`
-	CreatedAt  string  `json:"created_at"`
+	BucketName    *string           `json:"bucket_name,omitempty"`
+	ConfigApplied ConfigAppliedView `json:"config_applied"`
+	CreatedAt     string            `json:"created_at"`
 
 	// Deleting True once the bucket is being deleted (the HFBucket has a
 	// `deletionTimestamp`) and the operator's finalizer has not let it go
@@ -16775,6 +20184,10 @@ type HFBucketDetail struct {
 	SizeBytes     *int64          `json:"size_bytes,omitempty"`
 	Source        *ResourceOrigin `json:"source,omitempty"`
 	StatusMessage *string         `json:"status_message,omitempty"`
+
+	// Tags A bucket's tags. `wanted` is never substituted for `applied`: a tag the
+	// spec asks for and the backend does not hold yet is shown as such.
+	Tags BucketTagsView `json:"tags"`
 
 	// ZoneId Storage zone the bucket lives in (`"default"` for the primary).
 	ZoneId string `json:"zone_id"`
@@ -17130,6 +20543,17 @@ type HfTable struct {
 	SchemaName string `json:"schema_name"`
 	TableName  string `json:"table_name"`
 }
+
+// HfVolumeAttachmentState Whether the volume's holder owns the claim (`Claimed`) or is giving it up
+// (`Releasing`). The operator's open enum folds an unknown state into
+// `Releasing`: held, nothing granted, nothing rendered.
+type HfVolumeAttachmentState string
+
+// HfVolumePhase What the operator last reported of an `HfVolume`'s phase, as the console
+// serves it: a closed list, so the generated TypeScript type is an exhaustive
+// union. The operator's open phase enum folds a phase this build does not
+// know into `Pending` before it reaches the wire.
+type HfVolumePhase string
 
 // HistogramBucketDto A single volume-histogram bucket — a line count for one fixed time bucket.
 // Powers the logs explorer's volume-over-time bar chart above the entries
@@ -18329,6 +21753,69 @@ type LaunchNextflowRunRequestBody struct {
 	TimeoutMinutes *int32 `json:"timeout_minutes,omitempty"`
 }
 
+// LifecycleExpirationInput "Expire current versions" (after `days`, or on `date` at midnight UTC),
+// or "remove expired delete markers": one of them per rule.
+type LifecycleExpirationInput struct {
+	// Date RFC 3339, midnight UTC.
+	Date                      *string `json:"date,omitempty"`
+	Days                      *int32  `json:"days,omitempty"`
+	ExpiredObjectDeleteMarker *bool   `json:"expired_object_delete_marker,omitempty"`
+}
+
+// LifecycleFilterInput Which objects a rule applies to. Absent, or with nothing set, the whole
+// bucket.
+type LifecycleFilterInput struct {
+	ObjectSizeGreaterThan *int64            `json:"object_size_greater_than,omitempty"`
+	ObjectSizeLessThan    *int64            `json:"object_size_less_than,omitempty"`
+	Prefix                *string           `json:"prefix,omitempty"`
+	Tags                  *[]BucketTagInput `json:"tags,omitempty"`
+}
+
+// LifecycleRuleAudit One lifecycle rule as the audit records it: its id and what it does.
+type LifecycleRuleAudit struct {
+	// Actions `expiration`, `expired_object_delete_marker`, `transition`,
+	// `noncurrent_version_expiration`, `noncurrent_version_transition`,
+	// `abort_incomplete_multipart_upload`.
+	Actions []string `json:"actions"`
+	Enabled bool     `json:"enabled"`
+	Id      string   `json:"id"`
+}
+
+// LifecycleRuleInput One lifecycle rule. Without an `id`, the console gives it one that
+// depends only on the rule.
+type LifecycleRuleInput struct {
+	// AbortIncompleteMultipartUpload "Clean up unfinished uploads".
+	AbortIncompleteMultipartUpload *AbortIncompleteMultipartUploadInput `json:"abort_incomplete_multipart_upload,omitempty"`
+
+	// Expiration "Expire current versions" (after `days`, or on `date` at midnight UTC),
+	// or "remove expired delete markers": one of them per rule.
+	Expiration *LifecycleExpirationInput `json:"expiration,omitempty"`
+
+	// Filter Which objects a rule applies to. Absent, or with nothing set, the whole
+	// bucket.
+	Filter *LifecycleFilterInput `json:"filter,omitempty"`
+	Id     *string               `json:"id,omitempty"`
+
+	// NoncurrentVersionExpiration "Delete previous versions", optionally keeping the newest ones.
+	NoncurrentVersionExpiration  *NoncurrentVersionExpirationInput   `json:"noncurrent_version_expiration,omitempty"`
+	NoncurrentVersionTransitions *[]NoncurrentVersionTransitionInput `json:"noncurrent_version_transitions,omitempty"`
+
+	// Status Whether a lifecycle rule runs.
+	Status      LifecycleRuleStatusInput    `json:"status"`
+	Transitions *[]LifecycleTransitionInput `json:"transitions,omitempty"`
+}
+
+// LifecycleRuleStatusInput Whether a lifecycle rule runs.
+type LifecycleRuleStatusInput string
+
+// LifecycleTransitionInput "Move current versions" to another storage class of the zone.
+type LifecycleTransitionInput struct {
+	// Date RFC 3339, midnight UTC.
+	Date         *string `json:"date,omitempty"`
+	Days         *int32  `json:"days,omitempty"`
+	StorageClass string  `json:"storage_class"`
+}
+
 // LiftAgentVerdictBody defines model for LiftAgentVerdictBody.
 type LiftAgentVerdictBody struct {
 	// Reason Why the restriction is no longer needed; kept on the verdict.
@@ -18482,6 +21969,18 @@ type LiveAuditLog struct {
 	Data []ListAuditLogItem `json:"data"`
 }
 
+// LocalCheck defines model for LocalCheck.
+type LocalCheck struct {
+	AgentId string `json:"agent_id"`
+
+	// Artifact Always `null` in v1 (`method: "source"`); serialized as `null`.
+	Artifact      *string     `json:"artifact,omitempty"`
+	Invariant     string      `json:"invariant"`
+	Method        CheckMethod `json:"method"`
+	Result        string      `json:"result"`
+	ReviewedPaths []string    `json:"reviewed_paths"`
+}
+
 // LogEntryDto defines model for LogEntryDto.
 type LogEntryDto struct {
 	Container *string `json:"container,omitempty"`
@@ -18517,6 +22016,27 @@ type LogSourceDto struct {
 // LogStream CRI log stream a line was emitted on. Maps to a STATIC exact `stream:="…"`
 // LogsQL filter (the value comes from this closed enum, never user text).
 type LogStream string
+
+// LogsInclude Which parts of a logs answer the caller wants computed (ADR-0064 §4.1).
+//
+// `all` (default) is the historical behaviour: entries, sources and
+// histogram in one answer. `entries` sends one query, `facets` sends the two
+// facet queries and never the entries query.
+type LogsInclude string
+
+// LogsPartsDto Which parts of a logs answer were computed (ADR-0064 §4.1). A part that is
+// `skipped`, `failed`, `timeout` or `busy` is empty on purpose: the status is
+// what tells "nothing matched" from "not answered".
+type LogsPartsDto struct {
+	// Entries What one part of a logs answer holds (ADR-0064 §4.1).
+	Entries PartStatus `json:"entries"`
+
+	// Histogram What one part of a logs answer holds (ADR-0064 §4.1).
+	Histogram PartStatus `json:"histogram"`
+
+	// Sources What one part of a logs answer holds (ADR-0064 §4.1).
+	Sources PartStatus `json:"sources"`
+}
 
 // ManagedMailConfigResponse Managed agent-mail availability (ADR-0027 / PRD-006). Contract with the
 // console wizard — keep this exact shape: `enabled` is always present,
@@ -18911,6 +22431,124 @@ type MatchingTag struct {
 // MatrixAutoJoinDto Which invitations the bot accepts.
 type MatrixAutoJoinDto string
 
+// MatrixBotBody defines model for MatrixBotBody.
+type MatrixBotBody struct {
+	// AllowUnencryptedRooms Whether the bot may post into a room that is not end-to-end encrypted. Off unless set.
+	AllowUnencryptedRooms *bool `json:"allow_unencrypted_rooms,omitempty"`
+
+	// HomeserverUrl Generic preset only (`https://…`); refused with Tchap, whose homeserver follows from
+	// the MXID.
+	HomeserverUrl *string `json:"homeserver_url,omitempty"`
+	Name          string  `json:"name"`
+
+	// PasswordSecretId Plaintext secret holding the bot account's password.
+	PasswordSecretId openapi_types.UUID `json:"password_secret_id"`
+
+	// Preset The Matrix account kind: which homeserver rules apply to the bot.
+	Preset MatrixBotPreset `json:"preset"`
+
+	// RecoveryKeySecretId Plaintext secret holding the recovery key the account showed at setup.
+	RecoveryKeySecretId openapi_types.UUID `json:"recovery_key_secret_id"`
+
+	// UserId The bot's MXID, e.g. `@bot-alerts:agent.dinum.tchap.gouv.fr`.
+	UserId string `json:"user_id"`
+}
+
+// MatrixBotDto defines model for MatrixBotDto.
+type MatrixBotDto struct {
+	AllowUnencryptedRooms bool      `json:"allow_unencrypted_rooms"`
+	CreatedAt             time.Time `json:"created_at"`
+
+	// HomeserverUrl Generic preset only.
+	HomeserverUrl    *string            `json:"homeserver_url,omitempty"`
+	Id               openapi_types.UUID `json:"id"`
+	Name             string             `json:"name"`
+	PasswordSecretId openapi_types.UUID `json:"password_secret_id"`
+
+	// Preset The Matrix account kind: which homeserver rules apply to the bot.
+	Preset              MatrixBotPreset    `json:"preset"`
+	RecoveryKeySecretId openapi_types.UUID `json:"recovery_key_secret_id"`
+
+	// Status What the operator reports about the bot's notifier, read live from its custom resource.
+	Status    MatrixBotStatusDto `json:"status"`
+	UpdatedAt time.Time          `json:"updated_at"`
+
+	// UserId The bot's MXID.
+	UserId string `json:"user_id"`
+}
+
+// MatrixBotPhase Where a bot's notifier stands.
+type MatrixBotPhase string
+
+// MatrixBotPreset The Matrix account kind: which homeserver rules apply to the bot.
+type MatrixBotPreset string
+
+// MatrixBotReloginRequestedLog Audit payload for a Matrix re-login request on an organization's alert bot
+// (ADR-0069). The actor is the enclosing request's `oauth_id`.
+type MatrixBotReloginRequestedLog struct {
+	// Bot The bot's display name.
+	Bot   string             `json:"bot"`
+	BotId openapi_types.UUID `json:"bot_id"`
+
+	// SecretIds The secrets the notifier is given again: the bot's password and its
+	// recovery key.
+	SecretIds []openapi_types.UUID `json:"secret_ids"`
+}
+
+// MatrixBotRoomDto defines model for MatrixBotRoomDto.
+type MatrixBotRoomDto struct {
+	RoomId string `json:"room_id"`
+
+	// State Where the bot stands in one of its rooms.
+	State MatrixBotRoomState `json:"state"`
+}
+
+// MatrixBotRoomState Where the bot stands in one of its rooms.
+type MatrixBotRoomState string
+
+// MatrixBotStatusDto What the operator reports about the bot's notifier, read live from its custom resource.
+type MatrixBotStatusDto struct {
+	// DeviceId The Matrix device the bot lives on, once its first login completed.
+	DeviceId    *string    `json:"device_id,omitempty"`
+	LastEventAt *time.Time `json:"last_event_at,omitempty"`
+
+	// Message What the phase is about; names the action when a re-login is needed.
+	Message *string `json:"message,omitempty"`
+
+	// Phase Where a bot's notifier stands.
+	Phase MatrixBotPhase `json:"phase"`
+
+	// ReloginPending A re-login request is being served.
+	ReloginPending bool `json:"relogin_pending"`
+
+	// ReloginRequired The session ended: `POST …/relogin` makes the bot log in again.
+	ReloginRequired bool `json:"relogin_required"`
+
+	// Rooms The rooms the bot's channels name, and where the bot stands in each.
+	Rooms []MatrixBotRoomDto `json:"rooms"`
+}
+
+// MatrixChannelBody The bot and room a Matrix channel write names. `room` is a room id (`!…`) or an alias
+// (`#…`): an alias is resolved through the bot, and only the id is stored.
+type MatrixChannelBody struct {
+	BotId openapi_types.UUID `json:"bot_id"`
+	Room  string             `json:"room"`
+}
+
+// MatrixChannelDto The bot and room of a Matrix channel.
+type MatrixChannelDto struct {
+	BotId openapi_types.UUID `json:"bot_id"`
+
+	// BotName The bot's display name, `None` for a bot that no longer exists.
+	BotName *string `json:"bot_name,omitempty"`
+
+	// RoomId The room id the alerts are posted to.
+	RoomId string `json:"room_id"`
+
+	// RoomLabel The alias the room was named by, when it was, for display.
+	RoomLabel *string `json:"room_label,omitempty"`
+}
+
 // MatrixPresetDto `tchap` (hosts derived from the MXID; decrypted messages stay in the cluster
 // unless `allow_external_inference`) or `generic` (any homeserver: `homeserver_url`
 // and an allowlist are required).
@@ -19084,6 +22722,42 @@ type MetricSeriesDto struct {
 
 // MetricsRange Time range selector for metrics and logs queries.
 type MetricsRange string
+
+// MirrorBody The pre-sync of pinned images.
+type MirrorBody struct {
+	Images []MirrorImageBody `json:"images"`
+
+	// Schedule 5-field cron expression (UTC). Absent: the platform's default cadence.
+	Schedule *string `json:"schedule,omitempty"`
+}
+
+// MirrorImageBody One image to keep warm in a proxy's cache.
+type MirrorImageBody struct {
+	// Reference Tag or digest to pre-sync (`16`, `sha256:...`).
+	Reference string `json:"reference"`
+
+	// Repository Repository path on the upstream (`library/postgres`).
+	Repository string `json:"repository"`
+}
+
+// MirrorRunResponse Last run of a proxy's mirror warm-up.
+type MirrorRunResponse struct {
+	ImagesFailed int32 `json:"images_failed"`
+	ImagesOk     int32 `json:"images_ok"`
+
+	// LastError First failure of the run; absent when every image synced.
+	LastError *string   `json:"last_error,omitempty"`
+	LastRunAt time.Time `json:"last_run_at"`
+}
+
+// MirrorStateResponse defines model for MirrorStateResponse.
+type MirrorStateResponse struct {
+	Images []MirrorImageBody `json:"images"`
+
+	// LastRun Last run of a proxy's mirror warm-up.
+	LastRun  *MirrorRunResponse `json:"last_run,omitempty"`
+	Schedule *string            `json:"schedule,omitempty"`
+}
 
 // ModelCatalogResponse defines model for ModelCatalogResponse.
 type ModelCatalogResponse struct {
@@ -19300,10 +22974,141 @@ type MultipartPartUrl struct {
 // NetworkCondition The network situation a rule may require of the workload.
 type NetworkCondition string
 
+// NetworkDirection defines model for NetworkDirection.
+type NetworkDirection string
+
+// NetworkEdge defines model for NetworkEdge.
+type NetworkEdge struct {
+	// Cut A cut declaration (#5723): the object the cut was written to, who owns the
+	// cut, and why. The cut is what the operator reconciles into a closed path.
+	Cut *EdgeCut `json:"cut,omitempty"`
+
+	// Cuttable The edge can be cut: a declaration allows it and nothing cuts it yet.
+	// Whether the caller may do it is decided when they try.
+	Cuttable bool `json:"cuttable"`
+
+	// DeclaredBy The declared object that allows an edge: what removing makes it stop.
+	DeclaredBy *DeclaredBy `json:"declared_by,omitempty"`
+
+	// Destination A [`NetworkNode::id`].
+	Destination string           `json:"destination"`
+	Direction   NetworkDirection `json:"direction"`
+
+	// EntryPoint For traffic entering a resource that has a public endpoint: the
+	// hostname or address it is reached at from outside.
+	EntryPoint *string   `json:"entry_point,omitempty"`
+	FirstSeen  time.Time `json:"first_seen"`
+
+	// FlowCount Flow events folded into this edge since it was first seen.
+	FlowCount int64              `json:"flow_count"`
+	Id        openapi_types.UUID `json:"id"`
+	LastSeen  time.Time          `json:"last_seen"`
+
+	// Port The destination port; `None` for ICMP.
+	Port     *int32          `json:"port,omitempty"`
+	Protocol NetworkProtocol `json:"protocol"`
+
+	// Source A [`NetworkNode::id`].
+	Source  string         `json:"source"`
+	Verdict NetworkVerdict `json:"verdict"`
+}
+
+// NetworkEdgeAuditLog Audit payload for an edge of the network map that was cut or restored
+// (#5723), by an organization member from the console or a platform
+// administrator from the cockpit.
+type NetworkEdgeAuditLog struct {
+	// Actor The principal: `user:<uuid>`, `service_account:<uuid>` or
+	// `platform_admin:<subject>`.
+	Actor string `json:"actor"`
+
+	// DeclarationKind The declaration the cut was written to: `service_link`,
+	// `public_ingress` or `internet_egress`.
+	DeclarationKind string `json:"declaration_kind"`
+
+	// DeclarationName The object that carries it: the service link, or the `ContainerApp`.
+	DeclarationName string `json:"declaration_name"`
+	Destination     string `json:"destination"`
+
+	// EdgeId The stored edge the caller acted on.
+	EdgeId   openapi_types.UUID `json:"edge_id"`
+	Harbor   string             `json:"harbor"`
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Owner `organization` or `platform`: whose lock the cut is.
+	Owner string `json:"owner"`
+
+	// Port The destination port, `None` for a protocol without one.
+	Port     *int32 `json:"port,omitempty"`
+	Protocol string `json:"protocol"`
+
+	// Reason Why, as the caller wrote it.
+	Reason string `json:"reason"`
+
+	// ResourceId `<harbor_slug>/<declaring object name>`, named `resource_id` so the
+	// audit-log API's `event->'data'->>'resource_id'` filter reaches this event.
+	ResourceId string `json:"resource_id"`
+
+	// Source The edge's peers, as the map keys them.
+	Source string `json:"source"`
+}
+
 // NetworkIsolationView East-west posture of a harbor, surfaced to the UI so the topology page can
 // frame ServiceLinks as enforced (`strict`) or additive (`lenient`). Mirrors
 // `HarborSpec::network_isolation` on the Harbor CRD.
 type NetworkIsolationView string
+
+// NetworkMapResponse defines model for NetworkMapResponse.
+type NetworkMapResponse struct {
+	Collector CollectorStatus `json:"collector"`
+	Edges     []NetworkEdge   `json:"edges"`
+	Nodes     []NetworkNode   `json:"nodes"`
+
+	// Since Edges last seen at or after this instant.
+	Since time.Time `json:"since"`
+
+	// Truncated More edges matched than the response carries; narrow the filters.
+	Truncated bool `json:"truncated"`
+}
+
+// NetworkNode defines model for NetworkNode.
+type NetworkNode struct {
+	// Address External peers: the IP, the CIDR Cilium matched it to, and the DNS name
+	// it was seen resolving to.
+	Address *string `json:"address,omitempty"`
+
+	// Anonymous A peer of another organization, or one the caller may not see, drawn
+	// without identity.
+	Anonymous bool                `json:"anonymous"`
+	Cidr      *string             `json:"cidr,omitempty"`
+	Fqdn      *string             `json:"fqdn,omitempty"`
+	HarborId  *openapi_types.UUID `json:"harbor_id,omitempty"`
+
+	// Id Stable within the response; the `source` and `destination` of the edges.
+	Id   string          `json:"id"`
+	Kind NetworkNodeKind `json:"kind"`
+
+	// Label What to draw: the resource's name, the address (or DNS name) of an
+	// external peer, the component's name.
+	Label string `json:"label"`
+
+	// ResourceId The console id of the resource, for its detail page. `None` for a kind
+	// the console has no detail page for.
+	ResourceId *openapi_types.UUID `json:"resource_id,omitempty"`
+
+	// ResourceKind The resource's kind, as the service links name it (`ContainerApp`,
+	// `ManagedPostgreSQL`, `HfVirtualMachine`…).
+	ResourceKind *string `json:"resource_kind,omitempty"`
+	ResourceName *string `json:"resource_name,omitempty"`
+}
+
+// NetworkNodeKind defines model for NetworkNodeKind.
+type NetworkNodeKind string
+
+// NetworkProtocol defines model for NetworkProtocol.
+type NetworkProtocol string
+
+// NetworkVerdict defines model for NetworkVerdict.
+type NetworkVerdict string
 
 // NextflowCrdResponse The live `Nextflow` CRD spec (source of truth in K8s) plus the
 // operator-owned `status`.
@@ -19607,6 +23412,19 @@ type NextflowTaskQuotaRequest struct {
 // Memory limits are always equal to memory requests.
 type NodeTier string
 
+// NoncurrentVersionExpirationInput "Delete previous versions", optionally keeping the newest ones.
+type NoncurrentVersionExpirationInput struct {
+	NewerNoncurrentVersions *int32 `json:"newer_noncurrent_versions,omitempty"`
+	NoncurrentDays          *int32 `json:"noncurrent_days,omitempty"`
+}
+
+// NoncurrentVersionTransitionInput "Move previous versions" to another storage class of the zone.
+type NoncurrentVersionTransitionInput struct {
+	NewerNoncurrentVersions *int32 `json:"newer_noncurrent_versions,omitempty"`
+	NoncurrentDays          *int32 `json:"noncurrent_days,omitempty"`
+	StorageClass            string `json:"storage_class"`
+}
+
 // NormalizedMessage A chat message in the stable shape the React panel renders. The BFF
 // normalizes opencode's `{ info, parts }` envelope into this so the frontend
 // never has to know opencode's wire schema (and so an opencode upgrade can't
@@ -19657,11 +23475,14 @@ type NotificationChannelDto struct {
 	Enabled   bool               `json:"enabled"`
 	Id        openapi_types.UUID `json:"id"`
 
-	// Kind Delivery kinds, all three delivered end to end. The two webhook kinds share
-	// one transport (an HTTPS POST to a capability URL) and differ only in payload
-	// shape, so they differ here only by the host their URL must be on.
+	// Kind Delivery kinds, all delivered end to end. The webhook kinds share one
+	// transport (an HTTPS POST to a capability URL) and differ only in payload
+	// shape, so they differ here only by the hosts their URL must be on.
 	Kind ChannelKind `json:"kind"`
-	Name string      `json:"name"`
+
+	// Matrix The bot and room of a Matrix channel.
+	Matrix *MatrixChannelDto `json:"matrix,omitempty"`
+	Name   string            `json:"name"`
 
 	// Recipients Email channels only. Empty means "the organization's admins".
 	Recipients []string  `json:"recipients"`
@@ -19685,6 +23506,7 @@ type NoulCriteria struct {
 type OPADecisionLog struct {
 	Bundles        *map[string]interface{} `json:"bundles,omitempty"`
 	DecisionId     string                  `json:"decision_id"`
+	Delegated      *map[string]interface{} `json:"delegated,omitempty"`
 	Erased         *[]string               `json:"erased,omitempty"`
 	Gate           *map[string]interface{} `json:"gate,omitempty"`
 	Gateway        *map[string]interface{} `json:"gateway,omitempty"`
@@ -19726,6 +23548,17 @@ type ObjectInstance struct {
 	// human label for the instance (e.g. a patient's name).
 	Title *string `json:"title,omitempty"`
 }
+
+// ObjectLockInput Object Lock at creation. Present: the bucket is created locked, forever,
+// with versioning enabled.
+type ObjectLockInput struct {
+	// DefaultRetention A bucket's default retention: a mode and exactly one of `days` (1 to
+	// 3650) or `years` (1 to 10).
+	DefaultRetention *DefaultRetentionInput `json:"default_retention,omitempty"`
+}
+
+// ObjectLockModeInput The two retention modes.
+type ObjectLockModeInput string
 
 // ObjectStorageOwnerKeyRevealedLog Audit payload for a console-mediated reveal of a Ceph RGW tenant-owner
 // key. The actor is the enclosing request's `oauth_id`: the caller for an
@@ -20027,6 +23860,16 @@ type OptimizeTableResult struct {
 	Table  string `json:"table"`
 }
 
+// OptionAvailability Whether an option can be set on a bucket of a zone, and why not.
+type OptionAvailability struct {
+	Available bool `json:"available"`
+
+	// UnavailableReason Why an option cannot be set on a bucket of a zone: one enum for every
+	// option, shared by the zone listing, the create refusals and the bucket
+	// doors (the versioning door's answer included).
+	UnavailableReason *BucketOptionUnavailable `json:"unavailable_reason,omitempty"`
+}
+
 // Org An organization is a collection of [Users](super::user::User) and [DataDocks](super::datadock::DataDock)
 type Org struct {
 	CreatedAt time.Time `json:"created_at"`
@@ -20153,7 +23996,13 @@ type OrgSecurityPolicyState struct {
 	// (a sellable entitlement under a Helm kill switch, with plan defaults), a
 	// security policy is posture: it tightens or relaxes how a product behaves,
 	// is set by platform admins only, and resolves as
-	// `org override ?? platform default ?? built-in default`.
+	// `org override ?? platform default ?? built-in default` for an
+	// [`Organization`](SecurityPolicyScope::Organization)-scoped rule, or
+	// `platform default ?? built-in default` for a
+	// [`Platform`](SecurityPolicyScope::Platform)-scoped one. A `Bool` rule is then
+	// folded with what it [`requires`](SecurityPolicy::requires) and with whether
+	// its path is [available](SecurityPolicy::is_available): it is effective only
+	// when all of them allow it.
 	Policy SecurityPolicy `json:"policy"`
 
 	// Value A policy value, tagged with its kind so a stored value that no longer
@@ -20438,6 +24287,9 @@ type ParsedAttributeResponse struct {
 	// Value Value part (e.g., "occitanie")
 	Value string `json:"value"`
 }
+
+// PartStatus What one part of a logs answer holds (ADR-0064 §4.1).
+type PartStatus string
 
 // PartitionInput A compute partition (one Slinky NodeSet + Slurm partition).
 type PartitionInput struct {
@@ -20790,6 +24642,11 @@ type PatchContainerAppCrdRequestBody struct {
 	// silent last-write-wins on concurrent modifications.
 	ResourceVersion *string           `json:"resource_version,omitempty"`
 	SecretRefs      *[]SecretRefInput `json:"secret_refs,omitempty"`
+
+	// VolumeBackup Whether the volumes of an app or a workstation are backed up. At creation, omitting it
+	// creates the resource without backups (with them while the `volume_backups_required` rule is
+	// on); on an edit, omitting it leaves the choice unchanged.
+	VolumeBackup *VolumeBackupInput `json:"volume_backup,omitempty"`
 }
 
 // PatchContainerAppRequestBody PATCH body for updating a container app's display metadata.
@@ -21041,6 +24898,17 @@ type PatchVirtualMachineCrdRequestBody struct {
 	// Description Optional description (DB-only, not stored in CRD).
 	Description *string `json:"description,omitempty"`
 
+	// NetworkPorts The ports the guest serves, replacing the declared ones. Only declared
+	// ports are reachable from the rest of the environment. Absent leaves the
+	// declaration untouched; an empty list closes every port. Takes effect
+	// within seconds, without a restart.
+	NetworkPorts *[]VirtualMachinePortDto `json:"network_ports,omitempty"`
+
+	// PortForward Turn port forwarding on (`true`) or off (`false`) for this VM
+	// (ADR-0062). Absent leaves it untouched. `true` is refused with 403
+	// `PORT_FORWARD_DISABLED` while the platform keeps port forwarding off.
+	PortForward *bool `json:"port_forward,omitempty"`
+
 	// RemoveInstallMedia Set to `true` to detach the installation media of a VM installed from
 	// an installer image. Takes effect at the next restart.
 	RemoveInstallMedia *bool `json:"remove_install_media,omitempty"`
@@ -21050,6 +24918,16 @@ type PatchVirtualMachineCrdRequestBody struct {
 
 	// Tags User-defined tags (DB-only, not stored in CRD).
 	Tags *[]string `json:"tags,omitempty"`
+}
+
+// PatchVolumeCrdRequestBody defines model for PatchVolumeCrdRequestBody.
+type PatchVolumeCrdRequestBody struct {
+	// Description The new description, at most 500 characters. An empty string clears it.
+	Description *string `json:"description,omitempty"`
+
+	// SizeGib The new size in GiB. A volume can only grow, and only when its storage
+	// class supports expansion.
+	SizeGib *int32 `json:"size_gib,omitempty"`
 }
 
 // PendingPermission One opencode permission request that is CURRENTLY pending (awaiting a user
@@ -21179,6 +25057,13 @@ type PersistenceInput struct {
 	// fragment (lowercase letters, digits, hyphens; 1-50 chars; cannot start
 	// or end with a hyphen).
 	Name string `json:"name"`
+
+	// RestoreFrom A restore point (`GET /volume-backups`) of an app's volume to create this volume from.
+	// The restore is started before the app and holds the volume until it is done, so the app
+	// starts on the restored data. Needs `volume_backup:restore`; `400` when the volume is
+	// smaller than the point (`restore_size_bytes`) or `perReplica`, `409` when the point is
+	// not complete. Not stored in the app.
+	RestoreFrom *string `json:"restore_from,omitempty"`
 
 	// Size K8s storage quantity, e.g. `"10Gi"`, `"500Mi"`.
 	Size string `json:"size"`
@@ -21570,6 +25455,72 @@ type PolicyMode string
 // (never sent) when the live per-tool policy matches none of the presets.
 type PolicyPreset string
 
+// PortForwardEndReason Why a port-forward session ended.
+type PortForwardEndReason string
+
+// PortForwardLog Audit payload for one row of a port-forward session (ADR-0062). The actor
+// is the enclosing request's `oauth_id` (the caller's Keycloak subject).
+//
+// The bytes relayed are never captured, only counted. `invocation_id` and
+// `user_agent` come from the client and are untrusted: grouping and display
+// only.
+type PortForwardLog struct {
+	BytesFromGuest *int64 `json:"bytes_from_guest,omitempty"`
+	BytesToGuest   *int64 `json:"bytes_to_guest,omitempty"`
+
+	// ClientId The service account's Keycloak client id, for a service account.
+	ClientId      *string `json:"client_id,omitempty"`
+	ContainerPort int32   `json:"container_port"`
+
+	// DurationSeconds `active` (so far) and `closed`.
+	DurationSeconds *int64 `json:"duration_seconds,omitempty"`
+
+	// EndReason Why a port-forward session ended.
+	EndReason  *PortForwardEndReason `json:"end_reason,omitempty"`
+	HarborSlug string                `json:"harbor_slug"`
+
+	// InvocationId The `hfctl` invocation that opened the session (client header).
+	InvocationId *string `json:"invocation_id,omitempty"`
+
+	// Phase Which moment of a port-forward session a [`PortForwardLog`] records.
+	Phase    PortForwardPhase `json:"phase"`
+	PortName string           `json:"port_name"`
+
+	// PrincipalKind Which kind of principal a port-forward session runs as.
+	PrincipalKind PortForwardPrincipalKind `json:"principal_kind"`
+
+	// RelayBootId One id per relay process.
+	RelayBootId openapi_types.UUID `json:"relay_boot_id"`
+
+	// RelayReplica The relay pod's name.
+	RelayReplica string `json:"relay_replica"`
+
+	// ResourceId `<harbor_slug>/<target_id>`, the target's HRN path, named
+	// `resource_id` so the audit-log API's existing
+	// `event->'data'->>'resource_id'` filter reaches this event.
+	ResourceId string `json:"resource_id"`
+
+	// ServiceAccountId The service account's console id, for a service account.
+	ServiceAccountId *openapi_types.UUID `json:"service_account_id,omitempty"`
+
+	// SessionId The server-side session id (UUID v7).
+	SessionId openapi_types.UUID `json:"session_id"`
+	TargetId  openapi_types.UUID `json:"target_id"`
+
+	// TargetKind `virtual_machine` in tranche T1.
+	TargetKind     string `json:"target_kind"`
+	TokenRefreshes *int32 `json:"token_refreshes,omitempty"`
+
+	// UserAgent `opened` only.
+	UserAgent *string `json:"user_agent,omitempty"`
+}
+
+// PortForwardPhase Which moment of a port-forward session a [`PortForwardLog`] records.
+type PortForwardPhase string
+
+// PortForwardPrincipalKind Which kind of principal a port-forward session runs as.
+type PortForwardPrincipalKind string
+
 // PortProtocol L4 protocol of a `ContainerApp` port, mapping 1:1 to `ServicePort.protocol`.
 type PortProtocol string
 
@@ -21838,6 +25789,9 @@ type PrincipalUsageTimePoint struct {
 	Ts            int64   `json:"ts"`
 }
 
+// PriorStatus defines model for PriorStatus.
+type PriorStatus string
+
 // PropertyDefinition A typed attribute of an Object Type, optionally mapped to a physical
 // column of the backing table. `data_type` is a free-form semantic type
 // (string/integer/double/boolean/date/timestamp/geo/array/struct/...),
@@ -22100,6 +26054,7 @@ type QuotaProfileResponse struct {
 	MaxPipelineRunsMonthly  int32  `json:"max_pipeline_runs_monthly"`
 	MaxPipelines            int32  `json:"max_pipelines"`
 	MaxRamGb                int32  `json:"max_ram_gb"`
+	MaxRedTeamRunsMonthly   int32  `json:"max_red_team_runs_monthly"`
 	MaxServiceAccounts      int32  `json:"max_service_accounts"`
 	MaxStorageGb            int32  `json:"max_storage_gb"`
 	MaxUsers                int32  `json:"max_users"`
@@ -22140,6 +26095,645 @@ type QuotaUsageItemResponse struct {
 // This is an allowlist: anything else could break the cluster or escape the
 // tenant.
 type RabbitMqPlugin string
+
+// RedTeamCondition defines model for RedTeamCondition.
+type RedTeamCondition struct {
+	Description string        `json:"description"`
+	Kind        ConditionKind `json:"kind"`
+}
+
+// RedTeamConsoleFailure Why the platform ended a run `failed`: the operator's reasons
+// (`RedTeamRunFailureReason`) and the console's own.
+type RedTeamConsoleFailure string
+
+// RedTeamCoverageCounts defines model for RedTeamCoverageCounts.
+type RedTeamCoverageCounts struct {
+	Blocked       int32 `json:"blocked"`
+	Candidate     int32 `json:"candidate"`
+	Covered       int32 `json:"covered"`
+	Deferred      int32 `json:"deferred"`
+	InProgress    int32 `json:"in_progress"`
+	NotApplicable int32 `json:"not_applicable"`
+	OutOfScope    int32 `json:"out_of_scope"`
+	Planned       int32 `json:"planned"`
+}
+
+// RedTeamCoverageSummaryResponse defines model for RedTeamCoverageSummaryResponse.
+type RedTeamCoverageSummaryResponse struct {
+	Coverage RedTeamCoverageCounts `json:"coverage"`
+	RunId    openapi_types.UUID    `json:"run_id"`
+}
+
+// RedTeamCoverageUnitResponse defines model for RedTeamCoverageUnitResponse.
+type RedTeamCoverageUnitResponse struct {
+	CoverageId string         `json:"coverage_id"`
+	Status     CoverageStatus `json:"status"`
+	Unit       CoverageUnit   `json:"unit"`
+}
+
+// RedTeamDocumentResponse defines model for RedTeamDocumentResponse.
+type RedTeamDocumentResponse struct {
+	// Body The scrubbed document. Markdown for the rendered kinds, JSON text for
+	// the raw kinds; render as untrusted text.
+	Body  string `json:"body"`
+	Bytes int32  `json:"bytes"`
+
+	// Kind `red_team_run_documents.kind`.
+	Kind   DocumentKind       `json:"kind"`
+	RunId  openapi_types.UUID `json:"run_id"`
+	Sha256 string             `json:"sha256"`
+}
+
+// RedTeamEnvironmentOverview defines model for RedTeamEnvironmentOverview.
+type RedTeamEnvironmentOverview struct {
+	ActiveRuns     int32                 `json:"active_runs"`
+	HarborId       openapi_types.UUID    `json:"harbor_id"`
+	OpenFindings   RedTeamVerdictCounts  `json:"open_findings"`
+	OpenSeverities RedTeamSeverityCounts `json:"open_severities"`
+	Repositories   int32                 `json:"repositories"`
+	RunsThisMonth  int32                 `json:"runs_this_month"`
+}
+
+// RedTeamExportedRun The run, as the JSON export describes it.
+type RedTeamExportedRun struct {
+	CreatedAt  time.Time  `json:"created_at"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
+
+	// GitRef The ref the run audited: the requester's, else the tracked one.
+	GitRef   string             `json:"git_ref"`
+	HarborId openapi_types.UUID `json:"harbor_id"`
+	Id       openapi_types.UUID `json:"id"`
+
+	// Lineage Decided at admission and stored (D9).
+	Lineage RedTeamLineage `json:"lineage"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile       RedTeamProfile     `json:"profile"`
+	RepositoryId  openapi_types.UUID `json:"repository_id"`
+	RepositoryUrl string             `json:"repository_url"`
+	SkillCommit   *string            `json:"skill_commit,omitempty"`
+	SourceCommit  *string            `json:"source_commit,omitempty"`
+
+	// Status `red_team_runs.status`. `complete` and `incomplete` are the skill's two
+	// terminal states; `failed` and `cancelled` are the platform's.
+	Status RedTeamRunState `json:"status"`
+}
+
+// RedTeamFinding One record of `findings.json`, keyed by its `verdict`.
+type RedTeamFinding struct {
+	union json.RawMessage
+}
+
+// RedTeamFinding0 defines model for .
+type RedTeamFinding0 struct {
+	Conditions       []RedTeamCondition     `json:"conditions"`
+	Confidence       ConfidenceAssessment   `json:"confidence"`
+	Description      string                 `json:"description"`
+	Evidence         []EvidenceItem         `json:"evidence"`
+	Execution        Execution              `json:"execution"`
+	Fingerprint      string                 `json:"fingerprint"`
+	IntendedBehavior string                 `json:"intended_behavior"`
+	Remediation      Remediation            `json:"remediation"`
+	RootCause        string                 `json:"root_cause"`
+	Severity         SeverityAssessment     `json:"severity"`
+	Title            string                 `json:"title"`
+	Trace            []TraceStep            `json:"trace"`
+	Verdict          RedTeamFinding0Verdict `json:"verdict"`
+}
+
+// RedTeamFinding0Verdict defines model for RedTeamFinding.0.Verdict.
+type RedTeamFinding0Verdict string
+
+// RedTeamFinding1 defines model for .
+type RedTeamFinding1 struct {
+	Blockers         []string               `json:"blockers"`
+	ClaimedRootCause string                 `json:"claimed_root_cause"`
+	Description      string                 `json:"description"`
+	Evidence         []EvidenceItem         `json:"evidence"`
+	Fingerprint      string                 `json:"fingerprint"`
+	Title            string                 `json:"title"`
+	Trace            []TraceStep            `json:"trace"`
+	ValidationPlan   ValidationPlan         `json:"validation_plan"`
+	Verdict          RedTeamFinding1Verdict `json:"verdict"`
+}
+
+// RedTeamFinding1Verdict defines model for RedTeamFinding.1.Verdict.
+type RedTeamFinding1Verdict string
+
+// RedTeamFinding2 defines model for .
+type RedTeamFinding2 struct {
+	ClaimedRootCause string                 `json:"claimed_root_cause"`
+	Description      string                 `json:"description"`
+	Evidence         []EvidenceItem         `json:"evidence"`
+	Fingerprint      string                 `json:"fingerprint"`
+	Reason           string                 `json:"reason"`
+	Title            string                 `json:"title"`
+	Trace            []TraceStep            `json:"trace"`
+	Verdict          RedTeamFinding2Verdict `json:"verdict"`
+}
+
+// RedTeamFinding2Verdict defines model for RedTeamFinding.2.Verdict.
+type RedTeamFinding2Verdict string
+
+// RedTeamFindingHandedOffLog Audit payload for a Red Team finding handed to a coding agent in the
+// caller's workstation (ADR-0066 S10). Ids only: never the finding's text,
+// never the prompt. The actor is the enclosing request's `oauth_id`.
+type RedTeamFindingHandedOffLog struct {
+	// FindingId The record (`red_team_findings.id`).
+	FindingId openapi_types.UUID `json:"finding_id"`
+	HarborId  openapi_types.UUID `json:"harbor_id"`
+
+	// IdentityId Its identity, absent on an ad hoc run's record.
+	IdentityId    *openapi_types.UUID `json:"identity_id,omitempty"`
+	RepositoryId  openapi_types.UUID  `json:"repository_id"`
+	RunId         openapi_types.UUID  `json:"run_id"`
+	WorkstationId openapi_types.UUID  `json:"workstation_id"`
+}
+
+// RedTeamFindingResponse defines model for RedTeamFindingResponse.
+type RedTeamFindingResponse struct {
+	Fingerprint string             `json:"fingerprint"`
+	Id          openapi_types.UUID `json:"id"`
+
+	// IdentityId Absent on an `ad_hoc` run's finding.
+	IdentityId *openapi_types.UUID `json:"identity_id,omitempty"`
+
+	// OverallSeverity The five-step scale of `report-schema.json`, ordered.
+	OverallSeverity *RedTeamSeverity `json:"overall_severity,omitempty"`
+
+	// Record One record of `findings.json`, keyed by its `verdict`.
+	Record  RedTeamFinding     `json:"record"`
+	RunId   openapi_types.UUID `json:"run_id"`
+	Title   string             `json:"title"`
+	Verdict Verdict            `json:"verdict"`
+}
+
+// RedTeamFindingTriagedLog Audit payload for a member's triage of a Red Team finding (ADR-0066 S6).
+// Ids, states and the acceptance date only: never the finding's text, and
+// never the member's reason (the module's triage trail holds it).
+type RedTeamFindingTriagedLog struct {
+	AcceptedUntil *time.Time `json:"accepted_until,omitempty"`
+
+	// FromState `open`, `accepted_risk`, `fixed` or `false_positive`.
+	FromState string             `json:"from_state"`
+	HarborId  openapi_types.UUID `json:"harbor_id"`
+
+	// IdentityId The finding identity (`red_team_finding_identities.id`).
+	IdentityId openapi_types.UUID `json:"identity_id"`
+
+	// OwnerValidated Present on an owner validation: `true` recorded, `false` withdrawn.
+	OwnerValidated *bool              `json:"owner_validated,omitempty"`
+	RepositoryId   openapi_types.UUID `json:"repository_id"`
+	ToState        string             `json:"to_state"`
+}
+
+// RedTeamFindingsExport `GET …/export/findings`: every stored record of the run, the three
+// verdicts included, with the identity each tracked one is linked to.
+type RedTeamFindingsExport struct {
+	Findings []RedTeamFindingResponse `json:"findings"`
+
+	// Format Always `hyperfluid.red_team.findings`.
+	Format string `json:"format"`
+
+	// Method The method (ADR-0066 Licence): the skill, its licence and commit.
+	Method string `json:"method"`
+
+	// Run The run, as the JSON export describes it.
+	Run RedTeamExportedRun `json:"run"`
+
+	// Version The version of this format: 1.
+	Version int32 `json:"version"`
+}
+
+// RedTeamFindingsExportedLog Audit payload for an export of a Red Team run's findings. The actor is
+// the enclosing request's `oauth_id`.
+type RedTeamFindingsExportedLog struct {
+	// Findings How many records the export carried.
+	Findings int32 `json:"findings"`
+
+	// Format `sarif` or `json`.
+	Format       string             `json:"format"`
+	HarborId     openapi_types.UUID `json:"harbor_id"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	RunId        openapi_types.UUID `json:"run_id"`
+}
+
+// RedTeamHandoffPromptResponse The prompt to place in the workstation chat's composer (never sent by
+// the console). Markdown: the console's instructions, then every string the
+// audit wrote in one fenced code block whose fence no text inside can
+// close, so the chat renders it as text.
+type RedTeamHandoffPromptResponse struct {
+	FindingId     openapi_types.UUID `json:"finding_id"`
+	Prompt        string             `json:"prompt"`
+	RunId         openapi_types.UUID `json:"run_id"`
+	WorkstationId openapi_types.UUID `json:"workstation_id"`
+}
+
+// RedTeamIdentityDetailResponse defines model for RedTeamIdentityDetailResponse.
+type RedTeamIdentityDetailResponse struct {
+	Identity RedTeamIdentityResponse `json:"identity"`
+
+	// Occurrences The identity's record in every tracked run that reported it, newest
+	// first.
+	Occurrences []RedTeamFindingResponse `json:"occurrences"`
+}
+
+// RedTeamIdentityResponse defines model for RedTeamIdentityResponse.
+type RedTeamIdentityResponse struct {
+	// AbsentFromLastCompleteRun The latest complete, unscoped tracked run of the repository did not
+	// report this finding. Absence is never "fixed": only a member closes a
+	// finding (D9).
+	AbsentFromLastCompleteRun bool               `json:"absent_from_last_complete_run"`
+	AcceptedUntil             *time.Time         `json:"accepted_until,omitempty"`
+	Fingerprint               string             `json:"fingerprint"`
+	FirstSeenRunId            openapi_types.UUID `json:"first_seen_run_id"`
+	Id                        openapi_types.UUID `json:"id"`
+
+	// LastOverallSeverity The five-step scale of `report-schema.json`, ordered.
+	LastOverallSeverity *RedTeamSeverity   `json:"last_overall_severity,omitempty"`
+	LastSeenRunId       openapi_types.UUID `json:"last_seen_run_id"`
+	LastVerdict         Verdict            `json:"last_verdict"`
+	OwnerValidatedAt    *time.Time         `json:"owner_validated_at,omitempty"`
+
+	// OwnerValidatedBy A member validated this `needs_validation` lead by following its
+	// plan. The verdict the audit produced is unchanged.
+	OwnerValidatedBy *openapi_types.UUID `json:"owner_validated_by,omitempty"`
+	RepositoryId     openapi_types.UUID  `json:"repository_id"`
+	Title            string              `json:"title"`
+	TriageAt         *time.Time          `json:"triage_at,omitempty"`
+	TriageBy         *openapi_types.UUID `json:"triage_by,omitempty"`
+
+	// TriageReason The reason of the last triage change, as the member wrote it
+	// (scrubbed). The full trail is `GET /findings/{identity_id}/events`.
+	TriageReason *string             `json:"triage_reason,omitempty"`
+	TriageState  *RedTeamTriageState `json:"triage_state,omitempty"`
+}
+
+// RedTeamIncompleteReason Why a run ended `incomplete`, as served. The runner's own reasons are
+// named; any other value the bundle carried (it matches
+// `^[a-z0-9_]{1,64}$`, S1) is served as `other`, so the run response carries
+// no text chosen inside the pod.
+type RedTeamIncompleteReason string
+
+// RedTeamLineage Decided at admission and stored (D9).
+type RedTeamLineage string
+
+// RedTeamOrganizationOverview defines model for RedTeamOrganizationOverview.
+type RedTeamOrganizationOverview struct {
+	// Environments One line per environment where the caller holds `red_team:read`.
+	Environments []RedTeamEnvironmentOverview `json:"environments"`
+}
+
+// RedTeamOwnerValidationRequest `PUT /findings/{identity_id}/owner-validation`: a member followed a
+// `needs_validation` lead's validation plan (`true`), or withdraws that
+// (`false`). The verdict and the triage state do not move.
+type RedTeamOwnerValidationRequest struct {
+	Reason    *string `json:"reason,omitempty"`
+	Validated bool    `json:"validated"`
+}
+
+// RedTeamPrincipalKind defines model for RedTeamPrincipalKind.
+type RedTeamPrincipalKind string
+
+// RedTeamPriorContext defines model for RedTeamPriorContext.
+type RedTeamPriorContext string
+
+// RedTeamProfile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+type RedTeamProfile string
+
+// RedTeamRepositoryRegisteredLog Audit payload for a Red Team repository registration (ADR-0066). The actor
+// is the enclosing request's `oauth_id`; ids and the tracked ref only.
+type RedTeamRepositoryRegisteredLog struct {
+	// Attested The registrant attested the organization is authorised to audit it.
+	Attested     bool               `json:"attested"`
+	HarborId     openapi_types.UUID `json:"harbor_id"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+
+	// ScmSecretId The organization SCM secret registered with it; absent for an
+	// anonymous public clone.
+	ScmSecretId *openapi_types.UUID `json:"scm_secret_id,omitempty"`
+	TrackedRef  string              `json:"tracked_ref"`
+}
+
+// RedTeamRepositoryResponse defines model for RedTeamRepositoryResponse.
+type RedTeamRepositoryResponse struct {
+	// ActiveRunId The run in flight on this repository, if any (one at a time, D7).
+	ActiveRunId    *openapi_types.UUID `json:"active_run_id,omitempty"`
+	AttestedAt     time.Time           `json:"attested_at"`
+	AttestedBy     openapi_types.UUID  `json:"attested_by"`
+	CreatedAt      time.Time           `json:"created_at"`
+	HarborId       openapi_types.UUID  `json:"harbor_id"`
+	Id             openapi_types.UUID  `json:"id"`
+	OrganizationId openapi_types.UUID  `json:"organization_id"`
+	Provider       RedTeamScmProvider  `json:"provider"`
+	ScmSecretId    *openapi_types.UUID `json:"scm_secret_id,omitempty"`
+	TrackedRef     string              `json:"tracked_ref"`
+	Url            string              `json:"url"`
+}
+
+// RedTeamRepositoryTrendResponse A repository's history: its tracked runs that stored results, newest
+// first. Ad hoc runs never count (D9).
+type RedTeamRepositoryTrendResponse struct {
+	Points       []RedTeamTrendPoint `json:"points"`
+	RepositoryId openapi_types.UUID  `json:"repository_id"`
+}
+
+// RedTeamRunCancelledLog Audit payload for a cancelled Red Team run.
+type RedTeamRunCancelledLog struct {
+	HarborId     openapi_types.UUID `json:"harbor_id"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	RunId        openapi_types.UUID `json:"run_id"`
+}
+
+// RedTeamRunFailure Why a run failed: the operator's reason, or the console's own.
+type RedTeamRunFailure struct {
+	union json.RawMessage
+}
+
+// RedTeamRunFailureReason Why a run ended `Failed`. Stored on the console row as `failure_reason`.
+type RedTeamRunFailureReason string
+
+// RedTeamRunProgressResponse Live progress, read from the CR's status while the run is active.
+type RedTeamRunProgressResponse struct {
+	AgentsSpent int32 `json:"agents_spent"`
+
+	// SkillPhase 0 to 6, informational.
+	SkillPhase int32 `json:"skill_phase"`
+}
+
+// RedTeamRunRequestedLog Audit payload for a requested Red Team run. Never a finding, a URL or a
+// ref: the run row holds those.
+type RedTeamRunRequestedLog struct {
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Lineage `tracked` or `ad_hoc`.
+	Lineage      string              `json:"lineage"`
+	RepositoryId openapi_types.UUID  `json:"repository_id"`
+	RunId        openapi_types.UUID  `json:"run_id"`
+	ScmSecretId  *openapi_types.UUID `json:"scm_secret_id,omitempty"`
+
+	// Trigger `manual`, `schedule`, `retest` or `api`.
+	Trigger string `json:"trigger"`
+}
+
+// RedTeamRunResponse One run, as `red_team:read` sees it.
+type RedTeamRunResponse struct {
+	AgentsSpent     *int32    `json:"agents_spent,omitempty"`
+	BudgetRequested *int32    `json:"budget_requested,omitempty"`
+	BudgetResolved  *int32    `json:"budget_resolved,omitempty"`
+	CreatedAt       time.Time `json:"created_at"`
+	DeadlineAt      time.Time `json:"deadline_at"`
+
+	// FailureReason Why a run failed: the operator's reason, or the console's own.
+	FailureReason *RedTeamRunFailure `json:"failure_reason,omitempty"`
+	FinishedAt    *time.Time         `json:"finished_at,omitempty"`
+	HarborId      openapi_types.UUID `json:"harbor_id"`
+	Id            openapi_types.UUID `json:"id"`
+	ImageResolved *string            `json:"image_resolved,omitempty"`
+
+	// IncompleteReason Why a run ended `incomplete`, as served. The runner's own reasons are
+	// named; any other value the bundle carried (it matches
+	// `^[a-z0-9_]{1,64}$`, S1) is served as `other`, so the run response carries
+	// no text chosen inside the pod.
+	IncompleteReason *RedTeamIncompleteReason `json:"incomplete_reason,omitempty"`
+	KeyRevoked       bool                     `json:"key_revoked"`
+
+	// Lineage Decided at admission and stored (D9).
+	Lineage        RedTeamLineage      `json:"lineage"`
+	ModelRequested *string             `json:"model_requested,omitempty"`
+	ModelResolved  *string             `json:"model_resolved,omitempty"`
+	OrganizationId openapi_types.UUID  `json:"organization_id"`
+	PriorContext   RedTeamPriorContext `json:"prior_context"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile RedTeamProfile `json:"profile"`
+
+	// Progress Live progress, read from the CR's status while the run is active.
+	Progress *RedTeamRunProgressResponse `json:"progress,omitempty"`
+
+	// Ref Absent: the repository's tracked ref.
+	Ref             *string              `json:"ref,omitempty"`
+	RepositoryId    openapi_types.UUID   `json:"repository_id"`
+	RequestedBy     openapi_types.UUID   `json:"requested_by"`
+	RequestedByKind RedTeamPrincipalKind `json:"requested_by_kind"`
+	ScopeDiffBase   *string              `json:"scope_diff_base,omitempty"`
+
+	// ScopePaths Empty on a re-test: its scope is the file paths of a finding record,
+	// which only `red_team:findings_read` reads.
+	ScopePaths          []string `json:"scope_paths"`
+	SkillCommit         *string  `json:"skill_commit,omitempty"`
+	SkillCommitMismatch *bool    `json:"skill_commit_mismatch,omitempty"`
+
+	// SourceCommit The commit the clone step reported (hex).
+	SourceCommit *string    `json:"source_commit,omitempty"`
+	StartedAt    *time.Time `json:"started_at,omitempty"`
+
+	// Status `red_team_runs.status`. `complete` and `incomplete` are the skill's two
+	// terminal states; `failed` and `cancelled` are the platform's.
+	Status RedTeamRunState `json:"status"`
+
+	// Summary Counts per verdict, per severity and per coverage status, computed by the
+	// console from validated rows (never taken from the bundle). The only shape
+	// of a run's results `red_team:read` sees.
+	Summary *RedTeamRunSummary `json:"summary,omitempty"`
+	Trigger RedTeamRunTrigger  `json:"trigger"`
+}
+
+// RedTeamRunState `red_team_runs.status`. `complete` and `incomplete` are the skill's two
+// terminal states; `failed` and `cancelled` are the platform's.
+type RedTeamRunState string
+
+// RedTeamRunSummary Counts per verdict, per severity and per coverage status, computed by the
+// console from validated rows (never taken from the bundle). The only shape
+// of a run's results `red_team:read` sees.
+type RedTeamRunSummary struct {
+	Coverage        RedTeamCoverageCounts `json:"coverage"`
+	SecretsRedacted int64                 `json:"secrets_redacted"`
+	Severities      RedTeamSeverityCounts `json:"severities"`
+	Verdicts        RedTeamVerdictCounts  `json:"verdicts"`
+}
+
+// RedTeamRunTrigger defines model for RedTeamRunTrigger.
+type RedTeamRunTrigger string
+
+// RedTeamScheduleDisabledLog Audit payload for a Red Team schedule the console disabled. The actor is
+// the schedule's owner, the principal who lost the permission.
+type RedTeamScheduleDisabledLog struct {
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Reason The closed reason recorded on the schedule (`owner_lost_permission`).
+	Reason       string             `json:"reason"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	ScheduleId   openapi_types.UUID `json:"schedule_id"`
+}
+
+// RedTeamScheduleRefusal Why a fire did not start a run: a closed code, stored as is and served.
+type RedTeamScheduleRefusal string
+
+// RedTeamScheduleResponse defines model for RedTeamScheduleResponse.
+type RedTeamScheduleResponse struct {
+	Budget      *int32             `json:"budget,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	Cron        string             `json:"cron"`
+	Enabled     bool               `json:"enabled"`
+	HarborId    openapi_types.UUID `json:"harbor_id"`
+	Id          openapi_types.UUID `json:"id"`
+	LastFiredAt *time.Time         `json:"last_fired_at,omitempty"`
+
+	// LastRefusal Why a fire did not start a run: a closed code, stored as is and served.
+	LastRefusal *RedTeamScheduleRefusal `json:"last_refusal,omitempty"`
+	LastRunId   *openapi_types.UUID     `json:"last_run_id,omitempty"`
+
+	// Model The model each run requests; absent: the platform default.
+	Model          *string            `json:"model,omitempty"`
+	NextRunAt      *time.Time         `json:"next_run_at,omitempty"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// OwnedBy The member the schedule's runs are attributed to.
+	OwnedBy openapi_types.UUID `json:"owned_by"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile      RedTeamProfile     `json:"profile"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	ScopePaths   []string           `json:"scope_paths"`
+	UpdatedAt    time.Time          `json:"updated_at"`
+}
+
+// RedTeamScmProvider defines model for RedTeamScmProvider.
+type RedTeamScmProvider string
+
+// RedTeamSettingsChangedLog Audit payload for a change of an environment's Red Team settings.
+type RedTeamSettingsChangedLog struct {
+	// DefaultModel The environment's audit model after the change; absent: the platform
+	// default applies again.
+	DefaultModel *string            `json:"default_model,omitempty"`
+	HarborId     openapi_types.UUID `json:"harbor_id"`
+}
+
+// RedTeamSettingsResponse What decides the model of an environment's audits.
+type RedTeamSettingsResponse struct {
+	// DefaultModel The model this environment's audits use when a run names none.
+	// Absent: the platform default applies.
+	DefaultModel *string `json:"default_model,omitempty"`
+
+	// ExternalModels The models the organization's `red_team_allowed_models` rule lets an
+	// audit reach outside the cluster. Any other model is only reached
+	// while it is served in the cluster.
+	ExternalModels []string `json:"external_models"`
+
+	// PlatformDefaultModel The platform's default model. Absent: the platform sets none, so an
+	// audit needs a model from the environment or from the run itself.
+	PlatformDefaultModel *string `json:"platform_default_model,omitempty"`
+
+	// UpdatedAt When the environment's model was last set or cleared.
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// RedTeamSeverity The five-step scale of `report-schema.json`, ordered.
+type RedTeamSeverity string
+
+// RedTeamSeverityCounts defines model for RedTeamSeverityCounts.
+type RedTeamSeverityCounts struct {
+	Critical      int32 `json:"critical"`
+	High          int32 `json:"high"`
+	Informational int32 `json:"informational"`
+	Low           int32 `json:"low"`
+	Medium        int32 `json:"medium"`
+}
+
+// RedTeamTrendPoint One tracked run of the repository that stored results.
+type RedTeamTrendPoint struct {
+	CreatedAt  time.Time  `json:"created_at"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile RedTeamProfile     `json:"profile"`
+	RunId   openapi_types.UUID `json:"run_id"`
+
+	// Scoped A scoped or diff run covered part of the repository: its counts do
+	// not compare with a full run's.
+	Scoped       bool    `json:"scoped"`
+	SourceCommit *string `json:"source_commit,omitempty"`
+
+	// Status `red_team_runs.status`. `complete` and `incomplete` are the skill's two
+	// terminal states; `failed` and `cancelled` are the platform's.
+	Status RedTeamRunState `json:"status"`
+
+	// Summary Counts per verdict, per severity and per coverage status, computed by the
+	// console from validated rows (never taken from the bundle). The only shape
+	// of a run's results `red_team:read` sees.
+	Summary *RedTeamRunSummary `json:"summary,omitempty"`
+	Trigger RedTeamRunTrigger  `json:"trigger"`
+}
+
+// RedTeamTriageActorKind Who wrote a triage event: a member, a run, or the platform's sweep.
+type RedTeamTriageActorKind string
+
+// RedTeamTriageEventKind What wrote a triage event.
+type RedTeamTriageEventKind string
+
+// RedTeamTriageEventResponse One event of an identity's triage trail.
+type RedTeamTriageEventResponse struct {
+	AcceptedUntil *time.Time `json:"accepted_until,omitempty"`
+
+	// ActorId The member, for `user` and `service_account`; absent for a run or the
+	// sweep.
+	ActorId *openapi_types.UUID `json:"actor_id,omitempty"`
+
+	// ActorKind Who wrote a triage event: a member, a run, or the platform's sweep.
+	ActorKind   RedTeamTriageActorKind `json:"actor_kind"`
+	CreatedAt   time.Time              `json:"created_at"`
+	FromState   *RedTeamTriageState    `json:"from_state,omitempty"`
+	FromVerdict *Verdict               `json:"from_verdict,omitempty"`
+	Id          openapi_types.UUID     `json:"id"`
+	IdentityId  openapi_types.UUID     `json:"identity_id"`
+
+	// Kind What wrote a triage event.
+	Kind   RedTeamTriageEventKind `json:"kind"`
+	Reason *string                `json:"reason,omitempty"`
+
+	// RunId The run, for `reopen` and `verdict_change`.
+	RunId     *openapi_types.UUID `json:"run_id,omitempty"`
+	ToState   RedTeamTriageState  `json:"to_state"`
+	ToVerdict *Verdict            `json:"to_verdict,omitempty"`
+}
+
+// RedTeamTriageRequest `PUT /findings/{identity_id}/triage`.
+type RedTeamTriageRequest struct {
+	// AcceptedUntil Required for `accepted_risk`, and only there: in the future, and at
+	// most `redTeam.maxRiskAcceptanceDays` away. The finding returns to
+	// `open` when it passes.
+	AcceptedUntil *time.Time `json:"accepted_until,omitempty"`
+
+	// Reason Required for `accepted_risk` and `false_positive`; at most 2,000
+	// characters. Stored scrubbed of credential shapes.
+	Reason *string            `json:"reason,omitempty"`
+	State  RedTeamTriageState `json:"state"`
+}
+
+// RedTeamTriageState defines model for RedTeamTriageState.
+type RedTeamTriageState string
+
+// RedTeamValidationErrorsResponse defines model for RedTeamValidationErrorsResponse.
+type RedTeamValidationErrorsResponse struct {
+	Errors []StoredValidationError `json:"errors"`
+	RunId  openapi_types.UUID      `json:"run_id"`
+
+	// Total Every violation the bundle had; `errors` keeps the first twenty.
+	Total int32 `json:"total"`
+}
+
+// RedTeamVerdictCounts defines model for RedTeamVerdictCounts.
+type RedTeamVerdictCounts struct {
+	Confirmed       int32 `json:"confirmed"`
+	NeedsValidation int32 `json:"needs_validation"`
+	Rejected        int32 `json:"rejected"`
+}
 
 // Ref A reference to a file in a storage bucket
 // This reference is created upon scanning a bucket and is used to track the
@@ -22207,6 +26801,26 @@ type RegisterInvitationRequest struct {
 	Password  string `json:"password"`
 }
 
+// RegisterRedTeamRepositoryRequest `POST /repositories`: register a repository with its tracked branch.
+type RegisterRedTeamRepositoryRequest struct {
+	// Attestation The registrant attests the organization is authorised to audit this
+	// repository. Must be `true`; recorded in the audit log.
+	Attestation bool               `json:"attestation"`
+	Provider    RedTeamScmProvider `json:"provider"`
+
+	// ScmSecretId An organization-scoped `scm_credential` secret that reads the
+	// repository. Required unless the `red_team_public_repositories` rule
+	// allows an anonymous clone; always required on the in-cluster forge.
+	ScmSecretId *openapi_types.UUID `json:"scm_secret_id,omitempty"`
+
+	// TrackedRef The branch whose runs build the environment's findings (D9).
+	TrackedRef string `json:"tracked_ref"`
+
+	// Url The clone URL: `https://…` with no userinfo, query or fragment
+	// (`http://` only for the in-cluster forge).
+	Url string `json:"url"`
+}
+
 // RegistryProjectResponse defines model for RegistryProjectResponse.
 type RegistryProjectResponse struct {
 	CreatedAt   time.Time          `json:"created_at"`
@@ -22232,6 +26846,64 @@ type RegistryProjectUsageResponse struct {
 
 	// TagCount Total number of tags across this project's repositories.
 	TagCount int64 `json:"tag_count"`
+}
+
+// RegistryProxiesResponse defines model for RegistryProxiesResponse.
+type RegistryProxiesResponse struct {
+	Proxies []RegistryProxyResponse `json:"proxies"`
+}
+
+// RegistryProxyImageResponse One manifest a proxy cached, with where it came from.
+type RegistryProxyImageResponse struct {
+	Digest        string    `json:"digest"`
+	FirstSyncedAt time.Time `json:"first_synced_at"`
+	LastSyncedAt  time.Time `json:"last_synced_at"`
+
+	// PullReference The reference that pulls it through the platform registry.
+	PullReference string `json:"pull_reference"`
+
+	// Repository Repository path on the upstream (`library/nginx`).
+	Repository string `json:"repository"`
+
+	// Scan Lightweight projection for read-views (catalog/tag badges) and list endpoints
+	// — never carries the full `report` blob.
+	Scan *ScanSummary `json:"scan,omitempty"`
+
+	// Source `pull` (a client pulled it) or `mirror` (the warm-up fetched it).
+	Source string `json:"source"`
+
+	// Tag Last tag it was reached by; absent when only ever pulled by digest.
+	Tag *string `json:"tag,omitempty"`
+
+	// UpstreamReference Where it comes from: `docker.io/library/nginx:1.27`.
+	UpstreamReference string `json:"upstream_reference"`
+}
+
+// RegistryProxyImagesResponse defines model for RegistryProxyImagesResponse.
+type RegistryProxyImagesResponse struct {
+	Images []RegistryProxyImageResponse `json:"images"`
+}
+
+// RegistryProxyResponse defines model for RegistryProxyResponse.
+type RegistryProxyResponse struct {
+	CredentialsSecret *string `json:"credentials_secret,omitempty"`
+
+	// Message Why the proxy is not ready, or the last reconcile message.
+	Message *string              `json:"message,omitempty"`
+	Mirror  *MirrorStateResponse `json:"mirror,omitempty"`
+
+	// Name The upstream slug, the key of every proxy route.
+	Name             string  `json:"name"`
+	OutboundProxyUrl *string `json:"outbound_proxy_url,omitempty"`
+
+	// PullPrefix The reference prefix clients pull through, once reconciled:
+	// `<org>.rg.<base>/<harbor>/proxy-<name>/`.
+	PullPrefix *string `json:"pull_prefix,omitempty"`
+	Ready      bool    `json:"ready"`
+
+	// ReferenceHost Host the upstream's images are named with (`docker.io`), once reconciled.
+	ReferenceHost *string `json:"reference_host,omitempty"`
+	RemoteUrl     string  `json:"remote_url"`
 }
 
 // RegistryResponse The `registries` row returned by both the internal (operator) and external
@@ -22314,6 +26986,12 @@ type RegistryUsageResponse struct {
 
 	// TagCount Total tags across those repositories.
 	TagCount int64 `json:"tag_count"`
+}
+
+// Remediation defines model for Remediation.
+type Remediation struct {
+	CodeChanges *[]CodeChange `json:"code_changes,omitempty"`
+	Strategy    string        `json:"strategy"`
 }
 
 // RenameTerminalRequest defines model for RenameTerminalRequest.
@@ -22432,6 +27110,11 @@ type ResourceLogsResponse struct {
 
 	// Limit Effective (clamped) entry cap applied to this query.
 	Limit int32 `json:"limit"`
+
+	// Parts Which parts of a logs answer were computed (ADR-0064 §4.1). A part that is
+	// `skipped`, `failed`, `timeout` or `busy` is empty on purpose: the status is
+	// what tells "nothing matched" from "not answered".
+	Parts *LogsPartsDto `json:"parts,omitempty"`
 
 	// Range Time range selector for metrics and logs queries.
 	Range        MetricsRange `json:"range"`
@@ -22703,6 +27386,14 @@ type ResultsPage struct {
 	TotalRows int64           `json:"total_rows"`
 }
 
+// RetentionAudit A default retention as the audit records it: `GOVERNANCE` or
+// `COMPLIANCE`, and its period.
+type RetentionAudit struct {
+	Days  *int32 `json:"days,omitempty"`
+	Mode  string `json:"mode"`
+	Years *int32 `json:"years,omitempty"`
+}
+
 // RevokeSessionsResponse defines model for RevokeSessionsResponse.
 type RevokeSessionsResponse struct {
 	Revoked int `json:"revoked"`
@@ -22812,6 +27503,10 @@ type RuleConditions struct {
 	// Network The network situation a rule may require of the workload.
 	Network *NetworkCondition `json:"network,omitempty"`
 }
+
+// RuleId Every rule a bundle can fail. The serialized name is stored with a
+// rejected run and shown to users, so a variant is never renamed.
+type RuleId string
 
 // RuleMatch defines model for RuleMatch.
 type RuleMatch struct {
@@ -23035,26 +27730,77 @@ type S3GatewayAccessSummaryLog struct {
 
 // S3GatewayDecisionLog defines model for S3GatewayDecisionLog.
 type S3GatewayDecisionLog struct {
-	Action         string                  `json:"action"`
-	Allow          bool                    `json:"allow"`
-	BackendId      string                  `json:"backend_id"`
-	BackendKind    string                  `json:"backend_kind"`
-	BackendStatus  *int64                  `json:"backend_status,omitempty"`
-	Bucket         string                  `json:"bucket"`
-	CopySource     *map[string]interface{} `json:"copy_source,omitempty"`
-	DecisionId     string                  `json:"decision_id"`
-	DeleteKeys     *[]string               `json:"delete_keys,omitempty"`
-	DeniedKeys     []string                `json:"denied_keys"`
-	Object         *string                 `json:"object,omitempty"`
-	Obligations    map[string]interface{}  `json:"obligations"`
-	OrganizationId openapi_types.UUID      `json:"organization_id"`
-	Outcome        string                  `json:"outcome"`
-	Prefix         *string                 `json:"prefix,omitempty"`
-	Reason         string                  `json:"reason"`
-	SpanId         *string                 `json:"span_id,omitempty"`
-	Subject        string                  `json:"subject"`
-	Tenant         string                  `json:"tenant"`
-	TraceId        *string                 `json:"trace_id,omitempty"`
+	Action        string                  `json:"action"`
+	Allow         bool                    `json:"allow"`
+	BackendId     string                  `json:"backend_id"`
+	BackendKind   string                  `json:"backend_kind"`
+	BackendStatus *int64                  `json:"backend_status,omitempty"`
+	Bucket        string                  `json:"bucket"`
+	CopySource    *map[string]interface{} `json:"copy_source,omitempty"`
+	DecisionId    string                  `json:"decision_id"`
+	DeleteKeys    *[]string               `json:"delete_keys,omitempty"`
+	DeniedKeys    []string                `json:"denied_keys"`
+
+	// DeniedVersions The subset of `versions` a multi-delete's policy refused.
+	DeniedVersions *[]S3VersionedKey      `json:"denied_versions,omitempty"`
+	Object         *string                `json:"object,omitempty"`
+	Obligations    map[string]interface{} `json:"obligations"`
+	OrganizationId openapi_types.UUID     `json:"organization_id"`
+	Outcome        string                 `json:"outcome"`
+	Prefix         *string                `json:"prefix,omitempty"`
+	Reason         string                 `json:"reason"`
+
+	// RequestedRetention The Object Lock state the request asked for (`mode`, `retain_until`,
+	// `retain_days`, `legal_hold`), as s0 put it in the input: present on a
+	// retention or legal-hold request and on a write carrying the inline
+	// lock headers, so the record names the hold or the period.
+	RequestedRetention *map[string]interface{} `json:"requested_retention,omitempty"`
+	SpanId             *string                 `json:"span_id,omitempty"`
+	Subject            string                  `json:"subject"`
+	Tenant             string                  `json:"tenant"`
+	TraceId            *string                 `json:"trace_id,omitempty"`
+
+	// Versions The (key, version) pairs a versioned delete named.
+	Versions *[]S3VersionedKey `json:"versions,omitempty"`
+}
+
+// S3GatewayDelegatedLog A request the S3 gateway delegated to the platform's control backend (bucket creation and
+// configuration) instead of evaluating policy and proxying it. The platform's control backend, not
+// the gateway's policy, decides it, so there is no policy input; this records what was asked and what the control backend
+// answered. `decision_id` is the gateway's request id, the `x-s0-request-id` the control
+// backend logs.
+type S3GatewayDelegatedLog struct {
+	// Allow The control backend's authorisation answer. False for `denied`, for a request it never
+	// answered and for an unreadable record.
+	Allow       bool   `json:"allow"`
+	BackendId   string `json:"backend_id"`
+	BackendKind string `json:"backend_kind"`
+	Bucket      string `json:"bucket"`
+
+	// ControlError The S3 error code the control backend answered, when it was an error.
+	ControlError *string `json:"control_error,omitempty"`
+
+	// ControlStatus The HTTP status the control backend answered; absent when it never did.
+	ControlStatus *int32 `json:"control_status,omitempty"`
+	DecisionId    string `json:"decision_id"`
+
+	// Operation The s3s operation, e.g. `PutBucketCors`.
+	Operation      string             `json:"operation"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// Outcome `allowed` | `error` | `denied`, the gateway's own classification of the request.
+	Outcome string `json:"outcome"`
+
+	// PlacementWait The gateway's note on whether it waited for a new bucket to appear in its bundle
+	// (CreateBucket) or to leave it (DeleteBucket), present on those two.
+	PlacementWait *string `json:"placement_wait,omitempty"`
+	Reason        string  `json:"reason"`
+	SpanId        *string `json:"span_id,omitempty"`
+
+	// Subject The caller as the gateway authenticated it, e.g. `sa:alice`.
+	Subject string  `json:"subject"`
+	Tenant  string  `json:"tenant"`
+	TraceId *string `json:"trace_id,omitempty"`
 }
 
 // S3GatewayGateDeniedLog A request the S3 gateway refused at its pre-policy gate. There is no
@@ -23160,6 +27906,12 @@ type S3SessionCredentials struct {
 	SecretAccessKey string `json:"secret_access_key"`
 	SessionToken    string `json:"session_token"`
 	Tenant          string `json:"tenant"`
+}
+
+// S3VersionedKey An object version a versioned delete named, as the gateway records it.
+type S3VersionedKey struct {
+	Key       string `json:"key"`
+	VersionId string `json:"version_id"`
 }
 
 // SamlMetadata What a SAML metadata document says about the provider, to prefill a form.
@@ -23547,6 +28299,14 @@ type ScopedBucketRequest struct {
 	Prefixes *[]string `json:"prefixes,omitempty"`
 }
 
+// ScoredReason defines model for ScoredReason.
+type ScoredReason struct {
+	Reason string `json:"reason"`
+
+	// Score The five-step scale of `report-schema.json`, ordered.
+	Score RedTeamSeverity `json:"score"`
+}
+
 // SearchMode How to interpret the free-text `search` term (logs explorer).
 //
 //   - `Text` (default): a case-insensitive SUBSTRING match. The term is
@@ -23745,7 +28505,13 @@ type SecurityDecisionLogResponse struct {
 // (a sellable entitlement under a Helm kill switch, with plan defaults), a
 // security policy is posture: it tightens or relaxes how a product behaves,
 // is set by platform admins only, and resolves as
-// `org override ?? platform default ?? built-in default`.
+// `org override ?? platform default ?? built-in default` for an
+// [`Organization`](SecurityPolicyScope::Organization)-scoped rule, or
+// `platform default ?? built-in default` for a
+// [`Platform`](SecurityPolicyScope::Platform)-scoped one. A `Bool` rule is then
+// folded with what it [`requires`](SecurityPolicy::requires) and with whether
+// its path is [available](SecurityPolicy::is_available): it is effective only
+// when all of them allow it.
 type SecurityPolicy string
 
 // SecurityPolicyValue A policy value, tagged with its kind so a stored value that no longer
@@ -23872,6 +28638,73 @@ type ServiceAccountCrdConfig struct {
 	WebOrigins             []string `json:"web_origins"`
 }
 
+// ServiceAccountCredentialsAction How a service account's credentials left the console.
+type ServiceAccountCredentialsAction string
+
+// ServiceAccountCredentialsIssuedLog Audit payload for a service account's credentials taken or renewed. The
+// enclosing request's `oauth_id` is the caller's Keycloak subject.
+//
+// Never carries the secret: only who took which account's.
+type ServiceAccountCredentialsIssuedLog struct {
+	// Action How a service account's credentials left the console.
+	Action ServiceAccountCredentialsAction `json:"action"`
+
+	// Actor The caller as `<kind>:<console id>` (`user:<uuid>`,
+	// `service_account:<uuid>`), the way a service link names its creator.
+	Actor          string             `json:"actor"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// ServiceAccountId The service account whose credentials were taken or renewed.
+	ServiceAccountId openapi_types.UUID `json:"service_account_id"`
+}
+
+// ServiceLinkAuditEndpoint One end of an audited service link: the kind as its wire string, the name,
+// and the UID of the live object the console authorised (`None` for the kinds
+// whose objects the console does not pin).
+type ServiceLinkAuditEndpoint struct {
+	Kind string  `json:"kind"`
+	Name string  `json:"name"`
+	Uid  *string `json:"uid,omitempty"`
+}
+
+// ServiceLinkAuditLog Audit payload for a service link created or deleted through the console.
+// The actor is the enclosing request's `oauth_id`; `actor_kind` says whether
+// that is a `user` or a `service_account`.
+type ServiceLinkAuditLog struct {
+	// ActorKind `user` or `service_account`.
+	ActorKind string `json:"actor_kind"`
+
+	// Consumer One end of an audited service link: the kind as its wire string, the name,
+	// and the UID of the live object the console authorised (`None` for the kinds
+	// whose objects the console does not pin).
+	Consumer ServiceLinkAuditEndpoint `json:"consumer"`
+	Harbor   string                   `json:"harbor"`
+	HarborId openapi_types.UUID       `json:"harbor_id"`
+
+	// Link The ServiceLink object name.
+	Link string `json:"link"`
+
+	// Ports The ports the link names, as the creator asked for them: port names
+	// (`ssh`) for a virtual machine target, `<port>/<protocol>` pairs
+	// otherwise. Empty when the operator resolves the default.
+	Ports []string `json:"ports"`
+
+	// ResolvedPorts What those ports resolved to when the event was recorded, as
+	// `<port>/<protocol>`: against the target's declaration at create, and the
+	// ports the link had opened at delete. A name can later be rebound to
+	// another number, so `ports` alone does not say which port was opened.
+	ResolvedPorts *[]string `json:"resolved_ports,omitempty"`
+
+	// ResourceId `<harbor_slug>/<link_name>`, named `resource_id` so the audit-log API's
+	// `event->'data'->>'resource_id'` filter reaches this event.
+	ResourceId string `json:"resource_id"`
+
+	// Target One end of an audited service link: the kind as its wire string, the name,
+	// and the UID of the live object the console authorised (`None` for the kinds
+	// whose objects the console does not pin).
+	Target ServiceLinkAuditEndpoint `json:"target"`
+}
+
 // ServiceLinkKind The kind of a service participating in a link. Constrained to the kinds the
 // ServiceLink controller knows how to resolve into a pod selector + port.
 //
@@ -23880,7 +28713,53 @@ type ServiceAccountCrdConfig struct {
 // (object storage is internet-exposed; the platform is a hard runtime
 // dependency), so their egress lives unconditionally in every workload's
 // baseline policy rather than being declared per-link (ADR-0021 §6–§7).
-type ServiceLinkKind string
+type ServiceLinkKind struct {
+	union json.RawMessage
+}
+
+// ServiceLinkKind0 An Airflow environment's task and selected component pods — **consumer
+// only**. The Airflow controller owns their egress policy; a ServiceLink
+// contributes only the target's ingress allow.
+type ServiceLinkKind0 string
+
+// ServiceLinkKind1 A CaaS workload — consumer or target (target port comes from the
+// target ContainerApp's `spec.network.port`).
+type ServiceLinkKind1 string
+
+// ServiceLinkKind2 A managed Valkey/Redis cache (`:6379`).
+type ServiceLinkKind2 string
+
+// ServiceLinkKind3 A managed RabbitMQ broker (`:5672`, AMQP), ADR-0055.
+type ServiceLinkKind3 string
+
+// ServiceLinkKind4 A managed PostgreSQL database (`:5432`).
+type ServiceLinkKind4 string
+
+// ServiceLinkKind5 A Trino coordinator for a named DataDock instance (`:8443`, HTTPS).
+type ServiceLinkKind5 string
+
+// ServiceLinkKind6 A Strimzi-managed Kafka cluster for a named KafkaHfService instance
+// (`:9092`, the in-cluster plaintext listener).
+type ServiceLinkKind6 string
+
+// ServiceLinkKind7 A harbor-scoped Pipeline — **consumer only**. A pipeline initiates
+// connections (to Trino, ModelServing, object storage, …); nothing ever
+// connects to a pipeline over the network, so it can never be a link
+// target. The reconciler rejects a link naming `Pipeline` as its target
+// with a clear condition (ADR-0021 Rollout §4).
+type ServiceLinkKind7 string
+
+// ServiceLinkKind8 A KubeVirt virtual machine (`HfVirtualMachine`) — consumer or target
+// (ADR-0061). As a target it opens only the ports the VM declares in
+// `spec.network.ports`, named by `targetPortNames` or `targetPorts`; the
+// link never opens a port the VM does not currently declare.
+type ServiceLinkKind8 string
+
+// ServiceLinkKind9 A personal dev workstation — **consumer only** (ADR-0061, decision W).
+// Nothing ever connects into a workstation over the network, so a link
+// naming one as its target is refused by the CRD schema and by the
+// reconciler.
+type ServiceLinkKind9 string
 
 // ServiceLinkPort A `(port, protocol)` pair a link opens on its target. `protocol` is the L4
 // protocol spelled as Kubernetes does — `TCP`, `UDP`, or `SCTP`.
@@ -23912,6 +28791,12 @@ type ServiceLinkResponse struct {
 	// Target One endpoint of a link: a service of a known kind, referenced by name within
 	// the harbor namespace the link lives in (both endpoints live there).
 	Target ServiceRef `json:"target"`
+
+	// TargetPortNames The virtual machine ports the link was created to open, by name. Set on
+	// the create response only: the list and the environment map are served
+	// from the read model, which projects the resolved `ports` below and not
+	// the request.
+	TargetPortNames []string `json:"target_port_names"`
 }
 
 // ServiceRef One endpoint of a link: a service of a known kind, referenced by name within
@@ -23927,6 +28812,13 @@ type ServiceRef struct {
 	// baseline policy rather than being declared per-link (ADR-0021 §6–§7).
 	Kind ServiceLinkKind `json:"kind"`
 	Name string          `json:"name"`
+
+	// Uid Immutable UID of the endpoint object this link was authorised for. The
+	// console stamps it for an `HfVirtualMachine` or `DevWorkstation` endpoint,
+	// so a later object that reuses the name never inherits the link
+	// (`EndpointReplaced`). Absent on a link created by hand: the operator then
+	// pins the UID it first resolves in `status.resolved*Uid`.
+	Uid *string `json:"uid,omitempty"`
 }
 
 // SessionSummary A session row for the chat session rail. `title` is whatever opencode
@@ -23982,6 +28874,28 @@ type SetBindingsBody struct {
 	// ChannelIds Channels that receive this signal. Empty = every enabled channel. An
 	// alert rule that names its own channels ignores these.
 	ChannelIds []openapi_types.UUID `json:"channel_ids"`
+}
+
+// SetBucketLifecycleRequest defines model for SetBucketLifecycleRequest.
+type SetBucketLifecycleRequest struct {
+	// Rules The whole new set of rules (S3 semantics: it replaces the old one).
+	Rules []LifecycleRuleInput `json:"rules"`
+}
+
+// SetBucketObjectLockRequest defines model for SetBucketObjectLockRequest.
+type SetBucketObjectLockRequest struct {
+	// DefaultRetention A bucket's default retention: a mode and exactly one of `days` (1 to
+	// 3650) or `years` (1 to 10).
+	DefaultRetention *DefaultRetentionInput `json:"default_retention,omitempty"`
+}
+
+// SetBucketVersioningRequest defines model for SetBucketVersioningRequest.
+type SetBucketVersioningRequest struct {
+	// Status What a versioning write asks for. `unset` is the escape door of a
+	// versioning the backend never held (a create-time setting the zone
+	// refused): it removes the setting, and is refused once the backend holds
+	// versioning or the bucket is under Object Lock.
+	Status BucketVersioningRequestStatus `json:"status"`
 }
 
 // SetKeyBudgetBody Set one ceiling on one API key.
@@ -24063,6 +28977,15 @@ type SetupOutcome string
 
 // Severity Finding severity, ordered so `>=` means "at least as severe".
 type Severity string
+
+// SeverityAssessment defines model for SeverityAssessment.
+type SeverityAssessment struct {
+	Impact     ScoredReason `json:"impact"`
+	Likelihood ScoredReason `json:"likelihood"`
+
+	// OverallSeverity The five-step scale of `report-schema.json`, ordered.
+	OverallSeverity RedTeamSeverity `json:"overall_severity"`
+}
 
 // Sha256HashDedupingStrategy defines model for Sha256HashDedupingStrategy.
 type Sha256HashDedupingStrategy struct {
@@ -24546,6 +29469,29 @@ type StartHealthScanResponse struct {
 	Scan IcebergHealthScan `json:"scan"`
 }
 
+// StartRedTeamRunRequest `POST /runs`. `budget` and `model` stay absent unless chosen: the operator
+// resolves them at reconcile, and the CR never carries a default.
+type StartRedTeamRunRequest struct {
+	// Budget Agent invocations. Absent: the profile's default.
+	Budget   *int32  `json:"budget,omitempty"`
+	DiffBase *string `json:"diff_base,omitempty"`
+
+	// Model The model the audit runs on. Absent: the environment's audit model,
+	// else the platform default. A model the `red_team_allowed_models` rule
+	// does not list is reached only while it is served in the cluster.
+	Model *string `json:"model,omitempty"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile RedTeamProfile `json:"profile"`
+
+	// Ref A branch, tag or commit other than the tracked ref; needs the
+	// `red_team_branch_runs` rule. Absent: the tracked ref.
+	Ref          *string            `json:"ref,omitempty"`
+	RepositoryId openapi_types.UUID `json:"repository_id"`
+	ScopePaths   *[]string          `json:"scope_paths,omitempty"`
+}
+
 // StorageLimitCell One cell of the organization's limits.
 type StorageLimitCell struct {
 	Backend *string `json:"backend,omitempty"`
@@ -24637,8 +29583,11 @@ type StorageLimits struct {
 
 // StorageZoneView A `cephZones` catalog entry joined with whether the org has enabled it.
 type StorageZoneView struct {
-	Description *string       `json:"description,omitempty"`
-	Driver      BackendDriver `json:"driver"`
+	// BucketOptions What the create page may offer on a bucket of one zone, decided by the
+	// same gates as the REST create and the bucket doors.
+	BucketOptions *ZoneBucketOptions `json:"bucket_options,omitempty"`
+	Description   *string            `json:"description,omitempty"`
+	Driver        BackendDriver      `json:"driver"`
 
 	// Enabled Whether an OrgStorage exists for this org in this zone.
 	Enabled bool `json:"enabled"`
@@ -24688,6 +29637,16 @@ type StorageZoneView struct {
 	// declares none: no default is resolved, and no tier is shown.
 	Tier   *string `json:"tier,omitempty"`
 	ZoneId string  `json:"zone_id"`
+}
+
+// StoredValidationError The stored and served form of a [`ValidationError`] (the run row's
+// `validation_errors`): the same two strings, readable back.
+type StoredValidationError struct {
+	Pointer string `json:"pointer"`
+
+	// Rule Every rule a bundle can fail. The serialized name is stored with a
+	// rejected run and shown to users, so a variant is never renamed.
+	Rule RuleId `json:"rule"`
 }
 
 // SupportTicketEventResponse One timeline entry.
@@ -25255,6 +30214,18 @@ type ToolPermission struct {
 // the narrower [`TopGroupBy`] instead of this wire enum.
 type TopDimension string
 
+// TraceKind defines model for TraceKind.
+type TraceKind string
+
+// TraceStep defines model for TraceStep.
+type TraceStep struct {
+	Description string    `json:"description"`
+	File        string    `json:"file"`
+	Kind        TraceKind `json:"kind"`
+	Line        int64     `json:"line"`
+	Scope       string    `json:"scope"`
+}
+
 // TransferDashboardRequest defines model for TransferDashboardRequest.
 type TransferDashboardRequest struct {
 	// NewOwnerId OIDC user id of the new owner.
@@ -25733,6 +30704,11 @@ type UpdateDevWorkstationRequest struct {
 	// OpenrouterKeySecretId Id of a Passe Partout secret of type `plaintext` holding the OpenRouter
 	// API key. When present, replaces the workstation's key secret reference.
 	OpenrouterKeySecretId *openapi_types.UUID `json:"openrouter_key_secret_id,omitempty"`
+
+	// VolumeBackup Whether the volumes of an app or a workstation are backed up. At creation, omitting it
+	// creates the resource without backups (with them while the `volume_backups_required` rule is
+	// on); on an edit, omitting it leaves the choice unchanged.
+	VolumeBackup *VolumeBackupInput `json:"volume_backup,omitempty"`
 }
 
 // UpdateFakerTableRequest defines model for UpdateFakerTableRequest.
@@ -26119,6 +31095,42 @@ type UpdatePropertyDefinitionRequest struct {
 	SourceColumn *string `json:"source_column,omitempty"`
 }
 
+// UpdateRedTeamScheduleRequest `PUT …/schedules/{schedule_id}`: the whole definition, replaced.
+type UpdateRedTeamScheduleRequest struct {
+	Budget *int32 `json:"budget,omitempty"`
+	Cron   string `json:"cron"`
+
+	// Enabled Enabling clears the last refusal and needs the
+	// `red_team_scheduled_runs` rule.
+	Enabled bool `json:"enabled"`
+
+	// ExpectedUpdatedAt The schedule's `updated_at` as the caller read it. When given, the
+	// replace is refused with 409 if the schedule changed since (a fire
+	// disabled it or recorded a refusal, another manager edited it), so a
+	// replace built from an earlier read never silently undoes it. Absent:
+	// replace whatever is stored.
+	ExpectedUpdatedAt *time.Time `json:"expected_updated_at,omitempty"`
+
+	// Model Absent: the platform default (a replace, so absent clears a model).
+	Model *string `json:"model,omitempty"`
+
+	// Profile The run profile a requester chooses (`quick`, `standard`, `deep`). Also
+	// `RedTeamRun.spec.profile` ([`super::crd`]), hence `JsonSchema`.
+	Profile    RedTeamProfile `json:"profile"`
+	ScopePaths *[]string      `json:"scope_paths,omitempty"`
+
+	// TakeOwnership Makes the caller the owner: how a manager takes over a schedule whose
+	// owner lost the permission.
+	TakeOwnership *bool `json:"take_ownership,omitempty"`
+}
+
+// UpdateRedTeamSettingsRequest defines model for UpdateRedTeamSettingsRequest.
+type UpdateRedTeamSettingsRequest struct {
+	// DefaultModel The model this environment's audits use when a run names none. Absent
+	// or empty: back to the platform default.
+	DefaultModel *string `json:"default_model,omitempty"`
+}
+
 // UpdateRefRequest defines model for UpdateRefRequest.
 type UpdateRefRequest struct {
 	Attempts     int64      `json:"attempts"`
@@ -26453,11 +31465,20 @@ type UserWithRoles struct {
 	Roles     []Role             `json:"roles"`
 }
 
+// ValidationPlan defines model for ValidationPlan.
+type ValidationPlan struct {
+	Deployment *string `json:"deployment,omitempty"`
+	Local      *string `json:"local,omitempty"`
+}
+
 // Value defines model for Value.
 type Value = interface{}
 
 // ValueFormat How a numeric cell is displayed (issue #2959).
 type ValueFormat string
+
+// Verdict defines model for Verdict.
+type Verdict string
 
 // VerdictEvidence What a detector saw. Counts, the window and query fingerprint hashes only:
 // never SQL text and never table names.
@@ -26562,6 +31583,35 @@ type VirtualMachineConsoleSessionLog struct {
 	VirtualMachineId openapi_types.UUID `json:"virtual_machine_id"`
 }
 
+// VirtualMachineDiskDto One volume attached to a virtual machine.
+type VirtualMachineDiskDto struct {
+	// GuestPath Where the disk shows in the guest, `/dev/disk/by-id/virtio-<serial>`.
+	GuestPath string  `json:"guest_path"`
+	Message   *string `json:"message,omitempty"`
+
+	// Reason Why the attachment is in this state, when it has a reason.
+	Reason *string `json:"reason,omitempty"`
+
+	// Serial The serial the attachment carries: the guest sees the disk under it.
+	Serial string `json:"serial"`
+
+	// State Where one attachment stands. Closed on the wire: the operator's status
+	// carries an open state, and a state this console does not know reads as
+	// `Waiting` (not settled) rather than failing the decode of the VM.
+	State VirtualMachineDiskState `json:"state"`
+
+	// VolumeId The volume's console id, once the operator has registered it.
+	VolumeId *openapi_types.UUID `json:"volume_id,omitempty"`
+
+	// VolumeName Name of the volume, unique within the environment.
+	VolumeName string `json:"volume_name"`
+}
+
+// VirtualMachineDiskState Where one attachment stands. Closed on the wire: the operator's status
+// carries an open state, and a state this console does not know reads as
+// `Waiting` (not settled) rather than failing the decode of the VM.
+type VirtualMachineDiskState string
+
 // VirtualMachineImageCatalog defines model for VirtualMachineImageCatalog.
 type VirtualMachineImageCatalog struct {
 	// Sources Only sources with at least one enabled image.
@@ -26591,39 +31641,113 @@ type VirtualMachineImageCatalogSource struct {
 	Name string `json:"name"`
 }
 
+// VirtualMachineNetworkResponse The network surface of a virtual machine.
+type VirtualMachineNetworkResponse struct {
+	// ClusterIp ClusterIP of the Service, once it is applied.
+	ClusterIp *string `json:"cluster_ip,omitempty"`
+
+	// Ports The ports the VM declares. Empty means none is declared: nothing in the
+	// environment is promised to reach the VM.
+	Ports []VirtualMachinePortDto `json:"ports"`
+
+	// ServiceHost In-cluster DNS name of the Service, stable across restarts. Absent until
+	// the operator has reported it.
+	ServiceHost *string `json:"service_host,omitempty"`
+
+	// ServiceName Name of the ClusterIP Service in front of the VM (`vm-<name>`); absent
+	// when the VM name is too long to name one.
+	ServiceName *string `json:"service_name,omitempty"`
+
+	// ServiceState Whether a virtual machine's address is published and enforced.
+	ServiceState VirtualMachineServiceState `json:"service_state"`
+}
+
+// VirtualMachinePortDto One port a virtual machine serves.
+type VirtualMachinePortDto struct {
+	// ContainerPort Port the guest listens on.
+	ContainerPort int32 `json:"container_port"`
+
+	// Name Name of the port, unique within the VM, e.g. `ssh`.
+	Name string `json:"name"`
+
+	// Protocol L4 protocol of a VM port, mapping 1:1 to `ServicePort.protocol`.
+	Protocol *VirtualMachinePortProtocol `json:"protocol,omitempty"`
+}
+
+// VirtualMachinePortProtocol L4 protocol of a VM port, mapping 1:1 to `ServicePort.protocol`.
+type VirtualMachinePortProtocol string
+
 // VirtualMachineResponse defines model for VirtualMachineResponse.
 type VirtualMachineResponse struct {
 	// Capabilities Observed guest capabilities: which consoles are attached, whether the
 	// guest agent is connected, and the guest OS when it reports one. `None`
 	// until the operator has seen a `VirtualMachineInstance`.
-	Capabilities   interface{}        `json:"capabilities,omitempty"`
-	Conditions     interface{}        `json:"conditions,omitempty"`
-	Cpu            string             `json:"cpu"`
-	CreatedAt      time.Time          `json:"created_at"`
-	Description    *string            `json:"description,omitempty"`
-	Disk           string             `json:"disk"`
-	HarborId       openapi_types.UUID `json:"harbor_id"`
-	Id             openapi_types.UUID `json:"id"`
-	ImageKey       string             `json:"image_key"`
-	ImageSourceRef string             `json:"image_source_ref"`
+	Capabilities interface{} `json:"capabilities,omitempty"`
+	Conditions   interface{} `json:"conditions,omitempty"`
+	Cpu          string      `json:"cpu"`
+	CreatedAt    time.Time   `json:"created_at"`
+	Description  *string     `json:"description,omitempty"`
+	Disk         string      `json:"disk"`
+
+	// Disks The volumes attached as extra disks, in the order the operator reports
+	// them. Always present: a VM with no data disk has an empty list.
+	Disks          []VirtualMachineDiskDto `json:"disks"`
+	HarborId       openapi_types.UUID      `json:"harbor_id"`
+	Id             openapi_types.UUID      `json:"id"`
+	ImageKey       string                  `json:"image_key"`
+	ImageSourceRef string                  `json:"image_source_ref"`
 
 	// ImportProgress Percentage of the root disk imported so far; present only while the
 	// import runs.
 	ImportProgress *int32 `json:"import_progress,omitempty"`
 
 	// InstallMedia Whether an installer VM still has its installation media.
-	InstallMedia       *InstallMedia      `json:"install_media,omitempty"`
-	IpAddress          *string            `json:"ip_address,omitempty"`
-	Memory             string             `json:"memory"`
-	Name               string             `json:"name"`
-	OrganizationId     openapi_types.UUID `json:"organization_id"`
-	Phase              *string            `json:"phase,omitempty"`
-	Running            bool               `json:"running"`
-	Slug               string             `json:"slug"`
-	Tags               []string           `json:"tags"`
-	UpdatedAt          time.Time          `json:"updated_at"`
-	UserDataSecretName *string            `json:"user_data_secret_name,omitempty"`
-	VmiName            *string            `json:"vmi_name,omitempty"`
+	InstallMedia *InstallMedia `json:"install_media,omitempty"`
+	IpAddress    *string       `json:"ip_address,omitempty"`
+	Memory       string        `json:"memory"`
+	Name         string        `json:"name"`
+
+	// Network The network surface of a virtual machine.
+	Network        VirtualMachineNetworkResponse `json:"network"`
+	OrganizationId openapi_types.UUID            `json:"organization_id"`
+	Phase          *string                       `json:"phase,omitempty"`
+
+	// PortForward Whether the owner turned port forwarding on for this VM
+	// (`spec.portForward`, ADR-0062), as the operator last reported it.
+	// Tunnels open only while the platform's rules allow them too. Absent
+	// (an older console) reads as off.
+	PortForward *bool `json:"port_forward,omitempty"`
+
+	// PortForwardAllowed Whether the platform allows port forwarding for this VM's organization:
+	// the effective `virtual_machines_port_forward` security rule, which folds
+	// in the platform-wide `port_forward` rule and the availability. Off means
+	// a platform administrator must allow it before the owner's flag
+	// (`port_forward`) can take effect. Read-only, never accepted as input.
+	// An older console does not send it.
+	PortForwardAllowed *bool     `json:"port_forward_allowed,omitempty"`
+	Running            bool      `json:"running"`
+	Slug               string    `json:"slug"`
+	Tags               []string  `json:"tags"`
+	UpdatedAt          time.Time `json:"updated_at"`
+	UserDataSecretName *string   `json:"user_data_secret_name,omitempty"`
+	VmiName            *string   `json:"vmi_name,omitempty"`
+}
+
+// VirtualMachineServiceState Whether a virtual machine's address is published and enforced.
+type VirtualMachineServiceState string
+
+// VirtualMachineUsageDto defines model for VirtualMachineUsageDto.
+type VirtualMachineUsageDto struct {
+	// CpuMillicores CPU in use by the guest, in millicores (1000 = one vCPU busy).
+	CpuMillicores []MetricPointDto `json:"cpu_millicores"`
+
+	// MemoryMib Memory the host holds for the guest (its QEMU working set), in MiB:
+	// the guest memory it has touched, which only grows towards the VM's
+	// memory until the VM restarts.
+	MemoryMib []MetricPointDto `json:"memory_mib"`
+
+	// Name The VM's name, as the VM list shows it.
+	Name string `json:"name"`
 }
 
 // VirtualMachineUserResponse defines model for VirtualMachineUserResponse.
@@ -26668,12 +31792,34 @@ type VirtualMachinesPage struct {
 	Total int64 `json:"total"`
 }
 
+// VirtualMachinesUsageResponse Usage of every virtual machine of an environment over a range.
+type VirtualMachinesUsageResponse struct {
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Range Wire form of the range (`"24h"`, …).
+	Range string `json:"range"`
+
+	// VirtualMachines One entry per VM that ran during the range, by name. A VM stopped all
+	// along, or whose metrics are not collected yet, is absent.
+	VirtualMachines []VirtualMachineUsageDto `json:"virtual_machines"`
+}
+
 // VmImageKind How a VM uses an image.
 type VmImageKind string
 
 // VolumeAccessMode An access mode a StorageClass's driver serves, Kubernetes spelling on the
 // wire.
 type VolumeAccessMode string
+
+// VolumeAttachmentDto The virtual machine that holds a volume.
+type VolumeAttachmentDto struct {
+	// State Whether the volume's holder owns the claim (`Claimed`) or is giving it up
+	// (`Releasing`). The operator's open enum folds an unknown state into
+	// `Releasing`: held, nothing granted, nothing rendered.
+	State              HfVolumeAttachmentState `json:"state"`
+	VirtualMachineId   *openapi_types.UUID     `json:"virtual_machine_id,omitempty"`
+	VirtualMachineName string                  `json:"virtual_machine_name"`
+}
 
 // VolumeBackendDefault The backend a volume of the product lands on when the request names none.
 type VolumeBackendDefault struct {
@@ -26722,10 +31868,193 @@ type VolumeBackendView struct {
 	VolumeModes []VolumeMode `json:"volume_modes"`
 }
 
+// VolumeBackupActionLog Audit payload for a volume backup action that gives up data: a restore's hold released, or an
+// app or workstation deleted without its final point. The actor is the enclosing request's
+// `oauth_id`.
+type VolumeBackupActionLog struct {
+	// Action `release_restore_hold` or `skip_final_backup`.
+	Action   string             `json:"action"`
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// ResourceKind `VolumeRestore`, `ContainerApp` or `DevWorkstation`.
+	ResourceKind string `json:"resource_kind"`
+	ResourceName string `json:"resource_name"`
+}
+
+// VolumeBackupCoverageResponse Backup state of one volume.
+type VolumeBackupCoverageResponse struct {
+	// BackupTarget The backup target's name while the points go to the one the app or workstation picked.
+	BackupTarget *string `json:"backup_target,omitempty"`
+	ClaimName    string  `json:"claim_name"`
+
+	// ConsecutiveFailures Scheduled runs that failed in a row.
+	ConsecutiveFailures int32                      `json:"consecutive_failures"`
+	Coverage            *VolumeBackupCoverageState `json:"coverage,omitempty"`
+
+	// InFlight A point of this volume is being taken.
+	InFlight      bool       `json:"in_flight"`
+	LastSuccessAt *time.Time `json:"last_success_at,omitempty"`
+
+	// LocationKind Where points are kept: the environment's own object storage, the platform's external
+	// backup target, or the backup target the app or workstation picked.
+	LocationKind *VolumeBackupLocationKind `json:"location_kind,omitempty"`
+	NextRunAt    *time.Time                `json:"next_run_at,omitempty"`
+
+	// PointCount Completed points of this volume name, deleted ones of earlier volumes included.
+	PointCount int32 `json:"point_count"`
+
+	// SourceKind What a volume belongs to.
+	SourceKind VolumeBackupSourceKind `json:"source_kind"`
+	SourceName string                 `json:"source_name"`
+
+	// UncoveredReason Why a volume is not backed up, in the tenant's terms: every reason the platform has to fix
+	// is `PausedByPlatform`, so no operator detail (classes, repositories) leaks.
+	UncoveredReason *VolumeBackupUncoveredReason `json:"uncovered_reason,omitempty"`
+
+	// Workspace A workstation's volume: only its owner sees it.
+	Workspace bool `json:"workspace"`
+}
+
+// VolumeBackupCoverageState defines model for VolumeBackupCoverageState.
+type VolumeBackupCoverageState string
+
+// VolumeBackupInput Whether the volumes of an app or a workstation are backed up. At creation, omitting it
+// creates the resource without backups (with them while the `volume_backups_required` rule is
+// on); on an edit, omitting it leaves the choice unchanged.
+type VolumeBackupInput struct {
+	// BackupTargetId A backup target of the same environment the points go to: ready, the organization's own
+	// (not the environment's default or the platform's), with TLS verified, and on port 443 or
+	// 80 for an explicit endpoint. Omitted: the platform's placement. The whole choice is
+	// replaced on an edit, so omitting it there moves the points back to the platform.
+	BackupTargetId *openapi_types.UUID `json:"backup_target_id,omitempty"`
+
+	// Enabled `true` backs the volumes up. `false` is refused while the organization's
+	// `volume_backups_required` security rule is on.
+	Enabled bool `json:"enabled"`
+}
+
+// VolumeBackupLocationKind Where points are kept: the environment's own object storage, the platform's external
+// backup target, or the backup target the app or workstation picked.
+type VolumeBackupLocationKind string
+
+// VolumeBackupPointOrigin Why a restore point exists.
+type VolumeBackupPointOrigin string
+
+// VolumeBackupPointPhase defines model for VolumeBackupPointPhase.
+type VolumeBackupPointPhase string
+
+// VolumeBackupResponse One restore point.
+type VolumeBackupResponse struct {
+	// ClaimName The volume (`PersistentVolumeClaim`) it was taken from. Points of a volume deleted and
+	// re-created under the same name share it.
+	ClaimName   string     `json:"claim_name"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+
+	// Error Why a failed point failed, in plain words.
+	Error *string `json:"error,omitempty"`
+
+	// InFlight The point is not finished yet.
+	InFlight bool `json:"in_flight"`
+
+	// LocationKind Where points are kept: the environment's own object storage, the platform's external
+	// backup target, or the backup target the app or workstation picked.
+	LocationKind *VolumeBackupLocationKind `json:"location_kind,omitempty"`
+
+	// LockedUntil External points cannot be deleted before this time.
+	LockedUntil *time.Time `json:"locked_until,omitempty"`
+
+	// Name The point's name, unique in its environment.
+	Name string `json:"name"`
+
+	// Origin Why a restore point exists.
+	Origin VolumeBackupPointOrigin `json:"origin"`
+	Phase  *VolumeBackupPointPhase `json:"phase,omitempty"`
+
+	// RestoreSizeBytes Size of the volume a restore needs.
+	RestoreSizeBytes *int64 `json:"restore_size_bytes,omitempty"`
+
+	// SizeBytes Bytes the point holds.
+	SizeBytes *int64 `json:"size_bytes,omitempty"`
+
+	// SnapshotTime When the volume was captured.
+	SnapshotTime *time.Time `json:"snapshot_time,omitempty"`
+
+	// SourceKind What a volume belongs to.
+	SourceKind VolumeBackupSourceKind `json:"source_kind"`
+
+	// SourceName The app or workstation, which may no longer exist.
+	SourceName string `json:"source_name"`
+
+	// Workspace A workstation's point: only its owner sees it.
+	Workspace bool `json:"workspace"`
+}
+
+// VolumeBackupSourceKind What a volume belongs to.
+type VolumeBackupSourceKind string
+
+// VolumeBackupUncoveredReason Why a volume is not backed up, in the tenant's terms: every reason the platform has to fix
+// is `PausedByPlatform`, so no operator detail (classes, repositories) leaks.
+type VolumeBackupUncoveredReason string
+
+// VolumeBackupWorkspaceAccessedLog Audit payload for a use of `volume_backup:manage_workspaces`. The actor is the enclosing
+// request's `oauth_id`; the owners are the workstation owners whose points were reached.
+type VolumeBackupWorkspaceAccessedLog struct {
+	// Action `list`, `read` or `create`.
+	Action string `json:"action"`
+
+	// Backups The restore points read or created, when the request named them.
+	Backups      *[]string            `json:"backups,omitempty"`
+	HarborId     openapi_types.UUID   `json:"harbor_id"`
+	OwnerUserIds []openapi_types.UUID `json:"owner_user_ids"`
+
+	// Workstations The workstations whose points were reached.
+	Workstations []string `json:"workstations"`
+}
+
 // VolumeDefaultLevel The catalogue level a default comes from (ADR-0056 D5 levels 2-4). Levels
 // 5-6 (Helm fallback, cluster default) are reported as no default: the
 // platform chooses.
 type VolumeDefaultLevel string
+
+// VolumeFillDto defines model for VolumeFillDto.
+type VolumeFillDto struct {
+	// CapacityBytes The filesystem's capacity in bytes, a little over the volume's size
+	// (the platform adds the file-system overhead).
+	CapacityBytes *int64 `json:"capacity_bytes,omitempty"`
+
+	// Name The volume's name, as the Volumes list shows it.
+	Name string `json:"name"`
+
+	// UsedBytes Bytes used on the volume's filesystem: the guest disk image's blocks,
+	// so roughly what the guest has written (space it frees inside is only
+	// returned if it discards).
+	UsedBytes *int64 `json:"used_bytes,omitempty"`
+}
+
+// VolumeLifecycleAction What happened to a volume (ADR-0060 D-K).
+type VolumeLifecycleAction string
+
+// VolumeLifecycleLog Audit payload for a volume lifecycle change made through the console. The
+// virtual machine fields are set for `attached` and `detached` only, the
+// sizes for `created` (`size_gib`) and `resized` (both).
+type VolumeLifecycleLog struct {
+	// Action What happened to a volume (ADR-0060 D-K).
+	Action VolumeLifecycleAction `json:"action"`
+
+	// Actor The principal behind the change as `<kind>:<console id>`
+	// (`user:<uuid>`, `service_account:<uuid>`), the way a service link names
+	// its creator.
+	Actor              string              `json:"actor"`
+	HarborId           openapi_types.UUID  `json:"harbor_id"`
+	OrganizationId     openapi_types.UUID  `json:"organization_id"`
+	PreviousSizeGib    *int32              `json:"previous_size_gib,omitempty"`
+	SizeGib            *int32              `json:"size_gib,omitempty"`
+	VirtualMachineId   *openapi_types.UUID `json:"virtual_machine_id,omitempty"`
+	VirtualMachineName *string             `json:"virtual_machine_name,omitempty"`
+	VolumeId           openapi_types.UUID  `json:"volume_id"`
+	VolumeName         string              `json:"volume_name"`
+}
 
 // VolumeMode A volume mode a StorageClass's driver serves, Kubernetes spelling on the
 // wire.
@@ -26734,6 +32063,118 @@ type VolumeMode string
 // VolumeProduct A product whose volumes the catalogue places. The wire form is the variant
 // name (PascalCase, no `rename_all`).
 type VolumeProduct string
+
+// VolumeResponse defines model for VolumeResponse.
+type VolumeResponse struct {
+	// Attachment The virtual machine that holds a volume.
+	Attachment *VolumeAttachmentDto `json:"attachment,omitempty"`
+
+	// CapacityBytes Usable capacity of the claim in bytes, once the claim is bound.
+	CapacityBytes *int64 `json:"capacity_bytes,omitempty"`
+
+	// Conditions The conditions the operator last reported.
+	Conditions  interface{} `json:"conditions"`
+	CreatedAt   time.Time   `json:"created_at"`
+	Description *string     `json:"description,omitempty"`
+
+	// EffectiveVolumeBackend The backend a volume sits on, as a read DTO shows it.
+	EffectiveVolumeBackend *EffectiveVolumeBackend `json:"effective_volume_backend,omitempty"`
+
+	// Expandable Whether the volume's storage class can grow a bound claim. Absent
+	// until the operator has found out.
+	Expandable     *bool              `json:"expandable,omitempty"`
+	HarborId       openapi_types.UUID `json:"harbor_id"`
+	Id             openapi_types.UUID `json:"id"`
+	Name           string             `json:"name"`
+	OrganizationId openapi_types.UUID `json:"organization_id"`
+
+	// Phase What the operator last reported of an `HfVolume`'s phase, as the console
+	// serves it: a closed list, so the generated TypeScript type is an exhaustive
+	// union. The operator's open phase enum folds a phase this build does not
+	// know into `Pending` before it reaches the wire.
+	Phase HfVolumePhase `json:"phase"`
+
+	// SizeGib The size the volume was created or last grown to, in GiB.
+	SizeGib   int32     `json:"size_gib"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// VolumeRestoreMode How the volume comes back.
+type VolumeRestoreMode string
+
+// VolumeRestorePhase defines model for VolumeRestorePhase.
+type VolumeRestorePhase string
+
+// VolumeRestoreResponse One restore.
+type VolumeRestoreResponse struct {
+	// BackupName The restore point it brings back.
+	BackupName string `json:"backup_name"`
+
+	// ClaimName The volume (`PersistentVolumeClaim`) it creates or replaces.
+	ClaimName   string     `json:"claim_name"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+
+	// ConsumerKind What a volume belongs to.
+	ConsumerKind VolumeBackupSourceKind `json:"consumer_kind"`
+	ConsumerName string                 `json:"consumer_name"`
+	CreatedAt    *time.Time             `json:"created_at,omitempty"`
+
+	// DatabaseName The forge: its database, brought back with the volume.
+	DatabaseName *string `json:"database_name,omitempty"`
+
+	// DatabaseTarget The forge: the instant the volume and the database come back to.
+	DatabaseTarget *time.Time `json:"database_target,omitempty"`
+
+	// Error Why a failed restore failed, in plain words.
+	Error *string `json:"error,omitempty"`
+
+	// HoldRetained The restore failed after the old volume was deleted: the volume stays held, and
+	// `DELETE /volume-restores/{name}` releases it to start with an empty volume.
+	HoldRetained bool `json:"hold_retained"`
+
+	// InFlight The restore is not finished yet.
+	InFlight bool `json:"in_flight"`
+
+	// Mode How the volume comes back.
+	Mode VolumeRestoreMode `json:"mode"`
+
+	// Name The restore's name, unique in its environment.
+	Name  string              `json:"name"`
+	Phase *VolumeRestorePhase `json:"phase,omitempty"`
+
+	// SafetyBackupName The point taken of the volume before an `InPlace` restore replaced it.
+	SafetyBackupName *string `json:"safety_backup_name,omitempty"`
+
+	// Verification The forge: what the check found when it did not pass.
+	Verification *string `json:"verification,omitempty"`
+
+	// Verified The forge: whether `forgejo doctor` and `git fsck` passed; `null` until checked.
+	Verified *bool `json:"verified,omitempty"`
+
+	// Workspace A workstation's restore: only the user who asked sees it.
+	Workspace bool `json:"workspace"`
+}
+
+// VolumesPage One page of volumes, plus the total matching the same filters so the
+// console can render a page count.
+type VolumesPage struct {
+	Data  []VolumeResponse `json:"data"`
+	Limit int64            `json:"limit"`
+	Page  int64            `json:"page"`
+
+	// Total Rows matching the filters across every page.
+	Total int64 `json:"total"`
+}
+
+// VolumesUsageResponse Current fill of every volume of an environment.
+type VolumesUsageResponse struct {
+	HarborId openapi_types.UUID `json:"harbor_id"`
+
+	// Volumes One entry per volume the kubelet reported in the last minutes, by
+	// name. A volume that is absent has no recent figure (not attached, or
+	// its node serves no stats).
+	Volumes []VolumeFillDto `json:"volumes"`
+}
 
 // VulnerabilityCounts Per-severity finding counts for one scanned digest. v1 is informational only
 // (the blocking quality gate is a v2.x follow-up).
@@ -27263,6 +32704,30 @@ type WriteFileResponse struct {
 	Hash string `json:"hash"`
 }
 
+// ZoneBucketOptions What the create page may offer on a bucket of one zone, decided by the
+// same gates as the REST create and the bucket doors.
+type ZoneBucketOptions struct {
+	// EncryptionAtRest What Hyperfluid does about encryption at rest on a zone's new buckets. It
+	// says what the platform adds, never what the disks do.
+	EncryptionAtRest EncryptionAtRest `json:"encryption_at_rest"`
+
+	// Lifecycle Whether an option can be set on a bucket of a zone, and why not.
+	Lifecycle OptionAvailability `json:"lifecycle"`
+
+	// LifecycleTransitionClasses Transition targets the zone offers: its reported storage classes minus
+	// `STANDARD`. Empty: the editor hides transitions.
+	LifecycleTransitionClasses []string `json:"lifecycle_transition_classes"`
+
+	// ObjectLock Whether an option can be set on a bucket of a zone, and why not.
+	ObjectLock OptionAvailability `json:"object_lock"`
+
+	// Tags Whether an option can be set on a bucket of a zone, and why not.
+	Tags OptionAvailability `json:"tags"`
+
+	// Versioning Whether an option can be set on a bucket of a zone, and why not.
+	Versioning OptionAvailability `json:"versioning"`
+}
+
 // bearerContextKey is the context key for bearer security scheme
 type bearerContextKey string
 
@@ -27293,6 +32758,13 @@ type ListScmRepositoriesParams struct {
 	// active ones, and the picker is a closed list with no way to type the path
 	// in by hand.
 	Q *string `form:"q,omitempty" json:"q,omitempty"`
+}
+
+// DeleteDevWorkstationParams defines parameters for DeleteDevWorkstation.
+type DeleteDevWorkstationParams struct {
+	// SkipFinalBackup Delete the workstation without taking the final restore point of its workspace
+	// (ADR-0063 D9). The workspace is lost with the workstation. Audited. Defaults to `false`.
+	SkipFinalBackup *bool `form:"skip_final_backup,omitempty" json:"skip_final_backup,omitempty"`
 }
 
 // DeletePathParams defines parameters for DeletePath.
@@ -27571,6 +33043,12 @@ type GetOptimizeRunLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // ListDataContainersParams defines parameters for ListDataContainers.
@@ -27612,6 +33090,9 @@ type ListBucketObjectsParams struct {
 // DownloadBucketObjectParams defines parameters for DownloadBucketObject.
 type DownloadBucketObjectParams struct {
 	Key string `form:"key" json:"key"`
+
+	// VersionId One version of the object rather than the current one.
+	VersionId *string `form:"version_id,omitempty" json:"version_id,omitempty"`
 }
 
 // DeleteBucketPrefixParams defines parameters for DeleteBucketPrefix.
@@ -27623,6 +33104,26 @@ type DeleteBucketPrefixParams struct {
 // UploadBucketObjectParams defines parameters for UploadBucketObject.
 type UploadBucketObjectParams struct {
 	Key string `form:"key" json:"key"`
+}
+
+// DeleteBucketObjectVersionParams defines parameters for DeleteBucketObjectVersion.
+type DeleteBucketObjectVersionParams struct {
+	Key       string `form:"key" json:"key"`
+	VersionId string `form:"version_id" json:"version_id"`
+}
+
+// ListBucketObjectVersionsParams defines parameters for ListBucketObjectVersions.
+type ListBucketObjectVersionsParams struct {
+	Prefix          *string `form:"prefix,omitempty" json:"prefix,omitempty"`
+	Delimiter       *string `form:"delimiter,omitempty" json:"delimiter,omitempty"`
+	KeyMarker       *string `form:"key_marker,omitempty" json:"key_marker,omitempty"`
+	VersionIdMarker *string `form:"version_id_marker,omitempty" json:"version_id_marker,omitempty"`
+}
+
+// RestoreBucketObjectVersionParams defines parameters for RestoreBucketObjectVersion.
+type RestoreBucketObjectVersionParams struct {
+	Key       string `form:"key" json:"key"`
+	VersionId string `form:"version_id" json:"version_id"`
 }
 
 // ListDashboardsParams defines parameters for ListDashboards.
@@ -27815,6 +33316,13 @@ type ListAlertEventsParams struct {
 	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
+// DeleteContainerAppCrdParams defines parameters for DeleteContainerAppCrd.
+type DeleteContainerAppCrdParams struct {
+	// SkipFinalBackup Delete the app without taking the final restore point of its volumes (ADR-0063 D9).
+	// The volumes are lost with the app. Audited. Defaults to `false`.
+	SkipFinalBackup *bool `form:"skip_final_backup,omitempty" json:"skip_final_backup,omitempty"`
+}
+
 // ListImageSourceSyncsParams defines parameters for ListImageSourceSyncs.
 type ListImageSourceSyncsParams struct {
 	// Limit Page size, 1 to 100 (default 10).
@@ -27905,6 +33413,51 @@ type GetContainerAppPlatformUrlParams struct {
 	Name string `form:"name" json:"name"`
 }
 
+// GetNetworkMapParams defines parameters for GetNetworkMap.
+type GetNetworkMapParams struct {
+	// SinceSecs Edges seen within this many seconds. Default 30 days; from 60 seconds to
+	// the retention (90 days), anything else is a 400.
+	SinceSecs *int64            `form:"since_secs,omitempty" json:"since_secs,omitempty"`
+	Direction *NetworkDirection `form:"direction,omitempty" json:"direction,omitempty"`
+	Verdict   *NetworkVerdict   `form:"verdict,omitempty" json:"verdict,omitempty"`
+
+	// ExternalOnly Only the edges with an external peer at one end.
+	ExternalOnly *bool `form:"external_only,omitempty" json:"external_only,omitempty"`
+
+	// ResourceKind Only the edges of this resource (with `resource_name`): its kind, as the
+	// nodes name it (`ContainerApp`, `ManagedPostgreSQL`, `HfVirtualMachine`…).
+	ResourceKind *string `form:"resource_kind,omitempty" json:"resource_kind,omitempty"`
+	ResourceName *string `form:"resource_name,omitempty" json:"resource_name,omitempty"`
+}
+
+// ListRedTeamFindingsParams defines parameters for ListRedTeamFindings.
+type ListRedTeamFindingsParams struct {
+	RepositoryId *openapi_types.UUID `form:"repository_id,omitempty" json:"repository_id,omitempty"`
+	Verdict      *Verdict            `form:"verdict,omitempty" json:"verdict,omitempty"`
+	TriageState  *RedTeamTriageState `form:"triage_state,omitempty" json:"triage_state,omitempty"`
+}
+
+// GetRedTeamRepositoryTrendParams defines parameters for GetRedTeamRepositoryTrend.
+type GetRedTeamRepositoryTrendParams struct {
+	// Limit At most 200; default 50.
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// ListRedTeamRunsParams defines parameters for ListRedTeamRuns.
+type ListRedTeamRunsParams struct {
+	RepositoryId *openapi_types.UUID `form:"repository_id,omitempty" json:"repository_id,omitempty"`
+	Status       *RedTeamRunState    `form:"status,omitempty" json:"status,omitempty"`
+
+	// Limit At most 200; default 50.
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetRedTeamFindingHandoffPromptParams defines parameters for GetRedTeamFindingHandoffPrompt.
+type GetRedTeamFindingHandoffPromptParams struct {
+	// WorkstationId The caller's own workstation, which must clone the audited repository.
+	WorkstationId openapi_types.UUID `form:"workstation_id" json:"workstation_id"`
+}
+
 // GetImageScanParams defines parameters for GetImageScan.
 type GetImageScanParams struct {
 	// Reference Tag or digest to scan. A `sha256:…` value is used directly; anything else
@@ -27931,6 +33484,44 @@ type ListVirtualMachinesParams struct {
 
 	// Search Case-insensitive substring match on the virtual machine name. Absent
 	// matches every name.
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+}
+
+// GetVolumeBackupAlignmentParams defines parameters for GetVolumeBackupAlignment.
+type GetVolumeBackupAlignmentParams struct {
+	// ConsumerName The forge's app.
+	ConsumerName string `form:"consumer_name" json:"consumer_name"`
+}
+
+// ListVolumeBackupCoverageParams defines parameters for ListVolumeBackupCoverage.
+type ListVolumeBackupCoverageParams struct {
+	SourceKind *VolumeBackupSourceKind `form:"source_kind,omitempty" json:"source_kind,omitempty"`
+	SourceName *string                 `form:"source_name,omitempty" json:"source_name,omitempty"`
+}
+
+// ListVolumeBackupsParams defines parameters for ListVolumeBackups.
+type ListVolumeBackupsParams struct {
+	SourceKind *VolumeBackupSourceKind `form:"source_kind,omitempty" json:"source_kind,omitempty"`
+	SourceName *string                 `form:"source_name,omitempty" json:"source_name,omitempty"`
+	ClaimName  *string                 `form:"claim_name,omitempty" json:"claim_name,omitempty"`
+}
+
+// ListVolumeRestoresParams defines parameters for ListVolumeRestores.
+type ListVolumeRestoresParams struct {
+	ConsumerKind *VolumeBackupSourceKind `form:"consumer_kind,omitempty" json:"consumer_kind,omitempty"`
+	ConsumerName *string                 `form:"consumer_name,omitempty" json:"consumer_name,omitempty"`
+}
+
+// ListVolumesParams defines parameters for ListVolumes.
+type ListVolumesParams struct {
+	// Page Zero-based page index. Absent defaults to the first page.
+	Page *int64 `form:"page,omitempty" json:"page,omitempty"`
+
+	// Limit Page size, clamped to `[1, 200]`. Absent defaults to 50.
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Search Case-insensitive substring match on the volume name. Absent matches
+	// every name.
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
 }
 
@@ -28030,6 +33621,12 @@ type GetAirflowLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetBifrostEventsParams defines parameters for GetBifrostEvents.
@@ -28113,6 +33710,12 @@ type GetComputeDockLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetComputeDockMetricsParams defines parameters for GetComputeDockMetrics.
@@ -28170,6 +33773,12 @@ type GetContainerAppLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetContainerAppMetricsParams defines parameters for GetContainerAppMetrics.
@@ -28222,6 +33831,12 @@ type GetDataDockLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetDataDockMetricsParams defines parameters for GetDataDockMetrics.
@@ -28274,6 +33889,12 @@ type GetDevWorkstationLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetDevWorkstationResourceMetricsParams defines parameters for GetDevWorkstationResourceMetrics.
@@ -28341,10 +33962,21 @@ type GetGithubRunnerPoolLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetGithubRunnerPoolMetricsParams defines parameters for GetGithubRunnerPoolMetrics.
 type GetGithubRunnerPoolMetricsParams struct {
+	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
+}
+
+// GetVirtualMachinesUsageParams defines parameters for GetVirtualMachinesUsage.
+type GetVirtualMachinesUsageParams struct {
 	Range *MetricsRange `form:"range,omitempty" json:"range,omitempty"`
 }
 
@@ -28393,6 +34025,12 @@ type GetHfKeyValueCacheLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetHfKeyValueCacheMetricsParams defines parameters for GetHfKeyValueCacheMetrics.
@@ -28445,6 +34083,12 @@ type GetHfRabbitmqLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetHfRabbitmqMetricsParams defines parameters for GetHfRabbitmqMetrics.
@@ -28497,6 +34141,12 @@ type GetKafkaLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetKafkaMetricsParams defines parameters for GetKafkaMetrics.
@@ -28549,6 +34199,12 @@ type GetMonitoringLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetPostgresLogsParams defines parameters for GetPostgresLogs.
@@ -28596,6 +34252,12 @@ type GetPostgresLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetPostgresMetricsParams defines parameters for GetPostgresMetrics.
@@ -28648,6 +34310,12 @@ type GetModelLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetModelMetricsParams defines parameters for GetModelMetrics.
@@ -28700,6 +34368,12 @@ type GetNextflowRunLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 
 	// Role Only the pods of this role: `head` (the `nextflow run` console output),
 	// `task` or `cleanup`. Omitted: every pod of the run.
@@ -28814,6 +34488,12 @@ type ListPipelineLogsParams struct {
 
 	// Limit Maximum number of entries to return (clamped to 1..=1000, default 500).
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Include Which parts of the answer to compute: `all` (default), `entries` (one
+	// query; `sources` and `histogram` are empty and `skipped`) or `facets`
+	// (the two facet queries; `entries` is empty and `skipped`). The answer's
+	// `parts` field says what each part holds (ADR-0064 §4.1).
+	Include *LogsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
 // GetCreditLedgerParams defines parameters for GetCreditLedger.
@@ -29376,6 +35056,15 @@ type CompleteMultipartUploadJSONRequestBody = CompleteMultipartUploadRequest
 // PrepareArchiveImportJSONRequestBody defines body for PrepareArchiveImport for application/json ContentType.
 type PrepareArchiveImportJSONRequestBody = PrepareArchiveImportRequest
 
+// SetBucketLifecycleJSONRequestBody defines body for SetBucketLifecycle for application/json ContentType.
+type SetBucketLifecycleJSONRequestBody = SetBucketLifecycleRequest
+
+// SetBucketObjectLockJSONRequestBody defines body for SetBucketObjectLock for application/json ContentType.
+type SetBucketObjectLockJSONRequestBody = SetBucketObjectLockRequest
+
+// SetBucketVersioningJSONRequestBody defines body for SetBucketVersioning for application/json ContentType.
+type SetBucketVersioningJSONRequestBody = SetBucketVersioningRequest
+
 // CreateDashboardJSONRequestBody defines body for CreateDashboard for application/json ContentType.
 type CreateDashboardJSONRequestBody = CreateDashboardRequest
 
@@ -29474,6 +35163,12 @@ type CreateNotificationChannelJSONRequestBody = ChannelBody
 
 // UpdateNotificationChannelJSONRequestBody defines body for UpdateNotificationChannel for application/json ContentType.
 type UpdateNotificationChannelJSONRequestBody = ChannelBody
+
+// CreateAlertMatrixBotJSONRequestBody defines body for CreateAlertMatrixBot for application/json ContentType.
+type CreateAlertMatrixBotJSONRequestBody = MatrixBotBody
+
+// UpdateAlertMatrixBotJSONRequestBody defines body for UpdateAlertMatrixBot for application/json ContentType.
+type UpdateAlertMatrixBotJSONRequestBody = MatrixBotBody
 
 // CreateAlertRuleJSONRequestBody defines body for CreateAlertRule for application/json ContentType.
 type CreateAlertRuleJSONRequestBody = AlertRuleBody
@@ -29598,11 +35293,41 @@ type CreateHfRabbitmqCrdJSONRequestBody = CreateHfRabbitMqCrdRequestBody
 // CreateManagedPostgresqlCrdJSONRequestBody defines body for CreateManagedPostgresqlCrd for application/json ContentType.
 type CreateManagedPostgresqlCrdJSONRequestBody = CreateManagedPostgresqlCrdRequestBody
 
+// CutEdgeJSONRequestBody defines body for CutEdge for application/json ContentType.
+type CutEdgeJSONRequestBody = EdgeActionBody
+
+// RestoreEdgeJSONRequestBody defines body for RestoreEdge for application/json ContentType.
+type RestoreEdgeJSONRequestBody = EdgeActionBody
+
 // CreateNextflowCrdJSONRequestBody defines body for CreateNextflowCrd for application/json ContentType.
 type CreateNextflowCrdJSONRequestBody = CreateNextflowCrdRequestBody
 
+// SetRedTeamFindingOwnerValidationJSONRequestBody defines body for SetRedTeamFindingOwnerValidation for application/json ContentType.
+type SetRedTeamFindingOwnerValidationJSONRequestBody = RedTeamOwnerValidationRequest
+
+// SetRedTeamFindingTriageJSONRequestBody defines body for SetRedTeamFindingTriage for application/json ContentType.
+type SetRedTeamFindingTriageJSONRequestBody = RedTeamTriageRequest
+
+// RegisterRedTeamRepositoryJSONRequestBody defines body for RegisterRedTeamRepository for application/json ContentType.
+type RegisterRedTeamRepositoryJSONRequestBody = RegisterRedTeamRepositoryRequest
+
+// StartRedTeamRunJSONRequestBody defines body for StartRedTeamRun for application/json ContentType.
+type StartRedTeamRunJSONRequestBody = StartRedTeamRunRequest
+
+// CreateRedTeamScheduleJSONRequestBody defines body for CreateRedTeamSchedule for application/json ContentType.
+type CreateRedTeamScheduleJSONRequestBody = CreateRedTeamScheduleRequest
+
+// UpdateRedTeamScheduleJSONRequestBody defines body for UpdateRedTeamSchedule for application/json ContentType.
+type UpdateRedTeamScheduleJSONRequestBody = UpdateRedTeamScheduleRequest
+
+// UpdateRedTeamSettingsJSONRequestBody defines body for UpdateRedTeamSettings for application/json ContentType.
+type UpdateRedTeamSettingsJSONRequestBody = UpdateRedTeamSettingsRequest
+
 // CreateRegistryProjectJSONRequestBody defines body for CreateRegistryProject for application/json ContentType.
 type CreateRegistryProjectJSONRequestBody = CreateRegistryProjectRequestBody
+
+// CreateRegistryProxyJSONRequestBody defines body for CreateRegistryProxy for application/json ContentType.
+type CreateRegistryProxyJSONRequestBody = CreateRegistryProxyRequestBody
 
 // CreateServiceLinkJSONRequestBody defines body for CreateServiceLink for application/json ContentType.
 type CreateServiceLinkJSONRequestBody = CreateServiceLinkRequestBody
@@ -29612,6 +35337,15 @@ type PutStorageBudgetJSONRequestBody = HarborStorageBudget
 
 // CreateVirtualMachineCrdJSONRequestBody defines body for CreateVirtualMachineCrd for application/json ContentType.
 type CreateVirtualMachineCrdJSONRequestBody = CreateVirtualMachineCrdRequestBody
+
+// CreateVolumeBackupJSONRequestBody defines body for CreateVolumeBackup for application/json ContentType.
+type CreateVolumeBackupJSONRequestBody = CreateVolumeBackupRequest
+
+// CreateVolumeRestoreJSONRequestBody defines body for CreateVolumeRestore for application/json ContentType.
+type CreateVolumeRestoreJSONRequestBody = CreateVolumeRestoreRequest
+
+// CreateVolumeCrdJSONRequestBody defines body for CreateVolumeCrd for application/json ContentType.
+type CreateVolumeCrdJSONRequestBody = CreateVolumeCrdRequestBody
 
 // PatchHfKeyValueCacheCrdJSONRequestBody defines body for PatchHfKeyValueCacheCrd for application/json ContentType.
 type PatchHfKeyValueCacheCrdJSONRequestBody = PatchHfKeyValueCacheCrdRequestBody
@@ -29748,8 +35482,14 @@ type CreateUserGrantJSONRequestBody = CreateGrantRequestBody
 // PatchVirtualMachineCrdJSONRequestBody defines body for PatchVirtualMachineCrd for application/json ContentType.
 type PatchVirtualMachineCrdJSONRequestBody = PatchVirtualMachineCrdRequestBody
 
+// AttachVirtualMachineDiskJSONRequestBody defines body for AttachVirtualMachineDisk for application/json ContentType.
+type AttachVirtualMachineDiskJSONRequestBody = AttachVirtualMachineDiskRequestBody
+
 // CreateVirtualMachineUserCrdJSONRequestBody defines body for CreateVirtualMachineUserCrd for application/json ContentType.
 type CreateVirtualMachineUserCrdJSONRequestBody = CreateVirtualMachineUserCrdRequestBody
+
+// PatchVolumeCrdJSONRequestBody defines body for PatchVolumeCrd for application/json ContentType.
+type PatchVolumeCrdJSONRequestBody = PatchVolumeCrdRequestBody
 
 // CreateOrgCvePolicyRuleJSONRequestBody defines body for CreateOrgCvePolicyRule for application/json ContentType.
 type CreateOrgCvePolicyRuleJSONRequestBody = CveRuleInput
@@ -30485,6 +36225,578 @@ func (t *AuditLogEvent) FromAuditLogEvent23(v AuditLogEvent23) error {
 
 // MergeAuditLogEvent23 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent23
 func (t *AuditLogEvent) MergeAuditLogEvent23(v AuditLogEvent23) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent24 returns the union data inside the AuditLogEvent as a AuditLogEvent24
+func (t AuditLogEvent) AsAuditLogEvent24() (AuditLogEvent24, error) {
+	var body AuditLogEvent24
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent24 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent24
+func (t *AuditLogEvent) FromAuditLogEvent24(v AuditLogEvent24) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent24 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent24
+func (t *AuditLogEvent) MergeAuditLogEvent24(v AuditLogEvent24) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent25 returns the union data inside the AuditLogEvent as a AuditLogEvent25
+func (t AuditLogEvent) AsAuditLogEvent25() (AuditLogEvent25, error) {
+	var body AuditLogEvent25
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent25 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent25
+func (t *AuditLogEvent) FromAuditLogEvent25(v AuditLogEvent25) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent25 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent25
+func (t *AuditLogEvent) MergeAuditLogEvent25(v AuditLogEvent25) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent26 returns the union data inside the AuditLogEvent as a AuditLogEvent26
+func (t AuditLogEvent) AsAuditLogEvent26() (AuditLogEvent26, error) {
+	var body AuditLogEvent26
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent26 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent26
+func (t *AuditLogEvent) FromAuditLogEvent26(v AuditLogEvent26) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent26 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent26
+func (t *AuditLogEvent) MergeAuditLogEvent26(v AuditLogEvent26) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent27 returns the union data inside the AuditLogEvent as a AuditLogEvent27
+func (t AuditLogEvent) AsAuditLogEvent27() (AuditLogEvent27, error) {
+	var body AuditLogEvent27
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent27 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent27
+func (t *AuditLogEvent) FromAuditLogEvent27(v AuditLogEvent27) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent27 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent27
+func (t *AuditLogEvent) MergeAuditLogEvent27(v AuditLogEvent27) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent28 returns the union data inside the AuditLogEvent as a AuditLogEvent28
+func (t AuditLogEvent) AsAuditLogEvent28() (AuditLogEvent28, error) {
+	var body AuditLogEvent28
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent28 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent28
+func (t *AuditLogEvent) FromAuditLogEvent28(v AuditLogEvent28) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent28 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent28
+func (t *AuditLogEvent) MergeAuditLogEvent28(v AuditLogEvent28) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent29 returns the union data inside the AuditLogEvent as a AuditLogEvent29
+func (t AuditLogEvent) AsAuditLogEvent29() (AuditLogEvent29, error) {
+	var body AuditLogEvent29
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent29 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent29
+func (t *AuditLogEvent) FromAuditLogEvent29(v AuditLogEvent29) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent29 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent29
+func (t *AuditLogEvent) MergeAuditLogEvent29(v AuditLogEvent29) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent30 returns the union data inside the AuditLogEvent as a AuditLogEvent30
+func (t AuditLogEvent) AsAuditLogEvent30() (AuditLogEvent30, error) {
+	var body AuditLogEvent30
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent30 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent30
+func (t *AuditLogEvent) FromAuditLogEvent30(v AuditLogEvent30) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent30 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent30
+func (t *AuditLogEvent) MergeAuditLogEvent30(v AuditLogEvent30) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent31 returns the union data inside the AuditLogEvent as a AuditLogEvent31
+func (t AuditLogEvent) AsAuditLogEvent31() (AuditLogEvent31, error) {
+	var body AuditLogEvent31
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent31 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent31
+func (t *AuditLogEvent) FromAuditLogEvent31(v AuditLogEvent31) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent31 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent31
+func (t *AuditLogEvent) MergeAuditLogEvent31(v AuditLogEvent31) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent32 returns the union data inside the AuditLogEvent as a AuditLogEvent32
+func (t AuditLogEvent) AsAuditLogEvent32() (AuditLogEvent32, error) {
+	var body AuditLogEvent32
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent32 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent32
+func (t *AuditLogEvent) FromAuditLogEvent32(v AuditLogEvent32) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent32 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent32
+func (t *AuditLogEvent) MergeAuditLogEvent32(v AuditLogEvent32) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent33 returns the union data inside the AuditLogEvent as a AuditLogEvent33
+func (t AuditLogEvent) AsAuditLogEvent33() (AuditLogEvent33, error) {
+	var body AuditLogEvent33
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent33 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent33
+func (t *AuditLogEvent) FromAuditLogEvent33(v AuditLogEvent33) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent33 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent33
+func (t *AuditLogEvent) MergeAuditLogEvent33(v AuditLogEvent33) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent34 returns the union data inside the AuditLogEvent as a AuditLogEvent34
+func (t AuditLogEvent) AsAuditLogEvent34() (AuditLogEvent34, error) {
+	var body AuditLogEvent34
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent34 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent34
+func (t *AuditLogEvent) FromAuditLogEvent34(v AuditLogEvent34) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent34 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent34
+func (t *AuditLogEvent) MergeAuditLogEvent34(v AuditLogEvent34) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent35 returns the union data inside the AuditLogEvent as a AuditLogEvent35
+func (t AuditLogEvent) AsAuditLogEvent35() (AuditLogEvent35, error) {
+	var body AuditLogEvent35
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent35 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent35
+func (t *AuditLogEvent) FromAuditLogEvent35(v AuditLogEvent35) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent35 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent35
+func (t *AuditLogEvent) MergeAuditLogEvent35(v AuditLogEvent35) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent36 returns the union data inside the AuditLogEvent as a AuditLogEvent36
+func (t AuditLogEvent) AsAuditLogEvent36() (AuditLogEvent36, error) {
+	var body AuditLogEvent36
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent36 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent36
+func (t *AuditLogEvent) FromAuditLogEvent36(v AuditLogEvent36) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent36 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent36
+func (t *AuditLogEvent) MergeAuditLogEvent36(v AuditLogEvent36) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent37 returns the union data inside the AuditLogEvent as a AuditLogEvent37
+func (t AuditLogEvent) AsAuditLogEvent37() (AuditLogEvent37, error) {
+	var body AuditLogEvent37
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent37 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent37
+func (t *AuditLogEvent) FromAuditLogEvent37(v AuditLogEvent37) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent37 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent37
+func (t *AuditLogEvent) MergeAuditLogEvent37(v AuditLogEvent37) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent38 returns the union data inside the AuditLogEvent as a AuditLogEvent38
+func (t AuditLogEvent) AsAuditLogEvent38() (AuditLogEvent38, error) {
+	var body AuditLogEvent38
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent38 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent38
+func (t *AuditLogEvent) FromAuditLogEvent38(v AuditLogEvent38) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent38 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent38
+func (t *AuditLogEvent) MergeAuditLogEvent38(v AuditLogEvent38) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent39 returns the union data inside the AuditLogEvent as a AuditLogEvent39
+func (t AuditLogEvent) AsAuditLogEvent39() (AuditLogEvent39, error) {
+	var body AuditLogEvent39
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent39 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent39
+func (t *AuditLogEvent) FromAuditLogEvent39(v AuditLogEvent39) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent39 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent39
+func (t *AuditLogEvent) MergeAuditLogEvent39(v AuditLogEvent39) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent40 returns the union data inside the AuditLogEvent as a AuditLogEvent40
+func (t AuditLogEvent) AsAuditLogEvent40() (AuditLogEvent40, error) {
+	var body AuditLogEvent40
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent40 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent40
+func (t *AuditLogEvent) FromAuditLogEvent40(v AuditLogEvent40) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent40 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent40
+func (t *AuditLogEvent) MergeAuditLogEvent40(v AuditLogEvent40) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent41 returns the union data inside the AuditLogEvent as a AuditLogEvent41
+func (t AuditLogEvent) AsAuditLogEvent41() (AuditLogEvent41, error) {
+	var body AuditLogEvent41
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent41 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent41
+func (t *AuditLogEvent) FromAuditLogEvent41(v AuditLogEvent41) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent41 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent41
+func (t *AuditLogEvent) MergeAuditLogEvent41(v AuditLogEvent41) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent42 returns the union data inside the AuditLogEvent as a AuditLogEvent42
+func (t AuditLogEvent) AsAuditLogEvent42() (AuditLogEvent42, error) {
+	var body AuditLogEvent42
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent42 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent42
+func (t *AuditLogEvent) FromAuditLogEvent42(v AuditLogEvent42) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent42 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent42
+func (t *AuditLogEvent) MergeAuditLogEvent42(v AuditLogEvent42) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent43 returns the union data inside the AuditLogEvent as a AuditLogEvent43
+func (t AuditLogEvent) AsAuditLogEvent43() (AuditLogEvent43, error) {
+	var body AuditLogEvent43
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent43 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent43
+func (t *AuditLogEvent) FromAuditLogEvent43(v AuditLogEvent43) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent43 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent43
+func (t *AuditLogEvent) MergeAuditLogEvent43(v AuditLogEvent43) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent44 returns the union data inside the AuditLogEvent as a AuditLogEvent44
+func (t AuditLogEvent) AsAuditLogEvent44() (AuditLogEvent44, error) {
+	var body AuditLogEvent44
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent44 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent44
+func (t *AuditLogEvent) FromAuditLogEvent44(v AuditLogEvent44) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent44 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent44
+func (t *AuditLogEvent) MergeAuditLogEvent44(v AuditLogEvent44) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsAuditLogEvent45 returns the union data inside the AuditLogEvent as a AuditLogEvent45
+func (t AuditLogEvent) AsAuditLogEvent45() (AuditLogEvent45, error) {
+	var body AuditLogEvent45
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAuditLogEvent45 overwrites any union data inside the AuditLogEvent as the provided AuditLogEvent45
+func (t *AuditLogEvent) FromAuditLogEvent45(v AuditLogEvent45) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAuditLogEvent45 performs a merge with any union data inside the AuditLogEvent, using the provided AuditLogEvent45
+func (t *AuditLogEvent) MergeAuditLogEvent45(v AuditLogEvent45) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -32448,6 +38760,156 @@ func (t *PrepareArchiveImportResponse) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsRedTeamFinding0 returns the union data inside the RedTeamFinding as a RedTeamFinding0
+func (t RedTeamFinding) AsRedTeamFinding0() (RedTeamFinding0, error) {
+	var body RedTeamFinding0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRedTeamFinding0 overwrites any union data inside the RedTeamFinding as the provided RedTeamFinding0
+func (t *RedTeamFinding) FromRedTeamFinding0(v RedTeamFinding0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRedTeamFinding0 performs a merge with any union data inside the RedTeamFinding, using the provided RedTeamFinding0
+func (t *RedTeamFinding) MergeRedTeamFinding0(v RedTeamFinding0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRedTeamFinding1 returns the union data inside the RedTeamFinding as a RedTeamFinding1
+func (t RedTeamFinding) AsRedTeamFinding1() (RedTeamFinding1, error) {
+	var body RedTeamFinding1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRedTeamFinding1 overwrites any union data inside the RedTeamFinding as the provided RedTeamFinding1
+func (t *RedTeamFinding) FromRedTeamFinding1(v RedTeamFinding1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRedTeamFinding1 performs a merge with any union data inside the RedTeamFinding, using the provided RedTeamFinding1
+func (t *RedTeamFinding) MergeRedTeamFinding1(v RedTeamFinding1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRedTeamFinding2 returns the union data inside the RedTeamFinding as a RedTeamFinding2
+func (t RedTeamFinding) AsRedTeamFinding2() (RedTeamFinding2, error) {
+	var body RedTeamFinding2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRedTeamFinding2 overwrites any union data inside the RedTeamFinding as the provided RedTeamFinding2
+func (t *RedTeamFinding) FromRedTeamFinding2(v RedTeamFinding2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRedTeamFinding2 performs a merge with any union data inside the RedTeamFinding, using the provided RedTeamFinding2
+func (t *RedTeamFinding) MergeRedTeamFinding2(v RedTeamFinding2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RedTeamFinding) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RedTeamFinding) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRedTeamRunFailureReason returns the union data inside the RedTeamRunFailure as a RedTeamRunFailureReason
+func (t RedTeamRunFailure) AsRedTeamRunFailureReason() (RedTeamRunFailureReason, error) {
+	var body RedTeamRunFailureReason
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRedTeamRunFailureReason overwrites any union data inside the RedTeamRunFailure as the provided RedTeamRunFailureReason
+func (t *RedTeamRunFailure) FromRedTeamRunFailureReason(v RedTeamRunFailureReason) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRedTeamRunFailureReason performs a merge with any union data inside the RedTeamRunFailure, using the provided RedTeamRunFailureReason
+func (t *RedTeamRunFailure) MergeRedTeamRunFailureReason(v RedTeamRunFailureReason) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRedTeamConsoleFailure returns the union data inside the RedTeamRunFailure as a RedTeamConsoleFailure
+func (t RedTeamRunFailure) AsRedTeamConsoleFailure() (RedTeamConsoleFailure, error) {
+	var body RedTeamConsoleFailure
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRedTeamConsoleFailure overwrites any union data inside the RedTeamRunFailure as the provided RedTeamConsoleFailure
+func (t *RedTeamRunFailure) FromRedTeamConsoleFailure(v RedTeamConsoleFailure) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRedTeamConsoleFailure performs a merge with any union data inside the RedTeamRunFailure, using the provided RedTeamConsoleFailure
+func (t *RedTeamRunFailure) MergeRedTeamConsoleFailure(v RedTeamConsoleFailure) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RedTeamRunFailure) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RedTeamRunFailure) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsRunnerFlavorDto0 returns the union data inside the RunnerFlavorDto as a RunnerFlavorDto0
 func (t RunnerFlavorDto) AsRunnerFlavorDto0() (RunnerFlavorDto0, error) {
 	var body RunnerFlavorDto0
@@ -32864,6 +39326,276 @@ func (t SecurityPolicyValue) MarshalJSON() ([]byte, error) {
 }
 
 func (t *SecurityPolicyValue) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsServiceLinkKind0 returns the union data inside the ServiceLinkKind as a ServiceLinkKind0
+func (t ServiceLinkKind) AsServiceLinkKind0() (ServiceLinkKind0, error) {
+	var body ServiceLinkKind0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind0 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind0
+func (t *ServiceLinkKind) FromServiceLinkKind0(v ServiceLinkKind0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind0 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind0
+func (t *ServiceLinkKind) MergeServiceLinkKind0(v ServiceLinkKind0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind1 returns the union data inside the ServiceLinkKind as a ServiceLinkKind1
+func (t ServiceLinkKind) AsServiceLinkKind1() (ServiceLinkKind1, error) {
+	var body ServiceLinkKind1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind1 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind1
+func (t *ServiceLinkKind) FromServiceLinkKind1(v ServiceLinkKind1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind1 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind1
+func (t *ServiceLinkKind) MergeServiceLinkKind1(v ServiceLinkKind1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind2 returns the union data inside the ServiceLinkKind as a ServiceLinkKind2
+func (t ServiceLinkKind) AsServiceLinkKind2() (ServiceLinkKind2, error) {
+	var body ServiceLinkKind2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind2 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind2
+func (t *ServiceLinkKind) FromServiceLinkKind2(v ServiceLinkKind2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind2 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind2
+func (t *ServiceLinkKind) MergeServiceLinkKind2(v ServiceLinkKind2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind3 returns the union data inside the ServiceLinkKind as a ServiceLinkKind3
+func (t ServiceLinkKind) AsServiceLinkKind3() (ServiceLinkKind3, error) {
+	var body ServiceLinkKind3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind3 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind3
+func (t *ServiceLinkKind) FromServiceLinkKind3(v ServiceLinkKind3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind3 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind3
+func (t *ServiceLinkKind) MergeServiceLinkKind3(v ServiceLinkKind3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind4 returns the union data inside the ServiceLinkKind as a ServiceLinkKind4
+func (t ServiceLinkKind) AsServiceLinkKind4() (ServiceLinkKind4, error) {
+	var body ServiceLinkKind4
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind4 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind4
+func (t *ServiceLinkKind) FromServiceLinkKind4(v ServiceLinkKind4) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind4 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind4
+func (t *ServiceLinkKind) MergeServiceLinkKind4(v ServiceLinkKind4) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind5 returns the union data inside the ServiceLinkKind as a ServiceLinkKind5
+func (t ServiceLinkKind) AsServiceLinkKind5() (ServiceLinkKind5, error) {
+	var body ServiceLinkKind5
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind5 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind5
+func (t *ServiceLinkKind) FromServiceLinkKind5(v ServiceLinkKind5) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind5 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind5
+func (t *ServiceLinkKind) MergeServiceLinkKind5(v ServiceLinkKind5) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind6 returns the union data inside the ServiceLinkKind as a ServiceLinkKind6
+func (t ServiceLinkKind) AsServiceLinkKind6() (ServiceLinkKind6, error) {
+	var body ServiceLinkKind6
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind6 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind6
+func (t *ServiceLinkKind) FromServiceLinkKind6(v ServiceLinkKind6) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind6 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind6
+func (t *ServiceLinkKind) MergeServiceLinkKind6(v ServiceLinkKind6) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind7 returns the union data inside the ServiceLinkKind as a ServiceLinkKind7
+func (t ServiceLinkKind) AsServiceLinkKind7() (ServiceLinkKind7, error) {
+	var body ServiceLinkKind7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind7 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind7
+func (t *ServiceLinkKind) FromServiceLinkKind7(v ServiceLinkKind7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind7 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind7
+func (t *ServiceLinkKind) MergeServiceLinkKind7(v ServiceLinkKind7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind8 returns the union data inside the ServiceLinkKind as a ServiceLinkKind8
+func (t ServiceLinkKind) AsServiceLinkKind8() (ServiceLinkKind8, error) {
+	var body ServiceLinkKind8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind8 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind8
+func (t *ServiceLinkKind) FromServiceLinkKind8(v ServiceLinkKind8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind8 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind8
+func (t *ServiceLinkKind) MergeServiceLinkKind8(v ServiceLinkKind8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsServiceLinkKind9 returns the union data inside the ServiceLinkKind as a ServiceLinkKind9
+func (t ServiceLinkKind) AsServiceLinkKind9() (ServiceLinkKind9, error) {
+	var body ServiceLinkKind9
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromServiceLinkKind9 overwrites any union data inside the ServiceLinkKind as the provided ServiceLinkKind9
+func (t *ServiceLinkKind) FromServiceLinkKind9(v ServiceLinkKind9) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeServiceLinkKind9 performs a merge with any union data inside the ServiceLinkKind, using the provided ServiceLinkKind9
+func (t *ServiceLinkKind) MergeServiceLinkKind9(v ServiceLinkKind9) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ServiceLinkKind) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ServiceLinkKind) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -33352,7 +40084,7 @@ type ClientInterface interface {
 	CreateDevWorkstation(ctx context.Context, body CreateDevWorkstationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteDevWorkstation request
-	DeleteDevWorkstation(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteDevWorkstation(ctx context.Context, id openapi_types.UUID, params *DeleteDevWorkstationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDevWorkstation request
 	GetDevWorkstation(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -33922,6 +40654,25 @@ type ClientInterface interface {
 	// GetBucketCredentials request
 	GetBucketCredentials(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteBucketLifecycle request
+	DeleteBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetBucketLifecycle request
+	GetBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetBucketLifecycleWithBody request with any body
+	SetBucketLifecycleWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketLifecycleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetBucketObjectLock request
+	GetBucketObjectLock(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetBucketObjectLockWithBody request with any body
+	SetBucketObjectLockWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetBucketObjectLock(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketObjectLockJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteBucketObject request
 	DeleteBucketObject(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -33936,6 +40687,26 @@ type ClientInterface interface {
 
 	// UploadBucketObjectWithBody request with any body
 	UploadBucketObjectWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *UploadBucketObjectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteBucketObjectVersion request
+	DeleteBucketObjectVersion(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListBucketObjectVersions request
+	ListBucketObjectVersions(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *ListBucketObjectVersionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestoreBucketObjectVersion request
+	RestoreBucketObjectVersion(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *RestoreBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteBucketTags request
+	DeleteBucketTags(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetBucketVersioning request
+	GetBucketVersioning(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetBucketVersioningWithBody request with any body
+	SetBucketVersioningWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetBucketVersioning(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketVersioningJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListDashboards request
 	ListDashboards(ctx context.Context, harborId openapi_types.UUID, params *ListDashboardsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -34324,6 +41095,28 @@ type ClientInterface interface {
 	// ListAlertEvents request
 	ListAlertEvents(ctx context.Context, organizationId openapi_types.UUID, params *ListAlertEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAlertMatrixBots request
+	ListAlertMatrixBots(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAlertMatrixBotWithBody request with any body
+	CreateAlertMatrixBotWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, body CreateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAlertMatrixBot request
+	DeleteAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAlertMatrixBot request
+	GetAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateAlertMatrixBotWithBody request with any body
+	UpdateAlertMatrixBotWithBody(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, body UpdateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ReloginAlertMatrixBot request
+	ReloginAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAlertRules request
 	ListAlertRules(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -34381,6 +41174,9 @@ type ClientInterface interface {
 
 	PatchBackupTargetCrd(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, body PatchBackupTargetCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetBackupTargetVolumePoints request
+	GetBackupTargetVolumePoints(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SignComputeDockSshKeyWithBody request with any body
 	SignComputeDockSshKeyWithBody(ctx context.Context, organizationId openapi_types.UUID, computeDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -34414,7 +41210,7 @@ type ClientInterface interface {
 	PatchContainerApp(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, body PatchContainerAppJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteContainerAppCrd request
-	DeleteContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *DeleteContainerAppCrdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetContainerAppCrd request
 	GetContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -34730,6 +41526,19 @@ type ClientInterface interface {
 	// GetHarborNetworkIsolation request
 	GetHarborNetworkIsolation(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetNetworkMap request
+	GetNetworkMap(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetNetworkMapParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CutEdgeWithBody request with any body
+	CutEdgeWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CutEdge(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body CutEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestoreEdgeWithBody request with any body
+	RestoreEdgeWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RestoreEdge(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body RestoreEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListNextflows request
 	ListNextflows(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -34740,6 +41549,107 @@ type ClientInterface interface {
 
 	// GetNextflowDefaults request
 	GetNextflowDefaults(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamFindings request
+	ListRedTeamFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamFindingsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamFinding request
+	GetRedTeamFinding(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamFindingEvents request
+	ListRedTeamFindingEvents(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetRedTeamFindingOwnerValidationWithBody request with any body
+	SetRedTeamFindingOwnerValidationWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetRedTeamFindingOwnerValidation(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingOwnerValidationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RetestRedTeamFinding request
+	RetestRedTeamFinding(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetRedTeamFindingTriageWithBody request with any body
+	SetRedTeamFindingTriageWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetRedTeamFindingTriage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingTriageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamEnvironmentOverview request
+	GetRedTeamEnvironmentOverview(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamRepositories request
+	ListRedTeamRepositories(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RegisterRedTeamRepositoryWithBody request with any body
+	RegisterRedTeamRepositoryWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RegisterRedTeamRepository(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body RegisterRedTeamRepositoryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteRedTeamRepository request
+	DeleteRedTeamRepository(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamRepositoryTrend request
+	GetRedTeamRepositoryTrend(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, params *GetRedTeamRepositoryTrendParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamRuns request
+	ListRedTeamRuns(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamRunsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StartRedTeamRunWithBody request with any body
+	StartRedTeamRunWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	StartRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body StartRedTeamRunJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamRun request
+	GetRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelRedTeamRun request
+	CancelRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamRunCoverage request
+	ListRedTeamRunCoverage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamRunCoverageSummary request
+	GetRedTeamRunCoverageSummary(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamRunDocument request
+	GetRedTeamRunDocument(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, kind string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ExportRedTeamRunFindings request
+	ExportRedTeamRunFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ExportRedTeamRunSarif request
+	ExportRedTeamRunSarif(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamRunFindings request
+	ListRedTeamRunFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamFindingHandoffPrompt request
+	GetRedTeamFindingHandoffPrompt(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, findingId openapi_types.UUID, params *GetRedTeamFindingHandoffPromptParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamRunValidationErrors request
+	GetRedTeamRunValidationErrors(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRedTeamSchedules request
+	ListRedTeamSchedules(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateRedTeamScheduleWithBody request with any body
+	CreateRedTeamScheduleWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteRedTeamSchedule request
+	DeleteRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateRedTeamScheduleWithBody request with any body
+	UpdateRedTeamScheduleWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, body UpdateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamSettings request
+	GetRedTeamSettings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateRedTeamSettingsWithBody request with any body
+	UpdateRedTeamSettingsWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateRedTeamSettings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body UpdateRedTeamSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListRegistries request
 	ListRegistries(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -34791,6 +41701,20 @@ type ClientInterface interface {
 	// GetRegistryImageTags request
 	GetRegistryImageTags(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, image string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListRegistryProxies request
+	ListRegistryProxies(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateRegistryProxyWithBody request with any body
+	CreateRegistryProxyWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateRegistryProxy(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryProxyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteRegistryProxy request
+	DeleteRegistryProxy(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRegistryProxyImages request
+	ListRegistryProxyImages(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetRegistryUsage request
 	GetRegistryUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -34826,6 +41750,45 @@ type ClientInterface interface {
 
 	// GetVirtualMachineImageCatalog request
 	GetVirtualMachineImageCatalog(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVolumeBackupAlignment request
+	GetVolumeBackupAlignment(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVolumeBackupAlignmentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListVolumeBackupCoverage request
+	ListVolumeBackupCoverage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupCoverageParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListVolumeBackups request
+	ListVolumeBackups(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateVolumeBackupWithBody request with any body
+	CreateVolumeBackupWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateVolumeBackup(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVolumeBackup request
+	GetVolumeBackup(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListVolumeRestores request
+	ListVolumeRestores(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeRestoresParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateVolumeRestoreWithBody request with any body
+	CreateVolumeRestoreWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteVolumeRestore request
+	DeleteVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVolumeRestore request
+	GetVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListVolumes request
+	ListVolumes(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateVolumeCrdWithBody request with any body
+	CreateVolumeCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetHarborFlows request
 	GetHarborFlows(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -35116,6 +42079,12 @@ type ClientInterface interface {
 	// GetGithubRunnerPoolMetrics request
 	GetGithubRunnerPoolMetrics(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, params *GetGithubRunnerPoolMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetVirtualMachinesUsage request
+	GetVirtualMachinesUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVirtualMachinesUsageParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVolumesUsage request
+	GetVolumesUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetHfKeyValueCacheLogs request
 	GetHfKeyValueCacheLogs(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -35271,6 +42240,9 @@ type ClientInterface interface {
 
 	// ListPrincipalResolvedAccess request
 	ListPrincipalResolvedAccess(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetRedTeamOrganizationOverview request
+	GetRedTeamOrganizationOverview(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetCreditBalance request
 	GetCreditBalance(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -35520,6 +42492,14 @@ type ClientInterface interface {
 
 	PatchVirtualMachineCrd(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchVirtualMachineCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// AttachVirtualMachineDiskWithBody request with any body
+	AttachVirtualMachineDiskWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AttachVirtualMachineDisk(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body AttachVirtualMachineDiskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DetachVirtualMachineDisk request
+	DetachVirtualMachineDisk(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, volumeName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListVirtualMachineUsers request
 	ListVirtualMachineUsers(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, params *ListVirtualMachineUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -35536,6 +42516,17 @@ type ClientInterface interface {
 
 	// ListVolumeBackends request
 	ListVolumeBackends(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVolume request
+	GetVolume(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteVolumeCrd request
+	DeleteVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchVolumeCrdWithBody request with any body
+	PatchVolumeCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, body PatchVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOrgCvePolicies request
 	GetOrgCvePolicies(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -36284,8 +43275,8 @@ func (c *Client) CreateDevWorkstation(ctx context.Context, body CreateDevWorksta
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteDevWorkstation(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteDevWorkstationRequest(c.Server, id)
+func (c *Client) DeleteDevWorkstation(ctx context.Context, id openapi_types.UUID, params *DeleteDevWorkstationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDevWorkstationRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -38768,6 +45759,90 @@ func (c *Client) GetBucketCredentials(ctx context.Context, harborId openapi_type
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeleteBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteBucketLifecycleRequest(c.Server, harborId, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetBucketLifecycleRequest(c.Server, harborId, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketLifecycleWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketLifecycleRequestWithBody(c.Server, harborId, bucketName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketLifecycle(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketLifecycleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketLifecycleRequest(c.Server, harborId, bucketName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetBucketObjectLock(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetBucketObjectLockRequest(c.Server, harborId, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketObjectLockWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketObjectLockRequestWithBody(c.Server, harborId, bucketName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketObjectLock(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketObjectLockJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketObjectLockRequest(c.Server, harborId, bucketName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteBucketObject(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteBucketObjectRequest(c.Server, harborId, bucketName, params)
 	if err != nil {
@@ -38818,6 +45893,90 @@ func (c *Client) DeleteBucketPrefix(ctx context.Context, harborId openapi_types.
 
 func (c *Client) UploadBucketObjectWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *UploadBucketObjectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUploadBucketObjectRequestWithBody(c.Server, harborId, bucketName, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteBucketObjectVersion(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteBucketObjectVersionRequest(c.Server, harborId, bucketName, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListBucketObjectVersions(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *ListBucketObjectVersionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListBucketObjectVersionsRequest(c.Server, harborId, bucketName, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreBucketObjectVersion(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *RestoreBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreBucketObjectVersionRequest(c.Server, harborId, bucketName, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteBucketTags(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteBucketTagsRequest(c.Server, harborId, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetBucketVersioning(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetBucketVersioningRequest(c.Server, harborId, bucketName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketVersioningWithBody(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketVersioningRequestWithBody(c.Server, harborId, bucketName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetBucketVersioning(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketVersioningJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetBucketVersioningRequest(c.Server, harborId, bucketName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -40508,6 +47667,102 @@ func (c *Client) ListAlertEvents(ctx context.Context, organizationId openapi_typ
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAlertMatrixBots(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAlertMatrixBotsRequest(c.Server, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAlertMatrixBotWithBody(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAlertMatrixBotRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, body CreateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAlertMatrixBotRequest(c.Server, organizationId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAlertMatrixBotRequest(c.Server, organizationId, botId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAlertMatrixBotRequest(c.Server, organizationId, botId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAlertMatrixBotWithBody(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAlertMatrixBotRequestWithBody(c.Server, organizationId, botId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, body UpdateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAlertMatrixBotRequest(c.Server, organizationId, botId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReloginAlertMatrixBot(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReloginAlertMatrixBotRequest(c.Server, organizationId, botId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListAlertRules(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListAlertRulesRequest(c.Server, organizationId)
 	if err != nil {
@@ -40760,6 +48015,18 @@ func (c *Client) PatchBackupTargetCrd(ctx context.Context, organizationId openap
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetBackupTargetVolumePoints(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetBackupTargetVolumePointsRequest(c.Server, organizationId, backupTargetId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) SignComputeDockSshKeyWithBody(ctx context.Context, organizationId openapi_types.UUID, computeDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignComputeDockSshKeyRequestWithBody(c.Server, organizationId, computeDockId, contentType, body)
 	if err != nil {
@@ -40904,8 +48171,8 @@ func (c *Client) PatchContainerApp(ctx context.Context, organizationId openapi_t
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteContainerAppCrdRequest(c.Server, organizationId, appId)
+func (c *Client) DeleteContainerAppCrd(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *DeleteContainerAppCrdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteContainerAppCrdRequest(c.Server, organizationId, appId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -42296,6 +49563,66 @@ func (c *Client) GetHarborNetworkIsolation(ctx context.Context, organizationId o
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetNetworkMap(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetNetworkMapParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNetworkMapRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CutEdgeWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCutEdgeRequestWithBody(c.Server, organizationId, harborId, edgeId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CutEdge(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body CutEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCutEdgeRequest(c.Server, organizationId, harborId, edgeId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreEdgeWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreEdgeRequestWithBody(c.Server, organizationId, harborId, edgeId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreEdge(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body RestoreEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreEdgeRequest(c.Server, organizationId, harborId, edgeId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListNextflows(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListNextflowsRequest(c.Server, organizationId, harborId)
 	if err != nil {
@@ -42334,6 +49661,438 @@ func (c *Client) CreateNextflowCrd(ctx context.Context, organizationId openapi_t
 
 func (c *Client) GetNextflowDefaults(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetNextflowDefaultsRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamFindingsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamFindingsRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamFinding(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamFindingRequest(c.Server, organizationId, harborId, identityId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamFindingEvents(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamFindingEventsRequest(c.Server, organizationId, harborId, identityId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRedTeamFindingOwnerValidationWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRedTeamFindingOwnerValidationRequestWithBody(c.Server, organizationId, harborId, identityId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRedTeamFindingOwnerValidation(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingOwnerValidationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRedTeamFindingOwnerValidationRequest(c.Server, organizationId, harborId, identityId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RetestRedTeamFinding(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRetestRedTeamFindingRequest(c.Server, organizationId, harborId, identityId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRedTeamFindingTriageWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRedTeamFindingTriageRequestWithBody(c.Server, organizationId, harborId, identityId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetRedTeamFindingTriage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingTriageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetRedTeamFindingTriageRequest(c.Server, organizationId, harborId, identityId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamEnvironmentOverview(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamEnvironmentOverviewRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamRepositories(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamRepositoriesRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegisterRedTeamRepositoryWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegisterRedTeamRepositoryRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegisterRedTeamRepository(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body RegisterRedTeamRepositoryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegisterRedTeamRepositoryRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteRedTeamRepository(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteRedTeamRepositoryRequest(c.Server, organizationId, harborId, repositoryId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamRepositoryTrend(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, params *GetRedTeamRepositoryTrendParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamRepositoryTrendRequest(c.Server, organizationId, harborId, repositoryId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamRuns(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamRunsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamRunsRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartRedTeamRunWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartRedTeamRunRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body StartRedTeamRunJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartRedTeamRunRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamRunRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CancelRedTeamRun(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelRedTeamRunRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamRunCoverage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamRunCoverageRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamRunCoverageSummary(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamRunCoverageSummaryRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamRunDocument(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, kind string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamRunDocumentRequest(c.Server, organizationId, harborId, runId, kind)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ExportRedTeamRunFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExportRedTeamRunFindingsRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ExportRedTeamRunSarif(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExportRedTeamRunSarifRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamRunFindings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamRunFindingsRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamFindingHandoffPrompt(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, findingId openapi_types.UUID, params *GetRedTeamFindingHandoffPromptParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamFindingHandoffPromptRequest(c.Server, organizationId, harborId, runId, findingId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamRunValidationErrors(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamRunValidationErrorsRequest(c.Server, organizationId, harborId, runId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRedTeamSchedules(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRedTeamSchedulesRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRedTeamScheduleWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRedTeamScheduleRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRedTeamScheduleRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteRedTeamScheduleRequest(c.Server, organizationId, harborId, scheduleId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRedTeamScheduleWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRedTeamScheduleRequestWithBody(c.Server, organizationId, harborId, scheduleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRedTeamSchedule(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, body UpdateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRedTeamScheduleRequest(c.Server, organizationId, harborId, scheduleId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamSettings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamSettingsRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRedTeamSettingsWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRedTeamSettingsRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRedTeamSettings(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body UpdateRedTeamSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRedTeamSettingsRequest(c.Server, organizationId, harborId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -42548,6 +50307,66 @@ func (c *Client) GetRegistryImageTags(ctx context.Context, organizationId openap
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListRegistryProxies(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRegistryProxiesRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRegistryProxyWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRegistryProxyRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateRegistryProxy(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryProxyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateRegistryProxyRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteRegistryProxy(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteRegistryProxyRequest(c.Server, organizationId, harborId, upstream)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRegistryProxyImages(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRegistryProxyImagesRequest(c.Server, organizationId, harborId, upstream)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetRegistryUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetRegistryUsageRequest(c.Server, organizationId, harborId)
 	if err != nil {
@@ -42694,6 +50513,174 @@ func (c *Client) CreateVirtualMachineCrd(ctx context.Context, organizationId ope
 
 func (c *Client) GetVirtualMachineImageCatalog(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetVirtualMachineImageCatalogRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVolumeBackupAlignment(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVolumeBackupAlignmentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVolumeBackupAlignmentRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListVolumeBackupCoverage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupCoverageParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVolumeBackupCoverageRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListVolumeBackups(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVolumeBackupsRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeBackupWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeBackupRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeBackup(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeBackupRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVolumeBackup(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVolumeBackupRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListVolumeRestores(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeRestoresParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVolumeRestoresRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeRestoreWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeRestoreRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeRestoreRequest(c.Server, organizationId, harborId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteVolumeRestoreRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVolumeRestore(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVolumeRestoreRequest(c.Server, organizationId, harborId, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListVolumes(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVolumesRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeCrdRequestWithBody(c.Server, organizationId, harborId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateVolumeCrdRequest(c.Server, organizationId, harborId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -43940,6 +51927,30 @@ func (c *Client) GetGithubRunnerPoolMetrics(ctx context.Context, organizationId 
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetVirtualMachinesUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVirtualMachinesUsageParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVirtualMachinesUsageRequest(c.Server, organizationId, harborId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVolumesUsage(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVolumesUsageRequest(c.Server, organizationId, harborId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetHfKeyValueCacheLogs(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHfKeyValueCacheLogsRequest(c.Server, organizationId, cacheId, params)
 	if err != nil {
@@ -44578,6 +52589,18 @@ func (c *Client) ListPrincipalGroups(ctx context.Context, organizationId openapi
 
 func (c *Client) ListPrincipalResolvedAccess(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPrincipalResolvedAccessRequest(c.Server, organizationId, principalType, principalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetRedTeamOrganizationOverview(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetRedTeamOrganizationOverviewRequest(c.Server, organizationId)
 	if err != nil {
 		return nil, err
 	}
@@ -45656,6 +53679,42 @@ func (c *Client) PatchVirtualMachineCrd(ctx context.Context, organizationId open
 	return c.Client.Do(req)
 }
 
+func (c *Client) AttachVirtualMachineDiskWithBody(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAttachVirtualMachineDiskRequestWithBody(c.Server, organizationId, instanceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AttachVirtualMachineDisk(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body AttachVirtualMachineDiskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAttachVirtualMachineDiskRequest(c.Server, organizationId, instanceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DetachVirtualMachineDisk(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, volumeName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDetachVirtualMachineDiskRequest(c.Server, organizationId, instanceId, volumeName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListVirtualMachineUsers(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, params *ListVirtualMachineUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListVirtualMachineUsersRequest(c.Server, organizationId, vmId, params)
 	if err != nil {
@@ -45718,6 +53777,54 @@ func (c *Client) DeleteVirtualMachineUserCrd(ctx context.Context, organizationId
 
 func (c *Client) ListVolumeBackends(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListVolumeBackendsRequest(c.Server, organizationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVolume(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVolumeRequest(c.Server, organizationId, volumeId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteVolumeCrdRequest(c.Server, organizationId, volumeId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchVolumeCrdWithBody(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchVolumeCrdRequestWithBody(c.Server, organizationId, volumeId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchVolumeCrd(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, body PatchVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchVolumeCrdRequest(c.Server, organizationId, volumeId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -48509,7 +56616,7 @@ func NewCreateDevWorkstationRequestWithBody(server string, contentType string, b
 }
 
 // NewDeleteDevWorkstationRequest generates requests for DeleteDevWorkstation
-func NewDeleteDevWorkstationRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDeleteDevWorkstationRequest(server string, id openapi_types.UUID, params *DeleteDevWorkstationParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -48532,6 +56639,33 @@ func NewDeleteDevWorkstationRequest(server string, id openapi_types.UUID) (*http
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.SkipFinalBackup != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "skip_final_backup", *params.SkipFinalBackup, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
@@ -54228,6 +62362,18 @@ func NewGetOptimizeRunLogsRequest(server string, dataContainerId openapi_types.U
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -55893,6 +64039,237 @@ func NewGetBucketCredentialsRequest(server string, harborId openapi_types.UUID, 
 	return req, nil
 }
 
+// NewDeleteBucketLifecycleRequest generates requests for DeleteBucketLifecycle
+func NewDeleteBucketLifecycleRequest(server string, harborId openapi_types.UUID, bucketName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/lifecycle", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetBucketLifecycleRequest generates requests for GetBucketLifecycle
+func NewGetBucketLifecycleRequest(server string, harborId openapi_types.UUID, bucketName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/lifecycle", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetBucketLifecycleRequest calls the generic SetBucketLifecycle builder with application/json body
+func NewSetBucketLifecycleRequest(server string, harborId openapi_types.UUID, bucketName string, body SetBucketLifecycleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetBucketLifecycleRequestWithBody(server, harborId, bucketName, "application/json", bodyReader)
+}
+
+// NewSetBucketLifecycleRequestWithBody generates requests for SetBucketLifecycle with any type of body
+func NewSetBucketLifecycleRequestWithBody(server string, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/lifecycle", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetBucketObjectLockRequest generates requests for GetBucketObjectLock
+func NewGetBucketObjectLockRequest(server string, harborId openapi_types.UUID, bucketName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/object-lock", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetBucketObjectLockRequest calls the generic SetBucketObjectLock builder with application/json body
+func NewSetBucketObjectLockRequest(server string, harborId openapi_types.UUID, bucketName string, body SetBucketObjectLockJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetBucketObjectLockRequestWithBody(server, harborId, bucketName, "application/json", bodyReader)
+}
+
+// NewSetBucketObjectLockRequestWithBody generates requests for SetBucketObjectLock with any type of body
+func NewSetBucketObjectLockRequestWithBody(server string, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/object-lock", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteBucketObjectRequest generates requests for DeleteBucketObject
 func NewDeleteBucketObjectRequest(server string, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectParams) (*http.Request, error) {
 	var err error
@@ -56099,6 +64476,18 @@ func NewDownloadBucketObjectRequest(server string, harborId openapi_types.UUID, 
 			}
 		}
 
+		if params.VersionId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "version_id", *params.VersionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -56234,6 +64623,390 @@ func NewUploadBucketObjectRequestWithBody(server string, harborId openapi_types.
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteBucketObjectVersionRequest generates requests for DeleteBucketObjectVersion
+func NewDeleteBucketObjectVersionRequest(server string, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectVersionParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/objects/versions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "key", params.Key, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "version_id", params.VersionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListBucketObjectVersionsRequest generates requests for ListBucketObjectVersions
+func NewListBucketObjectVersionsRequest(server string, harborId openapi_types.UUID, bucketName string, params *ListBucketObjectVersionsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/objects/versions", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Prefix != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "prefix", *params.Prefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Delimiter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "delimiter", *params.Delimiter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.KeyMarker != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "key_marker", *params.KeyMarker, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.VersionIdMarker != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "version_id_marker", *params.VersionIdMarker, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRestoreBucketObjectVersionRequest generates requests for RestoreBucketObjectVersion
+func NewRestoreBucketObjectVersionRequest(server string, harborId openapi_types.UUID, bucketName string, params *RestoreBucketObjectVersionParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/objects/versions/restore", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "key", params.Key, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "version_id", params.VersionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteBucketTagsRequest generates requests for DeleteBucketTags
+func NewDeleteBucketTagsRequest(server string, harborId openapi_types.UUID, bucketName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/tags", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetBucketVersioningRequest generates requests for GetBucketVersioning
+func NewGetBucketVersioningRequest(server string, harborId openapi_types.UUID, bucketName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/versioning", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetBucketVersioningRequest calls the generic SetBucketVersioning builder with application/json body
+func NewSetBucketVersioningRequest(server string, harborId openapi_types.UUID, bucketName string, body SetBucketVersioningJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetBucketVersioningRequestWithBody(server, harborId, bucketName, "application/json", bodyReader)
+}
+
+// NewSetBucketVersioningRequestWithBody generates requests for SetBucketVersioning with any type of body
+func NewSetBucketVersioningRequestWithBody(server string, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bucket_name", bucketName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/harbors/%s/buckets/%s/versioning", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -61601,6 +70374,264 @@ func NewListAlertEventsRequest(server string, organizationId openapi_types.UUID,
 	return req, nil
 }
 
+// NewListAlertMatrixBotsRequest generates requests for ListAlertMatrixBots
+func NewListAlertMatrixBotsRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAlertMatrixBotRequest calls the generic CreateAlertMatrixBot builder with application/json body
+func NewCreateAlertMatrixBotRequest(server string, organizationId openapi_types.UUID, body CreateAlertMatrixBotJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAlertMatrixBotRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewCreateAlertMatrixBotRequestWithBody generates requests for CreateAlertMatrixBot with any type of body
+func NewCreateAlertMatrixBotRequestWithBody(server string, organizationId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteAlertMatrixBotRequest generates requests for DeleteAlertMatrixBot
+func NewDeleteAlertMatrixBotRequest(server string, organizationId openapi_types.UUID, botId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bot_id", botId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAlertMatrixBotRequest generates requests for GetAlertMatrixBot
+func NewGetAlertMatrixBotRequest(server string, organizationId openapi_types.UUID, botId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bot_id", botId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateAlertMatrixBotRequest calls the generic UpdateAlertMatrixBot builder with application/json body
+func NewUpdateAlertMatrixBotRequest(server string, organizationId openapi_types.UUID, botId openapi_types.UUID, body UpdateAlertMatrixBotJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAlertMatrixBotRequestWithBody(server, organizationId, botId, "application/json", bodyReader)
+}
+
+// NewUpdateAlertMatrixBotRequestWithBody generates requests for UpdateAlertMatrixBot with any type of body
+func NewUpdateAlertMatrixBotRequestWithBody(server string, organizationId openapi_types.UUID, botId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bot_id", botId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewReloginAlertMatrixBotRequest generates requests for ReloginAlertMatrixBot
+func NewReloginAlertMatrixBotRequest(server string, organizationId openapi_types.UUID, botId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "bot_id", botId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/alerting/matrix-bots/%s/relogin", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListAlertRulesRequest generates requests for ListAlertRules
 func NewListAlertRulesRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -62259,6 +71290,47 @@ func NewPatchBackupTargetCrdRequestWithBody(server string, organizationId openap
 	return req, nil
 }
 
+// NewGetBackupTargetVolumePointsRequest generates requests for GetBackupTargetVolumePoints
+func NewGetBackupTargetVolumePointsRequest(server string, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "backup_target_id", backupTargetId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/backup-targets/%s/volume-points", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewSignComputeDockSshKeyRequest calls the generic SignComputeDockSshKey builder with application/json body
 func NewSignComputeDockSshKeyRequest(server string, organizationId openapi_types.UUID, computeDockId openapi_types.UUID, body SignComputeDockSshKeyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -62633,7 +71705,7 @@ func NewPatchContainerAppRequestWithBody(server string, organizationId openapi_t
 }
 
 // NewDeleteContainerAppCrdRequest generates requests for DeleteContainerAppCrd
-func NewDeleteContainerAppCrdRequest(server string, organizationId openapi_types.UUID, appId openapi_types.UUID) (*http.Request, error) {
+func NewDeleteContainerAppCrdRequest(server string, organizationId openapi_types.UUID, appId openapi_types.UUID, params *DeleteContainerAppCrdParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -62663,6 +71735,33 @@ func NewDeleteContainerAppCrdRequest(server string, organizationId openapi_types
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.SkipFinalBackup != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "skip_final_backup", *params.SkipFinalBackup, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
@@ -66937,6 +76036,256 @@ func NewGetHarborNetworkIsolationRequest(server string, organizationId openapi_t
 	return req, nil
 }
 
+// NewGetNetworkMapRequest generates requests for GetNetworkMap
+func NewGetNetworkMapRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetNetworkMapParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/network-map", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.SinceSecs != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "since_secs", *params.SinceSecs, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Direction != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "direction", *params.Direction, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Verdict != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "verdict", *params.Verdict, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ExternalOnly != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "external_only", *params.ExternalOnly, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceKind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_kind", *params.ResourceKind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResourceName != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource_name", *params.ResourceName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCutEdgeRequest calls the generic CutEdge builder with application/json body
+func NewCutEdgeRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body CutEdgeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCutEdgeRequestWithBody(server, organizationId, harborId, edgeId, "application/json", bodyReader)
+}
+
+// NewCutEdgeRequestWithBody generates requests for CutEdge with any type of body
+func NewCutEdgeRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "edge_id", edgeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/network-map/edges/%s/cut", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRestoreEdgeRequest calls the generic RestoreEdge builder with application/json body
+func NewRestoreEdgeRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body RestoreEdgeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRestoreEdgeRequestWithBody(server, organizationId, harborId, edgeId, "application/json", bodyReader)
+}
+
+// NewRestoreEdgeRequestWithBody generates requests for RestoreEdge with any type of body
+func NewRestoreEdgeRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "edge_id", edgeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/network-map/edges/%s/restore", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListNextflowsRequest generates requests for ListNextflows
 func NewListNextflowsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -67069,6 +76418,1585 @@ func NewGetNextflowDefaultsRequest(server string, organizationId openapi_types.U
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewListRedTeamFindingsRequest generates requests for ListRedTeamFindings
+func NewListRedTeamFindingsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamFindingsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.RepositoryId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository_id", *params.RepositoryId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Verdict != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "verdict", *params.Verdict, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.TriageState != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "triage_state", *params.TriageState, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamFindingRequest generates requests for GetRedTeamFinding
+func NewGetRedTeamFindingRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "identity_id", identityId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamFindingEventsRequest generates requests for ListRedTeamFindingEvents
+func NewListRedTeamFindingEventsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "identity_id", identityId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings/%s/events", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetRedTeamFindingOwnerValidationRequest calls the generic SetRedTeamFindingOwnerValidation builder with application/json body
+func NewSetRedTeamFindingOwnerValidationRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingOwnerValidationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetRedTeamFindingOwnerValidationRequestWithBody(server, organizationId, harborId, identityId, "application/json", bodyReader)
+}
+
+// NewSetRedTeamFindingOwnerValidationRequestWithBody generates requests for SetRedTeamFindingOwnerValidation with any type of body
+func NewSetRedTeamFindingOwnerValidationRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "identity_id", identityId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings/%s/owner-validation", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRetestRedTeamFindingRequest generates requests for RetestRedTeamFinding
+func NewRetestRedTeamFindingRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "identity_id", identityId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings/%s/retest", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetRedTeamFindingTriageRequest calls the generic SetRedTeamFindingTriage builder with application/json body
+func NewSetRedTeamFindingTriageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingTriageJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetRedTeamFindingTriageRequestWithBody(server, organizationId, harborId, identityId, "application/json", bodyReader)
+}
+
+// NewSetRedTeamFindingTriageRequestWithBody generates requests for SetRedTeamFindingTriage with any type of body
+func NewSetRedTeamFindingTriageRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "identity_id", identityId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/findings/%s/triage", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetRedTeamEnvironmentOverviewRequest generates requests for GetRedTeamEnvironmentOverview
+func NewGetRedTeamEnvironmentOverviewRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/overview", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamRepositoriesRequest generates requests for ListRedTeamRepositories
+func NewListRedTeamRepositoriesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/repositories", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRegisterRedTeamRepositoryRequest calls the generic RegisterRedTeamRepository builder with application/json body
+func NewRegisterRedTeamRepositoryRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body RegisterRedTeamRepositoryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRegisterRedTeamRepositoryRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewRegisterRedTeamRepositoryRequestWithBody generates requests for RegisterRedTeamRepository with any type of body
+func NewRegisterRedTeamRepositoryRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/repositories", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteRedTeamRepositoryRequest generates requests for DeleteRedTeamRepository
+func NewDeleteRedTeamRepositoryRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "repository_id", repositoryId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/repositories/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamRepositoryTrendRequest generates requests for GetRedTeamRepositoryTrend
+func NewGetRedTeamRepositoryTrendRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, params *GetRedTeamRepositoryTrendParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "repository_id", repositoryId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/repositories/%s/trend", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamRunsRequest generates requests for ListRedTeamRuns
+func NewListRedTeamRunsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamRunsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.RepositoryId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository_id", *params.RepositoryId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Status != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewStartRedTeamRunRequest calls the generic StartRedTeamRun builder with application/json body
+func NewStartRedTeamRunRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body StartRedTeamRunJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewStartRedTeamRunRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewStartRedTeamRunRequestWithBody generates requests for StartRedTeamRun with any type of body
+func NewStartRedTeamRunRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetRedTeamRunRequest generates requests for GetRedTeamRun
+func NewGetRedTeamRunRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCancelRedTeamRunRequest generates requests for CancelRedTeamRun
+func NewCancelRedTeamRunRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/cancel", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamRunCoverageRequest generates requests for ListRedTeamRunCoverage
+func NewListRedTeamRunCoverageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/coverage", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamRunCoverageSummaryRequest generates requests for GetRedTeamRunCoverageSummary
+func NewGetRedTeamRunCoverageSummaryRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/coverage/summary", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamRunDocumentRequest generates requests for GetRedTeamRunDocument
+func NewGetRedTeamRunDocumentRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, kind string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "kind", kind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/documents/%s", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewExportRedTeamRunFindingsRequest generates requests for ExportRedTeamRunFindings
+func NewExportRedTeamRunFindingsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/export/findings", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewExportRedTeamRunSarifRequest generates requests for ExportRedTeamRunSarif
+func NewExportRedTeamRunSarifRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/export/sarif", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamRunFindingsRequest generates requests for ListRedTeamRunFindings
+func NewListRedTeamRunFindingsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/findings", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamFindingHandoffPromptRequest generates requests for GetRedTeamFindingHandoffPrompt
+func NewGetRedTeamFindingHandoffPromptRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, findingId openapi_types.UUID, params *GetRedTeamFindingHandoffPromptParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithOptions("simple", false, "finding_id", findingId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/findings/%s/handoff-prompt", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "workstation_id", params.WorkstationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamRunValidationErrorsRequest generates requests for GetRedTeamRunValidationErrors
+func NewGetRedTeamRunValidationErrorsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "run_id", runId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/runs/%s/validation-errors", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRedTeamSchedulesRequest generates requests for ListRedTeamSchedules
+func NewListRedTeamSchedulesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/schedules", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateRedTeamScheduleRequest calls the generic CreateRedTeamSchedule builder with application/json body
+func NewCreateRedTeamScheduleRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRedTeamScheduleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateRedTeamScheduleRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateRedTeamScheduleRequestWithBody generates requests for CreateRedTeamSchedule with any type of body
+func NewCreateRedTeamScheduleRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/schedules", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteRedTeamScheduleRequest generates requests for DeleteRedTeamSchedule
+func NewDeleteRedTeamScheduleRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "schedule_id", scheduleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/schedules/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateRedTeamScheduleRequest calls the generic UpdateRedTeamSchedule builder with application/json body
+func NewUpdateRedTeamScheduleRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, body UpdateRedTeamScheduleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateRedTeamScheduleRequestWithBody(server, organizationId, harborId, scheduleId, "application/json", bodyReader)
+}
+
+// NewUpdateRedTeamScheduleRequestWithBody generates requests for UpdateRedTeamSchedule with any type of body
+func NewUpdateRedTeamScheduleRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "schedule_id", scheduleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/schedules/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetRedTeamSettingsRequest generates requests for GetRedTeamSettings
+func NewGetRedTeamSettingsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/settings", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateRedTeamSettingsRequest calls the generic UpdateRedTeamSettings builder with application/json body
+func NewUpdateRedTeamSettingsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body UpdateRedTeamSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateRedTeamSettingsRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewUpdateRedTeamSettingsRequestWithBody generates requests for UpdateRedTeamSettings with any type of body
+func NewUpdateRedTeamSettingsRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/red-team/settings", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -67887,6 +78815,197 @@ func NewGetRegistryImageTagsRequest(server string, organizationId openapi_types.
 	return req, nil
 }
 
+// NewListRegistryProxiesRequest generates requests for ListRegistryProxies
+func NewListRegistryProxiesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/proxies", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateRegistryProxyRequest calls the generic CreateRegistryProxy builder with application/json body
+func NewCreateRegistryProxyRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryProxyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateRegistryProxyRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateRegistryProxyRequestWithBody generates requests for CreateRegistryProxy with any type of body
+func NewCreateRegistryProxyRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/proxies", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteRegistryProxyRequest generates requests for DeleteRegistryProxy
+func NewDeleteRegistryProxyRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "upstream", upstream, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/proxies/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRegistryProxyImagesRequest generates requests for ListRegistryProxyImages
+func NewListRegistryProxyImagesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "upstream", upstream, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/registry/proxies/%s/images", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetRegistryUsageRequest generates requests for GetRegistryUsage
 func NewGetRegistryUsageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -68390,6 +79509,720 @@ func NewGetVirtualMachineImageCatalogRequest(server string, organizationId opena
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetVolumeBackupAlignmentRequest generates requests for GetVolumeBackupAlignment
+func NewGetVolumeBackupAlignmentRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVolumeBackupAlignmentParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-backup-alignment", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "consumer_name", params.ConsumerName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListVolumeBackupCoverageRequest generates requests for ListVolumeBackupCoverage
+func NewListVolumeBackupCoverageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupCoverageParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-backup-coverage", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.SourceKind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source_kind", *params.SourceKind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceName != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source_name", *params.SourceName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListVolumeBackupsRequest generates requests for ListVolumeBackups
+func NewListVolumeBackupsRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.SourceKind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source_kind", *params.SourceKind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceName != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "source_name", *params.SourceName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ClaimName != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "claim_name", *params.ClaimName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateVolumeBackupRequest calls the generic CreateVolumeBackup builder with application/json body
+func NewCreateVolumeBackupRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeBackupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateVolumeBackupRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateVolumeBackupRequestWithBody generates requests for CreateVolumeBackup with any type of body
+func NewCreateVolumeBackupRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetVolumeBackupRequest generates requests for GetVolumeBackup
+func NewGetVolumeBackupRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-backups/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListVolumeRestoresRequest generates requests for ListVolumeRestores
+func NewListVolumeRestoresRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeRestoresParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-restores", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ConsumerKind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "consumer_kind", *params.ConsumerKind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ConsumerName != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "consumer_name", *params.ConsumerName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateVolumeRestoreRequest calls the generic CreateVolumeRestore builder with application/json body
+func NewCreateVolumeRestoreRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeRestoreJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateVolumeRestoreRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateVolumeRestoreRequestWithBody generates requests for CreateVolumeRestore with any type of body
+func NewCreateVolumeRestoreRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-restores", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteVolumeRestoreRequest generates requests for DeleteVolumeRestore
+func NewDeleteVolumeRestoreRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-restores/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVolumeRestoreRequest generates requests for GetVolumeRestore
+func NewGetVolumeRestoreRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volume-restores/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListVolumesRequest generates requests for ListVolumes
+func NewListVolumesRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volumes", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "page", *params.Page, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateVolumeCrdRequest calls the generic CreateVolumeCrd builder with application/json body
+func NewCreateVolumeCrdRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateVolumeCrdRequestWithBody(server, organizationId, harborId, "application/json", bodyReader)
+}
+
+// NewCreateVolumeCrdRequestWithBody generates requests for CreateVolumeCrd with any type of body
+func NewCreateVolumeCrdRequestWithBody(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/harbors/%s/volumes/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -71543,6 +83376,18 @@ func NewGetAirflowLogsRequest(server string, organizationId openapi_types.UUID, 
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -72039,6 +83884,18 @@ func NewGetComputeDockLogsRequest(server string, organizationId openapi_types.UU
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -72405,6 +84262,18 @@ func NewGetContainerAppLogsRequest(server string, organizationId openapi_types.U
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -72690,6 +84559,18 @@ func NewGetDataDockLogsRequest(server string, organizationId openapi_types.UUID,
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -72925,6 +84806,18 @@ func NewGetDevWorkstationLogsRequest(server string, organizationId openapi_types
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -73381,6 +85274,18 @@ func NewGetGithubRunnerPoolLogsRequest(server string, organizationId openapi_typ
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -73460,6 +85365,115 @@ func NewGetGithubRunnerPoolMetricsRequest(server string, organizationId openapi_
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
 		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVirtualMachinesUsageRequest generates requests for GetVirtualMachinesUsage
+func NewGetVirtualMachinesUsageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVirtualMachinesUsageParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/harbors/%s/virtual-machines/usage", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Range != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "range", *params.Range, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVolumesUsageRequest generates requests for GetVolumesUsage
+func NewGetVolumesUsageRequest(server string, organizationId openapi_types.UUID, harborId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "harbor_id", harborId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/monitoring/harbors/%s/volumes/usage", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -73623,6 +85637,18 @@ func NewGetHfKeyValueCacheLogsRequest(server string, organizationId openapi_type
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -73876,6 +85902,18 @@ func NewGetHfRabbitmqLogsRequest(server string, organizationId openapi_types.UUI
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -74111,6 +86149,18 @@ func NewGetKafkaLogsRequest(server string, organizationId openapi_types.UUID, ka
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -74357,6 +86407,18 @@ func NewGetMonitoringLogsRequest(server string, organizationId openapi_types.UUI
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -74524,6 +86586,18 @@ func NewGetPostgresLogsRequest(server string, organizationId openapi_types.UUID,
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -74777,6 +86851,18 @@ func NewGetModelLogsRequest(server string, organizationId openapi_types.UUID, na
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -75019,6 +87105,18 @@ func NewGetNextflowRunLogsRequest(server string, organizationId openapi_types.UU
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int32"}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -76823,6 +88921,18 @@ func NewListPipelineLogsRequest(server string, organizationId openapi_types.UUID
 
 		}
 
+		if params.Include != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "include", *params.Include, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -77039,6 +89149,40 @@ func NewListPrincipalResolvedAccessRequest(server string, organizationId openapi
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/organizations/%s/principals/%s/%s/resolved-access", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetRedTeamOrganizationOverviewRequest generates requests for GetRedTeamOrganizationOverview
+func NewGetRedTeamOrganizationOverviewRequest(server string, organizationId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/red-team/overview", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -80747,6 +92891,108 @@ func NewPatchVirtualMachineCrdRequestWithBody(server string, organizationId open
 	return req, nil
 }
 
+// NewAttachVirtualMachineDiskRequest calls the generic AttachVirtualMachineDisk builder with application/json body
+func NewAttachVirtualMachineDiskRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body AttachVirtualMachineDiskJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAttachVirtualMachineDiskRequestWithBody(server, organizationId, instanceId, "application/json", bodyReader)
+}
+
+// NewAttachVirtualMachineDiskRequestWithBody generates requests for AttachVirtualMachineDisk with any type of body
+func NewAttachVirtualMachineDiskRequestWithBody(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/virtual-machines/%s/disks", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDetachVirtualMachineDiskRequest generates requests for DetachVirtualMachineDisk
+func NewDetachVirtualMachineDiskRequest(server string, organizationId openapi_types.UUID, instanceId openapi_types.UUID, volumeName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "instance_id", instanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "volume_name", volumeName, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/virtual-machines/%s/disks/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListVirtualMachineUsersRequest generates requests for ListVirtualMachineUsers
 func NewListVirtualMachineUsersRequest(server string, organizationId openapi_types.UUID, vmId openapi_types.UUID, params *ListVirtualMachineUsersParams) (*http.Request, error) {
 	var err error
@@ -81058,6 +93304,142 @@ func NewListVolumeBackendsRequest(server string, organizationId openapi_types.UU
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetVolumeRequest generates requests for GetVolume
+func NewGetVolumeRequest(server string, organizationId openapi_types.UUID, volumeId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "volume_id", volumeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/volumes/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteVolumeCrdRequest generates requests for DeleteVolumeCrd
+func NewDeleteVolumeCrdRequest(server string, organizationId openapi_types.UUID, volumeId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "volume_id", volumeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/volumes/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchVolumeCrdRequest calls the generic PatchVolumeCrd builder with application/json body
+func NewPatchVolumeCrdRequest(server string, organizationId openapi_types.UUID, volumeId openapi_types.UUID, body PatchVolumeCrdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchVolumeCrdRequestWithBody(server, organizationId, volumeId, "application/json", bodyReader)
+}
+
+// NewPatchVolumeCrdRequestWithBody generates requests for PatchVolumeCrd with any type of body
+func NewPatchVolumeCrdRequestWithBody(server string, organizationId openapi_types.UUID, volumeId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "volume_id", volumeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/organizations/%s/volumes/%s/crd", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -86557,7 +98939,7 @@ type ClientWithResponsesInterface interface {
 	CreateDevWorkstationWithResponse(ctx context.Context, body CreateDevWorkstationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDevWorkstationHTTPResp, error)
 
 	// DeleteDevWorkstationWithResponse request
-	DeleteDevWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteDevWorkstationHTTPResp, error)
+	DeleteDevWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, params *DeleteDevWorkstationParams, reqEditors ...RequestEditorFn) (*DeleteDevWorkstationHTTPResp, error)
 
 	// GetDevWorkstationWithResponse request
 	GetDevWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetDevWorkstationHTTPResp, error)
@@ -87127,6 +99509,25 @@ type ClientWithResponsesInterface interface {
 	// GetBucketCredentialsWithResponse request
 	GetBucketCredentialsWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketCredentialsHTTPResp, error)
 
+	// DeleteBucketLifecycleWithResponse request
+	DeleteBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*DeleteBucketLifecycleHTTPResp, error)
+
+	// GetBucketLifecycleWithResponse request
+	GetBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketLifecycleHTTPResp, error)
+
+	// SetBucketLifecycleWithBodyWithResponse request with any body
+	SetBucketLifecycleWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketLifecycleHTTPResp, error)
+
+	SetBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketLifecycleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketLifecycleHTTPResp, error)
+
+	// GetBucketObjectLockWithResponse request
+	GetBucketObjectLockWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketObjectLockHTTPResp, error)
+
+	// SetBucketObjectLockWithBodyWithResponse request with any body
+	SetBucketObjectLockWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketObjectLockHTTPResp, error)
+
+	SetBucketObjectLockWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketObjectLockJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketObjectLockHTTPResp, error)
+
 	// DeleteBucketObjectWithResponse request
 	DeleteBucketObjectWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectParams, reqEditors ...RequestEditorFn) (*DeleteBucketObjectHTTPResp, error)
 
@@ -87141,6 +99542,26 @@ type ClientWithResponsesInterface interface {
 
 	// UploadBucketObjectWithBodyWithResponse request with any body
 	UploadBucketObjectWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *UploadBucketObjectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadBucketObjectHTTPResp, error)
+
+	// DeleteBucketObjectVersionWithResponse request
+	DeleteBucketObjectVersionWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*DeleteBucketObjectVersionHTTPResp, error)
+
+	// ListBucketObjectVersionsWithResponse request
+	ListBucketObjectVersionsWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *ListBucketObjectVersionsParams, reqEditors ...RequestEditorFn) (*ListBucketObjectVersionsHTTPResp, error)
+
+	// RestoreBucketObjectVersionWithResponse request
+	RestoreBucketObjectVersionWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *RestoreBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*RestoreBucketObjectVersionHTTPResp, error)
+
+	// DeleteBucketTagsWithResponse request
+	DeleteBucketTagsWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*DeleteBucketTagsHTTPResp, error)
+
+	// GetBucketVersioningWithResponse request
+	GetBucketVersioningWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketVersioningHTTPResp, error)
+
+	// SetBucketVersioningWithBodyWithResponse request with any body
+	SetBucketVersioningWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketVersioningHTTPResp, error)
+
+	SetBucketVersioningWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketVersioningJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketVersioningHTTPResp, error)
 
 	// ListDashboardsWithResponse request
 	ListDashboardsWithResponse(ctx context.Context, harborId openapi_types.UUID, params *ListDashboardsParams, reqEditors ...RequestEditorFn) (*ListDashboardsHTTPResp, error)
@@ -87529,6 +99950,28 @@ type ClientWithResponsesInterface interface {
 	// ListAlertEventsWithResponse request
 	ListAlertEventsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListAlertEventsParams, reqEditors ...RequestEditorFn) (*ListAlertEventsHTTPResp, error)
 
+	// ListAlertMatrixBotsWithResponse request
+	ListAlertMatrixBotsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAlertMatrixBotsHTTPResp, error)
+
+	// CreateAlertMatrixBotWithBodyWithResponse request with any body
+	CreateAlertMatrixBotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAlertMatrixBotHTTPResp, error)
+
+	CreateAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAlertMatrixBotHTTPResp, error)
+
+	// DeleteAlertMatrixBotWithResponse request
+	DeleteAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAlertMatrixBotHTTPResp, error)
+
+	// GetAlertMatrixBotWithResponse request
+	GetAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAlertMatrixBotHTTPResp, error)
+
+	// UpdateAlertMatrixBotWithBodyWithResponse request with any body
+	UpdateAlertMatrixBotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAlertMatrixBotHTTPResp, error)
+
+	UpdateAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, body UpdateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAlertMatrixBotHTTPResp, error)
+
+	// ReloginAlertMatrixBotWithResponse request
+	ReloginAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ReloginAlertMatrixBotHTTPResp, error)
+
 	// ListAlertRulesWithResponse request
 	ListAlertRulesWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAlertRulesHTTPResp, error)
 
@@ -87586,6 +100029,9 @@ type ClientWithResponsesInterface interface {
 
 	PatchBackupTargetCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, body PatchBackupTargetCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchBackupTargetCrdHTTPResp, error)
 
+	// GetBackupTargetVolumePointsWithResponse request
+	GetBackupTargetVolumePointsWithResponse(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetBackupTargetVolumePointsHTTPResp, error)
+
 	// SignComputeDockSshKeyWithBodyWithResponse request with any body
 	SignComputeDockSshKeyWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, computeDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignComputeDockSshKeyHTTPResp, error)
 
@@ -87619,7 +100065,7 @@ type ClientWithResponsesInterface interface {
 	PatchContainerAppWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, body PatchContainerAppJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchContainerAppHTTPResp, error)
 
 	// DeleteContainerAppCrdWithResponse request
-	DeleteContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteContainerAppCrdHTTPResp, error)
+	DeleteContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *DeleteContainerAppCrdParams, reqEditors ...RequestEditorFn) (*DeleteContainerAppCrdHTTPResp, error)
 
 	// GetContainerAppCrdWithResponse request
 	GetContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetContainerAppCrdHTTPResp, error)
@@ -87935,6 +100381,19 @@ type ClientWithResponsesInterface interface {
 	// GetHarborNetworkIsolationWithResponse request
 	GetHarborNetworkIsolationWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHarborNetworkIsolationHTTPResp, error)
 
+	// GetNetworkMapWithResponse request
+	GetNetworkMapWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetNetworkMapParams, reqEditors ...RequestEditorFn) (*GetNetworkMapHTTPResp, error)
+
+	// CutEdgeWithBodyWithResponse request with any body
+	CutEdgeWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CutEdgeHTTPResp, error)
+
+	CutEdgeWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body CutEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*CutEdgeHTTPResp, error)
+
+	// RestoreEdgeWithBodyWithResponse request with any body
+	RestoreEdgeWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreEdgeHTTPResp, error)
+
+	RestoreEdgeWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body RestoreEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreEdgeHTTPResp, error)
+
 	// ListNextflowsWithResponse request
 	ListNextflowsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListNextflowsHTTPResp, error)
 
@@ -87945,6 +100404,107 @@ type ClientWithResponsesInterface interface {
 
 	// GetNextflowDefaultsWithResponse request
 	GetNextflowDefaultsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetNextflowDefaultsHTTPResp, error)
+
+	// ListRedTeamFindingsWithResponse request
+	ListRedTeamFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamFindingsParams, reqEditors ...RequestEditorFn) (*ListRedTeamFindingsHTTPResp, error)
+
+	// GetRedTeamFindingWithResponse request
+	GetRedTeamFindingWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamFindingHTTPResp, error)
+
+	// ListRedTeamFindingEventsWithResponse request
+	ListRedTeamFindingEventsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamFindingEventsHTTPResp, error)
+
+	// SetRedTeamFindingOwnerValidationWithBodyWithResponse request with any body
+	SetRedTeamFindingOwnerValidationWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRedTeamFindingOwnerValidationHTTPResp, error)
+
+	SetRedTeamFindingOwnerValidationWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingOwnerValidationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRedTeamFindingOwnerValidationHTTPResp, error)
+
+	// RetestRedTeamFindingWithResponse request
+	RetestRedTeamFindingWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RetestRedTeamFindingHTTPResp, error)
+
+	// SetRedTeamFindingTriageWithBodyWithResponse request with any body
+	SetRedTeamFindingTriageWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRedTeamFindingTriageHTTPResp, error)
+
+	SetRedTeamFindingTriageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingTriageJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRedTeamFindingTriageHTTPResp, error)
+
+	// GetRedTeamEnvironmentOverviewWithResponse request
+	GetRedTeamEnvironmentOverviewWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamEnvironmentOverviewHTTPResp, error)
+
+	// ListRedTeamRepositoriesWithResponse request
+	ListRedTeamRepositoriesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRepositoriesHTTPResp, error)
+
+	// RegisterRedTeamRepositoryWithBodyWithResponse request with any body
+	RegisterRedTeamRepositoryWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterRedTeamRepositoryHTTPResp, error)
+
+	RegisterRedTeamRepositoryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body RegisterRedTeamRepositoryJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterRedTeamRepositoryHTTPResp, error)
+
+	// DeleteRedTeamRepositoryWithResponse request
+	DeleteRedTeamRepositoryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRedTeamRepositoryHTTPResp, error)
+
+	// GetRedTeamRepositoryTrendWithResponse request
+	GetRedTeamRepositoryTrendWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, params *GetRedTeamRepositoryTrendParams, reqEditors ...RequestEditorFn) (*GetRedTeamRepositoryTrendHTTPResp, error)
+
+	// ListRedTeamRunsWithResponse request
+	ListRedTeamRunsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamRunsParams, reqEditors ...RequestEditorFn) (*ListRedTeamRunsHTTPResp, error)
+
+	// StartRedTeamRunWithBodyWithResponse request with any body
+	StartRedTeamRunWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartRedTeamRunHTTPResp, error)
+
+	StartRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body StartRedTeamRunJSONRequestBody, reqEditors ...RequestEditorFn) (*StartRedTeamRunHTTPResp, error)
+
+	// GetRedTeamRunWithResponse request
+	GetRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunHTTPResp, error)
+
+	// CancelRedTeamRunWithResponse request
+	CancelRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*CancelRedTeamRunHTTPResp, error)
+
+	// ListRedTeamRunCoverageWithResponse request
+	ListRedTeamRunCoverageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRunCoverageHTTPResp, error)
+
+	// GetRedTeamRunCoverageSummaryWithResponse request
+	GetRedTeamRunCoverageSummaryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunCoverageSummaryHTTPResp, error)
+
+	// GetRedTeamRunDocumentWithResponse request
+	GetRedTeamRunDocumentWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, kind string, reqEditors ...RequestEditorFn) (*GetRedTeamRunDocumentHTTPResp, error)
+
+	// ExportRedTeamRunFindingsWithResponse request
+	ExportRedTeamRunFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ExportRedTeamRunFindingsHTTPResp, error)
+
+	// ExportRedTeamRunSarifWithResponse request
+	ExportRedTeamRunSarifWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ExportRedTeamRunSarifHTTPResp, error)
+
+	// ListRedTeamRunFindingsWithResponse request
+	ListRedTeamRunFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRunFindingsHTTPResp, error)
+
+	// GetRedTeamFindingHandoffPromptWithResponse request
+	GetRedTeamFindingHandoffPromptWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, findingId openapi_types.UUID, params *GetRedTeamFindingHandoffPromptParams, reqEditors ...RequestEditorFn) (*GetRedTeamFindingHandoffPromptHTTPResp, error)
+
+	// GetRedTeamRunValidationErrorsWithResponse request
+	GetRedTeamRunValidationErrorsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunValidationErrorsHTTPResp, error)
+
+	// ListRedTeamSchedulesWithResponse request
+	ListRedTeamSchedulesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamSchedulesHTTPResp, error)
+
+	// CreateRedTeamScheduleWithBodyWithResponse request with any body
+	CreateRedTeamScheduleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRedTeamScheduleHTTPResp, error)
+
+	CreateRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRedTeamScheduleHTTPResp, error)
+
+	// DeleteRedTeamScheduleWithResponse request
+	DeleteRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRedTeamScheduleHTTPResp, error)
+
+	// UpdateRedTeamScheduleWithBodyWithResponse request with any body
+	UpdateRedTeamScheduleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRedTeamScheduleHTTPResp, error)
+
+	UpdateRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, body UpdateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRedTeamScheduleHTTPResp, error)
+
+	// GetRedTeamSettingsWithResponse request
+	GetRedTeamSettingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamSettingsHTTPResp, error)
+
+	// UpdateRedTeamSettingsWithBodyWithResponse request with any body
+	UpdateRedTeamSettingsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRedTeamSettingsHTTPResp, error)
+
+	UpdateRedTeamSettingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body UpdateRedTeamSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRedTeamSettingsHTTPResp, error)
 
 	// ListRegistriesWithResponse request
 	ListRegistriesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistriesHTTPResp, error)
@@ -87996,6 +100556,20 @@ type ClientWithResponsesInterface interface {
 	// GetRegistryImageTagsWithResponse request
 	GetRegistryImageTagsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, projectId openapi_types.UUID, image string, reqEditors ...RequestEditorFn) (*GetRegistryImageTagsHTTPResp, error)
 
+	// ListRegistryProxiesWithResponse request
+	ListRegistryProxiesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryProxiesHTTPResp, error)
+
+	// CreateRegistryProxyWithBodyWithResponse request with any body
+	CreateRegistryProxyWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRegistryProxyHTTPResp, error)
+
+	CreateRegistryProxyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryProxyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRegistryProxyHTTPResp, error)
+
+	// DeleteRegistryProxyWithResponse request
+	DeleteRegistryProxyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*DeleteRegistryProxyHTTPResp, error)
+
+	// ListRegistryProxyImagesWithResponse request
+	ListRegistryProxyImagesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*ListRegistryProxyImagesHTTPResp, error)
+
 	// GetRegistryUsageWithResponse request
 	GetRegistryUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRegistryUsageHTTPResp, error)
 
@@ -88031,6 +100605,45 @@ type ClientWithResponsesInterface interface {
 
 	// GetVirtualMachineImageCatalogWithResponse request
 	GetVirtualMachineImageCatalogWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVirtualMachineImageCatalogHTTPResp, error)
+
+	// GetVolumeBackupAlignmentWithResponse request
+	GetVolumeBackupAlignmentWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVolumeBackupAlignmentParams, reqEditors ...RequestEditorFn) (*GetVolumeBackupAlignmentHTTPResp, error)
+
+	// ListVolumeBackupCoverageWithResponse request
+	ListVolumeBackupCoverageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupCoverageParams, reqEditors ...RequestEditorFn) (*ListVolumeBackupCoverageHTTPResp, error)
+
+	// ListVolumeBackupsWithResponse request
+	ListVolumeBackupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupsParams, reqEditors ...RequestEditorFn) (*ListVolumeBackupsHTTPResp, error)
+
+	// CreateVolumeBackupWithBodyWithResponse request with any body
+	CreateVolumeBackupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeBackupHTTPResp, error)
+
+	CreateVolumeBackupWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeBackupHTTPResp, error)
+
+	// GetVolumeBackupWithResponse request
+	GetVolumeBackupWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetVolumeBackupHTTPResp, error)
+
+	// ListVolumeRestoresWithResponse request
+	ListVolumeRestoresWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeRestoresParams, reqEditors ...RequestEditorFn) (*ListVolumeRestoresHTTPResp, error)
+
+	// CreateVolumeRestoreWithBodyWithResponse request with any body
+	CreateVolumeRestoreWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeRestoreHTTPResp, error)
+
+	CreateVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeRestoreHTTPResp, error)
+
+	// DeleteVolumeRestoreWithResponse request
+	DeleteVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*DeleteVolumeRestoreHTTPResp, error)
+
+	// GetVolumeRestoreWithResponse request
+	GetVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetVolumeRestoreHTTPResp, error)
+
+	// ListVolumesWithResponse request
+	ListVolumesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumesParams, reqEditors ...RequestEditorFn) (*ListVolumesHTTPResp, error)
+
+	// CreateVolumeCrdWithBodyWithResponse request with any body
+	CreateVolumeCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeCrdHTTPResp, error)
+
+	CreateVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeCrdHTTPResp, error)
 
 	// GetHarborFlowsWithResponse request
 	GetHarborFlowsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetHarborFlowsHTTPResp, error)
@@ -88321,6 +100934,12 @@ type ClientWithResponsesInterface interface {
 	// GetGithubRunnerPoolMetricsWithResponse request
 	GetGithubRunnerPoolMetricsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, params *GetGithubRunnerPoolMetricsParams, reqEditors ...RequestEditorFn) (*GetGithubRunnerPoolMetricsHTTPResp, error)
 
+	// GetVirtualMachinesUsageWithResponse request
+	GetVirtualMachinesUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVirtualMachinesUsageParams, reqEditors ...RequestEditorFn) (*GetVirtualMachinesUsageHTTPResp, error)
+
+	// GetVolumesUsageWithResponse request
+	GetVolumesUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVolumesUsageHTTPResp, error)
+
 	// GetHfKeyValueCacheLogsWithResponse request
 	GetHfKeyValueCacheLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheLogsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheLogsHTTPResp, error)
 
@@ -88476,6 +101095,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListPrincipalResolvedAccessWithResponse request
 	ListPrincipalResolvedAccessWithResponse(ctx context.Context, organizationId openapi_types.UUID, principalType string, principalId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListPrincipalResolvedAccessHTTPResp, error)
+
+	// GetRedTeamOrganizationOverviewWithResponse request
+	GetRedTeamOrganizationOverviewWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamOrganizationOverviewHTTPResp, error)
 
 	// GetCreditBalanceWithResponse request
 	GetCreditBalanceWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetCreditBalanceHTTPResp, error)
@@ -88725,6 +101347,14 @@ type ClientWithResponsesInterface interface {
 
 	PatchVirtualMachineCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body PatchVirtualMachineCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchVirtualMachineCrdHTTPResp, error)
 
+	// AttachVirtualMachineDiskWithBodyWithResponse request with any body
+	AttachVirtualMachineDiskWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AttachVirtualMachineDiskHTTPResp, error)
+
+	AttachVirtualMachineDiskWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body AttachVirtualMachineDiskJSONRequestBody, reqEditors ...RequestEditorFn) (*AttachVirtualMachineDiskHTTPResp, error)
+
+	// DetachVirtualMachineDiskWithResponse request
+	DetachVirtualMachineDiskWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, volumeName string, reqEditors ...RequestEditorFn) (*DetachVirtualMachineDiskHTTPResp, error)
+
 	// ListVirtualMachineUsersWithResponse request
 	ListVirtualMachineUsersWithResponse(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, params *ListVirtualMachineUsersParams, reqEditors ...RequestEditorFn) (*ListVirtualMachineUsersHTTPResp, error)
 
@@ -88741,6 +101371,17 @@ type ClientWithResponsesInterface interface {
 
 	// ListVolumeBackendsWithResponse request
 	ListVolumeBackendsWithResponse(ctx context.Context, organizationId openapi_types.UUID, params *ListVolumeBackendsParams, reqEditors ...RequestEditorFn) (*ListVolumeBackendsHTTPResp, error)
+
+	// GetVolumeWithResponse request
+	GetVolumeWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVolumeHTTPResp, error)
+
+	// DeleteVolumeCrdWithResponse request
+	DeleteVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteVolumeCrdHTTPResp, error)
+
+	// PatchVolumeCrdWithBodyWithResponse request with any body
+	PatchVolumeCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchVolumeCrdHTTPResp, error)
+
+	PatchVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, body PatchVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchVolumeCrdHTTPResp, error)
 
 	// GetOrgCvePoliciesWithResponse request
 	GetOrgCvePoliciesWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetOrgCvePoliciesHTTPResp, error)
@@ -89801,6 +102442,9 @@ type CreateDevWorkstationHTTPResp struct {
 	JSON201      *DevWorkstationResponse
 	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON429      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -89833,6 +102477,8 @@ type DeleteDevWorkstationHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -93746,6 +106392,8 @@ type GetOptimizeRunLogsHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -94555,6 +107203,9 @@ type DeleteHarborBucketHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -94617,6 +107268,7 @@ type PatchHarborBucketHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *HFBucketView
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 }
@@ -94936,6 +107588,174 @@ func (r GetBucketCredentialsHTTPResp) ContentType() string {
 	return ""
 }
 
+type DeleteBucketLifecycleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketLifecycleResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteBucketLifecycleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteBucketLifecycleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteBucketLifecycleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetBucketLifecycleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketLifecycleResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetBucketLifecycleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetBucketLifecycleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetBucketLifecycleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetBucketLifecycleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketLifecycleResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetBucketLifecycleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetBucketLifecycleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetBucketLifecycleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetBucketObjectLockHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketObjectLockResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetBucketObjectLockHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetBucketObjectLockHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetBucketObjectLockHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetBucketObjectLockHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketObjectLockResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetBucketObjectLockHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetBucketObjectLockHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetBucketObjectLockHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteBucketObjectHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -95089,6 +107909,200 @@ func (r UploadBucketObjectHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r UploadBucketObjectHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteBucketObjectVersionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteBucketObjectVersionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteBucketObjectVersionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteBucketObjectVersionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListBucketObjectVersionsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketObjectVersionListing
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListBucketObjectVersionsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListBucketObjectVersionsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListBucketObjectVersionsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RestoreBucketObjectVersionHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RestoreBucketObjectVersionHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestoreBucketObjectVersionHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RestoreBucketObjectVersionHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteBucketTagsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteBucketTagsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteBucketTagsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteBucketTagsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetBucketVersioningHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketVersioningResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetBucketVersioningHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetBucketVersioningHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetBucketVersioningHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetBucketVersioningHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BucketVersioningResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetBucketVersioningHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetBucketVersioningHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetBucketVersioningHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -98409,7 +111423,9 @@ type CreateNotificationChannelHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *NotificationChannelDto
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 }
 
@@ -98557,6 +111573,201 @@ func (r ListAlertEventsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListAlertEventsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListAlertMatrixBotsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]MatrixBotDto
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAlertMatrixBotsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAlertMatrixBotsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAlertMatrixBotsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAlertMatrixBotHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *MatrixBotDto
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAlertMatrixBotHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAlertMatrixBotHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAlertMatrixBotHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteAlertMatrixBotHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAlertMatrixBotHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAlertMatrixBotHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteAlertMatrixBotHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAlertMatrixBotHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *MatrixBotDto
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAlertMatrixBotHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAlertMatrixBotHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAlertMatrixBotHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateAlertMatrixBotHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *MatrixBotDto
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAlertMatrixBotHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAlertMatrixBotHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateAlertMatrixBotHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ReloginAlertMatrixBotHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *MatrixBotDto
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ReloginAlertMatrixBotHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ReloginAlertMatrixBotHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ReloginAlertMatrixBotHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -99041,6 +112252,39 @@ func (r PatchBackupTargetCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchBackupTargetCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetBackupTargetVolumePointsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BackupTargetVolumePointsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetBackupTargetVolumePointsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetBackupTargetVolumePointsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetBackupTargetVolumePointsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -99683,6 +112927,7 @@ type DeleteOrganizationCrdHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -100878,6 +114123,7 @@ type DeleteHarborCrdHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -100945,6 +114191,7 @@ type CreateAirflowCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -101012,6 +114259,7 @@ type CreateAppInstanceCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -101313,6 +114561,7 @@ type CreateContainerAppCrdHTTPResp struct {
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
 	JSON422      *ApiErrorBody
+	JSON429      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -102111,6 +115360,109 @@ func (r GetHarborNetworkIsolationHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetNetworkMapHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *NetworkMapResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNetworkMapHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNetworkMapHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetNetworkMapHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CutEdgeHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EdgeActionResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CutEdgeHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CutEdgeHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CutEdgeHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RestoreEdgeHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EdgeActionResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON503      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RestoreEdgeHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestoreEdgeHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RestoreEdgeHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListNextflowsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -102205,6 +115557,944 @@ func (r GetNextflowDefaultsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetNextflowDefaultsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamFindingsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamIdentityResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamFindingsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamFindingsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamFindingsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamFindingHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamIdentityDetailResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamFindingHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamFindingHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamFindingHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamFindingEventsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamTriageEventResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamFindingEventsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamFindingEventsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamFindingEventsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetRedTeamFindingOwnerValidationHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamIdentityResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetRedTeamFindingOwnerValidationHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetRedTeamFindingOwnerValidationHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetRedTeamFindingOwnerValidationHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RetestRedTeamFindingHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *RedTeamRunResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RetestRedTeamFindingHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RetestRedTeamFindingHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RetestRedTeamFindingHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetRedTeamFindingTriageHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamIdentityResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r SetRedTeamFindingTriageHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetRedTeamFindingTriageHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetRedTeamFindingTriageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamEnvironmentOverviewHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamEnvironmentOverview
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamEnvironmentOverviewHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamEnvironmentOverviewHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamEnvironmentOverviewHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamRepositoriesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamRepositoryResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamRepositoriesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamRepositoriesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamRepositoriesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RegisterRedTeamRepositoryHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *RedTeamRepositoryResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r RegisterRedTeamRepositoryHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RegisterRedTeamRepositoryHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RegisterRedTeamRepositoryHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteRedTeamRepositoryHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteRedTeamRepositoryHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteRedTeamRepositoryHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteRedTeamRepositoryHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamRepositoryTrendHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamRepositoryTrendResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamRepositoryTrendHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamRepositoryTrendHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamRepositoryTrendHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamRunsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamRunResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamRunsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamRunsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamRunsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type StartRedTeamRunHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *RedTeamRunResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r StartRedTeamRunHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StartRedTeamRunHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r StartRedTeamRunHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamRunHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamRunResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamRunHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamRunHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamRunHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CancelRedTeamRunHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamRunResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelRedTeamRunHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelRedTeamRunHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CancelRedTeamRunHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamRunCoverageHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamCoverageUnitResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamRunCoverageHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamRunCoverageHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamRunCoverageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamRunCoverageSummaryHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamCoverageSummaryResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamRunCoverageSummaryHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamRunCoverageSummaryHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamRunCoverageSummaryHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamRunDocumentHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamDocumentResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamRunDocumentHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamRunDocumentHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamRunDocumentHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ExportRedTeamRunFindingsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamFindingsExport
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ExportRedTeamRunFindingsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExportRedTeamRunFindingsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ExportRedTeamRunFindingsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ExportRedTeamRunSarifHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ExportRedTeamRunSarifHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExportRedTeamRunSarifHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ExportRedTeamRunSarifHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamRunFindingsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamFindingResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamRunFindingsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamRunFindingsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamRunFindingsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamFindingHandoffPromptHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamHandoffPromptResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamFindingHandoffPromptHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamFindingHandoffPromptHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamFindingHandoffPromptHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamRunValidationErrorsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamValidationErrorsResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamRunValidationErrorsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamRunValidationErrorsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamRunValidationErrorsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRedTeamSchedulesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RedTeamScheduleResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRedTeamSchedulesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRedTeamSchedulesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRedTeamSchedulesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateRedTeamScheduleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *RedTeamScheduleResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateRedTeamScheduleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateRedTeamScheduleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateRedTeamScheduleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteRedTeamScheduleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteRedTeamScheduleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteRedTeamScheduleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteRedTeamScheduleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateRedTeamScheduleHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamScheduleResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateRedTeamScheduleHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateRedTeamScheduleHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateRedTeamScheduleHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamSettingsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamSettingsResponse
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamSettingsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamSettingsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamSettingsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateRedTeamSettingsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamSettingsResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateRedTeamSettingsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateRedTeamSettingsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateRedTeamSettingsHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -102478,6 +116768,7 @@ type CreateRegistryProjectHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *RegistryProjectResponse
+	JSON400      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
@@ -102736,6 +117027,139 @@ func (r GetRegistryImageTagsHTTPResp) ContentType() string {
 	return ""
 }
 
+type ListRegistryProxiesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RegistryProxiesResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRegistryProxiesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRegistryProxiesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRegistryProxiesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateRegistryProxyHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *RegistryProxyResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateRegistryProxyHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateRegistryProxyHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateRegistryProxyHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteRegistryProxyHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteRegistryProxyHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteRegistryProxyHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteRegistryProxyHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListRegistryProxyImagesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RegistryProxyImagesResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRegistryProxyImagesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRegistryProxyImagesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListRegistryProxyImagesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetRegistryUsageHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -102809,7 +117233,9 @@ type CreateServiceLinkHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -102841,7 +117267,9 @@ type DeleteServiceLinkHTTPResp struct {
 	HTTPResponse *http.Response
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -103008,6 +117436,7 @@ type CreateVirtualMachineCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -103062,6 +117491,368 @@ func (r GetVirtualMachineImageCatalogHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetVirtualMachineImageCatalogHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetVolumeBackupAlignmentHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ForgeAlignmentResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVolumeBackupAlignmentHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVolumeBackupAlignmentHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVolumeBackupAlignmentHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListVolumeBackupCoverageHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]VolumeBackupCoverageResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVolumeBackupCoverageHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVolumeBackupCoverageHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListVolumeBackupCoverageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListVolumeBackupsHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]VolumeBackupResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVolumeBackupsHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVolumeBackupsHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListVolumeBackupsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateVolumeBackupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *VolumeBackupResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateVolumeBackupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateVolumeBackupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateVolumeBackupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetVolumeBackupHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumeBackupResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVolumeBackupHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVolumeBackupHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVolumeBackupHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListVolumeRestoresHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]VolumeRestoreResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVolumeRestoresHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVolumeRestoresHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListVolumeRestoresHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateVolumeRestoreHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *VolumeRestoreResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON429      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateVolumeRestoreHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateVolumeRestoreHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateVolumeRestoreHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteVolumeRestoreHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteVolumeRestoreHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteVolumeRestoreHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteVolumeRestoreHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetVolumeRestoreHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumeRestoreResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVolumeRestoreHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVolumeRestoreHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVolumeRestoreHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListVolumesHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumesPage
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVolumesHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVolumesHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListVolumesHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateVolumeCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *VolumeResponse
+	JSON400      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateVolumeCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateVolumeCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateVolumeCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -105125,6 +119916,8 @@ type GetAirflowLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105158,6 +119951,8 @@ type GetBifrostEventsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105191,6 +119986,8 @@ type GetBifrostOverviewHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105224,6 +120021,8 @@ type GetBifrostTimeseriesHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105257,6 +120056,8 @@ type GetBifrostTopHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105290,6 +120091,8 @@ type GetComputeDockLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105423,6 +120226,8 @@ type GetContainerAppLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105522,6 +120327,8 @@ type GetDataDockLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105588,6 +120395,8 @@ type GetDevWorkstationLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105654,6 +120463,8 @@ type GetDevWorkstationSetupReportHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105757,6 +120568,8 @@ type GetGithubRunnerPoolLogsHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105818,6 +120631,72 @@ func (r GetGithubRunnerPoolMetricsHTTPResp) ContentType() string {
 	return ""
 }
 
+type GetVirtualMachinesUsageHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VirtualMachinesUsageResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVirtualMachinesUsageHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVirtualMachinesUsageHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVirtualMachinesUsageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetVolumesUsageHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumesUsageResponse
+	JSON401      *ApiErrorBody
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVolumesUsageHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVolumesUsageHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVolumesUsageHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetHfKeyValueCacheLogsHTTPResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -105825,6 +120704,8 @@ type GetHfKeyValueCacheLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105891,6 +120772,8 @@ type GetHfRabbitmqLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -105957,6 +120840,8 @@ type GetKafkaLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -106023,6 +120908,8 @@ type GetMonitoringLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -106056,6 +120943,8 @@ type GetPostgresLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -106122,6 +121011,8 @@ type GetModelLogsHTTPResp struct {
 	JSON401      *ApiErrorBody
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -106190,6 +121081,8 @@ type GetNextflowRunLogsHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -107206,6 +122099,8 @@ type ListPipelineLogsHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
+	JSON504      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -107388,6 +122283,37 @@ func (r ListPrincipalResolvedAccessHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListPrincipalResolvedAccessHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetRedTeamOrganizationOverviewHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RedTeamOrganizationOverview
+	JSON403      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetRedTeamOrganizationOverviewHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetRedTeamOrganizationOverviewHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetRedTeamOrganizationOverviewHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -109597,6 +124523,7 @@ type DeleteVirtualMachineCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON500      *ApiErrorBody
+	JSON503      *ApiErrorBody
 }
 
 // Status returns HTTPResponse.Status
@@ -109630,6 +124557,7 @@ type PatchVirtualMachineCrdHTTPResp struct {
 	JSON403      *ApiErrorBody
 	JSON404      *ApiErrorBody
 	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
 	JSON500      *ApiErrorBody
 }
 
@@ -109651,6 +124579,75 @@ func (r PatchVirtualMachineCrdHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchVirtualMachineCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AttachVirtualMachineDiskHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VirtualMachineResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r AttachVirtualMachineDiskHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AttachVirtualMachineDiskHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AttachVirtualMachineDiskHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DetachVirtualMachineDiskHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VirtualMachineResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DetachVirtualMachineDiskHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DetachVirtualMachineDiskHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DetachVirtualMachineDiskHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -109818,6 +124815,107 @@ func (r ListVolumeBackendsHTTPResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ListVolumeBackendsHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetVolumeHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumeResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVolumeHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVolumeHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetVolumeHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteVolumeCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteVolumeCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteVolumeCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteVolumeCrdHTTPResp) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchVolumeCrdHTTPResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VolumeResponse
+	JSON403      *ApiErrorBody
+	JSON404      *ApiErrorBody
+	JSON409      *ApiErrorBody
+	JSON422      *ApiErrorBody
+	JSON500      *ApiErrorBody
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchVolumeCrdHTTPResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchVolumeCrdHTTPResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchVolumeCrdHTTPResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -113738,8 +128836,8 @@ func (c *ClientWithResponses) CreateDevWorkstationWithResponse(ctx context.Conte
 }
 
 // DeleteDevWorkstationWithResponse request returning *DeleteDevWorkstationHTTPResp
-func (c *ClientWithResponses) DeleteDevWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteDevWorkstationHTTPResp, error) {
-	rsp, err := c.DeleteDevWorkstation(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DeleteDevWorkstationWithResponse(ctx context.Context, id openapi_types.UUID, params *DeleteDevWorkstationParams, reqEditors ...RequestEditorFn) (*DeleteDevWorkstationHTTPResp, error) {
+	rsp, err := c.DeleteDevWorkstation(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -115550,6 +130648,67 @@ func (c *ClientWithResponses) GetBucketCredentialsWithResponse(ctx context.Conte
 	return ParseGetBucketCredentialsHTTPResp(rsp)
 }
 
+// DeleteBucketLifecycleWithResponse request returning *DeleteBucketLifecycleHTTPResp
+func (c *ClientWithResponses) DeleteBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*DeleteBucketLifecycleHTTPResp, error) {
+	rsp, err := c.DeleteBucketLifecycle(ctx, harborId, bucketName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteBucketLifecycleHTTPResp(rsp)
+}
+
+// GetBucketLifecycleWithResponse request returning *GetBucketLifecycleHTTPResp
+func (c *ClientWithResponses) GetBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketLifecycleHTTPResp, error) {
+	rsp, err := c.GetBucketLifecycle(ctx, harborId, bucketName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetBucketLifecycleHTTPResp(rsp)
+}
+
+// SetBucketLifecycleWithBodyWithResponse request with arbitrary body returning *SetBucketLifecycleHTTPResp
+func (c *ClientWithResponses) SetBucketLifecycleWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketLifecycleHTTPResp, error) {
+	rsp, err := c.SetBucketLifecycleWithBody(ctx, harborId, bucketName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketLifecycleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetBucketLifecycleWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketLifecycleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketLifecycleHTTPResp, error) {
+	rsp, err := c.SetBucketLifecycle(ctx, harborId, bucketName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketLifecycleHTTPResp(rsp)
+}
+
+// GetBucketObjectLockWithResponse request returning *GetBucketObjectLockHTTPResp
+func (c *ClientWithResponses) GetBucketObjectLockWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketObjectLockHTTPResp, error) {
+	rsp, err := c.GetBucketObjectLock(ctx, harborId, bucketName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetBucketObjectLockHTTPResp(rsp)
+}
+
+// SetBucketObjectLockWithBodyWithResponse request with arbitrary body returning *SetBucketObjectLockHTTPResp
+func (c *ClientWithResponses) SetBucketObjectLockWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketObjectLockHTTPResp, error) {
+	rsp, err := c.SetBucketObjectLockWithBody(ctx, harborId, bucketName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketObjectLockHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetBucketObjectLockWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketObjectLockJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketObjectLockHTTPResp, error) {
+	rsp, err := c.SetBucketObjectLock(ctx, harborId, bucketName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketObjectLockHTTPResp(rsp)
+}
+
 // DeleteBucketObjectWithResponse request returning *DeleteBucketObjectHTTPResp
 func (c *ClientWithResponses) DeleteBucketObjectWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectParams, reqEditors ...RequestEditorFn) (*DeleteBucketObjectHTTPResp, error) {
 	rsp, err := c.DeleteBucketObject(ctx, harborId, bucketName, params, reqEditors...)
@@ -115593,6 +130752,68 @@ func (c *ClientWithResponses) UploadBucketObjectWithBodyWithResponse(ctx context
 		return nil, err
 	}
 	return ParseUploadBucketObjectHTTPResp(rsp)
+}
+
+// DeleteBucketObjectVersionWithResponse request returning *DeleteBucketObjectVersionHTTPResp
+func (c *ClientWithResponses) DeleteBucketObjectVersionWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *DeleteBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*DeleteBucketObjectVersionHTTPResp, error) {
+	rsp, err := c.DeleteBucketObjectVersion(ctx, harborId, bucketName, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteBucketObjectVersionHTTPResp(rsp)
+}
+
+// ListBucketObjectVersionsWithResponse request returning *ListBucketObjectVersionsHTTPResp
+func (c *ClientWithResponses) ListBucketObjectVersionsWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *ListBucketObjectVersionsParams, reqEditors ...RequestEditorFn) (*ListBucketObjectVersionsHTTPResp, error) {
+	rsp, err := c.ListBucketObjectVersions(ctx, harborId, bucketName, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListBucketObjectVersionsHTTPResp(rsp)
+}
+
+// RestoreBucketObjectVersionWithResponse request returning *RestoreBucketObjectVersionHTTPResp
+func (c *ClientWithResponses) RestoreBucketObjectVersionWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, params *RestoreBucketObjectVersionParams, reqEditors ...RequestEditorFn) (*RestoreBucketObjectVersionHTTPResp, error) {
+	rsp, err := c.RestoreBucketObjectVersion(ctx, harborId, bucketName, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreBucketObjectVersionHTTPResp(rsp)
+}
+
+// DeleteBucketTagsWithResponse request returning *DeleteBucketTagsHTTPResp
+func (c *ClientWithResponses) DeleteBucketTagsWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*DeleteBucketTagsHTTPResp, error) {
+	rsp, err := c.DeleteBucketTags(ctx, harborId, bucketName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteBucketTagsHTTPResp(rsp)
+}
+
+// GetBucketVersioningWithResponse request returning *GetBucketVersioningHTTPResp
+func (c *ClientWithResponses) GetBucketVersioningWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, reqEditors ...RequestEditorFn) (*GetBucketVersioningHTTPResp, error) {
+	rsp, err := c.GetBucketVersioning(ctx, harborId, bucketName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetBucketVersioningHTTPResp(rsp)
+}
+
+// SetBucketVersioningWithBodyWithResponse request with arbitrary body returning *SetBucketVersioningHTTPResp
+func (c *ClientWithResponses) SetBucketVersioningWithBodyWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetBucketVersioningHTTPResp, error) {
+	rsp, err := c.SetBucketVersioningWithBody(ctx, harborId, bucketName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketVersioningHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetBucketVersioningWithResponse(ctx context.Context, harborId openapi_types.UUID, bucketName string, body SetBucketVersioningJSONRequestBody, reqEditors ...RequestEditorFn) (*SetBucketVersioningHTTPResp, error) {
+	rsp, err := c.SetBucketVersioning(ctx, harborId, bucketName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetBucketVersioningHTTPResp(rsp)
 }
 
 // ListDashboardsWithResponse request returning *ListDashboardsHTTPResp
@@ -116822,6 +132043,76 @@ func (c *ClientWithResponses) ListAlertEventsWithResponse(ctx context.Context, o
 	return ParseListAlertEventsHTTPResp(rsp)
 }
 
+// ListAlertMatrixBotsWithResponse request returning *ListAlertMatrixBotsHTTPResp
+func (c *ClientWithResponses) ListAlertMatrixBotsWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAlertMatrixBotsHTTPResp, error) {
+	rsp, err := c.ListAlertMatrixBots(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAlertMatrixBotsHTTPResp(rsp)
+}
+
+// CreateAlertMatrixBotWithBodyWithResponse request with arbitrary body returning *CreateAlertMatrixBotHTTPResp
+func (c *ClientWithResponses) CreateAlertMatrixBotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.CreateAlertMatrixBotWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAlertMatrixBotHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, body CreateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.CreateAlertMatrixBot(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAlertMatrixBotHTTPResp(rsp)
+}
+
+// DeleteAlertMatrixBotWithResponse request returning *DeleteAlertMatrixBotHTTPResp
+func (c *ClientWithResponses) DeleteAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.DeleteAlertMatrixBot(ctx, organizationId, botId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAlertMatrixBotHTTPResp(rsp)
+}
+
+// GetAlertMatrixBotWithResponse request returning *GetAlertMatrixBotHTTPResp
+func (c *ClientWithResponses) GetAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.GetAlertMatrixBot(ctx, organizationId, botId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAlertMatrixBotHTTPResp(rsp)
+}
+
+// UpdateAlertMatrixBotWithBodyWithResponse request with arbitrary body returning *UpdateAlertMatrixBotHTTPResp
+func (c *ClientWithResponses) UpdateAlertMatrixBotWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.UpdateAlertMatrixBotWithBody(ctx, organizationId, botId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAlertMatrixBotHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, body UpdateAlertMatrixBotJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.UpdateAlertMatrixBot(ctx, organizationId, botId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAlertMatrixBotHTTPResp(rsp)
+}
+
+// ReloginAlertMatrixBotWithResponse request returning *ReloginAlertMatrixBotHTTPResp
+func (c *ClientWithResponses) ReloginAlertMatrixBotWithResponse(ctx context.Context, organizationId openapi_types.UUID, botId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ReloginAlertMatrixBotHTTPResp, error) {
+	rsp, err := c.ReloginAlertMatrixBot(ctx, organizationId, botId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReloginAlertMatrixBotHTTPResp(rsp)
+}
+
 // ListAlertRulesWithResponse request returning *ListAlertRulesHTTPResp
 func (c *ClientWithResponses) ListAlertRulesWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListAlertRulesHTTPResp, error) {
 	rsp, err := c.ListAlertRules(ctx, organizationId, reqEditors...)
@@ -117005,6 +132296,15 @@ func (c *ClientWithResponses) PatchBackupTargetCrdWithResponse(ctx context.Conte
 	return ParsePatchBackupTargetCrdHTTPResp(rsp)
 }
 
+// GetBackupTargetVolumePointsWithResponse request returning *GetBackupTargetVolumePointsHTTPResp
+func (c *ClientWithResponses) GetBackupTargetVolumePointsWithResponse(ctx context.Context, organizationId openapi_types.UUID, backupTargetId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetBackupTargetVolumePointsHTTPResp, error) {
+	rsp, err := c.GetBackupTargetVolumePoints(ctx, organizationId, backupTargetId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetBackupTargetVolumePointsHTTPResp(rsp)
+}
+
 // SignComputeDockSshKeyWithBodyWithResponse request with arbitrary body returning *SignComputeDockSshKeyHTTPResp
 func (c *ClientWithResponses) SignComputeDockSshKeyWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, computeDockId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignComputeDockSshKeyHTTPResp, error) {
 	rsp, err := c.SignComputeDockSshKeyWithBody(ctx, organizationId, computeDockId, contentType, body, reqEditors...)
@@ -117110,8 +132410,8 @@ func (c *ClientWithResponses) PatchContainerAppWithResponse(ctx context.Context,
 }
 
 // DeleteContainerAppCrdWithResponse request returning *DeleteContainerAppCrdHTTPResp
-func (c *ClientWithResponses) DeleteContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteContainerAppCrdHTTPResp, error) {
-	rsp, err := c.DeleteContainerAppCrd(ctx, organizationId, appId, reqEditors...)
+func (c *ClientWithResponses) DeleteContainerAppCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, appId openapi_types.UUID, params *DeleteContainerAppCrdParams, reqEditors ...RequestEditorFn) (*DeleteContainerAppCrdHTTPResp, error) {
+	rsp, err := c.DeleteContainerAppCrd(ctx, organizationId, appId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -118122,6 +133422,49 @@ func (c *ClientWithResponses) GetHarborNetworkIsolationWithResponse(ctx context.
 	return ParseGetHarborNetworkIsolationHTTPResp(rsp)
 }
 
+// GetNetworkMapWithResponse request returning *GetNetworkMapHTTPResp
+func (c *ClientWithResponses) GetNetworkMapWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetNetworkMapParams, reqEditors ...RequestEditorFn) (*GetNetworkMapHTTPResp, error) {
+	rsp, err := c.GetNetworkMap(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNetworkMapHTTPResp(rsp)
+}
+
+// CutEdgeWithBodyWithResponse request with arbitrary body returning *CutEdgeHTTPResp
+func (c *ClientWithResponses) CutEdgeWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CutEdgeHTTPResp, error) {
+	rsp, err := c.CutEdgeWithBody(ctx, organizationId, harborId, edgeId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCutEdgeHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CutEdgeWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body CutEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*CutEdgeHTTPResp, error) {
+	rsp, err := c.CutEdge(ctx, organizationId, harborId, edgeId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCutEdgeHTTPResp(rsp)
+}
+
+// RestoreEdgeWithBodyWithResponse request with arbitrary body returning *RestoreEdgeHTTPResp
+func (c *ClientWithResponses) RestoreEdgeWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreEdgeHTTPResp, error) {
+	rsp, err := c.RestoreEdgeWithBody(ctx, organizationId, harborId, edgeId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreEdgeHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) RestoreEdgeWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, edgeId openapi_types.UUID, body RestoreEdgeJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreEdgeHTTPResp, error) {
+	rsp, err := c.RestoreEdge(ctx, organizationId, harborId, edgeId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreEdgeHTTPResp(rsp)
+}
+
 // ListNextflowsWithResponse request returning *ListNextflowsHTTPResp
 func (c *ClientWithResponses) ListNextflowsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListNextflowsHTTPResp, error) {
 	rsp, err := c.ListNextflows(ctx, organizationId, harborId, reqEditors...)
@@ -118155,6 +133498,323 @@ func (c *ClientWithResponses) GetNextflowDefaultsWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseGetNextflowDefaultsHTTPResp(rsp)
+}
+
+// ListRedTeamFindingsWithResponse request returning *ListRedTeamFindingsHTTPResp
+func (c *ClientWithResponses) ListRedTeamFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamFindingsParams, reqEditors ...RequestEditorFn) (*ListRedTeamFindingsHTTPResp, error) {
+	rsp, err := c.ListRedTeamFindings(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamFindingsHTTPResp(rsp)
+}
+
+// GetRedTeamFindingWithResponse request returning *GetRedTeamFindingHTTPResp
+func (c *ClientWithResponses) GetRedTeamFindingWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamFindingHTTPResp, error) {
+	rsp, err := c.GetRedTeamFinding(ctx, organizationId, harborId, identityId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamFindingHTTPResp(rsp)
+}
+
+// ListRedTeamFindingEventsWithResponse request returning *ListRedTeamFindingEventsHTTPResp
+func (c *ClientWithResponses) ListRedTeamFindingEventsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamFindingEventsHTTPResp, error) {
+	rsp, err := c.ListRedTeamFindingEvents(ctx, organizationId, harborId, identityId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamFindingEventsHTTPResp(rsp)
+}
+
+// SetRedTeamFindingOwnerValidationWithBodyWithResponse request with arbitrary body returning *SetRedTeamFindingOwnerValidationHTTPResp
+func (c *ClientWithResponses) SetRedTeamFindingOwnerValidationWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRedTeamFindingOwnerValidationHTTPResp, error) {
+	rsp, err := c.SetRedTeamFindingOwnerValidationWithBody(ctx, organizationId, harborId, identityId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRedTeamFindingOwnerValidationHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetRedTeamFindingOwnerValidationWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingOwnerValidationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRedTeamFindingOwnerValidationHTTPResp, error) {
+	rsp, err := c.SetRedTeamFindingOwnerValidation(ctx, organizationId, harborId, identityId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRedTeamFindingOwnerValidationHTTPResp(rsp)
+}
+
+// RetestRedTeamFindingWithResponse request returning *RetestRedTeamFindingHTTPResp
+func (c *ClientWithResponses) RetestRedTeamFindingWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, reqEditors ...RequestEditorFn) (*RetestRedTeamFindingHTTPResp, error) {
+	rsp, err := c.RetestRedTeamFinding(ctx, organizationId, harborId, identityId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRetestRedTeamFindingHTTPResp(rsp)
+}
+
+// SetRedTeamFindingTriageWithBodyWithResponse request with arbitrary body returning *SetRedTeamFindingTriageHTTPResp
+func (c *ClientWithResponses) SetRedTeamFindingTriageWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetRedTeamFindingTriageHTTPResp, error) {
+	rsp, err := c.SetRedTeamFindingTriageWithBody(ctx, organizationId, harborId, identityId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRedTeamFindingTriageHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) SetRedTeamFindingTriageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, identityId openapi_types.UUID, body SetRedTeamFindingTriageJSONRequestBody, reqEditors ...RequestEditorFn) (*SetRedTeamFindingTriageHTTPResp, error) {
+	rsp, err := c.SetRedTeamFindingTriage(ctx, organizationId, harborId, identityId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetRedTeamFindingTriageHTTPResp(rsp)
+}
+
+// GetRedTeamEnvironmentOverviewWithResponse request returning *GetRedTeamEnvironmentOverviewHTTPResp
+func (c *ClientWithResponses) GetRedTeamEnvironmentOverviewWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamEnvironmentOverviewHTTPResp, error) {
+	rsp, err := c.GetRedTeamEnvironmentOverview(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamEnvironmentOverviewHTTPResp(rsp)
+}
+
+// ListRedTeamRepositoriesWithResponse request returning *ListRedTeamRepositoriesHTTPResp
+func (c *ClientWithResponses) ListRedTeamRepositoriesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRepositoriesHTTPResp, error) {
+	rsp, err := c.ListRedTeamRepositories(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamRepositoriesHTTPResp(rsp)
+}
+
+// RegisterRedTeamRepositoryWithBodyWithResponse request with arbitrary body returning *RegisterRedTeamRepositoryHTTPResp
+func (c *ClientWithResponses) RegisterRedTeamRepositoryWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterRedTeamRepositoryHTTPResp, error) {
+	rsp, err := c.RegisterRedTeamRepositoryWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegisterRedTeamRepositoryHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) RegisterRedTeamRepositoryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body RegisterRedTeamRepositoryJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterRedTeamRepositoryHTTPResp, error) {
+	rsp, err := c.RegisterRedTeamRepository(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegisterRedTeamRepositoryHTTPResp(rsp)
+}
+
+// DeleteRedTeamRepositoryWithResponse request returning *DeleteRedTeamRepositoryHTTPResp
+func (c *ClientWithResponses) DeleteRedTeamRepositoryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRedTeamRepositoryHTTPResp, error) {
+	rsp, err := c.DeleteRedTeamRepository(ctx, organizationId, harborId, repositoryId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteRedTeamRepositoryHTTPResp(rsp)
+}
+
+// GetRedTeamRepositoryTrendWithResponse request returning *GetRedTeamRepositoryTrendHTTPResp
+func (c *ClientWithResponses) GetRedTeamRepositoryTrendWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, repositoryId openapi_types.UUID, params *GetRedTeamRepositoryTrendParams, reqEditors ...RequestEditorFn) (*GetRedTeamRepositoryTrendHTTPResp, error) {
+	rsp, err := c.GetRedTeamRepositoryTrend(ctx, organizationId, harborId, repositoryId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamRepositoryTrendHTTPResp(rsp)
+}
+
+// ListRedTeamRunsWithResponse request returning *ListRedTeamRunsHTTPResp
+func (c *ClientWithResponses) ListRedTeamRunsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListRedTeamRunsParams, reqEditors ...RequestEditorFn) (*ListRedTeamRunsHTTPResp, error) {
+	rsp, err := c.ListRedTeamRuns(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamRunsHTTPResp(rsp)
+}
+
+// StartRedTeamRunWithBodyWithResponse request with arbitrary body returning *StartRedTeamRunHTTPResp
+func (c *ClientWithResponses) StartRedTeamRunWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartRedTeamRunHTTPResp, error) {
+	rsp, err := c.StartRedTeamRunWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartRedTeamRunHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) StartRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body StartRedTeamRunJSONRequestBody, reqEditors ...RequestEditorFn) (*StartRedTeamRunHTTPResp, error) {
+	rsp, err := c.StartRedTeamRun(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartRedTeamRunHTTPResp(rsp)
+}
+
+// GetRedTeamRunWithResponse request returning *GetRedTeamRunHTTPResp
+func (c *ClientWithResponses) GetRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunHTTPResp, error) {
+	rsp, err := c.GetRedTeamRun(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamRunHTTPResp(rsp)
+}
+
+// CancelRedTeamRunWithResponse request returning *CancelRedTeamRunHTTPResp
+func (c *ClientWithResponses) CancelRedTeamRunWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*CancelRedTeamRunHTTPResp, error) {
+	rsp, err := c.CancelRedTeamRun(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelRedTeamRunHTTPResp(rsp)
+}
+
+// ListRedTeamRunCoverageWithResponse request returning *ListRedTeamRunCoverageHTTPResp
+func (c *ClientWithResponses) ListRedTeamRunCoverageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRunCoverageHTTPResp, error) {
+	rsp, err := c.ListRedTeamRunCoverage(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamRunCoverageHTTPResp(rsp)
+}
+
+// GetRedTeamRunCoverageSummaryWithResponse request returning *GetRedTeamRunCoverageSummaryHTTPResp
+func (c *ClientWithResponses) GetRedTeamRunCoverageSummaryWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunCoverageSummaryHTTPResp, error) {
+	rsp, err := c.GetRedTeamRunCoverageSummary(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamRunCoverageSummaryHTTPResp(rsp)
+}
+
+// GetRedTeamRunDocumentWithResponse request returning *GetRedTeamRunDocumentHTTPResp
+func (c *ClientWithResponses) GetRedTeamRunDocumentWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, kind string, reqEditors ...RequestEditorFn) (*GetRedTeamRunDocumentHTTPResp, error) {
+	rsp, err := c.GetRedTeamRunDocument(ctx, organizationId, harborId, runId, kind, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamRunDocumentHTTPResp(rsp)
+}
+
+// ExportRedTeamRunFindingsWithResponse request returning *ExportRedTeamRunFindingsHTTPResp
+func (c *ClientWithResponses) ExportRedTeamRunFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ExportRedTeamRunFindingsHTTPResp, error) {
+	rsp, err := c.ExportRedTeamRunFindings(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExportRedTeamRunFindingsHTTPResp(rsp)
+}
+
+// ExportRedTeamRunSarifWithResponse request returning *ExportRedTeamRunSarifHTTPResp
+func (c *ClientWithResponses) ExportRedTeamRunSarifWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ExportRedTeamRunSarifHTTPResp, error) {
+	rsp, err := c.ExportRedTeamRunSarif(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExportRedTeamRunSarifHTTPResp(rsp)
+}
+
+// ListRedTeamRunFindingsWithResponse request returning *ListRedTeamRunFindingsHTTPResp
+func (c *ClientWithResponses) ListRedTeamRunFindingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamRunFindingsHTTPResp, error) {
+	rsp, err := c.ListRedTeamRunFindings(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamRunFindingsHTTPResp(rsp)
+}
+
+// GetRedTeamFindingHandoffPromptWithResponse request returning *GetRedTeamFindingHandoffPromptHTTPResp
+func (c *ClientWithResponses) GetRedTeamFindingHandoffPromptWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, findingId openapi_types.UUID, params *GetRedTeamFindingHandoffPromptParams, reqEditors ...RequestEditorFn) (*GetRedTeamFindingHandoffPromptHTTPResp, error) {
+	rsp, err := c.GetRedTeamFindingHandoffPrompt(ctx, organizationId, harborId, runId, findingId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamFindingHandoffPromptHTTPResp(rsp)
+}
+
+// GetRedTeamRunValidationErrorsWithResponse request returning *GetRedTeamRunValidationErrorsHTTPResp
+func (c *ClientWithResponses) GetRedTeamRunValidationErrorsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, runId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamRunValidationErrorsHTTPResp, error) {
+	rsp, err := c.GetRedTeamRunValidationErrors(ctx, organizationId, harborId, runId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamRunValidationErrorsHTTPResp(rsp)
+}
+
+// ListRedTeamSchedulesWithResponse request returning *ListRedTeamSchedulesHTTPResp
+func (c *ClientWithResponses) ListRedTeamSchedulesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRedTeamSchedulesHTTPResp, error) {
+	rsp, err := c.ListRedTeamSchedules(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRedTeamSchedulesHTTPResp(rsp)
+}
+
+// CreateRedTeamScheduleWithBodyWithResponse request with arbitrary body returning *CreateRedTeamScheduleHTTPResp
+func (c *ClientWithResponses) CreateRedTeamScheduleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRedTeamScheduleHTTPResp, error) {
+	rsp, err := c.CreateRedTeamScheduleWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRedTeamScheduleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRedTeamScheduleHTTPResp, error) {
+	rsp, err := c.CreateRedTeamSchedule(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRedTeamScheduleHTTPResp(rsp)
+}
+
+// DeleteRedTeamScheduleWithResponse request returning *DeleteRedTeamScheduleHTTPResp
+func (c *ClientWithResponses) DeleteRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteRedTeamScheduleHTTPResp, error) {
+	rsp, err := c.DeleteRedTeamSchedule(ctx, organizationId, harborId, scheduleId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteRedTeamScheduleHTTPResp(rsp)
+}
+
+// UpdateRedTeamScheduleWithBodyWithResponse request with arbitrary body returning *UpdateRedTeamScheduleHTTPResp
+func (c *ClientWithResponses) UpdateRedTeamScheduleWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRedTeamScheduleHTTPResp, error) {
+	rsp, err := c.UpdateRedTeamScheduleWithBody(ctx, organizationId, harborId, scheduleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRedTeamScheduleHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateRedTeamScheduleWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, scheduleId openapi_types.UUID, body UpdateRedTeamScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRedTeamScheduleHTTPResp, error) {
+	rsp, err := c.UpdateRedTeamSchedule(ctx, organizationId, harborId, scheduleId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRedTeamScheduleHTTPResp(rsp)
+}
+
+// GetRedTeamSettingsWithResponse request returning *GetRedTeamSettingsHTTPResp
+func (c *ClientWithResponses) GetRedTeamSettingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamSettingsHTTPResp, error) {
+	rsp, err := c.GetRedTeamSettings(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamSettingsHTTPResp(rsp)
+}
+
+// UpdateRedTeamSettingsWithBodyWithResponse request with arbitrary body returning *UpdateRedTeamSettingsHTTPResp
+func (c *ClientWithResponses) UpdateRedTeamSettingsWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRedTeamSettingsHTTPResp, error) {
+	rsp, err := c.UpdateRedTeamSettingsWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRedTeamSettingsHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateRedTeamSettingsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body UpdateRedTeamSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRedTeamSettingsHTTPResp, error) {
+	rsp, err := c.UpdateRedTeamSettings(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRedTeamSettingsHTTPResp(rsp)
 }
 
 // ListRegistriesWithResponse request returning *ListRegistriesHTTPResp
@@ -118309,6 +133969,50 @@ func (c *ClientWithResponses) GetRegistryImageTagsWithResponse(ctx context.Conte
 	return ParseGetRegistryImageTagsHTTPResp(rsp)
 }
 
+// ListRegistryProxiesWithResponse request returning *ListRegistryProxiesHTTPResp
+func (c *ClientWithResponses) ListRegistryProxiesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ListRegistryProxiesHTTPResp, error) {
+	rsp, err := c.ListRegistryProxies(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRegistryProxiesHTTPResp(rsp)
+}
+
+// CreateRegistryProxyWithBodyWithResponse request with arbitrary body returning *CreateRegistryProxyHTTPResp
+func (c *ClientWithResponses) CreateRegistryProxyWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRegistryProxyHTTPResp, error) {
+	rsp, err := c.CreateRegistryProxyWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRegistryProxyHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateRegistryProxyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateRegistryProxyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRegistryProxyHTTPResp, error) {
+	rsp, err := c.CreateRegistryProxy(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateRegistryProxyHTTPResp(rsp)
+}
+
+// DeleteRegistryProxyWithResponse request returning *DeleteRegistryProxyHTTPResp
+func (c *ClientWithResponses) DeleteRegistryProxyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*DeleteRegistryProxyHTTPResp, error) {
+	rsp, err := c.DeleteRegistryProxy(ctx, organizationId, harborId, upstream, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteRegistryProxyHTTPResp(rsp)
+}
+
+// ListRegistryProxyImagesWithResponse request returning *ListRegistryProxyImagesHTTPResp
+func (c *ClientWithResponses) ListRegistryProxyImagesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, upstream string, reqEditors ...RequestEditorFn) (*ListRegistryProxyImagesHTTPResp, error) {
+	rsp, err := c.ListRegistryProxyImages(ctx, organizationId, harborId, upstream, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRegistryProxyImagesHTTPResp(rsp)
+}
+
 // GetRegistryUsageWithResponse request returning *GetRegistryUsageHTTPResp
 func (c *ClientWithResponses) GetRegistryUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRegistryUsageHTTPResp, error) {
 	rsp, err := c.GetRegistryUsage(ctx, organizationId, harborId, reqEditors...)
@@ -118421,6 +134125,129 @@ func (c *ClientWithResponses) GetVirtualMachineImageCatalogWithResponse(ctx cont
 		return nil, err
 	}
 	return ParseGetVirtualMachineImageCatalogHTTPResp(rsp)
+}
+
+// GetVolumeBackupAlignmentWithResponse request returning *GetVolumeBackupAlignmentHTTPResp
+func (c *ClientWithResponses) GetVolumeBackupAlignmentWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVolumeBackupAlignmentParams, reqEditors ...RequestEditorFn) (*GetVolumeBackupAlignmentHTTPResp, error) {
+	rsp, err := c.GetVolumeBackupAlignment(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVolumeBackupAlignmentHTTPResp(rsp)
+}
+
+// ListVolumeBackupCoverageWithResponse request returning *ListVolumeBackupCoverageHTTPResp
+func (c *ClientWithResponses) ListVolumeBackupCoverageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupCoverageParams, reqEditors ...RequestEditorFn) (*ListVolumeBackupCoverageHTTPResp, error) {
+	rsp, err := c.ListVolumeBackupCoverage(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVolumeBackupCoverageHTTPResp(rsp)
+}
+
+// ListVolumeBackupsWithResponse request returning *ListVolumeBackupsHTTPResp
+func (c *ClientWithResponses) ListVolumeBackupsWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeBackupsParams, reqEditors ...RequestEditorFn) (*ListVolumeBackupsHTTPResp, error) {
+	rsp, err := c.ListVolumeBackups(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVolumeBackupsHTTPResp(rsp)
+}
+
+// CreateVolumeBackupWithBodyWithResponse request with arbitrary body returning *CreateVolumeBackupHTTPResp
+func (c *ClientWithResponses) CreateVolumeBackupWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeBackupHTTPResp, error) {
+	rsp, err := c.CreateVolumeBackupWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeBackupHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateVolumeBackupWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeBackupHTTPResp, error) {
+	rsp, err := c.CreateVolumeBackup(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeBackupHTTPResp(rsp)
+}
+
+// GetVolumeBackupWithResponse request returning *GetVolumeBackupHTTPResp
+func (c *ClientWithResponses) GetVolumeBackupWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetVolumeBackupHTTPResp, error) {
+	rsp, err := c.GetVolumeBackup(ctx, organizationId, harborId, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVolumeBackupHTTPResp(rsp)
+}
+
+// ListVolumeRestoresWithResponse request returning *ListVolumeRestoresHTTPResp
+func (c *ClientWithResponses) ListVolumeRestoresWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumeRestoresParams, reqEditors ...RequestEditorFn) (*ListVolumeRestoresHTTPResp, error) {
+	rsp, err := c.ListVolumeRestores(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVolumeRestoresHTTPResp(rsp)
+}
+
+// CreateVolumeRestoreWithBodyWithResponse request with arbitrary body returning *CreateVolumeRestoreHTTPResp
+func (c *ClientWithResponses) CreateVolumeRestoreWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeRestoreHTTPResp, error) {
+	rsp, err := c.CreateVolumeRestoreWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeRestoreHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeRestoreHTTPResp, error) {
+	rsp, err := c.CreateVolumeRestore(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeRestoreHTTPResp(rsp)
+}
+
+// DeleteVolumeRestoreWithResponse request returning *DeleteVolumeRestoreHTTPResp
+func (c *ClientWithResponses) DeleteVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*DeleteVolumeRestoreHTTPResp, error) {
+	rsp, err := c.DeleteVolumeRestore(ctx, organizationId, harborId, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteVolumeRestoreHTTPResp(rsp)
+}
+
+// GetVolumeRestoreWithResponse request returning *GetVolumeRestoreHTTPResp
+func (c *ClientWithResponses) GetVolumeRestoreWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, name string, reqEditors ...RequestEditorFn) (*GetVolumeRestoreHTTPResp, error) {
+	rsp, err := c.GetVolumeRestore(ctx, organizationId, harborId, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVolumeRestoreHTTPResp(rsp)
+}
+
+// ListVolumesWithResponse request returning *ListVolumesHTTPResp
+func (c *ClientWithResponses) ListVolumesWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *ListVolumesParams, reqEditors ...RequestEditorFn) (*ListVolumesHTTPResp, error) {
+	rsp, err := c.ListVolumes(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVolumesHTTPResp(rsp)
+}
+
+// CreateVolumeCrdWithBodyWithResponse request with arbitrary body returning *CreateVolumeCrdHTTPResp
+func (c *ClientWithResponses) CreateVolumeCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVolumeCrdHTTPResp, error) {
+	rsp, err := c.CreateVolumeCrdWithBody(ctx, organizationId, harborId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) CreateVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, body CreateVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVolumeCrdHTTPResp, error) {
+	rsp, err := c.CreateVolumeCrd(ctx, organizationId, harborId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateVolumeCrdHTTPResp(rsp)
 }
 
 // GetHarborFlowsWithResponse request returning *GetHarborFlowsHTTPResp
@@ -119330,6 +135157,24 @@ func (c *ClientWithResponses) GetGithubRunnerPoolMetricsWithResponse(ctx context
 	return ParseGetGithubRunnerPoolMetricsHTTPResp(rsp)
 }
 
+// GetVirtualMachinesUsageWithResponse request returning *GetVirtualMachinesUsageHTTPResp
+func (c *ClientWithResponses) GetVirtualMachinesUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, params *GetVirtualMachinesUsageParams, reqEditors ...RequestEditorFn) (*GetVirtualMachinesUsageHTTPResp, error) {
+	rsp, err := c.GetVirtualMachinesUsage(ctx, organizationId, harborId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVirtualMachinesUsageHTTPResp(rsp)
+}
+
+// GetVolumesUsageWithResponse request returning *GetVolumesUsageHTTPResp
+func (c *ClientWithResponses) GetVolumesUsageWithResponse(ctx context.Context, organizationId openapi_types.UUID, harborId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVolumesUsageHTTPResp, error) {
+	rsp, err := c.GetVolumesUsage(ctx, organizationId, harborId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVolumesUsageHTTPResp(rsp)
+}
+
 // GetHfKeyValueCacheLogsWithResponse request returning *GetHfKeyValueCacheLogsHTTPResp
 func (c *ClientWithResponses) GetHfKeyValueCacheLogsWithResponse(ctx context.Context, organizationId openapi_types.UUID, cacheId openapi_types.UUID, params *GetHfKeyValueCacheLogsParams, reqEditors ...RequestEditorFn) (*GetHfKeyValueCacheLogsHTTPResp, error) {
 	rsp, err := c.GetHfKeyValueCacheLogs(ctx, organizationId, cacheId, params, reqEditors...)
@@ -119808,6 +135653,15 @@ func (c *ClientWithResponses) ListPrincipalResolvedAccessWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseListPrincipalResolvedAccessHTTPResp(rsp)
+}
+
+// GetRedTeamOrganizationOverviewWithResponse request returning *GetRedTeamOrganizationOverviewHTTPResp
+func (c *ClientWithResponses) GetRedTeamOrganizationOverviewWithResponse(ctx context.Context, organizationId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetRedTeamOrganizationOverviewHTTPResp, error) {
+	rsp, err := c.GetRedTeamOrganizationOverview(ctx, organizationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetRedTeamOrganizationOverviewHTTPResp(rsp)
 }
 
 // GetCreditBalanceWithResponse request returning *GetCreditBalanceHTTPResp
@@ -120592,6 +136446,32 @@ func (c *ClientWithResponses) PatchVirtualMachineCrdWithResponse(ctx context.Con
 	return ParsePatchVirtualMachineCrdHTTPResp(rsp)
 }
 
+// AttachVirtualMachineDiskWithBodyWithResponse request with arbitrary body returning *AttachVirtualMachineDiskHTTPResp
+func (c *ClientWithResponses) AttachVirtualMachineDiskWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AttachVirtualMachineDiskHTTPResp, error) {
+	rsp, err := c.AttachVirtualMachineDiskWithBody(ctx, organizationId, instanceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAttachVirtualMachineDiskHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) AttachVirtualMachineDiskWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, body AttachVirtualMachineDiskJSONRequestBody, reqEditors ...RequestEditorFn) (*AttachVirtualMachineDiskHTTPResp, error) {
+	rsp, err := c.AttachVirtualMachineDisk(ctx, organizationId, instanceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAttachVirtualMachineDiskHTTPResp(rsp)
+}
+
+// DetachVirtualMachineDiskWithResponse request returning *DetachVirtualMachineDiskHTTPResp
+func (c *ClientWithResponses) DetachVirtualMachineDiskWithResponse(ctx context.Context, organizationId openapi_types.UUID, instanceId openapi_types.UUID, volumeName string, reqEditors ...RequestEditorFn) (*DetachVirtualMachineDiskHTTPResp, error) {
+	rsp, err := c.DetachVirtualMachineDisk(ctx, organizationId, instanceId, volumeName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDetachVirtualMachineDiskHTTPResp(rsp)
+}
+
 // ListVirtualMachineUsersWithResponse request returning *ListVirtualMachineUsersHTTPResp
 func (c *ClientWithResponses) ListVirtualMachineUsersWithResponse(ctx context.Context, organizationId openapi_types.UUID, vmId openapi_types.UUID, params *ListVirtualMachineUsersParams, reqEditors ...RequestEditorFn) (*ListVirtualMachineUsersHTTPResp, error) {
 	rsp, err := c.ListVirtualMachineUsers(ctx, organizationId, vmId, params, reqEditors...)
@@ -120643,6 +136523,41 @@ func (c *ClientWithResponses) ListVolumeBackendsWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseListVolumeBackendsHTTPResp(rsp)
+}
+
+// GetVolumeWithResponse request returning *GetVolumeHTTPResp
+func (c *ClientWithResponses) GetVolumeWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetVolumeHTTPResp, error) {
+	rsp, err := c.GetVolume(ctx, organizationId, volumeId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVolumeHTTPResp(rsp)
+}
+
+// DeleteVolumeCrdWithResponse request returning *DeleteVolumeCrdHTTPResp
+func (c *ClientWithResponses) DeleteVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteVolumeCrdHTTPResp, error) {
+	rsp, err := c.DeleteVolumeCrd(ctx, organizationId, volumeId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteVolumeCrdHTTPResp(rsp)
+}
+
+// PatchVolumeCrdWithBodyWithResponse request with arbitrary body returning *PatchVolumeCrdHTTPResp
+func (c *ClientWithResponses) PatchVolumeCrdWithBodyWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchVolumeCrdHTTPResp, error) {
+	rsp, err := c.PatchVolumeCrdWithBody(ctx, organizationId, volumeId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchVolumeCrdHTTPResp(rsp)
+}
+
+func (c *ClientWithResponses) PatchVolumeCrdWithResponse(ctx context.Context, organizationId openapi_types.UUID, volumeId openapi_types.UUID, body PatchVolumeCrdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchVolumeCrdHTTPResp, error) {
+	rsp, err := c.PatchVolumeCrd(ctx, organizationId, volumeId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchVolumeCrdHTTPResp(rsp)
 }
 
 // GetOrgCvePoliciesWithResponse request returning *GetOrgCvePoliciesHTTPResp
@@ -122940,6 +138855,27 @@ func ParseCreateDevWorkstationHTTPResp(rsp *http.Response) (*CreateDevWorkstatio
 		}
 		response.JSON403 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -122979,6 +138915,20 @@ func ParseDeleteDevWorkstationHTTPResp(rsp *http.Response) (*DeleteDevWorkstatio
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -128291,6 +144241,20 @@ func ParseGetOptimizeRunLogsHTTPResp(rsp *http.Response) (*GetOptimizeRunLogsHTT
 		}
 		response.JSON500 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -129354,6 +145318,27 @@ func ParseDeleteHarborBucketHTTPResp(rsp *http.Response) (*DeleteHarborBucketHTT
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
 	}
 
 	return response, nil
@@ -129419,6 +145404,13 @@ func ParsePatchHarborBucketHTTPResp(rsp *http.Response) (*PatchHarborBucketHTTPR
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -129820,6 +145812,262 @@ func ParseGetBucketCredentialsHTTPResp(rsp *http.Response) (*GetBucketCredential
 	return response, nil
 }
 
+// ParseDeleteBucketLifecycleHTTPResp parses an HTTP response from a DeleteBucketLifecycleWithResponse call
+func ParseDeleteBucketLifecycleHTTPResp(rsp *http.Response) (*DeleteBucketLifecycleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteBucketLifecycleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketLifecycleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetBucketLifecycleHTTPResp parses an HTTP response from a GetBucketLifecycleWithResponse call
+func ParseGetBucketLifecycleHTTPResp(rsp *http.Response) (*GetBucketLifecycleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetBucketLifecycleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketLifecycleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetBucketLifecycleHTTPResp parses an HTTP response from a SetBucketLifecycleWithResponse call
+func ParseSetBucketLifecycleHTTPResp(rsp *http.Response) (*SetBucketLifecycleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetBucketLifecycleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketLifecycleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetBucketObjectLockHTTPResp parses an HTTP response from a GetBucketObjectLockWithResponse call
+func ParseGetBucketObjectLockHTTPResp(rsp *http.Response) (*GetBucketObjectLockHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetBucketObjectLockHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketObjectLockResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetBucketObjectLockHTTPResp parses an HTTP response from a SetBucketObjectLockWithResponse call
+func ParseSetBucketObjectLockHTTPResp(rsp *http.Response) (*SetBucketObjectLockHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetBucketObjectLockHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketObjectLockResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteBucketObjectHTTPResp parses an HTTP response from a DeleteBucketObjectWithResponse call
 func ParseDeleteBucketObjectHTTPResp(rsp *http.Response) (*DeleteBucketObjectHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -130007,6 +146255,260 @@ func ParseUploadBucketObjectHTTPResp(rsp *http.Response) (*UploadBucketObjectHTT
 			return nil, err
 		}
 		response.JSON413 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteBucketObjectVersionHTTPResp parses an HTTP response from a DeleteBucketObjectVersionWithResponse call
+func ParseDeleteBucketObjectVersionHTTPResp(rsp *http.Response) (*DeleteBucketObjectVersionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteBucketObjectVersionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListBucketObjectVersionsHTTPResp parses an HTTP response from a ListBucketObjectVersionsWithResponse call
+func ParseListBucketObjectVersionsHTTPResp(rsp *http.Response) (*ListBucketObjectVersionsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListBucketObjectVersionsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketObjectVersionListing
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestoreBucketObjectVersionHTTPResp parses an HTTP response from a RestoreBucketObjectVersionWithResponse call
+func ParseRestoreBucketObjectVersionHTTPResp(rsp *http.Response) (*RestoreBucketObjectVersionHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestoreBucketObjectVersionHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteBucketTagsHTTPResp parses an HTTP response from a DeleteBucketTagsWithResponse call
+func ParseDeleteBucketTagsHTTPResp(rsp *http.Response) (*DeleteBucketTagsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteBucketTagsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetBucketVersioningHTTPResp parses an HTTP response from a GetBucketVersioningWithResponse call
+func ParseGetBucketVersioningHTTPResp(rsp *http.Response) (*GetBucketVersioningHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetBucketVersioningHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketVersioningResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetBucketVersioningHTTPResp parses an HTTP response from a SetBucketVersioningWithResponse call
+func ParseSetBucketVersioningHTTPResp(rsp *http.Response) (*SetBucketVersioningHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetBucketVersioningHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BucketVersioningResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -134436,12 +150938,26 @@ func ParseCreateNotificationChannelHTTPResp(rsp *http.Response) (*CreateNotifica
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
 		var dest ApiErrorBody
@@ -134595,6 +151111,267 @@ func ParseListAlertEventsHTTPResp(rsp *http.Response) (*ListAlertEventsHTTPResp,
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAlertMatrixBotsHTTPResp parses an HTTP response from a ListAlertMatrixBotsWithResponse call
+func ParseListAlertMatrixBotsHTTPResp(rsp *http.Response) (*ListAlertMatrixBotsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAlertMatrixBotsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []MatrixBotDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAlertMatrixBotHTTPResp parses an HTTP response from a CreateAlertMatrixBotWithResponse call
+func ParseCreateAlertMatrixBotHTTPResp(rsp *http.Response) (*CreateAlertMatrixBotHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAlertMatrixBotHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MatrixBotDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAlertMatrixBotHTTPResp parses an HTTP response from a DeleteAlertMatrixBotWithResponse call
+func ParseDeleteAlertMatrixBotHTTPResp(rsp *http.Response) (*DeleteAlertMatrixBotHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAlertMatrixBotHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAlertMatrixBotHTTPResp parses an HTTP response from a GetAlertMatrixBotWithResponse call
+func ParseGetAlertMatrixBotHTTPResp(rsp *http.Response) (*GetAlertMatrixBotHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAlertMatrixBotHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MatrixBotDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAlertMatrixBotHTTPResp parses an HTTP response from a UpdateAlertMatrixBotWithResponse call
+func ParseUpdateAlertMatrixBotHTTPResp(rsp *http.Response) (*UpdateAlertMatrixBotHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAlertMatrixBotHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MatrixBotDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseReloginAlertMatrixBotHTTPResp parses an HTTP response from a ReloginAlertMatrixBotWithResponse call
+func ParseReloginAlertMatrixBotHTTPResp(rsp *http.Response) (*ReloginAlertMatrixBotHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ReloginAlertMatrixBotHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MatrixBotDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -135202,6 +151979,53 @@ func ParsePatchBackupTargetCrdHTTPResp(rsp *http.Response) (*PatchBackupTargetCr
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetBackupTargetVolumePointsHTTPResp parses an HTTP response from a GetBackupTargetVolumePointsWithResponse call
+func ParseGetBackupTargetVolumePointsHTTPResp(rsp *http.Response) (*GetBackupTargetVolumePointsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetBackupTargetVolumePointsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BackupTargetVolumePointsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -136177,6 +153001,13 @@ func ParseDeleteOrganizationCrdHTTPResp(rsp *http.Response) (*DeleteOrganization
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -137735,6 +154566,13 @@ func ParseDeleteHarborCrdHTTPResp(rsp *http.Response) (*DeleteHarborCrdHTTPResp,
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -137836,6 +154674,13 @@ func ParseCreateAirflowCrdHTTPResp(rsp *http.Response) (*CreateAirflowCrdHTTPRes
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -137936,6 +154781,13 @@ func ParseCreateAppInstanceCrdHTTPResp(rsp *http.Response) (*CreateAppInstanceCr
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -138387,6 +155239,13 @@ func ParseCreateContainerAppCrdHTTPResp(rsp *http.Response) (*CreateContainerApp
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -139565,6 +156424,175 @@ func ParseGetHarborNetworkIsolationHTTPResp(rsp *http.Response) (*GetHarborNetwo
 	return response, nil
 }
 
+// ParseGetNetworkMapHTTPResp parses an HTTP response from a GetNetworkMapWithResponse call
+func ParseGetNetworkMapHTTPResp(rsp *http.Response) (*GetNetworkMapHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNetworkMapHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NetworkMapResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCutEdgeHTTPResp parses an HTTP response from a CutEdgeWithResponse call
+func ParseCutEdgeHTTPResp(rsp *http.Response) (*CutEdgeHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CutEdgeHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EdgeActionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestoreEdgeHTTPResp parses an HTTP response from a RestoreEdgeWithResponse call
+func ParseRestoreEdgeHTTPResp(rsp *http.Response) (*RestoreEdgeHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestoreEdgeHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EdgeActionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListNextflowsHTTPResp parses an HTTP response from a ListNextflowsWithResponse call
 func ParseListNextflowsHTTPResp(rsp *http.Response) (*ListNextflowsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -139707,6 +156735,1236 @@ func ParseGetNextflowDefaultsHTTPResp(rsp *http.Response) (*GetNextflowDefaultsH
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamFindingsHTTPResp parses an HTTP response from a ListRedTeamFindingsWithResponse call
+func ParseListRedTeamFindingsHTTPResp(rsp *http.Response) (*ListRedTeamFindingsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamFindingsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamIdentityResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamFindingHTTPResp parses an HTTP response from a GetRedTeamFindingWithResponse call
+func ParseGetRedTeamFindingHTTPResp(rsp *http.Response) (*GetRedTeamFindingHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamFindingHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamIdentityDetailResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamFindingEventsHTTPResp parses an HTTP response from a ListRedTeamFindingEventsWithResponse call
+func ParseListRedTeamFindingEventsHTTPResp(rsp *http.Response) (*ListRedTeamFindingEventsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamFindingEventsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamTriageEventResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetRedTeamFindingOwnerValidationHTTPResp parses an HTTP response from a SetRedTeamFindingOwnerValidationWithResponse call
+func ParseSetRedTeamFindingOwnerValidationHTTPResp(rsp *http.Response) (*SetRedTeamFindingOwnerValidationHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetRedTeamFindingOwnerValidationHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamIdentityResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRetestRedTeamFindingHTTPResp parses an HTTP response from a RetestRedTeamFindingWithResponse call
+func ParseRetestRedTeamFindingHTTPResp(rsp *http.Response) (*RetestRedTeamFindingHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RetestRedTeamFindingHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest RedTeamRunResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetRedTeamFindingTriageHTTPResp parses an HTTP response from a SetRedTeamFindingTriageWithResponse call
+func ParseSetRedTeamFindingTriageHTTPResp(rsp *http.Response) (*SetRedTeamFindingTriageHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetRedTeamFindingTriageHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamIdentityResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamEnvironmentOverviewHTTPResp parses an HTTP response from a GetRedTeamEnvironmentOverviewWithResponse call
+func ParseGetRedTeamEnvironmentOverviewHTTPResp(rsp *http.Response) (*GetRedTeamEnvironmentOverviewHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamEnvironmentOverviewHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamEnvironmentOverview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamRepositoriesHTTPResp parses an HTTP response from a ListRedTeamRepositoriesWithResponse call
+func ParseListRedTeamRepositoriesHTTPResp(rsp *http.Response) (*ListRedTeamRepositoriesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamRepositoriesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamRepositoryResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRegisterRedTeamRepositoryHTTPResp parses an HTTP response from a RegisterRedTeamRepositoryWithResponse call
+func ParseRegisterRedTeamRepositoryHTTPResp(rsp *http.Response) (*RegisterRedTeamRepositoryHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RegisterRedTeamRepositoryHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest RedTeamRepositoryResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteRedTeamRepositoryHTTPResp parses an HTTP response from a DeleteRedTeamRepositoryWithResponse call
+func ParseDeleteRedTeamRepositoryHTTPResp(rsp *http.Response) (*DeleteRedTeamRepositoryHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteRedTeamRepositoryHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamRepositoryTrendHTTPResp parses an HTTP response from a GetRedTeamRepositoryTrendWithResponse call
+func ParseGetRedTeamRepositoryTrendHTTPResp(rsp *http.Response) (*GetRedTeamRepositoryTrendHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamRepositoryTrendHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamRepositoryTrendResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamRunsHTTPResp parses an HTTP response from a ListRedTeamRunsWithResponse call
+func ParseListRedTeamRunsHTTPResp(rsp *http.Response) (*ListRedTeamRunsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamRunsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamRunResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStartRedTeamRunHTTPResp parses an HTTP response from a StartRedTeamRunWithResponse call
+func ParseStartRedTeamRunHTTPResp(rsp *http.Response) (*StartRedTeamRunHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StartRedTeamRunHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest RedTeamRunResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamRunHTTPResp parses an HTTP response from a GetRedTeamRunWithResponse call
+func ParseGetRedTeamRunHTTPResp(rsp *http.Response) (*GetRedTeamRunHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamRunHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamRunResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelRedTeamRunHTTPResp parses an HTTP response from a CancelRedTeamRunWithResponse call
+func ParseCancelRedTeamRunHTTPResp(rsp *http.Response) (*CancelRedTeamRunHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelRedTeamRunHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamRunResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamRunCoverageHTTPResp parses an HTTP response from a ListRedTeamRunCoverageWithResponse call
+func ParseListRedTeamRunCoverageHTTPResp(rsp *http.Response) (*ListRedTeamRunCoverageHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamRunCoverageHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamCoverageUnitResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamRunCoverageSummaryHTTPResp parses an HTTP response from a GetRedTeamRunCoverageSummaryWithResponse call
+func ParseGetRedTeamRunCoverageSummaryHTTPResp(rsp *http.Response) (*GetRedTeamRunCoverageSummaryHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamRunCoverageSummaryHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamCoverageSummaryResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamRunDocumentHTTPResp parses an HTTP response from a GetRedTeamRunDocumentWithResponse call
+func ParseGetRedTeamRunDocumentHTTPResp(rsp *http.Response) (*GetRedTeamRunDocumentHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamRunDocumentHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamDocumentResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseExportRedTeamRunFindingsHTTPResp parses an HTTP response from a ExportRedTeamRunFindingsWithResponse call
+func ParseExportRedTeamRunFindingsHTTPResp(rsp *http.Response) (*ExportRedTeamRunFindingsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExportRedTeamRunFindingsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamFindingsExport
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseExportRedTeamRunSarifHTTPResp parses an HTTP response from a ExportRedTeamRunSarifWithResponse call
+func ParseExportRedTeamRunSarifHTTPResp(rsp *http.Response) (*ExportRedTeamRunSarifHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExportRedTeamRunSarifHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamRunFindingsHTTPResp parses an HTTP response from a ListRedTeamRunFindingsWithResponse call
+func ParseListRedTeamRunFindingsHTTPResp(rsp *http.Response) (*ListRedTeamRunFindingsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamRunFindingsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamFindingResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamFindingHandoffPromptHTTPResp parses an HTTP response from a GetRedTeamFindingHandoffPromptWithResponse call
+func ParseGetRedTeamFindingHandoffPromptHTTPResp(rsp *http.Response) (*GetRedTeamFindingHandoffPromptHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamFindingHandoffPromptHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamHandoffPromptResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamRunValidationErrorsHTTPResp parses an HTTP response from a GetRedTeamRunValidationErrorsWithResponse call
+func ParseGetRedTeamRunValidationErrorsHTTPResp(rsp *http.Response) (*GetRedTeamRunValidationErrorsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamRunValidationErrorsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamValidationErrorsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRedTeamSchedulesHTTPResp parses an HTTP response from a ListRedTeamSchedulesWithResponse call
+func ParseListRedTeamSchedulesHTTPResp(rsp *http.Response) (*ListRedTeamSchedulesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRedTeamSchedulesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RedTeamScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateRedTeamScheduleHTTPResp parses an HTTP response from a CreateRedTeamScheduleWithResponse call
+func ParseCreateRedTeamScheduleHTTPResp(rsp *http.Response) (*CreateRedTeamScheduleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateRedTeamScheduleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest RedTeamScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteRedTeamScheduleHTTPResp parses an HTTP response from a DeleteRedTeamScheduleWithResponse call
+func ParseDeleteRedTeamScheduleHTTPResp(rsp *http.Response) (*DeleteRedTeamScheduleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteRedTeamScheduleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateRedTeamScheduleHTTPResp parses an HTTP response from a UpdateRedTeamScheduleWithResponse call
+func ParseUpdateRedTeamScheduleHTTPResp(rsp *http.Response) (*UpdateRedTeamScheduleHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateRedTeamScheduleHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamSettingsHTTPResp parses an HTTP response from a GetRedTeamSettingsWithResponse call
+func ParseGetRedTeamSettingsHTTPResp(rsp *http.Response) (*GetRedTeamSettingsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamSettingsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamSettingsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateRedTeamSettingsHTTPResp parses an HTTP response from a UpdateRedTeamSettingsWithResponse call
+func ParseUpdateRedTeamSettingsHTTPResp(rsp *http.Response) (*UpdateRedTeamSettingsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateRedTeamSettingsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamSettingsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	}
 
@@ -140103,6 +158361,13 @@ func ParseCreateRegistryProjectHTTPResp(rsp *http.Response) (*CreateRegistryProj
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -140444,6 +158709,201 @@ func ParseGetRegistryImageTagsHTTPResp(rsp *http.Response) (*GetRegistryImageTag
 	return response, nil
 }
 
+// ParseListRegistryProxiesHTTPResp parses an HTTP response from a ListRegistryProxiesWithResponse call
+func ParseListRegistryProxiesHTTPResp(rsp *http.Response) (*ListRegistryProxiesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRegistryProxiesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RegistryProxiesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateRegistryProxyHTTPResp parses an HTTP response from a CreateRegistryProxyWithResponse call
+func ParseCreateRegistryProxyHTTPResp(rsp *http.Response) (*CreateRegistryProxyHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateRegistryProxyHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest RegistryProxyResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteRegistryProxyHTTPResp parses an HTTP response from a DeleteRegistryProxyWithResponse call
+func ParseDeleteRegistryProxyHTTPResp(rsp *http.Response) (*DeleteRegistryProxyHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteRegistryProxyHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRegistryProxyImagesHTTPResp parses an HTTP response from a ListRegistryProxyImagesWithResponse call
+func ParseListRegistryProxyImagesHTTPResp(rsp *http.Response) (*ListRegistryProxyImagesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRegistryProxyImagesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RegistryProxyImagesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetRegistryUsageHTTPResp parses an HTTP response from a GetRegistryUsageWithResponse call
 func ParseGetRegistryUsageHTTPResp(rsp *http.Response) (*GetRegistryUsageHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -140580,12 +159040,26 @@ func ParseCreateServiceLinkHTTPResp(rsp *http.Response) (*CreateServiceLinkHTTPR
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -140620,12 +159094,26 @@ func ParseDeleteServiceLinkHTTPResp(rsp *http.Response) (*DeleteServiceLinkHTTPR
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -140869,6 +159357,13 @@ func ParseCreateVirtualMachineCrdHTTPResp(rsp *http.Response) (*CreateVirtualMac
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -140915,6 +159410,516 @@ func ParseGetVirtualMachineImageCatalogHTTPResp(rsp *http.Response) (*GetVirtual
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVolumeBackupAlignmentHTTPResp parses an HTTP response from a GetVolumeBackupAlignmentWithResponse call
+func ParseGetVolumeBackupAlignmentHTTPResp(rsp *http.Response) (*GetVolumeBackupAlignmentHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVolumeBackupAlignmentHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ForgeAlignmentResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVolumeBackupCoverageHTTPResp parses an HTTP response from a ListVolumeBackupCoverageWithResponse call
+func ParseListVolumeBackupCoverageHTTPResp(rsp *http.Response) (*ListVolumeBackupCoverageHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVolumeBackupCoverageHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []VolumeBackupCoverageResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVolumeBackupsHTTPResp parses an HTTP response from a ListVolumeBackupsWithResponse call
+func ParseListVolumeBackupsHTTPResp(rsp *http.Response) (*ListVolumeBackupsHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVolumeBackupsHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []VolumeBackupResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateVolumeBackupHTTPResp parses an HTTP response from a CreateVolumeBackupWithResponse call
+func ParseCreateVolumeBackupHTTPResp(rsp *http.Response) (*CreateVolumeBackupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateVolumeBackupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest VolumeBackupResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVolumeBackupHTTPResp parses an HTTP response from a GetVolumeBackupWithResponse call
+func ParseGetVolumeBackupHTTPResp(rsp *http.Response) (*GetVolumeBackupHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVolumeBackupHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeBackupResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVolumeRestoresHTTPResp parses an HTTP response from a ListVolumeRestoresWithResponse call
+func ParseListVolumeRestoresHTTPResp(rsp *http.Response) (*ListVolumeRestoresHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVolumeRestoresHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []VolumeRestoreResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateVolumeRestoreHTTPResp parses an HTTP response from a CreateVolumeRestoreWithResponse call
+func ParseCreateVolumeRestoreHTTPResp(rsp *http.Response) (*CreateVolumeRestoreHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateVolumeRestoreHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest VolumeRestoreResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteVolumeRestoreHTTPResp parses an HTTP response from a DeleteVolumeRestoreWithResponse call
+func ParseDeleteVolumeRestoreHTTPResp(rsp *http.Response) (*DeleteVolumeRestoreHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteVolumeRestoreHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVolumeRestoreHTTPResp parses an HTTP response from a GetVolumeRestoreWithResponse call
+func ParseGetVolumeRestoreHTTPResp(rsp *http.Response) (*GetVolumeRestoreHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVolumeRestoreHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeRestoreResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVolumesHTTPResp parses an HTTP response from a ListVolumesWithResponse call
+func ParseListVolumesHTTPResp(rsp *http.Response) (*ListVolumesHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVolumesHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumesPage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateVolumeCrdHTTPResp parses an HTTP response from a CreateVolumeCrdWithResponse call
+func ParseCreateVolumeCrdHTTPResp(rsp *http.Response) (*CreateVolumeCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateVolumeCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest VolumeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody
@@ -143912,6 +162917,20 @@ func ParseGetAirflowLogsHTTPResp(rsp *http.Response) (*GetAirflowLogsHTTPResp, e
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -143958,6 +162977,20 @@ func ParseGetBifrostEventsHTTPResp(rsp *http.Response) (*GetBifrostEventsHTTPRes
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -144006,6 +163039,20 @@ func ParseGetBifrostOverviewHTTPResp(rsp *http.Response) (*GetBifrostOverviewHTT
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144052,6 +163099,20 @@ func ParseGetBifrostTimeseriesHTTPResp(rsp *http.Response) (*GetBifrostTimeserie
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -144100,6 +163161,20 @@ func ParseGetBifrostTopHTTPResp(rsp *http.Response) (*GetBifrostTopHTTPResp, err
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144146,6 +163221,20 @@ func ParseGetComputeDockLogsHTTPResp(rsp *http.Response) (*GetComputeDockLogsHTT
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -144342,6 +163431,20 @@ func ParseGetContainerAppLogsHTTPResp(rsp *http.Response) (*GetContainerAppLogsH
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144483,6 +163586,20 @@ func ParseGetDataDockLogsHTTPResp(rsp *http.Response) (*GetDataDockLogsHTTPResp,
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144577,6 +163694,20 @@ func ParseGetDevWorkstationLogsHTTPResp(rsp *http.Response) (*GetDevWorkstationL
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144670,6 +163801,20 @@ func ParseGetDevWorkstationSetupReportHTTPResp(rsp *http.Response) (*GetDevWorks
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -144840,6 +163985,20 @@ func ParseGetGithubRunnerPoolLogsHTTPResp(rsp *http.Response) (*GetGithubRunnerP
 		}
 		response.JSON500 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -144906,6 +164065,100 @@ func ParseGetGithubRunnerPoolMetricsHTTPResp(rsp *http.Response) (*GetGithubRunn
 	return response, nil
 }
 
+// ParseGetVirtualMachinesUsageHTTPResp parses an HTTP response from a GetVirtualMachinesUsageWithResponse call
+func ParseGetVirtualMachinesUsageHTTPResp(rsp *http.Response) (*GetVirtualMachinesUsageHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVirtualMachinesUsageHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VirtualMachinesUsageResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVolumesUsageHTTPResp parses an HTTP response from a GetVolumesUsageWithResponse call
+func ParseGetVolumesUsageHTTPResp(rsp *http.Response) (*GetVolumesUsageHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVolumesUsageHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumesUsageResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetHfKeyValueCacheLogsHTTPResp parses an HTTP response from a GetHfKeyValueCacheLogsWithResponse call
 func ParseGetHfKeyValueCacheLogsHTTPResp(rsp *http.Response) (*GetHfKeyValueCacheLogsHTTPResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -144947,6 +164200,20 @@ func ParseGetHfKeyValueCacheLogsHTTPResp(rsp *http.Response) (*GetHfKeyValueCach
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -145042,6 +164309,20 @@ func ParseGetHfRabbitmqLogsHTTPResp(rsp *http.Response) (*GetHfRabbitmqLogsHTTPR
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -145135,6 +164416,20 @@ func ParseGetKafkaLogsHTTPResp(rsp *http.Response) (*GetKafkaLogsHTTPResp, error
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -145230,6 +164525,20 @@ func ParseGetMonitoringLogsHTTPResp(rsp *http.Response) (*GetMonitoringLogsHTTPR
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -145276,6 +164585,20 @@ func ParseGetPostgresLogsHTTPResp(rsp *http.Response) (*GetPostgresLogsHTTPResp,
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -145370,6 +164693,20 @@ func ParseGetModelLogsHTTPResp(rsp *http.Response) (*GetModelLogsHTTPResp, error
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -145478,6 +164815,20 @@ func ParseGetNextflowRunLogsHTTPResp(rsp *http.Response) (*GetNextflowRunLogsHTT
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
@@ -146887,6 +166238,20 @@ func ParseListPipelineLogsHTTPResp(rsp *http.Response) (*ListPipelineLogsHTTPRes
 		}
 		response.JSON500 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
 	}
 
 	return response, nil
@@ -147093,6 +166458,39 @@ func ParseListPrincipalResolvedAccessHTTPResp(rsp *http.Response) (*ListPrincipa
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetRedTeamOrganizationOverviewHTTPResp parses an HTTP response from a GetRedTeamOrganizationOverviewWithResponse call
+func ParseGetRedTeamOrganizationOverviewHTTPResp(rsp *http.Response) (*GetRedTeamOrganizationOverviewHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetRedTeamOrganizationOverviewHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RedTeamOrganizationOverview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -150008,6 +169406,13 @@ func ParseDeleteVirtualMachineCrdHTTPResp(rsp *http.Response) (*DeleteVirtualMac
 		}
 		response.JSON500 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
 	}
 
 	return response, nil
@@ -150033,6 +169438,128 @@ func ParsePatchVirtualMachineCrdHTTPResp(rsp *http.Response) (*PatchVirtualMachi
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAttachVirtualMachineDiskHTTPResp parses an HTTP response from a AttachVirtualMachineDiskWithResponse call
+func ParseAttachVirtualMachineDiskHTTPResp(rsp *http.Response) (*AttachVirtualMachineDiskHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AttachVirtualMachineDiskHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VirtualMachineResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDetachVirtualMachineDiskHTTPResp parses an HTTP response from a DetachVirtualMachineDiskWithResponse call
+func ParseDetachVirtualMachineDiskHTTPResp(rsp *http.Response) (*DetachVirtualMachineDiskHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DetachVirtualMachineDiskHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VirtualMachineResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest ApiErrorBody
@@ -150303,6 +169830,161 @@ func ParseListVolumeBackendsHTTPResp(rsp *http.Response) (*ListVolumeBackendsHTT
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVolumeHTTPResp parses an HTTP response from a GetVolumeWithResponse call
+func ParseGetVolumeHTTPResp(rsp *http.Response) (*GetVolumeHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVolumeHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteVolumeCrdHTTPResp parses an HTTP response from a DeleteVolumeCrdWithResponse call
+func ParseDeleteVolumeCrdHTTPResp(rsp *http.Response) (*DeleteVolumeCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteVolumeCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchVolumeCrdHTTPResp parses an HTTP response from a PatchVolumeCrdWithResponse call
+func ParsePatchVolumeCrdHTTPResp(rsp *http.Response) (*PatchVolumeCrdHTTPResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchVolumeCrdHTTPResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ApiErrorBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ApiErrorBody

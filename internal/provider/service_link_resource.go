@@ -51,15 +51,15 @@ const serviceLinkWaitTimeout = 2 * time.Minute
 // absent: both are always reachable from a workload's baseline policy, so
 // neither is ever linked.
 //
-// Spelled with the generated enum constants rather than literals, so a kind the
+// Spelled with the generated enum constants (see service_link_kind.go) rather than literals, so a kind the
 // spec renames or drops breaks the build instead of leaving the provider
 // validating against a value the API no longer knows.
 var serviceLinkTargetKinds = []string{
-	string(console.ServiceLinkKindContainerApp),
-	string(console.ServiceLinkKindHfKeyValueCache),
-	string(console.ServiceLinkKindManagedPostgreSQL),
-	string(console.ServiceLinkKindTrino),
-	string(console.ServiceLinkKindKafka),
+	serviceLinkKindContainerApp,
+	serviceLinkKindHfKeyValueCache,
+	serviceLinkKindManagedPostgreSQL,
+	serviceLinkKindTrino,
+	serviceLinkKindKafka,
 }
 
 // serviceLinkConsumerKinds additionally covers the two CONSUMER-ONLY kinds.
@@ -69,8 +69,8 @@ var serviceLinkTargetKinds = []string{
 // into a plan-time error instead of an apply-time 400.
 var serviceLinkConsumerKinds = append(
 	append([]string{}, serviceLinkTargetKinds...),
-	string(console.ServiceLinkKindAirflow),
-	string(console.ServiceLinkKindPipeline),
+	serviceLinkKindAirflow,
+	serviceLinkKindPipeline,
 )
 
 func NewServiceLinkResource() resource.Resource {
@@ -243,7 +243,7 @@ func (r *serviceLinkResource) ValidateConfig(ctx context.Context, req resource.V
 		return
 	}
 	kind := target.Kind
-	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == string(console.ServiceLinkKindContainerApp) {
+	if kind.IsNull() || kind.IsUnknown() || kind.ValueString() == serviceLinkKindContainerApp {
 		return
 	}
 	resp.Diagnostics.AddAttributeError(
@@ -251,7 +251,7 @@ func (r *serviceLinkResource) ValidateConfig(ctx context.Context, req resource.V
 		"Target ports not supported for this kind",
 		fmt.Sprintf("target_ports may only be set when target.kind is %s, got %s. "+
 			"Every other kind publishes a single known port, which the platform opens for you — "+
-			"drop target_ports.", console.ServiceLinkKindContainerApp, kind.ValueString()),
+			"drop target_ports.", serviceLinkKindContainerApp, kind.ValueString()),
 	)
 }
 
@@ -273,7 +273,7 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 	target := console.ServiceRef{
-		Kind: console.ServiceLinkKind(targetRef.Kind.ValueString()),
+		Kind: toServiceLinkKind(targetRef.Kind.ValueString()),
 		Name: targetRef.Name.ValueString(),
 	}
 
@@ -282,7 +282,7 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 			resp.Diagnostics.AddAttributeError(path.Root("target_ports"), "Target port not published by the app", err.Error())
 			return
 		}
-	} else if target.Kind == console.ServiceLinkKindContainerApp {
+	} else if serviceLinkKindString(target.Kind) == serviceLinkKindContainerApp {
 		if err := r.checkListensOnAPort(ctx, env, target); err != nil {
 			resp.Diagnostics.AddAttributeError(path.Root("target"), "Target app listens on no port", err.Error())
 			return
@@ -291,7 +291,7 @@ func (r *serviceLinkResource) Create(ctx context.Context, req resource.CreateReq
 
 	body := console.CreateServiceLinkRequestBody{
 		Consumer: console.ServiceRef{
-			Kind: console.ServiceLinkKind(consumerRef.Kind.ValueString()),
+			Kind: toServiceLinkKind(consumerRef.Kind.ValueString()),
 			Name: consumerRef.Name.ValueString(),
 		},
 		Target: target,
@@ -527,7 +527,7 @@ func portsToList(ctx context.Context, ports []console.ServiceLinkPort) (types.Li
 
 func serviceRefToObject(ctx context.Context, kind console.ServiceLinkKind, name string) (types.Object, diag.Diagnostics) {
 	return types.ObjectValueFrom(ctx, serviceRefType().AttrTypes, serviceRefModel{
-		Kind: types.StringValue(string(kind)),
+		Kind: types.StringValue(serviceLinkKindString(kind)),
 		Name: types.StringValue(name),
 	})
 }
