@@ -346,6 +346,7 @@ func (r *alertChannelResource) Update(ctx context.Context, req resource.UpdateRe
 			"`url` is required when `url_wo_version` changes (rotation).")
 		return
 	}
+	keepResolvedRoom(ctx, &body, plan.Matrix, state.Matrix, &resp.Diagnostics)
 	updated, err := r.p.API.UpdateAlertChannel(ctx, r.p.OrgID, state.ID.ValueString(), body)
 	if err != nil {
 		addAlertingError(&resp.Diagnostics, "Failed to update alert channel", err)
@@ -423,6 +424,28 @@ func alertChannelFrom(ctx context.Context, ch *console.NotificationChannelDto, p
 		Enabled:    types.BoolValue(ch.Enabled),
 		Matrix:     matrix,
 	}, diags
+}
+
+// keepResolvedRoom sends the room id already resolved, not the configured
+// alias, when an update leaves the bot and the room unchanged. Re-sending the
+// alias would make the platform resolve it again through the bot: a rename
+// would then fail while the bot is not connected, and an alias repointed since
+// would move the channel to another room while the plan kept the old room_id
+// (an inconsistent result).
+func keepResolvedRoom(ctx context.Context, body *console.ChannelBody, plan, state types.Object, diags *diag.Diagnostics) {
+	if body.Matrix == nil || plan.IsNull() || plan.IsUnknown() || state.IsNull() || state.IsUnknown() {
+		return
+	}
+	var planned, prior alertChannelMatrixModel
+	diags.Append(plan.As(ctx, &planned, basetypes.ObjectAsOptions{UnhandledUnknownAsEmpty: true})...)
+	diags.Append(state.As(ctx, &prior, basetypes.ObjectAsOptions{UnhandledUnknownAsEmpty: true})...)
+	if prior.RoomID.IsNull() || prior.RoomID.IsUnknown() || prior.RoomID.ValueString() == "" {
+		return
+	}
+	if strings.EqualFold(planned.BotID.ValueString(), prior.BotID.ValueString()) &&
+		planned.Room.ValueString() == prior.Room.ValueString() {
+		body.Matrix.Room = prior.RoomID.ValueString()
+	}
 }
 
 // matrixRoomForState picks the `room` written to state. The prior value is kept

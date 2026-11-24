@@ -149,6 +149,42 @@ func TestAlertChannelMatrixAliasHasNoDiff(t *testing.T) {
 	}
 }
 
+// An update that keeps the bot and the room sends the room id already
+// resolved, not the alias: a rename must not re-resolve the alias through the
+// bot (it fails while the bot is down, and an alias repointed since would move
+// the channel under a plan that kept the old room_id). A changed room is sent
+// as configured, so the platform resolves it again.
+func TestAlertChannelMatrixUpdateKeepsTheResolvedRoom(t *testing.T) {
+	f, pd := newFakeAlerting(t)
+	l := newLifecycle[alertChannelModel](t, &alertChannelResource{p: pd})
+	bot := uuid.NewString()
+
+	created, d := l.create(matrixChannelPlan(t, bot, "#ops:x.org"))
+	mustSucceed(t, d)
+
+	rename := matrixChannelPlan(t, bot, "#ops:x.org")
+	rename.Name = types.StringValue("renamed")
+	renamed, d := l.update(rename, created)
+	mustSucceed(t, d)
+	put := f.calls("PUT", `/alerting/channels/[^/]+`)[0].body
+	if m, _ := put["matrix"].(map[string]any); m["room"] != fakeRoomID("#ops:x.org") {
+		t.Errorf("rename sent room %v, want the resolved id %q", m["room"], fakeRoomID("#ops:x.org"))
+	}
+	if got := matrixOf(t, renamed); got.Room.ValueString() != "#ops:x.org" {
+		t.Errorf("renamed room = %q, want the configured alias kept", got.Room.ValueString())
+	}
+
+	moved, d := l.update(matrixChannelPlan(t, bot, "#infra:x.org"), renamed)
+	mustSucceed(t, d)
+	put = f.calls("PUT", `/alerting/channels/[^/]+`)[1].body
+	if m, _ := put["matrix"].(map[string]any); m["room"] != "#infra:x.org" {
+		t.Errorf("a changed room sent %v, want the configured alias", m["room"])
+	}
+	if got := matrixOf(t, moved); got.RoomID.ValueString() != fakeRoomID("#infra:x.org") {
+		t.Errorf("moved room_id = %q", got.RoomID.ValueString())
+	}
+}
+
 // A room configured by id round-trips as the id; the bot id keeps the case it
 // was configured with.
 func TestAlertChannelMatrixRoomID(t *testing.T) {
