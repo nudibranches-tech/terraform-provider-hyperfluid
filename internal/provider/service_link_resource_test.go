@@ -210,16 +210,16 @@ resource "hyperfluid_service_link" "bad" {
 // would have taken (a renamed or dropped kind breaks the build instead, since
 // the lists are spelled with the generated constants).
 func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
-	has := func(kinds []string, kind console.ServiceLinkKind) bool {
+	has := func(kinds []string, kind string) bool {
 		for _, k := range kinds {
-			if k == string(kind) {
+			if k == kind {
 				return true
 			}
 		}
 		return false
 	}
 
-	for _, kind := range []console.ServiceLinkKind{console.ServiceLinkKindAirflow, console.ServiceLinkKindPipeline} {
+	for _, kind := range []string{serviceLinkKindAirflow, serviceLinkKindPipeline} {
 		if !has(serviceLinkConsumerKinds, kind) {
 			t.Errorf("%s must be accepted as a link consumer", kind)
 		}
@@ -231,7 +231,7 @@ func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
 	// Every target kind is also a legal consumer; the consumer set is a strict
 	// superset, not a different list.
 	for _, kind := range serviceLinkTargetKinds {
-		if !has(serviceLinkConsumerKinds, console.ServiceLinkKind(kind)) {
+		if !has(serviceLinkConsumerKinds, kind) {
 			t.Errorf("target kind %s is not accepted as a consumer", kind)
 		}
 	}
@@ -243,7 +243,7 @@ func TestServiceLinkKindsAreAsymmetric(t *testing.T) {
 	// Every kind either side validates against is a value the API accepts.
 	for _, kinds := range [][]string{serviceLinkTargetKinds, serviceLinkConsumerKinds} {
 		for _, kind := range kinds {
-			if !console.ServiceLinkKind(kind).Valid() {
+			if !has(serviceLinkAPIKinds, kind) {
 				t.Errorf("link kind %q is not a value the API accepts", kind)
 			}
 		}
@@ -263,7 +263,7 @@ func TestServiceLinkToAnAppWithNoPort(t *testing.T) {
 		return 200, console.ContainerAppCrdSpecResponse{Ports: ports}
 	})
 	r := &serviceLinkResource{p: pd}
-	target := console.ServiceRef{Kind: console.ServiceLinkKindContainerApp, Name: "worker"}
+	target := console.ServiceRef{Kind: toServiceLinkKind(serviceLinkKindContainerApp), Name: "worker"}
 
 	err := r.checkListensOnAPort(t.Context(), f.env.String(), target)
 	if err == nil || !strings.Contains(err.Error(), "listens on no port") {
@@ -275,7 +275,7 @@ func TestServiceLinkToAnAppWithNoPort(t *testing.T) {
 		t.Errorf("link to an app with a port refused: %v", err)
 	}
 
-	missing := console.ServiceRef{Kind: console.ServiceLinkKindContainerApp, Name: "not-yet"}
+	missing := console.ServiceRef{Kind: toServiceLinkKind(serviceLinkKindContainerApp), Name: "not-yet"}
 	if err := r.checkListensOnAPort(t.Context(), f.env.String(), missing); err != nil {
 		t.Errorf("an app the lookup cannot find is left to the platform, got %v", err)
 	}

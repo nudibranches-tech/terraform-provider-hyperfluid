@@ -170,7 +170,7 @@ func (c *Client) DeleteContainerApp(ctx context.Context, orgID, appID string) er
 	if err != nil {
 		return err
 	}
-	resp, err := c.api.DeleteContainerAppCrdWithResponse(ctx, org, app)
+	resp, err := c.api.DeleteContainerAppCrdWithResponse(ctx, org, app, nil)
 	if err != nil {
 		return err
 	}
