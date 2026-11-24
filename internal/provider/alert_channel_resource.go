@@ -6,8 +6,13 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -18,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/client"
 	"github.com/nudibranches-tech/terraform-provider-hyperfluid/internal/console"
@@ -25,7 +31,18 @@ import (
 
 // alert_channel_resource.go — a notification channel alerts are delivered
 // through. A webhook `url` is a credential the API only returns masked, so it
-// is write-only like a secret's value and rotated with `url_wo_version`.
+// is write-only like a secret's value and rotated with `url_wo_version`. A
+// Matrix channel names a bot (hyperfluid_alert_matrix_bot) and a room instead.
+//
+// Matrix room, alias or id: the API resolves an alias (`#ops:server`) to the
+// room id (`!abc:server`) and stores both, the alias as `room_label`. `room`
+// keeps the value the configuration named, so an alias never turns into a
+// perpetual diff against the id the API reports. On read, the prior `room` is
+// kept while the bot is unchanged and it still names the stored room — it equals
+// either the stored `room_label` or the stored `room_id`; otherwise (import, or
+// the channel was repointed outside Terraform) `room` becomes the `room_label`
+// when there is one, else the `room_id`. The resolved id is always in
+// `matrix.room_id`.
 
 var (
 	_ resource.Resource                   = &alertChannelResource{}
@@ -36,6 +53,16 @@ var (
 
 var alertChannelKinds = []string{
 	string(console.ChannelKindEmail), string(console.ChannelKindSlackWebhook), string(console.ChannelKindDiscordWebhook),
+	string(console.ChannelKindTeamsWebhook), string(console.ChannelKindMatrix),
+}
+
+// isWebhookChannelKind reports the kinds delivered to a write-only `url`.
+func isWebhookChannelKind(kind console.ChannelKind) bool {
+	switch kind {
+	case console.ChannelKindSlackWebhook, console.ChannelKindDiscordWebhook, console.ChannelKindTeamsWebhook:
+		return true
+	}
+	return false
 }
 
 func NewAlertChannelResource() resource.Resource {
@@ -55,6 +82,17 @@ type alertChannelModel struct {
 	URLWoVersion types.String `tfsdk:"url_wo_version"`
 	URLMasked    types.String `tfsdk:"url_masked"`
 	Enabled      types.Bool   `tfsdk:"enabled"`
+	Matrix       types.Object `tfsdk:"matrix"`
+}
+
+type alertChannelMatrixModel struct {
+	BotID  types.String `tfsdk:"bot_id"`
+	Room   types.String `tfsdk:"room"`
+	RoomID types.String `tfsdk:"room_id"`
+}
+
+func alertChannelMatrixAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{"bot_id": types.StringType, "room": types.StringType, "room_id": types.StringType}
 }
 
 func (r *alertChannelResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -76,21 +114,23 @@ func (r *alertChannelResource) Schema(_ context.Context, _ resource.SchemaReques
 				Validators:          []validator.String{stringvalidator.LengthBetween(1, 128)},
 			},
 			"kind": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "`email`, `slack_webhook` or `discord_webhook`.",
-				Validators:          []validator.String{stringvalidator.OneOf(alertChannelKinds...)},
+				Required: true,
+				MarkdownDescription: "`email`, `slack_webhook`, `discord_webhook`, `teams_webhook` (a Microsoft Teams " +
+					"Workflows webhook) or `matrix` (a Matrix or Tchap room, posted to by a `hyperfluid_alert_matrix_bot`).",
+				Validators: []validator.String{stringvalidator.OneOf(alertChannelKinds...)},
 			},
 			"recipients": schema.SetAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				MarkdownDescription: "Email addresses; required for `email`, refused for webhooks.",
+				MarkdownDescription: "Email addresses; required for `email`, refused for the other kinds.",
 			},
 			"url": schema.StringAttribute{
 				Optional:  true,
 				WriteOnly: true,
 				Sensitive: true,
-				MarkdownDescription: "Webhook URL, required on create for a webhook kind; write-only (Terraform 1.11 " +
-					"or later). Left out on update, the stored URL is kept.",
+				MarkdownDescription: "Webhook URL, required on create for a webhook kind and refused for `email` and " +
+					"`matrix`; write-only (Terraform 1.11 or later). Left out on update, the stored URL is kept. A Teams " +
+					"URL must be on `*.logic.azure.com` or `*.environment.api.powerplatform.com`.",
 			},
 			"url_wo_version": schema.StringAttribute{
 				Optional:            true,
@@ -105,6 +145,28 @@ func (r *alertChannelResource) Schema(_ context.Context, _ resource.SchemaReques
 				Default:             booldefault.StaticBool(true),
 				MarkdownDescription: "Whether alerts are delivered; a disabled channel keeps its routing.",
 			},
+			"matrix": schema.SingleNestedAttribute{
+				Optional: true,
+				MarkdownDescription: "The bot and room of a `matrix` channel; required for that kind and refused for " +
+					"the others.",
+				Attributes: map[string]schema.Attribute{
+					"bot_id": schema.StringAttribute{
+						Required:            true,
+						MarkdownDescription: "Id of the `hyperfluid_alert_matrix_bot` that posts the alerts.",
+					},
+					"room": schema.StringAttribute{
+						Required: true,
+						MarkdownDescription: "Room id (`!abc:server`) or alias (`#ops:server`). The platform resolves " +
+							"an alias through the bot and stores the id; the configured value is kept here, so an alias " +
+							"does not show a diff against the resolved id.",
+					},
+					"room_id": schema.StringAttribute{
+						Computed:            true,
+						MarkdownDescription: "The room id the alerts are posted to, resolved from `room`.",
+						PlanModifiers:       []planmodifier.String{matrixRoomIDUnlessRoomChanged{}},
+					},
+				},
+			},
 		},
 	}
 }
@@ -117,7 +179,45 @@ func (r *alertChannelResource) ValidateConfig(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() || cfg.Kind.IsNull() || cfg.Kind.IsUnknown() {
 		return
 	}
-	if cfg.Kind.ValueString() == string(console.ChannelKindEmail) {
+	kind := console.ChannelKind(cfg.Kind.ValueString())
+	if kind != console.ChannelKindMatrix && !cfg.Matrix.IsNull() && !cfg.Matrix.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(path.Root("matrix"), "Matrix settings on a non-Matrix channel",
+			"`matrix` is only taken by a channel of kind `matrix`.")
+	}
+	if kind == console.ChannelKindMatrix {
+		if !cfg.URL.IsNull() && !cfg.URL.IsUnknown() {
+			resp.Diagnostics.AddAttributeError(path.Root("url"), "URL on a Matrix channel",
+				"A Matrix channel takes `matrix`, not a `url`.")
+		}
+		if !cfg.Recipients.IsNull() {
+			resp.Diagnostics.AddAttributeError(path.Root("recipients"), "Recipients on a Matrix channel",
+				"A Matrix channel takes `matrix`, not `recipients`.")
+		}
+		if cfg.Matrix.IsNull() {
+			resp.Diagnostics.AddAttributeError(path.Root("matrix"), "Missing matrix settings",
+				"A Matrix channel needs `matrix = { bot_id, room }`.")
+			return
+		}
+		if cfg.Matrix.IsUnknown() {
+			return
+		}
+		var m alertChannelMatrixModel
+		resp.Diagnostics.Append(cfg.Matrix.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+		if !m.BotID.IsNull() && !m.BotID.IsUnknown() {
+			if _, err := uuid.Parse(m.BotID.ValueString()); err != nil {
+				resp.Diagnostics.AddAttributeError(path.Root("matrix").AtName("bot_id"), "Invalid bot id",
+					"`bot_id` must be the UUID of a `hyperfluid_alert_matrix_bot`.")
+			}
+		}
+		if !m.Room.IsNull() && !m.Room.IsUnknown() {
+			if room := m.Room.ValueString(); !strings.HasPrefix(room, "!") && !strings.HasPrefix(room, "#") {
+				resp.Diagnostics.AddAttributeError(path.Root("matrix").AtName("room"), "Invalid Matrix room",
+					fmt.Sprintf("`room` must be a room id (`!…`) or an alias (`#…:server`), got %q.", room))
+			}
+		}
+		return
+	}
+	if kind == console.ChannelKindEmail {
 		if !cfg.URL.IsNull() && !cfg.URL.IsUnknown() {
 			resp.Diagnostics.AddAttributeError(path.Root("url"), "URL on an email channel",
 				"An email channel takes `recipients`, not a `url`.")
@@ -163,6 +263,17 @@ func (r *alertChannelResource) body(ctx context.Context, plan alertChannelModel,
 	if recipients != nil {
 		body.Recipients = &recipients
 	}
+	if !plan.Matrix.IsNull() && !plan.Matrix.IsUnknown() {
+		var m alertChannelMatrixModel
+		diags.Append(plan.Matrix.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+		botID, err := uuid.Parse(m.BotID.ValueString())
+		if err != nil {
+			diags.AddAttributeError(path.Root("matrix").AtName("bot_id"), "Invalid bot id",
+				"`bot_id` must be the UUID of a `hyperfluid_alert_matrix_bot`.")
+			return body, diags
+		}
+		body.Matrix = &console.MatrixChannelBody{BotId: botID, Room: m.Room.ValueString()}
+	}
 	return body, diags
 }
 
@@ -177,8 +288,13 @@ func (r *alertChannelResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if body.Kind != console.ChannelKindEmail && body.Url == nil {
+	if isWebhookChannelKind(body.Kind) && body.Url == nil {
 		resp.Diagnostics.AddAttributeError(path.Root("url"), "Missing url", "`url` is required when creating a webhook channel.")
+		return
+	}
+	if body.Kind == console.ChannelKindMatrix && body.Matrix == nil {
+		resp.Diagnostics.AddAttributeError(path.Root("matrix"), "Missing matrix settings",
+			"A Matrix channel needs `matrix = { bot_id, room }`.")
 		return
 	}
 	created, err := r.p.API.CreateAlertChannel(ctx, r.p.OrgID, body)
@@ -186,7 +302,7 @@ func (r *alertChannelResource) Create(ctx context.Context, req resource.CreateRe
 		addAlertingError(&resp.Diagnostics, "Failed to create alert channel", err)
 		return
 	}
-	state, d := alertChannelFrom(ctx, created)
+	state, d := alertChannelFrom(ctx, created, plan.Matrix, true)
 	resp.Diagnostics.Append(d...)
 	state.URLWoVersion = plan.URLWoVersion
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
@@ -207,7 +323,7 @@ func (r *alertChannelResource) Read(ctx context.Context, req resource.ReadReques
 		addAlertingError(&resp.Diagnostics, "Failed to read alert channel", err)
 		return
 	}
-	state, d := alertChannelFrom(ctx, ch)
+	state, d := alertChannelFrom(ctx, ch, prior.Matrix, false)
 	resp.Diagnostics.Append(d...)
 	state.URLWoVersion = prior.URLWoVersion // not echoed by the API
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
@@ -225,7 +341,7 @@ func (r *alertChannelResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if !plan.URLWoVersion.Equal(state.URLWoVersion) && body.Kind != console.ChannelKindEmail && body.Url == nil {
+	if !plan.URLWoVersion.Equal(state.URLWoVersion) && isWebhookChannelKind(body.Kind) && body.Url == nil {
 		resp.Diagnostics.AddAttributeError(path.Root("url"), "Missing url",
 			"`url` is required when `url_wo_version` changes (rotation).")
 		return
@@ -235,7 +351,7 @@ func (r *alertChannelResource) Update(ctx context.Context, req resource.UpdateRe
 		addAlertingError(&resp.Diagnostics, "Failed to update alert channel", err)
 		return
 	}
-	newState, d := alertChannelFrom(ctx, updated)
+	newState, d := alertChannelFrom(ctx, updated, plan.Matrix, true)
 	resp.Diagnostics.Append(d...)
 	newState.URLWoVersion = plan.URLWoVersion
 	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
@@ -258,11 +374,44 @@ func (r *alertChannelResource) ImportState(ctx context.Context, req resource.Imp
 
 // alertChannelFrom maps a channel into state. url is always null (write-only)
 // and the caller sets url_wo_version; a webhook's empty recipients read as null.
-func alertChannelFrom(ctx context.Context, ch *console.NotificationChannelDto) (alertChannelModel, diag.Diagnostics) {
+// prior is the matrix object the plan or the previous state named. After a
+// write (written true) the API has just resolved the planned room, so the
+// planned value is kept as long as the bot is the planned one: state must match
+// the plan. On a read, the prior room is kept only while it still names the
+// stored room (see the file comment).
+func alertChannelFrom(ctx context.Context, ch *console.NotificationChannelDto, prior types.Object, written bool) (alertChannelModel, diag.Diagnostics) {
 	recipients := types.SetNull(types.StringType)
-	var d diag.Diagnostics
+	var diags diag.Diagnostics
 	if len(ch.Recipients) > 0 {
+		var d diag.Diagnostics
 		recipients, d = stringSliceToSet(ctx, ch.Recipients)
+		diags.Append(d...)
+	}
+	matrix := types.ObjectNull(alertChannelMatrixAttrTypes())
+	if ch.Matrix != nil {
+		var priorRoom, priorBot *string
+		if !prior.IsNull() && !prior.IsUnknown() {
+			var pm alertChannelMatrixModel
+			diags.Append(prior.As(ctx, &pm, basetypes.ObjectAsOptions{UnhandledUnknownAsEmpty: true})...)
+			if !pm.Room.IsNull() && !pm.Room.IsUnknown() {
+				priorRoom = pm.Room.ValueStringPointer()
+			}
+			if !pm.BotID.IsNull() && !pm.BotID.IsUnknown() {
+				priorBot = pm.BotID.ValueStringPointer()
+			}
+		}
+		room := matrixRoomForState(ch.Matrix, priorBot, priorRoom, written)
+		botID := ch.Matrix.BotId.String()
+		if priorBot != nil && strings.EqualFold(*priorBot, botID) {
+			botID = *priorBot // the same UUID, spelled as configured
+		}
+		var d diag.Diagnostics
+		matrix, d = types.ObjectValueFrom(ctx, alertChannelMatrixAttrTypes(), alertChannelMatrixModel{
+			BotID:  types.StringValue(botID),
+			Room:   types.StringValue(room),
+			RoomID: types.StringValue(ch.Matrix.RoomId),
+		})
+		diags.Append(d...)
 	}
 	return alertChannelModel{
 		ID:         types.StringValue(ch.Id.String()),
@@ -272,5 +421,52 @@ func alertChannelFrom(ctx context.Context, ch *console.NotificationChannelDto) (
 		URL:        types.StringNull(),
 		URLMasked:  optString(ch.UrlMasked),
 		Enabled:    types.BoolValue(ch.Enabled),
-	}, d
+		Matrix:     matrix,
+	}, diags
+}
+
+// matrixRoomForState picks the `room` written to state. The prior value is kept
+// while the bot is unchanged and it still names the stored room — as its alias
+// (`room_label`) or its id, or unconditionally right after the write that
+// resolved it; otherwise the alias the API stored wins, then the id.
+func matrixRoomForState(m *console.MatrixChannelDto, priorBot, priorRoom *string, written bool) string {
+	if priorRoom != nil && priorBot != nil && strings.EqualFold(*priorBot, m.BotId.String()) {
+		if written || *priorRoom == m.RoomId || (m.RoomLabel != nil && *priorRoom == *m.RoomLabel) {
+			return *priorRoom
+		}
+	}
+	if m.RoomLabel != nil && *m.RoomLabel != "" {
+		return *m.RoomLabel
+	}
+	return m.RoomId
+}
+
+// matrixRoomIDUnlessRoomChanged keeps the known room_id in the plan while the
+// bot and room are the ones the state already resolved, so an unrelated change
+// (a rename, enabling the channel) does not show room_id as unknown. A changed
+// bot or room leaves it unknown: the API resolves the room again.
+type matrixRoomIDUnlessRoomChanged struct{}
+
+func (matrixRoomIDUnlessRoomChanged) Description(context.Context) string {
+	return "Keeps the resolved room id while the bot and room are unchanged."
+}
+
+func (m matrixRoomIDUnlessRoomChanged) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (matrixRoomIDUnlessRoomChanged) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+	if req.StateValue.IsNull() || req.StateValue.IsUnknown() || !req.PlanValue.IsUnknown() || req.Plan.Raw.IsNull() {
+		return
+	}
+	parent := req.Path.ParentPath()
+	for _, name := range []string{"bot_id", "room"} {
+		var planned, prior types.String
+		resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, parent.AtName(name), &planned)...)
+		resp.Diagnostics.Append(req.State.GetAttribute(ctx, parent.AtName(name), &prior)...)
+		if resp.Diagnostics.HasError() || planned.IsUnknown() || !planned.Equal(prior) {
+			return
+		}
+	}
+	resp.PlanValue = req.StateValue
 }

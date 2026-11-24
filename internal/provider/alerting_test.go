@@ -29,8 +29,13 @@ type fakeAlerting struct {
 	urls       map[string]string
 	rules      map[string]*console.AlertRuleDto
 	thresholds map[string]*console.SignalThresholdsDto
+	bots       map[string]*console.MatrixBotDto
 	forbidden  string // when set, every call answers 403 with this message
 }
+
+// fakeRoomID is what the fake resolves a Matrix alias to: `#ops:x.org` becomes
+// `!resolved-ops:x.org`.
+func fakeRoomID(alias string) string { return "!resolved-" + strings.TrimPrefix(alias, "#") }
 
 var alertThresholdDefaults = map[string][2]int32{"pvc_disk": {80, 90}, "bucket_quota": {80, 95}}
 
@@ -39,6 +44,7 @@ func newFakeAlerting(t *testing.T) (*fakeAlerting, *providerData) {
 	f := &fakeAlerting{
 		fakeAPI: api, channels: map[string]*console.NotificationChannelDto{}, urls: map[string]string{},
 		rules: map[string]*console.AlertRuleDto{}, thresholds: map[string]*console.SignalThresholdsDto{},
+		bots: map[string]*console.MatrixBotDto{},
 	}
 	for signal := range alertThresholdDefaults {
 		f.resetThreshold(signal)
@@ -78,6 +84,17 @@ func newFakeAlerting(t *testing.T) (*fakeAlerting, *providerData) {
 			f.urls[id] = *body.Url
 		}
 		c.UrlMasked = masked(f.urls[id])
+		if body.Matrix != nil {
+			m := &console.MatrixChannelDto{BotId: body.Matrix.BotId, RoomId: body.Matrix.Room}
+			if strings.HasPrefix(body.Matrix.Room, "#") {
+				label := body.Matrix.Room
+				m.RoomId, m.RoomLabel = fakeRoomID(label), &label
+			}
+			if b, ok := f.bots[body.Matrix.BotId.String()]; ok {
+				m.BotName = &b.Name
+			}
+			c.Matrix = m
+		}
 		f.channels[id] = c
 		return c
 	}
@@ -98,6 +115,60 @@ func newFakeAlerting(t *testing.T) (*fakeAlerting, *providerData) {
 			return code, v
 		}
 		delete(f.channels, last(p))
+		return 204, nil
+	})
+
+	f.on("GET", `/alerting/matrix-bots`, func(string, []byte) (int, any) {
+		if code, v, ok := deny(); ok {
+			return code, v
+		}
+		out := []console.MatrixBotDto{}
+		for _, b := range f.bots {
+			out = append(out, *b)
+		}
+		return 200, out
+	})
+	writeBot := func(id string, b console.MatrixBotBody) *console.MatrixBotDto {
+		bot := &console.MatrixBotDto{Id: uuid.MustParse(id), Name: b.Name, Preset: b.Preset, HomeserverUrl: b.HomeserverUrl,
+			UserId: b.UserId, PasswordSecretId: b.PasswordSecretId, RecoveryKeySecretId: b.RecoveryKeySecretId,
+			AllowUnencryptedRooms: b.AllowUnencryptedRooms != nil && *b.AllowUnencryptedRooms,
+			Status:                console.MatrixBotStatusDto{Phase: console.MatrixBotPhasePending, Rooms: []console.MatrixBotRoomDto{}},
+			CreatedAt:             time.Now(), UpdatedAt: time.Now()}
+		f.bots[id] = bot
+		return bot
+	}
+	f.on("POST", `/alerting/matrix-bots`, func(_ string, raw []byte) (int, any) {
+		if code, v, ok := deny(); ok {
+			return code, v
+		}
+		return 200, writeBot(uuid.NewString(), decodeInto[console.MatrixBotBody](t, raw))
+	})
+	f.on("GET", `/alerting/matrix-bots/[^/]+`, func(p string, _ []byte) (int, any) {
+		if code, v, ok := deny(); ok {
+			return code, v
+		}
+		b, ok := f.bots[last(p)]
+		if !ok {
+			return 404, map[string]string{"message": "no such bot"}
+		}
+		return 200, b
+	})
+	f.on("PUT", `/alerting/matrix-bots/[^/]+`, func(p string, raw []byte) (int, any) {
+		if _, ok := f.bots[last(p)]; !ok {
+			return 404, map[string]string{"message": "no such bot"}
+		}
+		return 200, writeBot(last(p), decodeInto[console.MatrixBotBody](t, raw))
+	})
+	f.on("DELETE", `/alerting/matrix-bots/[^/]+`, func(p string, _ []byte) (int, any) {
+		if _, ok := f.bots[last(p)]; !ok {
+			return 404, map[string]string{"message": "no such bot"}
+		}
+		for _, c := range f.channels {
+			if c.Matrix != nil && c.Matrix.BotId.String() == last(p) {
+				return 409, map[string]string{"message": "the bot is used by channel " + c.Name}
+			}
+		}
+		delete(f.bots, last(p))
 		return 204, nil
 	})
 
@@ -184,7 +255,7 @@ func webhookChannelPlan(url string) alertChannelModel {
 	return alertChannelModel{
 		ID: types.StringUnknown(), Name: types.StringValue("ops-slack"), Kind: types.StringValue("slack_webhook"),
 		Recipients: types.SetNull(types.StringType), URL: types.StringValue(url), URLWoVersion: types.StringValue("1"),
-		URLMasked: types.StringUnknown(), Enabled: types.BoolValue(true),
+		URLMasked: types.StringUnknown(), Enabled: types.BoolValue(true), Matrix: types.ObjectNull(alertChannelMatrixAttrTypes()),
 	}
 }
 
@@ -273,7 +344,7 @@ func TestAlertChannelEmailDriftAndImport(t *testing.T) {
 	created, d := l.create(alertChannelModel{
 		ID: types.StringUnknown(), Name: types.StringValue("ops-mail"), Kind: types.StringValue("email"),
 		Recipients: stringSet("ops@acme.io", "sre@acme.io"), URL: types.StringNull(), URLWoVersion: types.StringNull(),
-		URLMasked: types.StringUnknown(), Enabled: types.BoolValue(true),
+		URLMasked: types.StringUnknown(), Enabled: types.BoolValue(true), Matrix: types.ObjectNull(alertChannelMatrixAttrTypes()),
 	})
 	mustSucceed(t, d)
 	if !created.Recipients.Equal(stringSet("sre@acme.io", "ops@acme.io")) || !created.URLMasked.IsNull() {
@@ -303,6 +374,7 @@ func TestAlertChannelDataSource(t *testing.T) {
 	got, d := readDataSource(t, &alertChannelDataSource{p: pd}, alertChannelDataSourceModel{
 		Name: types.StringValue("ops-slack"), ID: types.StringNull(), Kind: types.StringNull(),
 		Recipients: types.SetNull(types.StringType), URLMasked: types.StringNull(), Enabled: types.BoolNull(),
+		Matrix: types.ObjectNull(alertChannelDataSourceMatrixAttrTypes()),
 	})
 	mustSucceed(t, d)
 	if !got.ID.Equal(created.ID) || got.Kind.ValueString() != "slack_webhook" || !got.URLMasked.Equal(created.URLMasked) {
@@ -312,6 +384,7 @@ func TestAlertChannelDataSource(t *testing.T) {
 	_, d = readDataSource(t, &alertChannelDataSource{p: pd}, alertChannelDataSourceModel{
 		Name: types.StringValue("missing"), ID: types.StringNull(), Kind: types.StringNull(),
 		Recipients: types.SetNull(types.StringType), URLMasked: types.StringNull(), Enabled: types.BoolNull(),
+		Matrix: types.ObjectNull(alertChannelDataSourceMatrixAttrTypes()),
 	})
 	mustFail(t, d, "not found")
 }

@@ -33,6 +33,17 @@ output "ops_channel_id" {
 
 - `enabled` (Boolean) Whether alerts are delivered.
 - `id` (String) Channel id.
-- `kind` (String) `email`, `slack_webhook` or `discord_webhook`.
+- `kind` (String) `email`, `slack_webhook`, `discord_webhook`, `teams_webhook` or `matrix`.
+- `matrix` (Attributes) The bot and room of a `matrix` channel; null for the other kinds. (see [below for nested schema](#nestedatt--matrix))
 - `recipients` (Set of String) Email addresses of an email channel.
 - `url_masked` (String) The webhook URL, truncated by the platform.
+
+<a id="nestedatt--matrix"></a>
+### Nested Schema for `matrix`
+
+Read-Only:
+
+- `bot_id` (String) Id of the bot that posts the alerts.
+- `bot_name` (String) The bot's name; null when the bot no longer exists.
+- `room_id` (String) The room id the alerts are posted to.
+- `room_label` (String) The alias the room was named by, when it was.
